@@ -1,0 +1,62 @@
+[Containments][21][General]
+AppletOrder=22
+
+[Containments][23][General]
+AppletOrder=24
+
+[Containments][25][General]
+AppletOrder=26
+
+[Containments][45][General]
+AppletOrder=46
+
+[Containments][50][General]
+AppletOrder=51
+
+[KPropertiesDialog]
+Height 1200=472
+Width 1920=435
+
+[PlasmaRunnerManager]
+LaunchCounts=1 services_telegramdesktop.desktop
+pluginWhiteList=services,places,desktopsessions,PowerDevil,shell,bookmarks,recentdocuments,locations,baloosearch
+
+[PlasmaViews][Panel 21][Horizontal1920]
+thickness=30
+
+[PlasmaViews][Panel 23][Horizontal1920]
+thickness=30
+
+[PlasmaViews][Panel 25][Horizontal1920]
+thickness=30
+
+[PlasmaViews][Panel 27]
+panelVisibility=0
+
+[PlasmaViews][Panel 27][Horizontal1920]
+thickness=44
+
+[PlasmaViews][Panel 27][Vertical1080]
+thickness=30
+
+[PlasmaViews][Panel 27][Vertical1200]
+thickness=40
+
+[PlasmaViews][Panel 3][Horizontal1920]
+thickness=38
+
+[PlasmaViews][Panel 44][Vertical1200]
+thickness=40
+
+[PlasmaViews][Panel 45][Horizontal1920]
+thickness=30
+
+[PlasmaViews][Panel 50][Horizontal1920]
+thickness=30
+
+[ScreenConnectors]
+0=DVI-D-0
+1=HDMI-0
+
+[Updates]
+performed=/usr/share/plasma/shells/org.kde.plasma.desktop/contents/updates/obsolete_kickoffrc.js
