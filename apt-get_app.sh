@@ -34,11 +34,17 @@ sudo apt-get install xclip -y
 #=== Install double commander ===
 sudo apt-get install doublecmd-qt -y
 
-
-
 #=== Multimedia Software ===
 ## KDE N Live
 sudo apt-get install kdenlive -y
+
 ## Mp3 player
 #sudo apt-get install rhythmbox -y # I have tried and it wan't work good
 sudo apt-get install clementine -y
+
+## Gimp
+sudo apt-get install gimp -y
+
+
+#=== Install keepassx ===
+sudo apt-get install keepassx -y
