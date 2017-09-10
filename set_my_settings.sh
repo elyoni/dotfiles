@@ -25,3 +25,5 @@ cp KDESettings/kwinrc $HOME/.config
 echo "Double Commander Settings"
 cp DoubleCommander/doublecmd.xml $HOME/.config/doublecmd
 cp DoubleCommander/shortcuts.scf $HOME/.config/doublecmd
+echo "TMUX Configurion"
+cp tmux/.tmux.conf $HOME/
