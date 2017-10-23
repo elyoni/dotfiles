@@ -22,7 +22,7 @@ sudo apt install aptitude -y
 sudo aptitude install libreoffice -y
 
 #=== vim ===
-## vim
+## vi
 sudo apt-get install vim -y
 
 ### vim plugins
@@ -40,6 +40,12 @@ pip install --user --upgrade neovim
 
 ## To connect the clipboard of the neovim and the linux
 sudo apt-get install xclip -y
+
+## lua suppurt
+sudo apt-get install vim-nox -y
+sudo apt-get install vim-gtk -y
+sudo apt-get install vim-gnone -y
+sudo apt-get install vim-athena -y
 
 #=== Install double commander ===
 sudo apt-get install doublecmd-qt -y
