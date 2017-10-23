@@ -37,8 +37,7 @@ echo "Copy kate settings"
 cp KDESettings/katepartrc $HOME/.config
 echo "Copy kwin settings"
 cp KDESettings/kwinrc $HOME/.config
-echo "Double Commander Settings"
-cp DoubleCommander/doublecmd.xml $HOME/.config/doublecmd
-cp DoubleCommander/shortcuts.scf $HOME/.config/doublecmd
+echo "Install Double Commander"
+sh DoubleCommander/install.sh
 echo "TMUX Configurion"
 cp tmux/.tmux.conf $HOME/

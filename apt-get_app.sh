@@ -25,8 +25,6 @@ sudo aptitude install libreoffice -y
 ## To connect the clipboard of the neovim and the linux
 sudo apt-get install xclip -y
 
-#=== Install double commander ===
-sudo apt-get install doublecmd-qt -y
 
 #=== Multimedia Software ===
 ## KDE N Live
