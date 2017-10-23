@@ -3,6 +3,21 @@
 echo "# ================================"
 echo "# Installing the KDE settings"
 echo "# ================================"
+'
+HOMEPATH = ""
+
+function homePath {
+	echo "Choose how you install the kde"
+	echo "1. KDE neon"
+	echo "2. Install ubuntu and use apt-get to install kubunu"
+	read choice
+	if [ $choice -eq 1 ]; then
+		HOMEPATH = "KDESettings"
+	fi
+	if [ $choice -eq 2 ];then
+		HOMEPATH = "./"
+}
+'
 
 echo "Copy my kde keyboard settings"
 cp KDESettings/kglobalshortcutsrc $HOME/.config/

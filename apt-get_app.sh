@@ -21,22 +21,6 @@ sudo apt-get install fritzing -y
 sudo apt install aptitude -y
 sudo aptitude install libreoffice -y
 
-#=== vim ===
-## vim
-sudo apt-get install vim -y
-
-### vim plugins
-sudo apt-get install curl -y #For the plugins
-curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
-	    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-######### cp vimrc ~/
-
-## Neovim
-### Installation
-sudo add-apt-repository ppa:neovim-ppa/unstable
-sudo apt update
-sudo apt install neovim
-pip install --user --upgrade neovim
 
 ## To connect the clipboard of the neovim and the linux
 sudo apt-get install xclip -y
