@@ -59,3 +59,6 @@ let g:python3_host_prog = "/usr/bin/python3"
 " deoplete.vim
 let g:deoplete#enable_at_startup = 1
 let g:deoplete#enable_ignore_case = 1
+
+" mouse support
+set mouse=a
