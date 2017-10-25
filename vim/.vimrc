@@ -29,6 +29,8 @@ call plug#end()
 
 " keymaps
 map <C-n> :NERDTreeToggle<CR>
+command W w
+
 
 "general settings
 set number "Add number line
