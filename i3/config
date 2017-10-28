@@ -161,6 +161,7 @@ bar {
 }
 
 exec "setxkbmap -layout us,he"
+exec "setxkbmap -option 'grp:alt_shift_toggle'"
 bindsym --whole-window $mod+button2 kill
 bindsym button3 floating toggle
 
@@ -179,14 +180,15 @@ mode "$mode_launcher" {
     bindsym Return mode "default"
 }
 
-xrandr --output HDMI-0 --auto --output DVI-I-1 --right-of HDMI
+exec --no-startup-id xrandr --output HDMI-0 --auto --output DVI-I-1 --right-of HDMI-0
+
 
 # Background color
 exec --no-startup-id xsetroot -solid "#000080"
 
 # Set Status Bar Icons
 ## Add wifi manager only if there is a wifi module
-nmcli d | grep wlp && exec --no-startup-id nm-applet
+exec nmcli d | grep wlp && exec --no-startup-id nm-applet
 ## Add volume manager
 exec pnmixer
 
