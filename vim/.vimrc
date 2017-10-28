@@ -57,3 +57,12 @@ let g:python3_host_prog = "/usr/bin/python3"
 " deoplete.vim
 let g:deoplete#enable_at_startup = 1
 let g:deoplete#enable_ignore_case = 1
+
+set foldmethod=sytanx
+" zm = fold all
+" zr = un-fold all
+" za = toggle folding current section 
+" ======= open files ============
+" gf on text file complete pathnam open it in current tab
+" gx on Any file pathname open it with default application 
+"
