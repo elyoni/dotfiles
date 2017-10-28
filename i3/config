@@ -184,7 +184,7 @@ exec --no-startup-id xrandr --output HDMI-0 --auto --output DVI-I-1 --right-of H
 
 
 # Background color
-exec --no-startup-id xsetroot -solid "#000080"
+exec --no-startup-id xsetroot -solid "#000000"
 
 # Set Status Bar Icons
 ## Add wifi manager only if there is a wifi module
@@ -198,9 +198,14 @@ bindsym --release Num_Lock  exec pkill -SIGRTMIN+11 i3blocks
 # Pulse Audio controls
 bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume 0 +5% ; exec pkill -RTMIN+10 i3blocks #increase sound volume
 bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume 0 -5% ; exec pkill -RTMIN+10 i3blocks  #decrease sound volume
-bindsym $mod+Shift+F12 exec --no-startup-id pactl set-sink-volume 0 +5% ; exec pkill -RTMIN+10 i3blocks #increase sound volume
-bindsym $mod+Shift+F11 exec --no-startup-id pactl set-sink-volume 0 -5% ; exec pkill -RTMIN+10 i3blocks #decrease sound volume
-bindsym $mod+Shift+F10 exec --no-startup-id pactl set-sink-mute 0 toggle # mute sound
+bindsym $mod+Shift+F12 exec sh /home/johnny/.config/i3/scripts/volume_up.sh
+bindsym $mod+Shift+F11 exec sh /home/johnny/.config/i3/scripts/volume_down.sh
+bindsym $mod+Shift+F10 exec sh /home/johnny/.config/i3/scripts/volume_mute.sh
+#/home/johnny/.config/i3/scripts/volume_up.sh #increase sound volume
+
+#bindsym $mod+Shift+F12 exec --no-startup-id pactl set-sink-volume 1 +5% ; exec pkill -RTMIN+10 i3blocks #increase sound volume
+#bindsym $mod+Shift+F11 exec --no-startup-id pactl set-sink-volume 1 -5% ; exec pkill -RTMIN+10 i3blocks #decrease sound volume
+#exec hostname -s | grep johnny-PC && bindsym $mod+Shift+F12 exec --no-startup-id pactl set-sink-mute 1 toggle # mute sound
 
 # Sreen brightness controls
 bindsym XF86MonBrightnessUp exec xbacklight -inc 20 # increase screen brightness
