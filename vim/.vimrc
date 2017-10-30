@@ -29,6 +29,8 @@ call plug#end()
 
 " keymaps
 map <C-n> :NERDTreeToggle<CR>
+command W w
+
 
 "general settings
 set number "Add number line
@@ -58,7 +60,10 @@ let g:python3_host_prog = "/usr/bin/python3"
 let g:deoplete#enable_at_startup = 1
 let g:deoplete#enable_ignore_case = 1
 
-set foldmethod=sytanx
+" mouse support
+""set mouse=a
+
+"set foldmethod=sytanx
 " zm = fold all
 " zr = un-fold all
 " za = toggle folding current section 
