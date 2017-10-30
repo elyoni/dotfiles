@@ -1,4 +1,8 @@
 #!/bin/bash
+
+## To connect the clipboard of the neovim and the linux
+sudo apt-get install xclip -y
+
 # ======= vim =======
 ### Installation
 sudo apt-get install vim -y

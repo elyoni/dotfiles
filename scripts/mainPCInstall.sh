@@ -1,10 +1,5 @@
 #!/bin/bash
-#=== Pip pyton ===
-sudo apt-get instal python-pip -y
-sudo apt-get instal python3-pip -y
-pip install --upgrade pip
-pip3 install --upgrade pip
-
+echo "Main PC Install"
 
 #=== Install Arduino ===
 ## After extracting the zip file enter the library and run ./install.sh
@@ -23,10 +18,6 @@ sudo apt-get install fritzing -y
 sudo apt install aptitude -y
 sudo aptitude install libreoffice -y
 
-
-## To connect the clipboard of the neovim and the linux
-sudo apt-get install xclip -y
-
 #=== Multimedia Software ===
 ## KDE N Live
 sudo apt-get install kdenlive -y
@@ -40,3 +31,6 @@ sudo apt-get install gimp -y
 
 #=== Install keepassx ===
 sudo apt-get install keepassx -y
+
+# Torrent
+sudo apt-get install qbittorrent

@@ -1,6 +1,8 @@
 #!/bin/bash
 mkdir $HOME/.config/i3/scripts
 
+sudo apt-get install i3
+
 # ===== Install moduls for i3 =====
 # Install an alternative for i3status
 sudo apt-get install i3blocks -y
