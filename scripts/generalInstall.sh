@@ -11,11 +11,11 @@ pip install --upgrade pip
 pip3 install --upgrade pip
 
 #=== PDF Reader ===
-sudo apt-get install okular
+sudo apt-get install okular -y
 
 #=== Browser ===
-sudo apt-get install chromium-broser
-sudo apt-get intall firefox
+sudo apt-get install chromium-broser -y
+sudo apt-get intall firefox -y
 
 echo "Install i3"
 bash i3/install.sh
