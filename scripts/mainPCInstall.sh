@@ -32,5 +32,12 @@ sudo apt-get install gimp -y
 #=== Install keepassx ===
 sudo apt-get install keepassx -y
 
-# Torrent
+#=== Torrent ===
+sudo add-apt-repository ppa:qbittorrent-team/qbittorrent-stable -y
+sudo apt-get update
 sudo apt-get install qbittorrent
+
+#=== fstab ===
+mkdir /media/DATA
+
+echo "/dev/sdc6 /media/DATA ntfs defaults 0 0"

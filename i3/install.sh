@@ -1,7 +1,7 @@
 #!/bin/bash
 mkdir $HOME/.config/i3/scripts
 
-sudo apt-get install i3
+sudo apt-get install i3 -y
 
 # ===== Install moduls for i3 =====
 # Install an alternative for i3status
@@ -23,7 +23,9 @@ sudo apt-get install network-manager -y
 sudo apt-get install pnmixer -y 
 ln -sf $(pwd)/i3/scripts/volume_up.sh $HOME/.config/i3/scripts/volume_up.sh
 ln -sf $(pwd)/i3/scripts/volume_down.sh $HOME/.config/i3/scripts/volume_down.sh
-ln -sf $(pwd)/i3/scripts/volume_mute.sh $HOME/.config/i3/scripts/volume_mute.sh
+ln -sf $(pwd)/i3/scripts/volume_mute.sh $home/.config/i3/scripts/volume_mute.sh
+
+ln -sf $(pwd)/i3/scripts/xrander_script.sh $home/.config/i3/scripts/xrander_script.sh
 
 rm $HOME/.config/i3/config
 ln -sf $(pwd)/i3/config $HOME/.config/i3/config

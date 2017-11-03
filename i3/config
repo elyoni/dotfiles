@@ -180,8 +180,8 @@ mode "$mode_launcher" {
     bindsym Return mode "default"
 }
 
-exec --no-startup-id xrandr --output HDMI-0 --auto --output DVI-I-1 --right-of HDMI-0
-
+#exec --no-startup-id xrandr --output DVI-I-1 --off ;  xrandr --output DVI-I-1 --auto --output HDMI-3 --right-of DVI-I-1
+exec --no-startup-id bash /home/johnny/.config/i3/scripts/xrander_script.sh
 
 # Background color
 exec --no-startup-id xsetroot -solid "#000000"
@@ -196,11 +196,12 @@ bindsym --release Caps_Lock exec pkill -SIGRTMIN+11 i3blocks
 bindsym --release Num_Lock  exec pkill -SIGRTMIN+11 i3blocks
 
 # Pulse Audio controls
-bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume 0 +5% ; exec pkill -RTMIN+10 i3blocks #increase sound volume
-bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume 0 -5% ; exec pkill -RTMIN+10 i3blocks  #decrease sound volume
-bindsym $mod+Shift+F12 exec sh /home/johnny/.config/i3/scripts/volume_up.sh
-bindsym $mod+Shift+F11 exec sh /home/johnny/.config/i3/scripts/volume_down.sh
-bindsym $mod+Shift+F10 exec sh /home/johnny/.config/i3/scripts/volume_mute.sh
+bindsym XF86AudioRaiseVolume exec sh /home/johnny/.config/i3/scripts/volume_up.sh #increase sound volume
+bindsym XF86AudioLowerVolume exec sh /home/johnny/.config/i3/scripts/volume_down.sh  #decrease sound volume
+bindsym XF86AudioMute        exec sh /home/johnny/.config/i3/scripts/volume_mute.sh
+#bindsym $mod+Shift+F12 exec sh /home/johnny/.config/i3/scripts/volume_up.sh
+#bindsym $mod+Shift+F11 exec sh /home/johnny/.config/i3/scripts/volume_down.sh
+#bindsym $mod+Shift+F10 exec sh /home/johnny/.config/i3/scripts/volume_mute.sh
 #/home/johnny/.config/i3/scripts/volume_up.sh #increase sound volume
 
 #bindsym $mod+Shift+F12 exec --no-startup-id pactl set-sink-volume 1 +5% ; exec pkill -RTMIN+10 i3blocks #increase sound volume

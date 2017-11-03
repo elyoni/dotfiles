@@ -19,8 +19,8 @@ ln -sf $(pwd)/vim/colors $HOME/.vim/colors
 ### Installation
 sudo add-apt-repository ppa:neovim-ppa/unstable -y
 sudo apt update
-sudo apt-get install neovim
-sudo apt-get install python3-pip
+sudo apt-get install neovim -y
+sudo apt-get install python3-pip -y
 pip3 install --user --upgrade neovim
 ### nvim plugins
 curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs \
