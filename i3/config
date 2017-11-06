@@ -116,7 +116,7 @@ bindsym $mod+Shift+5 move container to workspace 5
 bindsym $mod+Shift+6 move container to workspace 6
 bindsym $mod+Shift+7 move container to workspace 7
 bindsym $mod+Shift+8 move container to workspace 8
-bindsym $mod+Shift+9 move container to workspace 9
+bindsym $mod+Shift+10 move container to workspace 9
 bindsym $mod+Shift+0 move container to workspace 10
 
 # reload the configuration file
@@ -161,10 +161,13 @@ bar {
 }
 
 
-exec "setxkbmap -option grp:switch,grp:alt_shift_toggle,grp_led:scroll us,il"
+#exec "setxkbmap -option grp:switch,grp:alt_shift_toggle,grp_led:scroll us,il"
 
-#exec "setxkbmap -layout us,he"
+#exec "setxkbmap -layout us,il"
 #exec "setxkbmap -option 'grp:alt_shift_toggle'"
+
+
+exec "setxkbmap -layout us"
 bindsym --whole-window $mod+button2 kill
 bindsym button3 floating toggle
 
@@ -197,6 +200,8 @@ exec pnmixer
 
 bindsym --release Caps_Lock exec pkill -SIGRTMIN+11 i3blocks
 bindsym --release Num_Lock  exec pkill -SIGRTMIN+11 i3blocks
+
+bindsym Mod1+Shift exec sh /home/johnny/.config/i3/scripts/lang.sh
 
 # Pulse Audio controls
 bindsym XF86AudioRaiseVolume exec sh /home/johnny/.config/i3/scripts/volume_up.sh #increase sound volume

@@ -26,6 +26,7 @@ ln -sf $(pwd)/i3/scripts/volume_down.sh $HOME/.config/i3/scripts/volume_down.sh
 ln -sf $(pwd)/i3/scripts/volume_mute.sh $home/.config/i3/scripts/volume_mute.sh
 
 ln -sf $(pwd)/i3/scripts/xrander_script.sh $home/.config/i3/scripts/xrander_script.sh
+ln -sf $(pwd)/i3/scripts/lang.sh $home/.config/i3/scripts/lang.sh
 
 rm $HOME/.config/i3/config
 ln -sf $(pwd)/i3/config $HOME/.config/i3/config
