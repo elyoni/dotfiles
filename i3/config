@@ -160,8 +160,11 @@ bar {
         tray_output primary
 }
 
-exec "setxkbmap -layout us,he"
-exec "setxkbmap -option 'grp:alt_shift_toggle'"
+
+exec "setxkbmap -option grp:switch,grp:alt_shift_toggle,grp_led:scroll us,il"
+
+#exec "setxkbmap -layout us,he"
+#exec "setxkbmap -option 'grp:alt_shift_toggle'"
 bindsym --whole-window $mod+button2 kill
 bindsym button3 floating toggle
 
