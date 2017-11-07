@@ -19,6 +19,8 @@ sudo apt-get install gt5 -y
 # Network Manaer
 sudo apt-get install network-manager -y
 
+sudo apt-get install feh -y
+
 # Volume Controller
 sudo apt-get install pnmixer -y 
 ln -sf $(pwd)/i3/scripts/volume_up.sh $HOME/.config/i3/scripts/volume_up.sh
