@@ -14,7 +14,7 @@ pip3 install --upgrade pip
 sudo apt-get install okular -y
 
 #=== Browser ===
-sudo apt-get install chromium-broser -y
+sudo apt-get install chromium-browser -y
 sudo apt-get intall firefox -y
 
 echo "Install i3"
