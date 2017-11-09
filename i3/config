@@ -45,6 +45,8 @@ bindsym $mod+Shift+d exec j4-dmenu-desktop
 bindsym $mod+d exec xfce4-appfinder --class floatingWin
 for_window [class="^floatingWin$"] floating enable
 
+bindsym $mod+m move workspace to output left
+
 # change focus
 bindsym $mod+j focus left
 bindsym $mod+k focus down
