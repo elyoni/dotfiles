@@ -23,6 +23,7 @@ sudo apt-get install feh -y
 
 # Volume Controller
 sudo apt-get install pnmixer -y 
+mkdir scripts
 ln -sf $(pwd)/i3/scripts/volume_up.sh $HOME/.config/i3/scripts/volume_up.sh
 ln -sf $(pwd)/i3/scripts/volume_down.sh $HOME/.config/i3/scripts/volume_down.sh
 ln -sf $(pwd)/i3/scripts/volume_mute.sh $home/.config/i3/scripts/volume_mute.sh

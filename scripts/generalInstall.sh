@@ -14,7 +14,7 @@ pip3 install --upgrade pip
 sudo apt-get install okular -y
 
 #=== Browser ===
-sudo apt-get install chromium-broser -y
+sudo apt-get install chromium-browser -y
 sudo apt-get intall firefox -y
 
 echo "Install i3"
@@ -28,3 +28,16 @@ bash DoubleCommander/install.sh
 
 echo "Install tmux"
 bash tmux/install.sh
+
+# === bluetooth === 
+sudo apt-get install bluetooth bluez bluez-tools rfkill -y
+# TO check if the bluetooth is blocked we can run
+## code: sudo rfkill list
+## if your device is blocked you can run
+## code: sudo rfkill unblock bluetooth
+## to start the bluetooth service run:
+## code: sudo service bluetooth start
+sudo apt-get install blueman -y
+
+# === SSH ===
+sudo apt-get install sshfs -y

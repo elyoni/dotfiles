@@ -164,6 +164,13 @@ hi Todo             guifg=#C0A25F           guibg=NONE              gui=underlin
 hi Todo             ctermfg=228             ctermbg=NONE            cterm=underline
 
 
+" Ask Group
+" ----------
+" todo, fixme, note, xxx
+hi Ask             guifg=#878700           guibg=NONE              gui=underline
+hi Ask             ctermfg=228             ctermbg=NONE            cterm=underline
+
+
 " Spelling
 " --------
 " word not recognized

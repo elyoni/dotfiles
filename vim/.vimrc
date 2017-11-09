@@ -71,3 +71,9 @@ let g:deoplete#enable_ignore_case = 1
 " gf on text file complete pathnam open it in current tab
 " gx on Any file pathname open it with default application 
 "
+"
+"
+
+syn keyword Todo NOTE ASK contained
+
+
