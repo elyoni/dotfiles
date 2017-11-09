@@ -38,3 +38,6 @@ sudo apt-get install bluetooth bluez bluez-tools rfkill -y
 ## to start the bluetooth service run:
 ## code: sudo service bluetooth start
 sudo apt-get install blueman -y
+
+# === SSH ===
+sudo apt-get install sshfs -y
