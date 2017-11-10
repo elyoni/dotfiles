@@ -40,4 +40,4 @@ sudo apt-get install qbittorrent
 #=== fstab ===
 mkdir /media/DATA
 
-echo "/dev/sdc6 /media/DATA ntfs defaults 0 0"
+echo "/dev/sdc6 /media/DATA ntfs defaults 0 0" >>
