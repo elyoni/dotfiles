@@ -219,7 +219,7 @@ exec --no-startup-id xsetroot -solid "#000000"
 
 # Set Status Bar Icons
 ## Add wifi manager only if there is a wifi module
-exec nmcli d | grep wlp && exec --no-startup-id nm-applet
+exec nmcli d | grep wlp && exec nm-applet
 ## Add volume manager
 exec pnmixer
 
