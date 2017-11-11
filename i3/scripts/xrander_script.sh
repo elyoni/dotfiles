@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if grep -q xrandr DVI-I-1; then
+if xrandr | grep -q DVI-I-1; then
     echo "hello world"
     xrandr --output DVI-I-1 --off
     xrandr --output DVI-I-1 --auto --output HDMI-3 --auto --left-of DVI-I-1
