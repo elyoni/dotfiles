@@ -255,8 +255,7 @@ exec_always feh --bg-fill $HOME/Pictures/wallpaper_blur_new.JPG
 exec --no-startup-id xset dpms 600
 exec --no-startup-id xautolock -time 1 -locker i3lock
 
-#IMAGE=$HOME/Pictures/wallpaper_blur_new.JPG
 
 #convert wallpaper_blur.JPG -blur 0x20 wallpaper_blur_new.JPG 
-bindsym $mod+Ctrl+l exec i3lock -i /home/yehonatan.e/Pictures/wallpaper_blur_new.JPG
+bindsym $mod+Ctrl+l exec i3lock -i $HOME/Pictures/wallpaper.png
 #bindsym $mod+Ctrl+l exec i3lock -c 000000
