@@ -41,3 +41,6 @@ sudo apt-get install blueman -y
 
 # === SSH ===
 sudo apt-get install sshfs -y
+
+# === Print Screen ===
+sudo apt-get install scrot -y
