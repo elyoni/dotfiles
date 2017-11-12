@@ -2,6 +2,8 @@ set guicursor=
 "Color
 colors colosus
 hi Normal ctermbg=none
+set encoding=utf8
+
 
 " To install the Plug just write in normal mode ":PlugInstall"
 call plug#begin()
@@ -17,6 +19,7 @@ Plug 'ozelentok/vim-closer'
 "Plug 'Shougo/neocomplete.vim'
 "Plug 'zchee/deoplete-jedi'
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+Plug 'ryanoasis/vim-devicons'           "Add icons
 
 call plug#end()
 
