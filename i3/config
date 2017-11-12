@@ -213,7 +213,7 @@ mode "$mode_launcher" {
 }
 
 #exec --no-startup-id xrandr --output DVI-I-1 --off ;  xrandr --output DVI-I-1 --auto --output HDMI-3 --right-of DVI-I-1
-exec_always --no-startup-id bash /home/johnny/.config/i3/scripts/xrander_script.sh
+exec_always --no-startup-id bash $HOME/.config/i3/scripts/xrander_script.sh
 
 # Background color
 exec --no-startup-id xsetroot -solid "#000000"
@@ -230,9 +230,12 @@ bindsym --release Num_Lock  exec pkill -SIGRTMIN+11 i3blocks
 bindsym Mod1+l exec sh /home/johnny/.config/i3/scripts/lang.sh
 
 # Pulse Audio controls
-bindsym XF86AudioRaiseVolume exec sh /home/johnny/.config/i3/scripts/volume_up.sh #increase sound volume
-bindsym XF86AudioLowerVolume exec sh /home/johnny/.config/i3/scripts/volume_down.sh  #decrease sound volume
-bindsym XF86AudioMute        exec sh /home/johnny/.config/i3/scripts/volume_mute.sh
+#bindsym XF86AudioRaiseVolume exec sh /home/johnny/.config/i3/scripts/volume_up.sh #increase sound volume
+#bindsym XF86AudioLowerVolume exec sh /home/johnny/.config/i3/scripts/volume_down.sh  #decrease sound volume
+#bindsym XF86AudioMute        exec sh /home/johnny/.config/i3/scripts/volume_mute.sh
+bindsym XF86AudioRaiseVolume exec sh $HOME/.config/i3/scripts/volume_up.sh #increase sound volume
+bindsym XF86AudioLowerVolume exec sh $HOME/.config/i3/scripts/volume_down.sh  #decrease sound volume
+bindsym XF86AudioMute        exec sh $HOME/.config/i3/scripts/volume_mute.sh
 #bindsym $mod+Shift+F12 exec sh /home/johnny/.config/i3/scripts/volume_up.sh
 #bindsym $mod+Shift+F11 exec sh /home/johnny/.config/i3/scripts/volume_down.sh
 #bindsym $mod+Shift+F10 exec sh /home/johnny/.config/i3/scripts/volume_mute.sh
@@ -246,9 +249,14 @@ bindsym XF86MonBrightnessUp exec xbacklight -inc 20 # increase screen brightness
 bindsym XF86MonBrightnessDown exec xbacklight -dec 20 # decrease screen brightness
 
 #Set wallpaper
-exec_always feh --bg-fill /home/yehonatan.e/Pictures/wallpaper.JPG
+#exec_always feh --bg-fill /home/yehonatan.e/Pictures/wallpaper.JPG
+exec_always feh --bg-fill $HOME/Pictures/wallpaper_blur_new.JPG
 
 exec --no-startup-id xset dpms 600
 exec --no-startup-id xautolock -time 1 -locker i3lock
 
-#bindsym $mod+Shift+l exec i3lock -c 000000
+#IMAGE=$HOME/Pictures/wallpaper_blur_new.JPG
+
+#convert wallpaper_blur.JPG -blur 0x20 wallpaper_blur_new.JPG 
+bindsym $mod+Ctrl+l exec i3lock -i /home/yehonatan.e/Pictures/wallpaper_blur_new.JPG
+#bindsym $mod+Ctrl+l exec i3lock -c 000000
