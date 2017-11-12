@@ -66,7 +66,10 @@ let g:deoplete#enable_ignore_case = 1
 " mouse support
 ""set mouse=a
 
-"set foldmethod=sytanx
+set foldenable
+"set foldmethod=syntax
+set foldmethod=marker
+set foldlevel=0
 " zm = fold all
 " zr = un-fold all
 " za = toggle folding current section 
