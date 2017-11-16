@@ -53,6 +53,8 @@ map <F10> :!~/Downloads/arduino-1.6.13/arduino --verify % <CR>
 "map <F10> :split verifyOutput <bar> :read !~/Downloads/arduino-1.6.13/arduino --verify % <CR>
 map <F8> :w <bar> :!~/Downloads/arduino-1.6.13/arduino --verify % <CR>
 
+map <F5> :call CpToPorita()<CR>
+
 nnoremap <c-b> <nop>
 
 "Python
@@ -82,4 +84,15 @@ set foldlevel=0
 
 syn keyword Todo NOTE ASK contained
 
-
+function CpToPorita()
+    echom "Where do you want to copy the file"
+    echom "Copy the file to"
+    echom "1./root"
+    echom "2./usr/lib/python/python3.4/site-package"
+    let readVal = input(">")
+    if readVal == 1
+        !echo "the file will be root"
+    elseif readVal == 2
+        !echo "the file will be site-package"
+    endif
+endfunction
