@@ -104,7 +104,7 @@ set $workspace02 "2:  "
 set $workspace03 "3:"
 set $workspace04 "4:DoubleCMD"
 set $workspace05 "5:"
-set $workspace06 "6"
+set $workspace06 "6:Thunderbird"
 set $workspace07 "7: TeamViewer"
 set $workspace08 "8:My Log"
 set $workspace09 "9:I3 "
@@ -138,9 +138,9 @@ bindsym $mod+Shift+0 move container to workspace $workspace00
 ## To check the click run xprop
 assign [class="Firefox"] $workspace02
 assign [class="Chromium-browser"] $workspace02
-assign [class="Doublecmd"] $workspace03
-assign [class="TeamViewer"] $workspace04
-assign [class="Thunderbird"] $workspace05
+assign [class="Doublecmd"] $workspace04
+assign [class="TeamViewer"] $workspace07
+assign [class="Thunderbird"] $workspace06
 
 
 # reload the configuration file
