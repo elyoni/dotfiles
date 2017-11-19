@@ -33,7 +33,10 @@ call plug#end()
 " keymaps
 map <C-n> :NERDTreeToggle<CR>
 command W w
-
+"map <F5> :!sh /home/yehonatan.e/.dotfiles/vim/scripts/scpFastCopy.sh<CR>
+map <F5> :w !sh /home/yehonatan.e/.dotfiles/vim/scripts/scpFastCopy.sh %<CR>
+"map <F8> :!echo -e "Uploading This file to root\n" ; sudo scp % root@10.90.2.107:/root<CR>
+"map <F5> :!echo -e "Uploading This file to site-packages\n"  ; sudo scp % root@10.90.2.107:/root<CR>
 
 "general settings
 set number "Add number line
@@ -49,9 +52,9 @@ vnoremap P "_dp     " Cancel the insasaly annoying copy paste
 set nowrap          " Disable wrap line
 
 autocmd BufNewFile,BufReadPost *.ino,*.pde set filetype=cpp
-map <F10> :!~/Downloads/arduino-1.6.13/arduino --verify % <CR>
+"map <F10> :!~/Downloads/arduino-1.6.13/arduino --verify % <CR>
 "map <F10> :split verifyOutput <bar> :read !~/Downloads/arduino-1.6.13/arduino --verify % <CR>
-map <F8> :w <bar> :!~/Downloads/arduino-1.6.13/arduino --verify % <CR>
+"map <F8> :w <bar> :!~/Downloads/arduino-1.6.13/arduino --verify % <CR>
 
 nnoremap <c-b> <nop>
 
