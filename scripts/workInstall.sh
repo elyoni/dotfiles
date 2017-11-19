@@ -3,3 +3,6 @@
 echo "workInstall"
 # === For synergy ===
 sudo apt-get install libavahi-compat-libdnssd1
+
+# === SVN side by side compair ===
+sudo pip install --upgrade cdiff
