@@ -85,7 +85,8 @@ set foldlevel=0
 "
 "
 
-syn keyword Todo NOTE ASK contained
+"syn keyword Todo NOTE ASK contained
+let portiaIP = "10.90.1.225"
 
 function CpToPorita()
     echom "Where do you want to copy the file"
@@ -96,16 +97,16 @@ function CpToPorita()
     echom "99.Print Portia IP"
     let readVal = input("Choose>")
     if readVal == 1
-        !echo "the file will be root"
+        execute '!sudo scp ' . "%" . ' root@' . g:portiaIP . ':/root'
+        echom "the file will be root"
     elseif readVal == 2
+        execute '!sudo scp ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python/python3.4/site-package'
         !echo "the file will be site-package"
     elseif readVal == 9
-        let newIP = input("IP>")
-        execute '!echo ' . newIP . ' > ~/.ipPortia.txt'
-        ""!echo newIP > ~/.ipPortia.txt
-        "call writefile([newIP], "/home/johnny/.ipPortia.txt")
+        let g:portiaIP = input("IP>")
+        execute '!echo ' . g:portiaIP . ' > ~/.ipPortia.txt'
     elseif readVal == 99
-        let @portiaIP = join(readfile("~/.ipPortia.txt"),"\n")
-        echom portiaIP
+        g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')
+        echo g:portiaIP
     endif
-endfunction
+endfunctio
