@@ -89,18 +89,23 @@ set foldlevel=0
 let portiaIP = "10.90.1.225"
 
 function CpToPorita()
+    write
     echom "Where do you want to copy the file"
     echom "Copy the file to"
     echom "1./root"
     echom "2./usr/lib/python/python3.4/site-package"
+    echom "3./usr/lib/python/python3.4/site-package/spff"
     echom "9.Change Portia IP"
     echom "99.Print Portia IP"
     let readVal = input("Choose>")
     if readVal == 1
-        execute '!sudo scp ' . "%" . ' root@' . g:portiaIP . ':/root'
+        execute '!sudo scp -o ConnectTimeout=30 ' . "%" . ' root@' . g:portiaIP . ':/root'
         echom "the file will be root"
     elseif readVal == 2
-        execute '!sudo scp ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python/python3.4/site-package'
+        execute '!sudo scp -o ConnectTimeout=30 ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-package'
+        !echo "the file will be site-package"
+    elseif readVal == 3
+        execute '!sudo scp -o ConnectTimeout=30 ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-packages/spff'
         !echo "the file will be site-package"
     elseif readVal == 9
         let g:portiaIP = input("IP>")
