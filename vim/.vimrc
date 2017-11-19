@@ -86,7 +86,8 @@ set foldlevel=0
 "
 
 "syn keyword Todo NOTE ASK contained
-let portiaIP = "10.90.1.225"
+let portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')
+"let portiaIP = "10.90.1.225"
 
 function CpToPorita()
     write
@@ -95,23 +96,27 @@ function CpToPorita()
     echom "1./root"
     echom "2./usr/lib/python/python3.4/site-package"
     echom "3./usr/lib/python/python3.4/site-package/spff"
+    echom "4./usr/lib/python3.4/site-packages/usb_upgrade"
     echom "9.Change Portia IP"
     echom "99.Print Portia IP"
     let readVal = input("Choose>")
     if readVal == 1
+        let g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')[0]
         execute '!sudo scp -o ConnectTimeout=30 ' . "%" . ' root@' . g:portiaIP . ':/root'
-        echom "the file will be root"
     elseif readVal == 2
+        let g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')[0]
         execute '!sudo scp -o ConnectTimeout=30 ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-package'
-        !echo "the file will be site-package"
     elseif readVal == 3
+        let g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')[0]
         execute '!sudo scp -o ConnectTimeout=30 ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-packages/spff'
-        !echo "the file will be site-package"
+    elseif readVal == 4
+        let g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')[0]
+        execute '!sudo scp -o ConnectTimeout=30 ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-packages/usb_upgrade'
     elseif readVal == 9
         let g:portiaIP = input("IP>")
         execute '!echo ' . g:portiaIP . ' > ~/.ipPortia.txt'
     elseif readVal == 99
-        g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')
+        g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')[0]
         echo g:portiaIP
     endif
 endfunctio
