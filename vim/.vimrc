@@ -52,9 +52,11 @@ vnoremap P "_dp     " Cancel the insasaly annoying copy paste
 set nowrap          " Disable wrap line
 
 autocmd BufNewFile,BufReadPost *.ino,*.pde set filetype=cpp
-"map <F10> :!~/Downloads/arduino-1.6.13/arduino --verify % <CR>
+map <F10> :!~/Programs/arduino-1.6.13/arduino --verify % <CR>
 "map <F10> :split verifyOutput <bar> :read !~/Downloads/arduino-1.6.13/arduino --verify % <CR>
-"map <F8> :w <bar> :!~/Downloads/arduino-1.6.13/arduino --verify % <CR>
+map <F8> :w <bar> :!~~/Programs/arduino-1.6.13/arduino --verify % <CR>
+
+map <F5> :call CpToPorita()<CR>
 
 nnoremap <c-b> <nop>
 
@@ -85,4 +87,25 @@ set foldlevel=0
 
 syn keyword Todo NOTE ASK contained
 
-
+function CpToPorita()
+    echom "Where do you want to copy the file"
+    echom "Copy the file to"
+    echom "1./root"
+    echom "2./usr/lib/python/python3.4/site-package"
+    echom "9.Change Portia IP"
+    echom "99.Print Portia IP"
+    let readVal = input("Choose>")
+    if readVal == 1
+        !echo "the file will be root"
+    elseif readVal == 2
+        !echo "the file will be site-package"
+    elseif readVal == 9
+        let newIP = input("IP>")
+        execute '!echo ' . newIP . ' > ~/.ipPortia.txt'
+        ""!echo newIP > ~/.ipPortia.txt
+        "call writefile([newIP], "/home/johnny/.ipPortia.txt")
+    elseif readVal == 99
+        let @portiaIP = join(readfile("~/.ipPortia.txt"),"\n")
+        echom portiaIP
+    endif
+endfunction
