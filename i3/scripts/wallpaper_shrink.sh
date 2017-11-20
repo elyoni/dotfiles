@@ -13,7 +13,12 @@ for i in $(xrandr --current | grep '*' | uniq | awk '{print $1}' | cut -d 'x' -f
         Yaxis=$i
     fi
 done
+echo "Xaxis: $Xaxis"
+echo "Yaxis: $Yaxis"
 
 for i in ~/Pictures/Wallpaper/* ; do
-    convert $i -resize $Yaxis ${i%%.*}_blur_resize.png
+    if [ -f $i ] ; then
+        newFile=${i%/*}"/resize/"$(basename ${i%.*})"_blur_resize.png"
+        convert $i -resize x$Yaxis $newFile
+    fi
 done
