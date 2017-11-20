@@ -16,9 +16,12 @@ done
 echo "Xaxis: $Xaxis"
 echo "Yaxis: $Yaxis"
 
+
+mkdir ~/Pictures/Wallpaper/resize/
 for i in ~/Pictures/Wallpaper/* ; do
     if [ -f $i ] ; then
         newFile=${i%/*}"/resize/"$(basename ${i%.*})"_blur_resize.png"
+        echo $newFile
         convert $i -resize x$Yaxis $newFile
     fi
 done

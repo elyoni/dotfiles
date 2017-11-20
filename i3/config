@@ -188,7 +188,6 @@ bar {
 
 
 exec "setxkbmap -option grp:switch,grp:alt_shift_toggle,grp_led:scroll us,il"
-
 #exec "setxkbmap -layout us,il"
 #exec "setxkbmap -option 'grp:alt_shift_toggle'"
 
@@ -214,6 +213,7 @@ mode "$mode_launcher" {
 
 #exec --no-startup-id xrandr --output DVI-I-1 --off ;  xrandr --output DVI-I-1 --auto --output HDMI-3 --right-of DVI-I-1
 exec_always --no-startup-id bash $HOME/.config/i3/scripts/xrander_script.sh
+exec_always --no-startup-id bash $HOME/.dotfiles/i3/scripts/wallpaper_change.sh
 
 # Background color
 exec --no-startup-id xsetroot -solid "#000000"
@@ -250,12 +250,13 @@ bindsym XF86MonBrightnessDown exec xbacklight -dec 20 # decrease screen brightne
 
 #Set wallpaper
 #exec_always feh --bg-fill /home/yehonatan.e/Pictures/wallpaper.JPG
-exec_always feh --bg-fill $HOME/Pictures/wallpaper_blur_new.JPG
+#exec_always feh --bg-fill $HOME/Pictures/wallpaper_blur_new.JPG
 
 exec --no-startup-id xset dpms 600
 exec --no-startup-id xautolock -time 1 -locker i3lock
 
 
 #convert wallpaper_blur.JPG -blur 0x20 wallpaper_blur_new.JPG 
-bindsym $mod+Ctrl+l exec i3lock -i $HOME/Pictures/wallpaper.png
+bindsym $mod+Ctrl+l exec bash $HOME/.dotfiles/i3/scripts/i3lock.sh
+#bindsym $mod+Ctrl+l exec i3lock -i $HOME/Pictures/wallpaper.png
 #bindsym $mod+Ctrl+l exec i3lock -c 000000

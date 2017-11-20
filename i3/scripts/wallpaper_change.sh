@@ -1,15 +1,15 @@
 #!/bin/bash
-number_of_picture="$(ls ~/Pictures/Wallpaper/resize/ -afq | wc -l)"
-#number_of_picture=$((number_of_picture-2))
-array=( ~/Pictures/Wallpaper/resize/* )
-echo ${#array[@]}
-for i in "${!foo[@]}"; do 
-  printf "%s\t%s\n" "$i" "${foo[$i]}"
-done
+bash wallpaper_shrink.sh
 
-for i in "${!array[@]}" ; do
+array=( ~/Pictures/Wallpaper/resize/* )
+number_of_picture=${#array[@]}
+
+i=$(( RANDOM % $number_of_picture ))
+while true; do
     echo "${array[$i]}"
-    #if [ -f $i ] ; then
-    #    echo $i
-    #fi
+    feh --bg-fill ${array[$i]} 
+    echo ${array[$i]} > ~/.background
+    i=$(($i+1))
+    i=$(($i%$number_of_picture))
+    sleep 1h
 done

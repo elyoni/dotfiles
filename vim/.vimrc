@@ -85,7 +85,7 @@ set foldlevel=0
 "
 
 "syn keyword Todo NOTE ASK contained
-let portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')
+let portiaIP = readfile($HOME.'/.ipPortia.txt')
 "let portiaIP = "10.90.1.225"
 
 function CpToPorita()
