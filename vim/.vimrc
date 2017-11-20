@@ -34,10 +34,9 @@ call plug#end()
 map <C-n> :NERDTreeToggle<CR>
 command W w
 "map <F5> :!sh /home/yehonatan.e/.dotfiles/vim/scripts/scpFastCopy.sh<CR>
-map <F5> :w !sh /home/yehonatan.e/.dotfiles/vim/scripts/scpFastCopy.sh %<CR>
 "map <F8> :!echo -e "Uploading This file to root\n" ; sudo scp % root@10.90.2.107:/root<CR>
 "map <F5> :!echo -e "Uploading This file to site-packages\n"  ; sudo scp % root@10.90.2.107:/root<CR>
-
+map <F2> :call RunScript()<CR>
 "general settings
 set number "Add number line
 set tabstop=4		" tab will insert 4 space
@@ -123,4 +122,10 @@ function CpToPorita()
         g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')[0]
         echo g:portiaIP
     endif
+endfunctio
+
+
+function RunScript()
+    write
+    execute "!bash " . "%"
 endfunctio
