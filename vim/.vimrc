@@ -97,6 +97,7 @@ function CpToPorita()
     echom "2./usr/lib/python/python3.4/site-package"
     echom "3./usr/lib/python/python3.4/site-package/spff"
     echom "4./usr/lib/python3.4/site-packages/usb_upgrade"
+    echom "5./usr/lib/python3.4/site-packages/management"
     echom "9.Change Portia IP"
     echom "99.Print Portia IP"
     let readVal = input("Choose>")
@@ -112,6 +113,9 @@ function CpToPorita()
     elseif readVal == 4
         let g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')[0]
         execute '!sudo scp -o ConnectTimeout=30 ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-packages/usb_upgrade'
+    elseif readVal == 5
+        let g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')[0]
+        execute '!sudo scp -o ConnectTimeout=30 ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-packages/management'
     elseif readVal == 9
         let g:portiaIP = input("IP>")
         execute '!echo ' . g:portiaIP . ' > ~/.ipPortia.txt'
