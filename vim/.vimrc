@@ -16,9 +16,13 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'ozelentok/vim-closer'
 "Plug 'zchee/deoplete-clang'        " OZ WILL TELL ME NEW TIME
 "Plug 'pangloss/vim-javascript'
+<<<<<<< HEAD
 "Plug 'Shougo/neocomplet"e.vim'
 "
 Plug 'roxma/nvim-yarp'
+=======
+"Plug 'Shougo/neocomplete.vim'
+>>>>>>> bcd65ee2e9a4aa9d9234ad99115d170996bf7798
 Plug 'zchee/deoplete-jedi'
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'ryanoasis/vim-devicons'           "Add icons
@@ -47,8 +51,8 @@ map <F2> :call RunScript()<CR>
 map <F3> :call RunPython()<CR>
 map <F4> :call CompileTheCore()<CR>
 map <F5> :call CpToPorita()<CR>
-map <F8> :w <bar> :!~~/Programs/arduino-1.6.13/arduino --verify % <CR>
-map <F10> :!~/Programs/arduino-1.6.13/arduino --verify % <CR>
+map <F7> :w <bar> :!~/Downloads/arduino-1.6.13/arduino --verify % <CR>
+map <F8> :w <bar> :!~/Downloads/arduino-1.6.13/arduino --upload % <CR>
 
 nnoremap <A-.> :call MoveToNextTab()<CR>
 nnoremap <A-,> :call MoveToPrevTab()<CR>
@@ -85,6 +89,10 @@ let g:python3_host_prog = "/usr/bin/python3"
 let g:deoplete#enable_at_startup = 1
 let g:deoplete#enable_ignore_case = 1
 
+let g:ycm_server_keep_logfiles = 1
+let g:ycm_server_log_level = 'debug'
+
+
 " mouse support
 set mouse=a
 
@@ -108,6 +116,9 @@ syn keyword SpellBad debug
 
 let portiaIP = readfile($HOME.'/.ipPortia.txt')
 "let portiaIP = "10.90.1.225"
+
+
+
 
 function CpToPorita()
     write
