@@ -16,12 +16,15 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'ozelentok/vim-closer'
 "Plug 'zchee/deoplete-clang'        " OZ WILL TELL ME NEW TIME
 "Plug 'pangloss/vim-javascript'
-"Plug 'Shougo/neocomplete.vim'
-"Plug 'zchee/deoplete-jedi'
+"Plug 'Shougo/neocomplet"e.vim'
+"
+Plug 'roxma/nvim-yarp'
+Plug 'zchee/deoplete-jedi'
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'ryanoasis/vim-devicons'           "Add icons
 Plug '/usr/local/opt/fzf'
 Plug 'junegunn/fzf.vim'
+"Plug 'Valloric/YouCompleteMe'
 
 call plug#end()
 
@@ -35,9 +38,14 @@ call plug#end()
 " keys
 map <C-n> :NERDTreeToggle<CR>
 map <S-B> ^<CR>
+map <C-k>  <PageUp> 
+map <C-j>  <PageDown> 
+
+
 map <C-S-R> :call SearchAndReplace()<CR>
 map <F2> :call RunScript()<CR>
 map <F3> :call RunPython()<CR>
+map <F4> :call CompileTheCore()<CR>
 map <F5> :call CpToPorita()<CR>
 map <F8> :w <bar> :!~~/Programs/arduino-1.6.13/arduino --verify % <CR>
 map <F10> :!~/Programs/arduino-1.6.13/arduino --verify % <CR>
@@ -69,6 +77,7 @@ autocmd BufNewFile,BufReadPost *.ino,*.pde set filetype=cpp
 nnore <c-b> <nop>
 
 "Python
+let g:python_host_prog = "/usr/bin/python2"
 let g:python3_host_prog = "/usr/bin/python3"
 
 
@@ -118,35 +127,37 @@ function CpToPorita()
     if readVal == 1
         write
         let g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')[0]
-        "execute '!sudo scp -o ConnectTimeout=30 ' . "%" . ' root@' . g:portiaIP . ':/root'
         execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo scp -o ConnectTimeout=5 -o StrictHostKeyChecking=no ' . "%" . ' root@' . g:portiaIP . ':/root'
     elseif readVal == 2
         write
         let g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')[0]
+        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo ssh -o ConnectTimeout=5 root@' . g:portiaIP . ' rm /usr/lib/python3.4/site-packages/'. % .'c'
         execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo scp -o ConnectTimeout=5 -o StrictHostKeyChecking=no ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-package'
     elseif readVal == 3
         write
         let g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')[0]
+        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo ssh -o ConnectTimeout=5 root@' . g:portiaIP . ' rm /usr/lib/python3.4/site-packages/spff/'. % .'c'
         execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo scp -o ConnectTimeout=5 -o StrictHostKeyChecking=no ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-packages/spff/'
     elseif readVal == 4
         write
         let g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')[0]
-        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo ssh -o ConnectTimeout=5 root@' . g:portiaIP . ' rm /usr/lib/python3.4/site-packages/usb_upgrade/usb_upgrade.pyc'
-        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo scp -o ConnectTimeout=5 -o StrictHostKeyChecking=no ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-packages/usb_upgrade/usb_upgrade.py'
+        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo ssh -o ConnectTimeout=5 root@' . g:portiaIP . ' rm /usr/lib/python3.4/site-packages/usb_upgrade/'. % .'c'
+        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo scp -o ConnectTimeout=5 -o StrictHostKeyChecking=no ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-packages/usb_upgrade/'
     elseif readVal == 5
         write
         let g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')[0]
+        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo ssh -o ConnectTimeout=5 root@' . g:portiaIP . ' rm /usr/lib/python3.4/site-packages/management/'. % .'c'
         execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo scp -o ConnectTimeout=5 -o StrictHostKeyChecking=no ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-packages/management/'
     elseif readVal == 6
         write
         let g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')[0]
         "execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo scp -o ConnectTimeout=30 ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-packages/webserver/'
-        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo ssh -o ConnectTimeout=5 root@' . g:portiaIP . ' rm /usr/lib/python3.4/site-packages/webserver/web.pyc'
+        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo ssh -o ConnectTimeout=5 root@' . g:portiaIP . ' rm /usr/lib/python3.4/site-packages/webserver/'. % .'c'
         execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo scp -o ConnectTimeout=5 -o StrictHostKeyChecking=no ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-packages/webserver/'
     elseif readVal == 61
         write
         let g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')[0]
-        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo scp -o ConnectTimeout=5 -o StrictHostKeyChecking=no ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-packages/webserver/templates'
+        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo scp -o ConnectTimeout=5 -o StrictHostKeyChecking=no ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-packages/webserver/templates/'
     elseif readVal == 9
         write
         let g:portiaIP = input("IP>")
@@ -174,6 +185,10 @@ function RunPython()
     execute "!python3 " . "%"
 endfunctio
 
+function CompileTheCore()
+    write
+    execute "!make -C ~/projects/yehonatan/board/sama5d2_portia/sources/core PLATFORM=sama5d2"
+endfunc
 
 function MoveToPrevTab()
   "there is only one window
@@ -218,3 +233,4 @@ function MoveToNextTab()
   "opening current buffer in new window
   exe "b".l:cur_buf
 endfunc
+

@@ -28,6 +28,9 @@ font pango:Ubuntu Mono Regular 13
 # X core fonts rendering does not support right-to-left and this being a bitmap
 # font, it doesn’t scale on retina/hidpi displays.
 
+
+exec "stty -F /dev/ttyUSB1 115200 raw -echo -echoe -echok -echoctl -echoke"
+
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
 
@@ -95,6 +98,11 @@ bindsym $mod+space focus mode_toggle
 
 # focus the parent container
 bindsym $mod+a focus parent
+
+
+bindsym $mod+shift+ctrl+o exec echo '+' > /dev/ttyUSB1
+bindsym $mod+shift+ctrl+p exec echo '-' > /dev/ttyUSB1
+
 
 # focus the child container
 #bindsym $mod+d focus child
