@@ -6,7 +6,7 @@ counter=$(<$file_path)
 
 while [ 1 ]; do
     currentTime=$(xprintidle)
-    if [[ "$(( $currentTime / 1000 ))" -lt 10 ]]; then
+    if [[ "$(( $currentTime ))" -lt 5000 ]]; then
         counter=$(($counter+$sleep_time))
         echo $counter > $file_path
     fi
