@@ -45,7 +45,9 @@ map <C-S-R> :call SearchAndReplace()<CR>
 map <F2> :call RunScript()<CR>
 map <F3> :call RunPython()<CR>
 map <F4> :call CompileTheCore()<CR>
-map <F5> :call CpToPorita()<CR>
+"map <F5> :call CpToPorita()<CR>
+map <F5> :call UploadToPortia()<CR>
+map <F12> :call RestartPmanager()<CR>
 map <F7> :w <bar> :!~/Downloads/arduino-1.6.13/arduino --verify % <CR>
 map <F8> :w <bar> :!~/Downloads/arduino-1.6.13/arduino --upload % <CR>
 
@@ -201,6 +203,15 @@ endfunctio
 function RunScript()
     write
     execute "!bash " . "%"
+endfunctio
+
+function UploadToPortia()
+    write
+    execute "!bash " .  $HOME . "/.dotfiles/bash_scripts/sync_file_to_protia.sh " . "%:p"
+endfunctio
+
+function RestartPmanager()
+    execute "!bash " . $HOME . "/.dotfiles/bash_scripts/restart_pmanager.sh"
 endfunctio
 
 function RunPython()
