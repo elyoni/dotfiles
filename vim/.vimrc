@@ -16,6 +16,7 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'ozelentok/vim-closer'
 "Plug 'zchee/deoplete-clang'        " OZ WILL TELL ME NEW TIME
 "Plug 'pangloss/vim-javascript'
+"Plug 'Shougo/neocomplet"e.vim'
 Plug 'roxma/nvim-yarp'
 "Plug 'Shougo/neocomplete.vim'
 Plug 'zchee/deoplete-jedi'
