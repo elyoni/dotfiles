@@ -49,3 +49,8 @@ sudo apt-get install scrot -y
 sudo apt-get install zsh -y
 chsh -s $(which zsh)
 sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+
+# === Font Copy ===
+dotfile_dir=$( dirname $( cd $(dirname $0) && pwd ))
+mkdir -p $HOME/.fonts
+cp $dotfile_dir/fonts/* $HOME/.fonts/
