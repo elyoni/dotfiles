@@ -1,4 +1,5 @@
 #!/bin/bash
+## This script the i3blocks is running
 file_path="$HOME/.time_idle"
 counter=$(<$file_path)
 seconds=$((counter%60))
