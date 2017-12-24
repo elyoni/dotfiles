@@ -46,7 +46,9 @@ map <C-S-R> :call SearchAndReplace()<CR>
 map <F2> :call RunScript()<CR>
 map <F3> :call RunPython()<CR>
 map <F4> :call CompileTheCore()<CR>
-map <F5> :call CpToPorita()<CR>
+"map <F5> :call CpToPorita()<CR>
+map <F5> :call UploadToPortia()<CR>
+map <F12> :call RestartPmanager()<CR>
 map <F7> :w <bar> :!~/Downloads/arduino-1.6.13/arduino --verify % <CR>
 map <F8> :w <bar> :!~/Downloads/arduino-1.6.13/arduino --upload % <CR>
 
@@ -65,6 +67,12 @@ set expandtab		" on pressing tab, insert 4 spaces
 set hlsearch        " Highlight the word when search
 set incsearch       " Start search in realtime
 set clipboard=unnamed,unnamedplus " Copy/Paste directly to System/X11 clipboard
+
+"Copy settings
+set ignorecase      "Cancel the case sensative
+set smartcase
+
+
 
 vnore p "_dP     " Cancel the insasaly annoying copy paste
 vnore P "_dp     " Cancel the insasaly annoying copy paste
@@ -123,10 +131,12 @@ function CpToPorita()
     echom "Copy the file to"
     echom "1./root"
     echom "2./usr/lib/python/python3.4/site-package/"
-    echom "3./usr/lib/python/python3.4/site-package/spff/"
-    echom "4./usr/lib/python3.4/site-packages/usb_upgrade/"
-    echom "5./usr/lib/python3.4/site-packages/management/"
-    echom "6./usr/lib/python3.4/site-packages/webserver/"
+    echom "3(spff)          /usr/lib/python/python3.4/site-package/spff/"
+    echom "4(usb_upgrade)   /usr/lib/python3.4/site-packages/usb_upgrade/"
+    echom "5(management)    /usr/lib/python3.4/site-packages/management/"
+    echom "6(webserver)     /usr/lib/python3.4/site-packages/webserver/"
+    echom "7(restapi)       /usr/lib/python3.4/site-packages/restapi/"
+    echom "8(test)          /usr/lib/python3.4/site-packages/test/"
     echom "61./usr/lib/python3.4/site-packages/webserver/templates"
     echom "9.Change Portia IP"
     echom "99.Print Portia IP"
@@ -161,6 +171,15 @@ function CpToPorita()
         "execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo scp -o ConnectTimeout=30 ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-packages/webserver/'
         execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo ssh -o ConnectTimeout=5 root@' . g:portiaIP . ' rm /usr/lib/python3.4/site-packages/webserver/'. % .'c'
         execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo scp -o ConnectTimeout=5 -o StrictHostKeyChecking=no ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-packages/webserver/'
+    elseif readVal == 7
+        write
+        let g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')[0]
+        "execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo scp -o ConnectTimeout=30 ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-packages/webserver/'
+        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo scp -o ConnectTimeout=5 -o StrictHostKeyChecking=no ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-packages/restapi/'
+    elseif readVal == 8
+        write
+        let g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')[0]
+        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo scp -o ConnectTimeout=5 -o StrictHostKeyChecking=no ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-packages/tests/'
     elseif readVal == 61
         write
         let g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')[0]
@@ -185,6 +204,15 @@ endfunctio
 function RunScript()
     write
     execute "!bash " . "%"
+endfunctio
+
+function UploadToPortia()
+    write
+    execute "!bash " .  $HOME . "/.dotfiles/bash_scripts/sync_file_to_protia.sh " . "%:p"
+endfunctio
+
+function RestartPmanager()
+    execute "!bash " . $HOME . "/.dotfiles/bash_scripts/restart_pmanager.sh"
 endfunctio
 
 function RunPython()
