@@ -40,14 +40,14 @@ map <C-n> :NERDTreeToggle<CR>
 map <S-B> ^<CR>
 map <C-k>  <PageUp> 
 map <C-j>  <PageDown> 
-
+map . :call DoNothing()<CR>
 
 map <C-S-R> :call SearchAndReplace()<CR>
 map <F2> :call RunScript()<CR>
 map <F3> :call RunPython()<CR>
 map <F4> :call CompileTheCore()<CR>
-"map <F5> :call CpToPorita()<CR>
 map <F5> :call UploadToPortia()<CR>
+map <F6> :call CpToPorita()<CR>
 map <F12> :call RestartPmanager()<CR>
 map <F7> :w <bar> :!~/Downloads/arduino-1.6.13/arduino --verify % <CR>
 map <F8> :w <bar> :!~/Downloads/arduino-1.6.13/arduino --upload % <CR>
@@ -94,7 +94,7 @@ let g:deoplete#enable_at_startup = 1
 let g:deoplete#enable_ignore_case = 1
 
 let g:ycm_server_keep_logfiles = 1
-let g:ycm_server_log_level = 'debug'
+"let g:ycm_server_log_level = 'debug'
 
 
 " mouse support
@@ -208,7 +208,11 @@ endfunctio
 
 function UploadToPortia()
     write
-    execute "!bash " .  $HOME . "/.dotfiles/bash_scripts/sync_file_to_protia.sh " . "%:p"
+    execute "!bash " .  $HOME . "/.dotfiles/work_script/sync_file_to_protia.sh " . "%:p"
+endfunctio
+
+
+function DoNothing()
 endfunctio
 
 function RestartPmanager()
@@ -217,7 +221,7 @@ endfunctio
 
 function RunPython()
     write
-    execute "!python3 " . "%"
+    execute "!python3.5 " . "%"
 endfunctio
 
 function CompileTheCore()
