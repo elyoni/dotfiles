@@ -1,12 +1,12 @@
 #!/bin/bash
 file_path="$HOME/.time_idle"
 log_path="$HOME/.log_time_idle"
-counter=$(<$file_path)
 
+counter=$(<$file_path)
 
 currentTime=$(xprintidle)
 if [[ "$(( $currentTime / 1000 ))" -lt 10 ]]; then
-    counter=$(($counter+$sleep_time))
+    counter=$(($counter+1))
     echo $counter > $file_path
 fi
 
