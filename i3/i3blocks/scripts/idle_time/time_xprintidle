@@ -5,7 +5,7 @@ file_path="$HOME/.time_idle"
 counter=$(<$file_path)
 
 while [ 1 ]; do
-    if [[ $(date '+%H:%M') == '00:00' ]]; then
+    if [[ $(date '+%H:%M') == '00:00:00' ]]; then
         echo '0' > $file_path
     fi
     

@@ -36,3 +36,5 @@ ln -sf $(pwd)/i3/config $HOME/.config/i3/config
 
 rm $HOME/.i3blocks.conf
 ln -sf $(pwd)/i3/i3blocks.conf $HOME/.i3blocks.conf
+
+bash $(pwd)/i3/i3blocks/scripts/idle_time/install.sh

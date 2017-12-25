@@ -57,6 +57,9 @@ nnoremap <A-,> :call MoveToPrevTab()<CR>
 
 
 command W w
+command Wq wq
+command wQ wq
+command Q q
 
 "general settings
 set number "Add number line
@@ -86,7 +89,7 @@ nnore <c-b> <nop>
 
 "Python
 let g:python_host_prog = "/usr/bin/python2"
-let g:python3_host_prog = "/usr/bin/python3"
+"let g:python3_host_prog = "/usr/bin/python3.5"
 
 
 " deoplete.vim

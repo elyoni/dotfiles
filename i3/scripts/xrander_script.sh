@@ -1,5 +1,4 @@
 #!/bin/bash
-
 if xrandr | grep -q DVI-I-1; then
     echo "hello world"
     xrandr --output DVI-I-1 --off

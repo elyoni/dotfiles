@@ -50,6 +50,10 @@ sudo apt-get install zsh -y
 chsh -s $(which zsh)
 sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 
+# === FZF ===
+git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+~/.fzf/install
+
 # === Font Copy ===
 dotfile_dir=$( dirname $( cd $(dirname $0) && pwd ))
 mkdir -p $HOME/.fonts

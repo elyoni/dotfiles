@@ -29,7 +29,7 @@ font pango:Ubuntu Mono Regular 13
 # font, it doesn’t scale on retina/hidpi displays.
 
 
-exec "sudo chmod o+rw /dev/ttyUSB1"
+exec "sudo chmod o+rw /dev/ttyUSB0"
 exec "stty -F /dev/ttyUSB0 115200 raw -echo -echoe -echok -echoctl -echoke"
 
 # Use Mouse+$mod to drag floating windows to their wanted position
@@ -223,10 +223,10 @@ mode "$mode_launcher" {
 # At home
 ##exec --no-startup-id xrandr --output DVI-I-1 --off ;  xrandr --output DVI-I-1 --auto --output HDMI-3 --right-of DVI-I-1
 # At Work
-##exec --no-startup-id xrandr --output HDMI-1 --auto --output DP-1 --left-of HDMI-1
-exec_always --no-startup-id bash $HOME/.config/i3/scripts/xrander_script.sh
-exec_always --no-startup-id bash $HOME/.dotfiles/i3/scripts/wallpaper_change.sh
-exec_always --no-startup-id bash $HOME/.time_xprintidle
+exec_always xrandr --output HDMI-1 --auto --output DP-1 --left-of HDMI-1
+exec_always bash $HOME/.config/i3/scripts/xrander_script.sh
+exec_always bash $HOME/.dotfiles/i3/scripts/wallpaper_change.sh
+exec --no-startup-id bash $HOME/.time_xprintidle
 
 # Background color
 exec --no-startup-id xsetroot -solid "#000000"

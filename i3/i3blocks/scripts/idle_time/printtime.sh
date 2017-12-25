@@ -1,6 +1,6 @@
 #!/bin/bash
-## This script the i3blocks is running
 file_path="$HOME/.time_idle"
+
 counter=$(<$file_path)
 seconds=$((counter%60))
 minutes=$((counter/60%60))
@@ -11,4 +11,6 @@ elif [[ $minutes -gt 0 ]]; then
     printf '%02d:' $minutes && printf '%02d\n' $seconds
 elif [[ $seconds -gt 0 ]]; then 
     printf '%02d\n' $seconds
+elif [[ $seconds -eq 0 ]]; then 
+    printf '00\n'
 fi
