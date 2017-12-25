@@ -226,7 +226,7 @@ mode "$mode_launcher" {
 exec_always xrandr --output HDMI-1 --auto --output DP-1 --left-of HDMI-1
 exec_always bash $HOME/.config/i3/scripts/xrander_script.sh
 exec_always bash $HOME/.dotfiles/i3/scripts/wallpaper_change.sh
-exec --no-startup-id bash $HOME/.time_xprintidle
+exec bash $HOME/.time_xprintidle
 
 # Background color
 exec --no-startup-id xsetroot -solid "#000000"

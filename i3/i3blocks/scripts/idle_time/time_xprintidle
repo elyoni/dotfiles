@@ -1,19 +1,29 @@
 #!/bin/bash
-
-sleep_time=1
 file_path="$HOME/.time_idle"
+log_path="$HOME/.log_time_idle"
 counter=$(<$file_path)
 
-while [ 1 ]; do
-    if [[ $(date '+%H:%M') == '00:00:00' ]]; then
-        echo '0' > $file_path
-    fi
-    
-    counter=$(<$file_path)
-    currentTime=$(xprintidle)
-    if [[ "$(( $currentTime / 1000 ))" -lt 10 ]]; then
-        counter=$(($counter+$sleep_time))
-        echo $counter > $file_path
-    fi
-    sleep $sleep_time
-done
+
+currentTime=$(xprintidle)
+if [[ "$(( $currentTime / 1000 ))" -lt 10 ]]; then
+    counter=$(($counter+$sleep_time))
+    echo $counter > $file_path
+fi
+
+seconds=$((counter%60))
+minutes=$((counter/60%60))
+hours=$((counter/60/60%24))
+if [[ $hours -gt 0 ]]; then 
+    printf '%02d:%02d:%02d\n' "$hours" "$minutes" "$seconds"
+elif [[ $minutes -gt 0 ]]; then 
+    printf '%02d:%02d\n' "$minutes" "$seconds"
+elif [[ $seconds -gt 0 ]]; then 
+    printf '%02d\n' "$seconds"
+elif [[ $seconds -eq 0 ]]; then 
+    printf '00\n'
+fi
+
+if [[ $(date '+%H:%M:%S') == '20:45:00' ]]; then
+    printf '%s \t %02d:%02d:%02d\n' "$(LANG=en_US date '+%F %a')"  "$hours" "$minutes" "$seconds" >> $log_path
+    echo '0' > $file_path
+fi

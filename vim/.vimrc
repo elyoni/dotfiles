@@ -58,7 +58,6 @@ nnoremap <A-,> :call MoveToPrevTab()<CR>
 
 command W w
 command Wq wq
-command wQ wq
 command Q q
 
 "general settings
