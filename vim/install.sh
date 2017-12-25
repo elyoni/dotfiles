@@ -21,7 +21,14 @@ sudo add-apt-repository ppa:neovim-ppa/unstable -y
 sudo apt update
 sudo apt-get install neovim -y
 sudo apt-get install python3-pip -y
-pip3 install --user --upgrade neovim
+
+sudo pip2 install neovim
+sudo pip3 install neovim
+
+#pip3 install --user --upgrade neovim
+sudo pip2 install --upgrade neovim
+sudo pip3 install --upgrade neovim
+
 ### nvim plugins
 curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs \
 	    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim

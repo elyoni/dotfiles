@@ -30,7 +30,7 @@ font pango:Ubuntu Mono Regular 13
 
 
 exec "sudo chmod o+rw /dev/ttyUSB1"
-exec "stty -F /dev/ttyUSB1 115200 raw -echo -echoe -echok -echoctl -echoke"
+exec "stty -F /dev/ttyUSB0 115200 raw -echo -echoe -echok -echoctl -echoke"
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
@@ -101,6 +101,8 @@ bindsym $mod+space focus mode_toggle
 bindsym $mod+a focus parent
 
 
+bindsym $mod+shift+ctrl+o exec echo '+' > /dev/ttyUSB0
+bindsym $mod+shift+ctrl+p exec echo '-' > /dev/ttyUSB0
 
 
 # focus the child container
@@ -219,8 +221,7 @@ mode "$mode_launcher" {
 }
 
 # At home
-##exec --no-startup-id xrandr --output DVI-I-1 --off ;  xrandr --output DVI-I-1 --auto --output HDMI-3 -
--right-of DVI-I-1
+##exec --no-startup-id xrandr --output DVI-I-1 --off ;  xrandr --output DVI-I-1 --auto --output HDMI-3 --right-of DVI-I-1
 # At Work
 ##exec --no-startup-id xrandr --output HDMI-1 --auto --output DP-1 --left-of HDMI-1
 exec_always --no-startup-id bash $HOME/.config/i3/scripts/xrander_script.sh
@@ -276,6 +277,6 @@ bindsym $mod+Ctrl+l exec bash $HOME/.dotfiles/i3/scripts/i3lock.sh
 
 
 #Alias
-exec --no-startup-id alias plant="python3 ~/.dotfiles/work_script/serial_connection.py"
+#exec --no-startup-id alias plant="python3 ~/.dotfiles/work_script/serial_connection.py"
 bindsym $mod+u exec python3 $HOME/.dotfiles/work_script/serial_connection.py -u
 bindsym $mod+ctrl+U exec python3 $HOME/.dotfiles/work_script/serial_connection.py -d
