@@ -9,7 +9,7 @@ case $HOST in
         ;;
     "yehonatane-ubnt")
         #zenity --error --text="hello world"
-        exec pactl set-sink-volume 1 +5% | exec pkill -RTMIN+10 i3blocks
+        exec pactl set-sink-volume 0 +3% | exec pkill -RTMIN+10 i3blocks
         ;;
     "johnny-1015PEM")
         exec pactl set-sink-volume 0 +5% | exec pkill -RTMIN+10 i3blocks

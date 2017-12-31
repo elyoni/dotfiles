@@ -20,7 +20,7 @@ print_menu(){
 	read opt
 }
 print_menu
-bash $(pwd)/scripts/generalInstall.sh
+bash $(pwd)/install_scripts/generalInstall.sh
 
 if [ ${opt} -eq ${#options[@]} ]
 then

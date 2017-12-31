@@ -26,7 +26,7 @@ sudo apt-get install pnmixer -y
 mkdir scripts
 ln -sf $(pwd)/i3/scripts/volume_up.sh $HOME/.config/i3/scripts/volume_up.sh
 ln -sf $(pwd)/i3/scripts/volume_down.sh $HOME/.config/i3/scripts/volume_down.sh
-ln -sf $(pwd)/i3/scripts/volume_mute.sh $home/.config/i3/scripts/volume_mute.sh
+ln -sf $(pwd)/i3/scripts/volume_mute.sh $HOME/.config/i3/scripts/volume_mute.sh
 
 ln -sf $(pwd)/i3/scripts/xrander_script.sh $home/.config/i3/scripts/xrander_script.sh
 ln -sf $(pwd)/i3/scripts/lang.sh $home/.config/i3/scripts/lang.sh
@@ -38,3 +38,5 @@ rm $HOME/.i3blocks.conf
 ln -sf $(pwd)/i3/i3blocks.conf $HOME/.i3blocks.conf
 
 bash $(pwd)/i3/i3blocks/scripts/idle_time/install.sh
+
+gsettings set org.gnome.desktop.background show-desktop-icons false

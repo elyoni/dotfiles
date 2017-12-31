@@ -24,6 +24,7 @@ Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'ryanoasis/vim-devicons'           "Add icons
 Plug '/usr/local/opt/fzf'
 Plug 'junegunn/fzf.vim'
+Plug 'vimwiki/vimwiki'
 "Plug 'Valloric/YouCompleteMe'
 
 call plug#end()
@@ -42,12 +43,13 @@ map <C-k>  <PageUp>
 map <C-j>  <PageDown> 
 map . :call DoNothing()<CR>
 
-map <C-S-R> :call SearchAndReplace()<CR>
+map <C-A-S-R> :call SearchAndReplace()<CR>
 map <F2> :call RunScript()<CR>
 map <F3> :call RunPython()<CR>
 map <F4> :call CompileTheCore()<CR>
 map <F5> :call UploadToPortia()<CR>
 map <F6> :call CpToPorita()<CR>
+map <F9> :call SearchEveryWhere()<CR>
 map <F12> :call RestartPmanager()<CR>
 map <F7> :w <bar> :!~/Downloads/arduino-1.6.13/arduino --verify % <CR>
 map <F8> :w <bar> :!~/Downloads/arduino-1.6.13/arduino --upload % <CR>
@@ -59,6 +61,7 @@ nnoremap <A-,> :call MoveToPrevTab()<CR>
 command W w
 command Wq wq
 command Q q
+command SearchAll SearchEveryWhere()
 
 "general settings
 set number "Add number line
@@ -120,6 +123,18 @@ syn keyword ColorColumn ygye
 syn keyword Search Debug
 syn keyword SpellBad debug
 
+
+
+"highlight question cterm=bold,undercurl ctermbg=9 gui=undercurl guibg=DarkRed
+highlight question ctermfg=196 guifg=#E85848 guibg=#461E1A 
+call matchadd('question',"^\?.*")
+highlight ans ctermfg=117 gui=bold guifg=fg 
+call matchadd('ans',"^\!.*")
+
+highlight ygye cterm=bold ctermfg=16 ctermbg=186 gui=bold,underline guifg=#cae682 guibg=#363946 
+call matchadd('ygye',".*yg-ye.*")
+call matchadd('ygye',".*ygye.*")
+
 let portiaIP = readfile($HOME.'/.ipPortia.txt')
 "let portiaIP = "10.90.1.225"
 
@@ -146,22 +161,22 @@ function CpToPorita()
     if readVal == 1
         write
         let g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')[0]
-        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo scp -o ConnectTimeout=5 -o StrictHostKeyChecking=no ' . "%" . ' root@' . g:portiaIP . ':/root'
+        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo scp -o ConnectTimeout=2 -o StrictHostKeyChecking=no ' . "%" . ' root@' . g:portiaIP . ':/root'
     elseif readVal == 2
         write
         let g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')[0]
-        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo ssh -o ConnectTimeout=5 root@' . g:portiaIP . ' rm /usr/lib/python3.4/site-packages/'. % .'c'
-        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo scp -o ConnectTimeout=5 -o StrictHostKeyChecking=no ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-package'
+        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo ssh -o ConnectTimeout=2 root@' . g:portiaIP . ' rm /usr/lib/python3.4/site-packages/'. % .'c'
+        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo scp -o ConnectTimeout=2 -o StrictHostKeyChecking=no ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-package'
     elseif readVal == 3
         write
         let g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')[0]
-        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo ssh -o ConnectTimeout=5 root@' . g:portiaIP . ' rm /usr/lib/python3.4/site-packages/spff/'. % .'c'
-        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo scp -o ConnectTimeout=5 -o StrictHostKeyChecking=no ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-packages/spff/'
+        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo ssh -o ConnectTimeout=2 root@' . g:portiaIP . ' rm /usr/lib/python3.4/site-packages/spff/'. % .'c'
+        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo scp -o ConnectTimeout=2 -o StrictHostKeyChecking=no ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-packages/spff/'
     elseif readVal == 4
         write
         let g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')[0]
-        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo ssh -o ConnectTimeout=5 root@' . g:portiaIP . ' rm /usr/lib/python3.4/site-packages/usb_upgrade/'. % .'c'
-        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo scp -o ConnectTimeout=5 -o StrictHostKeyChecking=no ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-packages/usb_upgrade/'
+        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo ssh -o ConnectTimeout=2 root@' . g:portiaIP . ' rm /usr/lib/python3.4/site-packages/usb_upgrade/'. % .'c'
+        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo scp -o ConnectTimeout=2 -o StrictHostKeyChecking=no ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-packages/usb_upgrade/'
     elseif readVal == 5
         write
         let g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')[0]
@@ -202,6 +217,12 @@ function SearchAndReplace()
     let replace = input("Replace With   >")
     execute ":%s/" . search . "/" . replace . "/g"
 endfunctio
+
+function SearchEveryWhere()
+    let search = input("File Contant To Search")
+    execute ":grep -R " . search . " *"
+endfunctio
+
 
 function RunScript()
     write
@@ -275,3 +296,41 @@ function MoveToNextTab()
   exe "b".l:cur_buf
 endfunc
 
+
+
+" This is the default extra key bindings
+let g:fzf_action = {
+  \ 'ctrl-t': 'tab split',
+  \ 'ctrl-x': 'split',
+  \ 'ctrl-v': 'vsplit' }
+
+" Default fzf layout
+" - down / up / left / right
+let g:fzf_layout = { 'down': '~40%' }
+
+" In Neovim, you can set up fzf window using a Vim command
+let g:fzf_layout = { 'window': 'enew' }
+let g:fzf_layout = { 'window': '-tabnew' }
+let g:fzf_layout = { 'window': '10split enew' }
+
+" Customize fzf colors to match your color scheme
+let g:fzf_colors =
+\ { 'fg':      ['fg', 'Normal'],
+  \ 'bg':      ['bg', 'Normal'],
+  \ 'hl':      ['fg', 'Comment'],
+  \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
+  \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
+  \ 'hl+':     ['fg', 'Statement'],
+  \ 'info':    ['fg', 'PreProc'],
+  \ 'border':  ['fg', 'Ignore'],
+  \ 'prompt':  ['fg', 'Conditional'],
+  \ 'pointer': ['fg', 'Exception'],
+  \ 'marker':  ['fg', 'Keyword'],
+  \ 'spinner': ['fg', 'Label'],
+  \ 'header':  ['fg', 'Comment'] }
+
+" Enable per-command history.
+" CTRL-N and CTRL-P will be automatically bound to next-history and
+" previous-history instead of down and up. If you don't like the change,
+" explicitly bind the keys to down and up in your $FZF_DEFAULT_OPTS.
+let g:fzf_history_dir = '~/.local/share/fzf-history'
