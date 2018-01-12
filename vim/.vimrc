@@ -14,12 +14,14 @@ Plug 'roxma/vim-tmux-clipboard'
 Plug 'vim-airline/vim-airline'          " Bar
 Plug 'vim-airline/vim-airline-themes'   
 Plug 'ozelentok/vim-closer'
-"Plug 'zchee/deoplete-clang'        " OZ WILL TELL ME NEW TIME
+Plug 'tweekmonster/deoplete-clang2'        " Oz - deoplete-clang 2 is the new plugin - just install the 'clang' package
 "Plug 'pangloss/vim-javascript'
 "Plug 'Shougo/neocomplete.vim'
-"Plug 'zchee/deoplete-jedi'
+Plug 'zchee/deoplete-jedi'
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'ryanoasis/vim-devicons'           "Add icons
+Plug 'junegunn/fzf'
+
 
 call plug#end()
 
