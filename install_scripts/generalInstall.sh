@@ -18,16 +18,16 @@ sudo apt-get install chromium-browser -y
 sudo apt-get intall firefox -y
 
 echo "Install i3"
-bash i3/install.sh
+bash $HOME/.dotfiles/i3/install.sh
 
 echo "Install VIM & VIMRC"
-bash vim/install.sh
+bash $HOME/.dotfiles/vim/install.sh
 
 echo "Install Double Commander"
-bash DoubleCommander/install.sh
+bash $HOME/.dotfiles/double_commander/install.sh
 
 echo "Install tmux"
-bash tmux/install.sh
+bash $HOME/.dotfiles/tmux/install.sh
 
 # === bluetooth === 
 sudo apt-get install bluetooth bluez bluez-tools rfkill -y
@@ -41,9 +41,20 @@ sudo apt-get install blueman -y
 
 # === SSH ===
 sudo apt-get install sshfs -y
+sudo apt-get install sshpass -y
 
 # === Print Screen ===
 sudo apt-get install scrot -y
+
+
+# === FZF ===
+git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+~/.fzf/install
+
+# === Font Copy ===
+dotfile_dir=$( dirname $( cd $(dirname $0) && pwd ))
+mkdir -p $HOME/.fonts
+cp $dotfile_dir/fonts/* $HOME/.fonts/
 
 # === ZSH ===
 sudo apt-get install zsh -y

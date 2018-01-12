@@ -33,9 +33,9 @@
     <UseCursorBorder>False</UseCursorBorder>
     <CursorBorderColor>-2147483635</CursorBorderColor>
     <UseFrameCursor>False</UseFrameCursor>
-    <Foreground>-2147483640</Foreground>
-    <Background>-2147483643</Background>
-    <Background2>-2147483643</Background2>
+    <Foreground>-2147483643</Foreground>
+    <Background>0</Background>
+    <Background2>0</Background2>
     <Cursor>-2147483635</Cursor>
     <CursorText>-2147483634</CursorText>
     <Mark>255</Mark>
@@ -164,103 +164,371 @@
     <MainToolbar>
       <Row>
         <Command>
-          <ID>{6A20E862-F71D-4904-BC6F-4B26621D6033}</ID>
-          <Command/>
+          <ID>{2562C9DD-DC37-4DCB-9FAF-5AFA7C64E7CE}</ID>
+          <Icon>cm_refresh</Icon>
+          <Command>cm_Refresh</Command>
         </Command>
         <Command>
-          <ID>{9A95AFEC-A852-41D3-B4F8-5D4F3586B7D1}</ID>
+          <ID>{959CC181-5EF0-49E0-91C1-B699C93D63CA}</ID>
           <Icon>cm_runterm</Icon>
           <Command>cm_RunTerm</Command>
         </Command>
         <Command>
-          <ID>{60592871-EF27-40DB-8EB2-4E2BDFFFE0FE}</ID>
+          <ID>{CF16C77B-4E17-4C0C-9408-8D14455077BC}</ID>
           <Icon>cm_options</Icon>
           <Command>cm_Options</Command>
         </Command>
         <Separator/>
         <Command>
-          <ID>{C37F9E07-1670-4B08-A3B2-D60EBFE2320A}</ID>
+          <ID>{E0F20ADF-4855-434C-BB27-9DE5B9E2CA18}</ID>
           <Icon>cm_briefview</Icon>
           <Command>cm_BriefView</Command>
         </Command>
         <Command>
-          <ID>{50F55D2F-57A7-45D4-A172-4E88A4F0CA94}</ID>
+          <ID>{E9D24DD2-3589-4988-877D-C917D21DB908}</ID>
           <Icon>cm_columnsview</Icon>
           <Command>cm_ColumnsView</Command>
         </Command>
         <Command>
-          <ID>{028A67FB-D1BD-4D6A-AF49-3FC99232FF04}</ID>
+          <ID>{48268E4E-8723-493C-943F-A86A9585818A}</ID>
           <Icon>cm_thumbnailsview</Icon>
           <Command>cm_ThumbnailsView</Command>
         </Command>
         <Separator/>
         <Command>
-          <ID>{7A6ABFB4-7458-43D7-9A2A-15A1AA9FCEB7}</ID>
+          <ID>{768D2D7F-3D49-453B-9A07-A3911B99D1F4}</ID>
           <Icon>cm_flatview</Icon>
           <Command>cm_FlatView</Command>
         </Command>
         <Separator/>
         <Command>
-          <ID>{C9F07786-EB51-4116-8D41-6526C3CB1CBA}</ID>
+          <ID>{3BB1B88C-052C-45B1-B9A9-76CE559A5C87}</ID>
           <Icon>cm_viewhistoryprev</Icon>
           <Command>cm_ViewHistoryPrev</Command>
         </Command>
         <Command>
-          <ID>{D6138C0F-9CD3-465C-9F1D-3DABD00CB971}</ID>
+          <ID>{7310D64A-0292-4787-A0A7-7F11D81A5845}</ID>
           <Icon>cm_viewhistorynext</Icon>
           <Command>cm_ViewHistoryNext</Command>
         </Command>
         <Separator/>
         <Command>
-          <ID>{238082CC-ED4A-4D81-AB7D-2AA72287AD18}</ID>
+          <ID>{AD273C55-F203-4242-A38C-114C1D579E82}</ID>
           <Icon>cm_markplus</Icon>
           <Command>cm_MarkPlus</Command>
         </Command>
         <Command>
-          <ID>{7C2BA55F-D2C4-4B79-AA13-C5206AF22985}</ID>
+          <ID>{D1B0F580-47CA-49DD-B99B-0ABAC534E53F}</ID>
           <Icon>cm_markminus</Icon>
           <Command>cm_MarkMinus</Command>
         </Command>
         <Command>
-          <ID>{F62AD4E9-1A04-4448-A04D-ACA63DB40ACF}</ID>
+          <ID>{D7F9FBAF-805E-49A1-90AB-F7ADB8B46A2A}</ID>
           <Icon>cm_markinvert</Icon>
           <Command>cm_MarkInvert</Command>
         </Command>
         <Separator/>
         <Command>
-          <ID>{8630ECD3-1C1E-43B7-9D91-1047A4616D22}</ID>
+          <ID>{5D610633-CDAF-404D-8BFA-AD667B2A4497}</ID>
           <Icon>cm_packfiles</Icon>
           <Command>cm_PackFiles</Command>
         </Command>
         <Command>
-          <ID>{B5F1A855-B2EE-40CF-A650-9B58269D1BB5}</ID>
+          <ID>{4440E348-6A68-4592-980F-2AA65925C28E}</ID>
           <Icon>cm_extractfiles</Icon>
           <Command>cm_ExtractFiles</Command>
         </Command>
         <Separator/>
         <Command>
-          <ID>{A4930A61-4BD5-4BFF-9499-E42666EF9B99}</ID>
+          <ID>{F8A6ABF1-F916-481F-8D33-B7FBA09EC167}</ID>
           <Icon>cm_search</Icon>
           <Command>cm_Search</Command>
         </Command>
         <Command>
-          <ID>{0C1E2E30-3F40-415D-B87C-AFB7F7BCEFBD}</ID>
+          <ID>{5FDE7308-BDEB-4338-8441-052AB1DA883B}</ID>
           <Icon>cm_multirename</Icon>
           <Command>cm_MultiRename</Command>
         </Command>
         <Command>
-          <ID>{D629CB0C-1832-42ED-A98F-F313F593390D}</ID>
+          <ID>{DDA0C3A2-DA6D-46C9-8693-14087F1138C3}</ID>
           <Icon>cm_syncdirs</Icon>
           <Command>cm_SyncDirs</Command>
         </Command>
         <Command>
-          <ID>{8BC2FE90-C5AD-41C3-8106-5BFCD595DE08}</ID>
+          <ID>{D26820C3-A9F1-4110-BB2E-3997FE042505}</ID>
           <Icon>cm_copyfullnamestoclip</Icon>
           <Command>cm_CopyFullNamesToClip</Command>
         </Command>
       </Row>
     </MainToolbar>
   </Toolbars>
+  <Tabs>
+    <OpenedTabs>
+      <Left>
+        <ActiveTab>3</ActiveTab>
+        <Tab>
+          <FileView Type="columns">
+            <History>
+              <Entry Active="True">
+                <FileSource Type="FileSystem"/>
+                <Paths>
+                  <Path Filename="home">/</Path>
+                  <Path Filename="johnny">/home/</Path>
+                  <Path Filename="Pictures">/home/johnny/</Path>
+                  <Path Filename="Wallpaper">/home/johnny/Pictures/</Path>
+                  <Path Filename="P1170248.JPG">/home/johnny/Pictures/Wallpaper/</Path>
+                  <Path Filename="IMG_1317.JPG">/media/johnny/</Path>
+                  <Path Filename=".local">/home/johnny/</Path>
+                  <Path Filename="johnny">/home/</Path>
+                  <Path Filename="">/media/johnny/</Path>
+                </Paths>
+              </Entry>
+            </History>
+            <ColumnsView>
+              <ColumnsSet>Default</ColumnsSet>
+            </ColumnsView>
+          </FileView>
+        </Tab>
+        <Tab>
+          <FileView Type="columns">
+            <Sortings>
+              <Sorting>
+                <Direction>1</Direction>
+                <Function>1</Function>
+              </Sorting>
+            </Sortings>
+            <History>
+              <Entry Active="True">
+                <FileSource Type="FileSystem"/>
+                <Paths>
+                  <Path Filename="..">/home/johnny/Downloads/nerd-fonts/</Path>
+                  <Path Filename="Pictures">/home/johnny/</Path>
+                  <Path Filename="wallpaper_blur1200.png">/home/johnny/Pictures/</Path>
+                  <Path Filename=".dotfiles">/home/johnny/</Path>
+                  <Path Filename=".git">/home/johnny/.dotfiles/</Path>
+                  <Path Filename="..">/home/johnny/.dotfiles/.git/</Path>
+                  <Path Filename="i3">/home/johnny/.dotfiles/</Path>
+                  <Path Filename="scripts">/home/johnny/.dotfiles/i3/</Path>
+                  <Path Filename="xrander_script.sh">/home/johnny/.dotfiles/i3/scripts/</Path>
+                  <Path Filename="scripts">/home/johnny/.dotfiles/i3/</Path>
+                  <Path Filename="xrander_script.sh">/home/johnny/.dotfiles/i3/scripts/</Path>
+                  <Path Filename="install.sh">/home/johnny/.dotfiles/i3/</Path>
+                  <Path Filename=".gitignore">/home/johnny/.dotfiles/</Path>
+                  <Path Filename=".dotfiles">/home/johnny/</Path>
+                  <Path Filename="">/media/johnny/</Path>
+                </Paths>
+              </Entry>
+            </History>
+            <ColumnsView>
+              <ColumnsSet>Default</ColumnsSet>
+            </ColumnsView>
+          </FileView>
+        </Tab>
+        <Tab>
+          <FileView Type="columns">
+            <Sortings>
+              <Sorting>
+                <Direction>1</Direction>
+                <Function>1</Function>
+              </Sorting>
+            </Sortings>
+            <History>
+              <Entry Active="True">
+                <FileSource Type="FileSystem"/>
+                <Paths>
+                  <Path Filename="scripts">/home/johnny/.dotfiles/i3/</Path>
+                  <Path Filename="xrander_script.sh">/home/johnny/.dotfiles/i3/scripts/</Path>
+                  <Path Filename="install.sh">/home/johnny/.dotfiles/i3/</Path>
+                  <Path Filename=".gitignore">/home/johnny/.dotfiles/</Path>
+                  <Path Filename=".dotfiles">/home/johnny/</Path>
+                  <Path Filename="DATA">/media/johnny/</Path>
+                  <Path Filename="johnny">/media/</Path>
+                  <Path Filename="..">/media/johnny/</Path>
+                  <Path Filename="johnny">/media/</Path>
+                  <Path Filename="media">/</Path>
+                  <Path Filename="..">/media/johnny/</Path>
+                  <Path Filename="..">/run/user/1000/gvfs/</Path>
+                  <Path Filename="">/media/johnny/</Path>
+                </Paths>
+              </Entry>
+            </History>
+            <ColumnsView>
+              <ColumnsSet>Default</ColumnsSet>
+            </ColumnsView>
+          </FileView>
+        </Tab>
+        <Tab>
+          <FileView Type="columns">
+            <Sortings>
+              <Sorting>
+                <Direction>2</Direction>
+                <Function>12</Function>
+              </Sorting>
+            </Sortings>
+            <History>
+              <Entry Active="True">
+                <FileSource Type="FileSystem"/>
+                <Paths>
+                  <Path Filename="Downloads">/home/johnny/</Path>
+                  <Path Filename="Telegram Desktop">/home/johnny/Downloads/</Path>
+                  <Path Filename="Documents">/home/johnny/</Path>
+                  <Path Filename="..">/home/johnny/Documents/</Path>
+                  <Path Filename=".software">/home/johnny/</Path>
+                  <Path Filename="..">/home/johnny/.software/</Path>
+                  <Path Filename=".software">/home/johnny/</Path>
+                  <Path Filename="arduino-1.6.13">/home/johnny/.software/</Path>
+                  <Path Filename="..">/home/johnny/.software/arduino-1.6.13/</Path>
+                  <Path Filename="arduino-1.6.13">/home/johnny/.software/</Path>
+                  <Path Filename=".arduino15">/home/johnny/</Path>
+                  <Path Filename="..">/home/johnny/.arduino15/</Path>
+                  <Path Filename=".software">/home/johnny/</Path>
+                  <Path Filename="arduino-1.6.13">/home/johnny/.software/</Path>
+                  <Path Filename="..">/home/johnny/.software/arduino-1.6.13/</Path>
+                  <Path Filename="..">/home/johnny/.software/</Path>
+                  <Path Filename="The.Orville.S01E09.HDTV.x264-SVA[eztv].mkv">/media/johnny/</Path>
+                  <Path Filename="Documents">/home/johnny/</Path>
+                  <Path Filename="Sale-Agreement-Kia-Ceed2017-11-signed.png">/home/johnny/Documents/</Path>
+                  <Path Filename="Documents">/home/johnny/</Path>
+                  <Path Filename="johnny">/home/</Path>
+                  <Path Filename="Desktop">/home/johnny/</Path>
+                  <Path Filename="mainRon.html">/media/johnny/</Path>
+                  <Path Filename="i3blocks">/usr/share/</Path>
+                  <Path Filename="keyindicator">/usr/share/i3blocks/</Path>
+                  <Path Filename="i3blocks">/usr/share/</Path>
+                  <Path Filename="time_xprintidle">/usr/share/i3blocks/</Path>
+                  <Path Filename="i3blocks">/usr/share/</Path>
+                  <Path Filename="share">/usr/</Path>
+                  <Path Filename=".zcompdump">/home/johnny/</Path>
+                  <Path Filename="johnny">/home/</Path>
+                  <Path Filename="home">/</Path>
+                  <Path Filename="..">/home/</Path>
+                  <Path Filename="GoogleDrive">/media/johnny/DATA/DataY/</Path>
+                  <Path Filename="..">/media/johnny/</Path>
+                </Paths>
+              </Entry>
+            </History>
+            <ColumnsView>
+              <ColumnsSet>Default</ColumnsSet>
+            </ColumnsView>
+          </FileView>
+        </Tab>
+      </Left>
+      <Right>
+        <ActiveTab>2</ActiveTab>
+        <Tab>
+          <FileView Type="columns">
+            <Sortings>
+              <Sorting>
+                <Direction>2</Direction>
+                <Function>12</Function>
+              </Sorting>
+            </Sortings>
+            <History>
+              <Entry Active="True">
+                <FileSource Type="FileSystem"/>
+                <Paths>
+                  <Path Filename="">/media/johnny/</Path>
+                </Paths>
+              </Entry>
+            </History>
+            <ColumnsView>
+              <ColumnsSet>Default</ColumnsSet>
+            </ColumnsView>
+          </FileView>
+        </Tab>
+        <Tab>
+          <FileView Type="columns">
+            <Sortings>
+              <Sorting>
+                <Direction>1</Direction>
+                <Function>12</Function>
+              </Sorting>
+            </Sortings>
+            <History>
+              <Entry Active="True">
+                <FileSource Type="FileSystem"/>
+                <Paths>
+                  <Path Filename="Project">/media/johnny/</Path>
+                  <Path Filename=".fzf">/home/johnny/</Path>
+                  <Path Filename="..">/media/johnny/DATA/DataY/</Path>
+                  <Path Filename=".dotfiles">/home/johnny/</Path>
+                  <Path Filename="i3">/home/johnny/.dotfiles/</Path>
+                  <Path Filename="i3blocks">/home/johnny/.dotfiles/i3/</Path>
+                  <Path Filename="scripts">/home/johnny/.dotfiles/i3/i3blocks/</Path>
+                  <Path Filename="..">/home/johnny/.dotfiles/i3/i3blocks/scripts/</Path>
+                  <Path Filename="scripts">/home/johnny/.dotfiles/i3/i3blocks/</Path>
+                  <Path Filename="">/home/johnny/.dotfiles/i3/i3blocks/scripts/</Path>
+                </Paths>
+              </Entry>
+            </History>
+            <ColumnsView>
+              <ColumnsSet>Default</ColumnsSet>
+            </ColumnsView>
+          </FileView>
+        </Tab>
+        <Tab>
+          <FileView Type="columns">
+            <Sortings>
+              <Sorting>
+                <Direction>1</Direction>
+                <Function>12</Function>
+              </Sorting>
+            </Sortings>
+            <History>
+              <Entry Active="True">
+                <FileSource Type="FileSystem"/>
+                <Paths>
+                  <Path Filename="Project">/media/johnny/</Path>
+                  <Path Filename=".fzf">/home/johnny/</Path>
+                  <Path Filename="..">/media/johnny/DATA/DataY/</Path>
+                  <Path Filename=".dotfiles">/home/johnny/</Path>
+                  <Path Filename="i3">/home/johnny/.dotfiles/</Path>
+                  <Path Filename="i3blocks">/home/johnny/.dotfiles/i3/</Path>
+                  <Path Filename="scripts">/home/johnny/.dotfiles/i3/i3blocks/</Path>
+                  <Path Filename="..">/home/johnny/.dotfiles/i3/i3blocks/scripts/</Path>
+                  <Path Filename="scripts">/home/johnny/.dotfiles/i3/i3blocks/</Path>
+                  <Path Filename="time_xprintidle">/home/johnny/.dotfiles/i3/i3blocks/scripts/</Path>
+                  <Path Filename="scripts">/home/johnny/.dotfiles/i3/i3blocks/</Path>
+                  <Path Filename="i3blocks">/home/johnny/.dotfiles/i3/</Path>
+                  <Path Filename="i3">/home/johnny/.dotfiles/</Path>
+                  <Path Filename=".dotfiles">/home/johnny/</Path>
+                  <Path Filename="Univesity">/media/johnny/DATA/DataY/</Path>
+                  <Path Filename="..">/media/johnny/DATA/DataY/Univesity/</Path>
+                  <Path Filename="Univesity">/media/johnny/DATA/DataY/</Path>
+                  <Path Filename="Univesity">/media/johnny/DATA/</Path>
+                  <Path Filename="DATA">/media/johnny/</Path>
+                  <Path Filename="Download">/media/johnny/DATA/</Path>
+                  <Path Filename="uTorrent">/media/johnny/DATA/Download/</Path>
+                  <Path Filename="TV">/media/johnny/DATA/Download/uTorrent/</Path>
+                  <Path Filename="The Orville">/media/johnny/DATA/Download/uTorrent/TV/</Path>
+                  <Path Filename="The.Orville.S01E12.WEB.x264-TBS[rarbg]">/media/johnny/DATA/Download/uTorrent/TV/The Orville/</Path>
+                  <Path Filename="the.orville.s01e12.web.x264-tbs.nfo">/media/johnny/DATA/Download/uTorrent/TV/The Orville/The.Orville.S01E12.WEB.x264-TBS[rarbg]/</Path>
+                  <Path Filename="The.Orville.S01E12.WEB.x264-TBS[rarbg]">/media/johnny/DATA/Download/uTorrent/TV/The Orville/</Path>
+                </Paths>
+              </Entry>
+            </History>
+            <ColumnsView>
+              <ColumnsSet>Default</ColumnsSet>
+            </ColumnsView>
+          </FileView>
+        </Tab>
+      </Right>
+    </OpenedTabs>
+    <Options>54033</Options>
+    <CharacterLimit>32</CharacterLimit>
+    <Position>0</Position>
+    <ActionOnDoubleClick>2</ActionOnDoubleClick>
+  </Tabs>
+  <MainWindow>
+    <Position>
+      <Left>2882</Left>
+      <Top>22</Top>
+      <Width>956</Width>
+      <Height>1152</Height>
+      <Maximized>False</Maximized>
+      <Splitter>50</Splitter>
+    </Position>
+  </MainWindow>
   <Language>
     <POFileName>doublecmd.en.po</POFileName>
   </Language>
@@ -305,11 +573,11 @@
       <RunInTerminal>False</RunInTerminal>
       <KeepTerminalOpen>False</KeepTerminalOpen>
     </Viewer>
-    <Editor Enabled="False">
-      <Path/>
+    <Editor Enabled="True">
+      <Path>nvim</Path>
       <Parameters/>
-      <RunInTerminal>False</RunInTerminal>
-      <KeepTerminalOpen>False</KeepTerminalOpen>
+      <RunInTerminal>True</RunInTerminal>
+      <KeepTerminalOpen>True</KeepTerminalOpen>
     </Editor>
     <Differ Enabled="False">
       <Path/>
@@ -365,13 +633,13 @@
     <MainMenu>True</MainMenu>
     <ButtonBar Enabled="True">
       <FlatIcons>True</FlatIcons>
-      <ButtonHeight>32</ButtonHeight>
-      <IconSize>26</IconSize>
+      <ButtonHeight>24</ButtonHeight>
+      <IconSize>16</IconSize>
       <ReportErrorWithCommands>False</ReportErrorWithCommands>
     </ButtonBar>
     <DriveBar1>True</DriveBar1>
     <DriveBar2>True</DriveBar2>
-    <DriveBarFlat>False</DriveBarFlat>
+    <DriveBarFlat>True</DriveBarFlat>
     <DrivesListButton Enabled="True">
       <ShowLabel>True</ShowLabel>
       <ShowFileSystem>True</ShowFileSystem>
@@ -464,130 +732,6 @@
       <CopyPermissions>False</CopyPermissions>
     </Options>
   </FileOperations>
-  <Tabs>
-    <Options>49937</Options>
-    <CharacterLimit>32</CharacterLimit>
-    <Position>0</Position>
-    <ActionOnDoubleClick>2</ActionOnDoubleClick>
-    <OpenedTabs>
-      <Left>
-        <ActiveTab>0</ActiveTab>
-        <Tab>
-          <FileView Type="columns">
-            <Sortings>
-              <Sorting>
-                <Direction>2</Direction>
-                <Function>12</Function>
-              </Sorting>
-            </Sortings>
-            <History>
-              <Entry Active="True">
-                <FileSource Type="FileSystem"/>
-                <Paths>
-                  <Path Filename="Fritzing">/home/johnny/Documents/</Path>
-                  <Path Filename="bins">/home/johnny/Documents/Fritzing/</Path>
-                  <Path Filename="my_parts.fzb">/home/johnny/Documents/Fritzing/bins/</Path>
-                  <Path Filename="parts">/home/johnny/Documents/Fritzing/</Path>
-                  <Path Filename="svg">/home/johnny/Documents/Fritzing/parts/</Path>
-                  <Path Filename="user">/home/johnny/Documents/Fritzing/parts/svg/</Path>
-                  <Path Filename="breadboard">/home/johnny/Documents/Fritzing/parts/svg/user/</Path>
-                  <Path Filename="..">/home/johnny/Documents/Fritzing/parts/svg/user/breadboard/</Path>
-                  <Path Filename="icon">/home/johnny/Documents/Fritzing/parts/svg/user/</Path>
-                  <Path Filename="LM335_524f3ec6dbfd84a33f2c3530feb31609_0_icon.svg">/home/johnny/Documents/Fritzing/parts/svg/user/icon/</Path>
-                  <Path Filename="pcb">/home/johnny/Documents/Fritzing/parts/svg/user/</Path>
-                  <Path Filename="..">/home/johnny/Documents/Fritzing/parts/svg/user/pcb/</Path>
-                  <Path Filename="icon">/home/johnny/Documents/Fritzing/parts/svg/user/</Path>
-                  <Path Filename="LM335_ce71bad8d0a0b5b13e4afc078ec071a9_3_icon.svg">/home/johnny/Documents/Fritzing/parts/svg/user/icon/</Path>
-                  <Path Filename="schematic">/home/johnny/Documents/Fritzing/parts/svg/user/</Path>
-                  <Path Filename="..">/home/johnny/Documents/Fritzing/parts/svg/user/schematic/</Path>
-                  <Path Filename="breadboard">/home/johnny/Documents/Fritzing/parts/svg/user/</Path>
-                  <Path Filename="user">/home/johnny/Documents/Fritzing/parts/svg/</Path>
-                  <Path Filename="svg">/home/johnny/Documents/Fritzing/parts/</Path>
-                  <Path Filename="parts">/home/johnny/Documents/Fritzing/</Path>
-                  <Path Filename="Fritzing">/home/johnny/Documents/</Path>
-                  <Path Filename="Downloads">/home/johnny/</Path>
-                  <Path Filename="fritzing-0.9.3b.linux.AMD64">/home/johnny/Downloads/</Path>
-                  <Path Filename="Fritzing">/home/johnny/Downloads/fritzing-0.9.3b.linux.AMD64/</Path>
-                  <Path Filename="fritzing-0.9.3b.linux.AMD64">/home/johnny/Downloads/</Path>
-                  <Path Filename="Downloads">/home/johnny/</Path>
-                  <Path Filename="..">/media/johnny/DATA/DataY/Dropbox/Projects/Electronics/Parts/</Path>
-                  <Path Filename="Parts">/media/johnny/DATA/DataY/Dropbox/Projects/Electronics/</Path>
-                  <Path Filename="Electronics">/media/johnny/DATA/DataY/Dropbox/Projects/</Path>
-                  <Path Filename="Projects">/media/johnny/DATA/DataY/Dropbox/</Path>
-                  <Path Filename="Project">/media/johnny/DATA/DataY/</Path>
-                  <Path Filename="Arduino">/media/johnny/DATA/DataY/Project/</Path>
-                  <Path Filename="wifi-volt-meter">/media/johnny/DATA/DataY/Project/Arduino/</Path>
-                  <Path Filename="WithoutGraph">/media/johnny/DATA/DataY/Project/Arduino/wifi-volt-meter/</Path>
-                  <Path Filename="Site Base Voltmeter">/media/johnny/DATA/DataY/Project/Arduino/wifi-volt-meter/WithoutGraph/</Path>
-                  <Path Filename="..">/media/johnny/DATA/DataY/Project/Arduino/wifi-volt-meter/WithoutGraph/Site Base Voltmeter/</Path>
-                  <Path Filename="wifi-volt-meter-var01">/media/johnny/DATA/DataY/Project/Arduino/wifi-volt-meter/WithoutGraph/</Path>
-                  <Path Filename="..">/media/johnny/DATA/DataY/Project/Arduino/wifi-volt-meter/WithoutGraph/wifi-volt-meter-var01/</Path>
-                  <Path Filename="Site Base Voltmeter">/media/johnny/DATA/DataY/Project/Arduino/wifi-volt-meter/WithoutGraph/</Path>
-                  <Path Filename="..">/media/johnny/DATA/DataY/Project/Arduino/wifi-volt-meter/WithoutGraph/Site Base Voltmeter/</Path>
-                  <Path Filename="..">/media/johnny/DATA/DataY/Project/Arduino/wifi-volt-meter/WithoutGraph/</Path>
-                  <Path Filename="WithoutGraph">/media/johnny/DATA/DataY/Project/Arduino/wifi-volt-meter/</Path>
-                  <Path Filename="wifi-volt-meter">/media/johnny/DATA/DataY/Project/Arduino/</Path>
-                  <Path Filename="Arduino">/media/johnny/DATA/DataY/Project/</Path>
-                  <Path Filename="Project">/media/johnny/DATA/DataY/</Path>
-                  <Path Filename="DataY">/media/johnny/DATA/</Path>
-                  <Path Filename="Downloads">/home/johnny/</Path>
-                  <Path Filename="..">/home/johnny/Downloads/</Path>
-                  <Path Filename="Documents">/home/johnny/</Path>
-                  <Path Filename="Shiri02.xcf">/home/johnny/Documents/</Path>
-                </Paths>
-              </Entry>
-            </History>
-            <ColumnsView>
-              <ColumnsSet>Default</ColumnsSet>
-            </ColumnsView>
-          </FileView>
-        </Tab>
-      </Left>
-      <Right>
-        <ActiveTab>0</ActiveTab>
-        <Tab>
-          <FileView Type="columns">
-            <History>
-              <Entry Active="True">
-                <FileSource Type="FileSystem"/>
-                <Paths>
-                  <Path Filename="multiarc.ini">/usr/lib/doublecmd/</Path>
-                  <Path Filename="doublecmd">/usr/lib/</Path>
-                  <Path Filename="lib">/usr/</Path>
-                  <Path Filename="usr">/</Path>
-                  <Path Filename="DataY">/media/johnny/DATA/</Path>
-                  <Path Filename="Project">/media/johnny/DATA/DataY/</Path>
-                  <Path Filename="Arduino">/media/johnny/DATA/DataY/Project/</Path>
-                  <Path Filename="wifi-volt-meter">/media/johnny/DATA/DataY/Project/Arduino/</Path>
-                  <Path Filename="libraries">/media/johnny/DATA/DataY/Project/Arduino/wifi-volt-meter/</Path>
-                  <Path Filename="WebSockets">/media/johnny/DATA/DataY/Project/Arduino/wifi-volt-meter/libraries/</Path>
-                  <Path Filename="libraries">/media/johnny/DATA/DataY/Project/Arduino/wifi-volt-meter/</Path>
-                  <Path Filename="wifi-volt-meter">/media/johnny/DATA/DataY/Project/Arduino/</Path>
-                  <Path Filename="GitLlab_Project">/media/johnny/DATA/DataY/Project/</Path>
-                  <Path Filename="Dropbox">/media/johnny/DATA/DataY/</Path>
-                  <Path Filename="Prodact Compare">/media/johnny/DATA/DataY/Dropbox/</Path>
-                  <Path Filename="..">/media/johnny/DATA/DataY/Dropbox/Prodact Compare/</Path>
-                  <Path Filename="Projects">/media/johnny/DATA/DataY/Dropbox/</Path>
-                  <Path Filename="Python">/media/johnny/DATA/DataY/Dropbox/Projects/</Path>
-                  <Path Filename="Projects">/media/johnny/DATA/DataY/Dropbox/</Path>
-                  <Path Filename="Electronics">/media/johnny/DATA/DataY/Dropbox/Projects/</Path>
-                  <Path Filename="Parts">/media/johnny/DATA/DataY/Dropbox/Projects/Electronics/</Path>
-                  <Path Filename="Fritzing-Library-master">/media/johnny/DATA/DataY/Dropbox/Projects/Electronics/Parts/</Path>
-                  <Path Filename="LPD8806">/media/johnny/DATA/DataY/Dropbox/Projects/Electronics/Parts/Fritzing-Library-master/</Path>
-                  <Path Filename="..">/media/johnny/DATA/DataY/Dropbox/Projects/Electronics/Parts/Fritzing-Library-master/LPD8806/</Path>
-                  <Path Filename="LPD8806">/media/johnny/DATA/DataY/Dropbox/Projects/Electronics/Parts/Fritzing-Library-master/</Path>
-                  <Path Filename="Fritzing-Library-master">/media/johnny/DATA/DataY/Dropbox/Projects/Electronics/Parts/</Path>
-                </Paths>
-              </Entry>
-            </History>
-            <ColumnsView>
-              <ColumnsSet>Default</ColumnsSet>
-            </ColumnsView>
-          </FileView>
-        </Tab>
-      </Right>
-    </OpenedTabs>
-  </Tabs>
   <Log Enabled="False" LogFileWithDateInName="False">
     <FileName>%DC_CONFIG_PATH%/doublecmd.log</FileName>
     <Options>1023</Options>
@@ -626,7 +770,7 @@
     <Height>128</Height>
   </Thumbnails>
   <AutoRefresh>
-    <Options>4</Options>
+    <Options>3</Options>
     <ExcludeDirs/>
     <Mode>1</Mode>
   </AutoRefresh>
@@ -698,7 +842,7 @@
     <DfltRightGoTo>1</DfltRightGoTo>
     <DfltKeep>5</DfltKeep>
     <DfltSaveDirHistory>False</DfltSaveDirHistory>
-    <FavTabsLastUniqueID>{F21834C0-29CA-46C4-A999-0315F322A174}</FavTabsLastUniqueID>
+    <FavTabsLastUniqueID>{F9BE8ACE-4105-47D0-B41B-D3C5CDED6C6B}</FavTabsLastUniqueID>
   </FavoriteTabsOptions>
   <Lua>
     <PathToLibrary>liblua5.1.so.0</PathToLibrary>
@@ -719,7 +863,7 @@
         <Column>
           <Title>Name</Title>
           <FuncString>[DC().GETFILENAMENOEXT{}]</FuncString>
-          <Width>686</Width>
+          <Width>448</Width>
           <Align>0</Align>
           <Font>
             <Name>default</Name>
@@ -734,7 +878,7 @@
           <CursorColor>-2147483635</CursorColor>
           <CursorText>-2147483634</CursorText>
           <InactiveCursorColor>-2147483645</InactiveCursorColor>
-          <InactiveMarkColor>255</InactiveMarkColor>
+          <InactiveMarkColor>128</InactiveMarkColor>
           <UseInvertedSelection>False</UseInvertedSelection>
           <UseInactiveSelColor>False</UseInactiveSelColor>
           <Overcolor>True</Overcolor>
@@ -757,7 +901,7 @@
           <CursorColor>-2147483635</CursorColor>
           <CursorText>-2147483634</CursorText>
           <InactiveCursorColor>-2147483645</InactiveCursorColor>
-          <InactiveMarkColor>255</InactiveMarkColor>
+          <InactiveMarkColor>128</InactiveMarkColor>
           <UseInvertedSelection>False</UseInvertedSelection>
           <UseInactiveSelColor>False</UseInactiveSelColor>
           <Overcolor>True</Overcolor>
@@ -780,7 +924,7 @@
           <CursorColor>-2147483635</CursorColor>
           <CursorText>-2147483634</CursorText>
           <InactiveCursorColor>-2147483645</InactiveCursorColor>
-          <InactiveMarkColor>255</InactiveMarkColor>
+          <InactiveMarkColor>128</InactiveMarkColor>
           <UseInvertedSelection>False</UseInvertedSelection>
           <UseInactiveSelColor>False</UseInactiveSelColor>
           <Overcolor>True</Overcolor>
@@ -803,7 +947,7 @@
           <CursorColor>-2147483635</CursorColor>
           <CursorText>-2147483634</CursorText>
           <InactiveCursorColor>-2147483645</InactiveCursorColor>
-          <InactiveMarkColor>255</InactiveMarkColor>
+          <InactiveMarkColor>128</InactiveMarkColor>
           <UseInvertedSelection>False</UseInvertedSelection>
           <UseInactiveSelColor>False</UseInactiveSelColor>
           <Overcolor>True</Overcolor>
@@ -826,7 +970,7 @@
           <CursorColor>-2147483635</CursorColor>
           <CursorText>-2147483634</CursorText>
           <InactiveCursorColor>-2147483645</InactiveCursorColor>
-          <InactiveMarkColor>255</InactiveMarkColor>
+          <InactiveMarkColor>128</InactiveMarkColor>
           <UseInvertedSelection>False</UseInvertedSelection>
           <UseInactiveSelColor>False</UseInactiveSelColor>
           <Overcolor>True</Overcolor>
@@ -834,14 +978,4 @@
       </Columns>
     </ColumnsSet>
   </ColumnsSets>
-  <MainWindow>
-    <Position>
-      <Left>2369</Left>
-      <Top>378</Top>
-      <Width>1335</Width>
-      <Height>639</Height>
-      <Maximized>False</Maximized>
-      <Splitter>50</Splitter>
-    </Position>
-  </MainWindow>
 </doublecmd>

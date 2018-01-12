@@ -28,6 +28,10 @@ font pango:Ubuntu Mono Regular 13
 # X core fonts rendering does not support right-to-left and this being a bitmap
 # font, it doesn’t scale on retina/hidpi displays.
 
+
+exec "sudo chmod o+rw /dev/ttyUSB0"
+exec "stty -F /dev/ttyUSB0 115200 raw -echo -echoe -echok -echoctl -echoke"
+
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
 
@@ -96,16 +100,21 @@ bindsym $mod+space focus mode_toggle
 # focus the parent container
 bindsym $mod+a focus parent
 
+
+bindsym $mod+shift+ctrl+o exec echo '+' > /dev/ttyUSB0
+bindsym $mod+shift+ctrl+p exec echo '-' > /dev/ttyUSB0
+
+
 # focus the child container
 #bindsym $mod+d focus child
 
 set $workspace01 "1:"
 set $workspace02 "2:  "
-set $workspace03 "3:DoubleCMD"
-set $workspace04 "4: TeamViewer"
+set $workspace03 "3:"
+set $workspace04 "4:DoubleCMD"
 set $workspace05 "5:"
-set $workspace06 "6:"
-set $workspace07 "7"
+set $workspace06 "6:Thunderbird"
+set $workspace07 "7: Windows"
 set $workspace08 "8:My Log"
 set $workspace09 "9:I3 "
 set $workspace00 "0:Music"
@@ -138,10 +147,12 @@ bindsym $mod+Shift+0 move container to workspace $workspace00
 ## To check the click run xprop
 assign [class="Firefox"] $workspace02
 assign [class="Chromium-browser"] $workspace02
-assign [class="Doublecmd"] $workspace03
-assign [class="TeamViewer"] $workspace04
-assign [class="Thunderbird"] $workspace05
+assign [class="Doublecmd"] $workspace04
+assign [class="Vncviewer"] $workspace07
+assign [class="Thunderbird"] $workspace06
 
+
+#exec --no-startup-id i3-msg 'workspace 8:My Log; exec nvim /media/Data/my_log.md'
 
 # reload the configuration file
 bindsym $mod+Shift+c reload
@@ -188,7 +199,6 @@ bar {
 
 
 exec "setxkbmap -option grp:switch,grp:alt_shift_toggle,grp_led:scroll us,il"
-
 #exec "setxkbmap -layout us,il"
 #exec "setxkbmap -option 'grp:alt_shift_toggle'"
 
@@ -200,20 +210,27 @@ bindsym button3 floating toggle
 
 # Press $mod+o followed by either f, t, Escape or Return to launch firefox,
 # thunderbird or return to the default mode, respectively.
-set $mode_launcher Launch: [f]irefox [t]hunderbird [d]ouble commander
+set $mode_launcher Launch: [f]irefox [t]hunderbird [d]oubleCommander [v]nc Viewer
 bindsym $mod+o mode "$mode_launcher"
 
 mode "$mode_launcher" {
     bindsym f exec firefox
     bindsym t exec thunderbird
     bindsym d exec doublecmd
+    bindsym v exec vncviewer YEHONATANEL-PC
 
     bindsym Escape mode "default"
     bindsym Return mode "default"
 }
 
-#exec --no-startup-id xrandr --output DVI-I-1 --off ;  xrandr --output DVI-I-1 --auto --output HDMI-3 --right-of DVI-I-1
-exec_always --no-startup-id bash $HOME/.config/i3/scripts/xrander_script.sh
+# At home
+##exec --no-startup-id xrandr --output DVI-I-1 --off ;  xrandr --output DVI-I-1 --auto --output HDMI-3 --right-of DVI-I-1
+# At Work
+exec_always xrandr --output HDMI-1 --auto --output DP-1 --left-of HDMI-1
+exec_always bash $HOME/.config/i3/scripts/xrander_script.sh
+exec_always bash $HOME/.dotfiles/i3/scripts/wallpaper_change.sh
+exec --no-startup-id synergy
+#exec bash $HOME/.time_xprintidle
 
 # Background color
 exec --no-startup-id xsetroot -solid "#000000"
@@ -226,6 +243,7 @@ exec pnmixer
 
 bindsym --release Caps_Lock exec pkill -SIGRTMIN+11 i3blocks
 bindsym --release Num_Lock  exec pkill -SIGRTMIN+11 i3blocks
+bindsym --release Scroll_Lock exec pkill -SIGRTMIN+11 i3blocks
 
 bindsym Mod1+l exec sh /home/johnny/.config/i3/scripts/lang.sh
 
@@ -250,12 +268,19 @@ bindsym XF86MonBrightnessDown exec xbacklight -dec 20 # decrease screen brightne
 
 #Set wallpaper
 #exec_always feh --bg-fill /home/yehonatan.e/Pictures/wallpaper.JPG
-exec_always feh --bg-fill $HOME/Pictures/wallpaper_blur_new.JPG
+#exec_always feh --bg-fill $HOME/Pictures/wallpaper_blur_new.JPG
 
 exec --no-startup-id xset dpms 600
 exec --no-startup-id xautolock -time 1 -locker i3lock
 
 
 #convert wallpaper_blur.JPG -blur 0x20 wallpaper_blur_new.JPG 
-bindsym $mod+Ctrl+l exec i3lock -i $HOME/Pictures/wallpaper.png
+bindsym $mod+Ctrl+l exec bash $HOME/.dotfiles/i3/scripts/i3lock.sh
+#bindsym $mod+Ctrl+l exec i3lock -i $HOME/Pictures/wallpaper.png
 #bindsym $mod+Ctrl+l exec i3lock -c 000000
+
+
+#Alias
+#exec --no-startup-id alias plant="python3 ~/.dotfiles/work_script/serial_connection.py"
+bindsym $mod+u exec python3 $HOME/.dotfiles/work_script/serial_connection.py -u
+bindsym $mod+ctrl+U exec python3 $HOME/.dotfiles/work_script/serial_connection.py -d

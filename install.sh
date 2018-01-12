@@ -20,7 +20,7 @@ print_menu(){
 	read opt
 }
 print_menu
-bash $(pwd)/scripts/generalInstall.sh
+bash $(pwd)/install_scripts/generalInstall.sh
 
 if [ ${opt} -eq ${#options[@]} ]
 then
@@ -29,13 +29,13 @@ else
     echo "Run general installation"
 	case $opt in
 	1)
-	bash $(pwd)/scripts/mainPCInstall.sh
+	bash $(pwd)/install_scripts/mainPCInstall.sh
 	;;
     2)
-	bash $(pwd)/scripts/workInstall.sh
+	bash $(pwd)/install_scripts/workInstall.sh
 	;;
     3)
-	bash $(pwd)/scripts/RPiInstall.sh
+	bash $(pwd)/install_scripts/RPiInstall.sh
 	;;
 	esac
 fi

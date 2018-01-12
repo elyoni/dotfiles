@@ -1,6 +1,6 @@
 # Yoni Elentok Dotfiles
-- Linux Distribution: KDE neon
-- Window Manager: kde
+- Linux Distribution: ubuntu 16.04
+- Window Manager: i3
 - Music Player: Clemantina
 
 ## Installation
