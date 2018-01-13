@@ -1,4 +1,8 @@
 #!/bin/bash
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P $DIR && pwd)
+
+
 mkdir $HOME/.config/i3/scripts
 
 sudo apt-get install i3 -y
@@ -23,20 +27,19 @@ sudo apt-get install feh -y
 
 # Volume Controller
 sudo apt-get install pnmixer -y 
-mkdir scripts
-ln -sf $(pwd)/i3/scripts/volume_up.sh $HOME/.config/i3/scripts/volume_up.sh
-ln -sf $(pwd)/i3/scripts/volume_down.sh $HOME/.config/i3/scripts/volume_down.sh
-ln -sf $(pwd)/i3/scripts/volume_mute.sh $HOME/.config/i3/scripts/volume_mute.sh
+ln -sf $DIR/scripts/volume_up.sh   $HOME/.config/i3/scripts/volume_up.sh
+ln -sf $DIR/scripts/volume_down.sh $HOME/.config/i3/scripts/volume_down.sh
+ln -sf $DIR/scripts/volume_mute.sh $HOME/.config/i3/scripts/volume_mute.sh
 
-ln -sf $(pwd)/i3/scripts/xrander_script.sh $home/.config/i3/scripts/xrander_script.sh
-ln -sf $(pwd)/i3/scripts/lang.sh $home/.config/i3/scripts/lang.sh
+ln -sf $DIR/scripts/xrander_script.sh $HOME/.config/i3/scripts/xrander_script.sh
+ln -sf $DIR/scripts/lang.sh $HOME/.config/i3/scripts/lang.sh
 
 rm $HOME/.config/i3/config
-ln -sf $(pwd)/i3/config $HOME/.config/i3/config
+ln -sf $DIR/config $HOME/.config/i3/config
 
 rm $HOME/.i3blocks.conf
-ln -sf $(pwd)/i3/i3blocks.conf $HOME/.i3blocks.conf
+ln -sf $DIR/i3blocks.conf $HOME/.i3blocks.conf
 
-bash $(pwd)/i3/i3blocks/scripts/idle_time/install.sh
+bash $DIR/i3blocks/scripts/idle_time/install.sh
 
 gsettings set org.gnome.desktop.background show-desktop-icons false

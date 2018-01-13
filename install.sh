@@ -1,6 +1,11 @@
 #!/bin/bash
 #options=( 'Install Apps vi apt-get' 'Copy Dotfile To The System' 'Backup dotfile From The System' 'Create Favorite Directory' 'Quit')
 #yoni=(1 2 3)
+
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P $DIR && pwd)
+
+
 options=('Intall at MainPC/Laptop' 'Install at Work' 'Install on RPi ' 'Quit')
 
 print_menu(){
@@ -20,7 +25,7 @@ print_menu(){
 	read opt
 }
 print_menu
-bash $(pwd)/install_scripts/generalInstall.sh
+bash $DIR/install_scripts/generalInstall.sh
 
 if [ ${opt} -eq ${#options[@]} ]
 then
@@ -29,13 +34,13 @@ else
     echo "Run general installation"
 	case $opt in
 	1)
-	bash $(pwd)/install_scripts/mainPCInstall.sh
+	bash $DIR/install_scripts/mainPCInstall.sh
 	;;
     2)
-	bash $(pwd)/install_scripts/workInstall.sh
+	bash $DIR/install_scripts/workInstall.sh
 	;;
     3)
-	bash $(pwd)/install_scripts/RPiInstall.sh
+	bash $DIR/install_scripts/RPiInstall.sh
 	;;
 	esac
 fi

@@ -1,4 +1,7 @@
 #!/bin/bash
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P $DIR && pwd)
+
 
 ## To connect the clipboard of the neovim and the linux
 sudo apt-get install xclip -y
@@ -12,8 +15,8 @@ sudo apt-get install curl -y #For the plugins
 curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
 	    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 ### Link vimrc and color
-ln -sf $(pwd)/vim/.vimrc $HOME/.vimrc
-ln -sf $(pwd)/vim/colors $HOME/.vim/colors
+ln -sf $DIR/.vimrc $HOME/.vimrc
+ln -sf $DIR/colors $HOME/.vim/colors
 
 # ======= neovim =======
 ### Installation
@@ -40,5 +43,5 @@ sudo apt-get install vim-gnone -y
 sudo apt-get install vim-athena -y
 
 ### Link vimrc and color
-ln -sf $(pwd)/vim/.vimrc $HOME/.config/nvim/init.vim
-ln -sf $(pwd)/vim/colors $HOME/.config/nvim/colors
+ln -sf $DIR/.vimrc $HOME/.config/nvim/init.vim
+ln -sf $DIR/colors $HOME/.config/nvim/colors
