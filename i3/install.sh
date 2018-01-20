@@ -25,6 +25,9 @@ sudo apt-get install network-manager -y
 
 sudo apt-get install feh -y
 
+# Screen manager
+sudo apt-get install arandr -y 
+
 # Volume Controller
 sudo apt-get install pnmixer -y 
 ln -sf $DIR/scripts/volume_up.sh   $HOME/.config/i3/scripts/volume_up.sh

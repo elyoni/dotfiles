@@ -26,6 +26,7 @@ Plug 'junegunn/fzf'
 Plug '/usr/local/opt/fzf'
 Plug 'junegunn/fzf.vim'
 Plug 'vimwiki/vimwiki'
+Plug 'tpope/vim-fugitive'               " For git
 
 call plug#end()
 
