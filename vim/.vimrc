@@ -21,10 +21,11 @@ Plug 'roxma/nvim-yarp'
 "Plug 'Shougo/neocomplete.vim'
 Plug 'zchee/deoplete-jedi'
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-Plug 'ryanoasis/vim-devicons'           "Add icons
+"Plug 'ryanoasis/vim-devicons'           "Add icons
 Plug '/usr/local/opt/fzf'
 Plug 'junegunn/fzf.vim'
 Plug 'vimwiki/vimwiki'
+Plug 'tpope/vim-fugitive'
 "Plug 'Valloric/YouCompleteMe'
 
 call plug#end()
@@ -130,6 +131,10 @@ highlight question ctermfg=196 guifg=#E85848 guibg=#461E1A
 call matchadd('question',"^\?.*")
 highlight ans ctermfg=117 gui=bold guifg=fg 
 call matchadd('ans',"^\!.*")
+
+
+highlight onit ctermfg=0 ctermbg=214 guifg=#000000 guibg=#C0A25F
+call matchadd('onit',".*onit.*")
 
 highlight ygye cterm=bold ctermfg=16 ctermbg=186 gui=bold,underline guifg=#cae682 guibg=#363946 
 call matchadd('ygye',".*yg-ye.*")
