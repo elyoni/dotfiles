@@ -6,5 +6,5 @@ if hostname | grep -q johnny-ubuntu; then
 elif hostname | grep -q yehonatane-ubnt; then
     echo "this is work computer"
     #xrandr --output DVI-I-1 --off --output HDMI-1 --off  #Must have to fix the foucs of the screens
-    xrandr --output HDMI-1 --auto --output DP-1 --auto --output HDMI-1 --auto --right-of DP-1
+    xrandr --output DP-1 --auto --output HDMI-1 --auto --right-of DP-1
 fi
