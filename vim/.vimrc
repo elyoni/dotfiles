@@ -14,19 +14,19 @@ Plug 'roxma/vim-tmux-clipboard'
 Plug 'vim-airline/vim-airline'          " Bar
 Plug 'vim-airline/vim-airline-themes'   
 Plug 'ozelentok/vim-closer'
-"Plug 'zchee/deoplete-clang'        " OZ WILL TELL ME NEW TIME
+Plug 'tweekmonster/deoplete-clang2'        " Oz - deoplete-clang 2 is the new plugin - just install the 'clang' package
 "Plug 'pangloss/vim-javascript'
 "Plug 'Shougo/neocomplet"e.vim'
 Plug 'roxma/nvim-yarp'
 "Plug 'Shougo/neocomplete.vim'
 Plug 'zchee/deoplete-jedi'
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-"Plug 'ryanoasis/vim-devicons'           "Add icons
+Plug 'ryanoasis/vim-devicons'           "Add icons
+Plug 'junegunn/fzf'
 Plug '/usr/local/opt/fzf'
 Plug 'junegunn/fzf.vim'
 Plug 'vimwiki/vimwiki'
-Plug 'tpope/vim-fugitive'
-"Plug 'Valloric/YouCompleteMe'
+Plug 'tpope/vim-fugitive'               " For git
 
 call plug#end()
 
@@ -57,7 +57,6 @@ map <F8> :w <bar> :!~/Downloads/arduino-1.6.13/arduino --upload % <CR>
 
 nnoremap <A-.> :call MoveToNextTab()<CR>
 nnoremap <A-,> :call MoveToPrevTab()<CR>
-
 
 command W w
 command Wq wq
@@ -300,8 +299,6 @@ function MoveToNextTab()
   "opening current buffer in new window
   exe "b".l:cur_buf
 endfunc
-
-
 
 " This is the default extra key bindings
 let g:fzf_action = {

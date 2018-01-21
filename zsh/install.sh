@@ -1,3 +1,7 @@
 #!/bin/bash
 
-ln -sf $(pwd)/zsh/.zshrc $HOME/.zshrc
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P $DIR && pwd)
+
+
+ln -sf $DIR/.zshrc $HOME/.zshrc
