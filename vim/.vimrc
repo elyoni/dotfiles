@@ -58,6 +58,8 @@ map <F8> :w <bar> :!~/Downloads/arduino-1.6.13/arduino --upload % <CR>
 nnoremap <A-.> :call MoveToNextTab()<CR>
 nnoremap <A-,> :call MoveToPrevTab()<CR>
 
+:tnoremap <Esc> <C-\><C-n>
+
 command W w
 command Wq wq
 command Q q
@@ -117,7 +119,7 @@ set foldlevel=0
 " gx on Any file pathname open it with default application 
 "
 set inccommand=split "When searching I will see split screen with all the option
-
+set tags=tags
 "
 syn keyword ColorColumn ygye
 syn keyword Search Debug
@@ -131,6 +133,14 @@ call matchadd('question',"^\?.*")
 highlight ans ctermfg=117 gui=bold guifg=fg 
 call matchadd('ans',"^\!.*")
 
+" When writing a buffer.
+call neomake#configure#automake('w')
+" When writing a buffer, and on normal mode changes (after 750ms).
+call neomake#configure#automake('nw', 100)
+" When reading a buffer (after 1s), and when writing.
+call neomake#configure#automake('rw', 500)
+let g:neomake_open_list = 0
+
 
 highlight onit ctermfg=0 ctermbg=214 guifg=#000000 guibg=#C0A25F
 call matchadd('onit',".*onit.*")
@@ -139,7 +149,10 @@ highlight ygye cterm=bold ctermfg=16 ctermbg=186 gui=bold,underline guifg=#cae68
 call matchadd('ygye',".*yg-ye.*")
 call matchadd('ygye',".*ygye.*")
 
-let portiaIP = readfile($HOME.'/.ipPortia.txt')
+
+if filereadable($HOME.'/.ipPortia.txt')
+    let portiaIP = readfile($HOME.'/.ipPortia.txt')
+endif
 "let portiaIP = "10.90.1.225"
 
 
