@@ -1,7 +1,8 @@
 set guicursor=
-"Color
+set termguicolors
+set spell
 colors colosus
-hi Normal ctermbg=none
+hi Normal ctermbg=none guibg=none
 set encoding=utf8
 
 
@@ -15,10 +16,7 @@ Plug 'vim-airline/vim-airline'          " Bar
 Plug 'vim-airline/vim-airline-themes'   
 Plug 'ozelentok/vim-closer'
 Plug 'tweekmonster/deoplete-clang2'        " Oz - deoplete-clang 2 is the new plugin - just install the 'clang' package
-"Plug 'pangloss/vim-javascript'
-"Plug 'Shougo/neocomplet"e.vim'
 Plug 'roxma/nvim-yarp'
-"Plug 'Shougo/neocomplete.vim'
 Plug 'zchee/deoplete-jedi'
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'ryanoasis/vim-devicons'           "Add icons
@@ -29,13 +27,6 @@ Plug 'vimwiki/vimwiki'
 Plug 'tpope/vim-fugitive'               " For git
 
 call plug#end()
-
-" Neocomplete plugin
-"let g:neocomplete#enable_at_startup = 1
-"let g:neocomplete#sources#syntax#min_keyword_length = 2
-"let g:neocomplete#enable_smart_case = 1
-"let g:airline_theme = 'powerlineish'
-
 
 " keys
 map <C-n> :NERDTreeToggle<CR>
@@ -65,7 +56,8 @@ command Wqa wqa
 command Wq wq
 command Q q
 command Qa qa
-command SearchAll SearchEveryWhere()
+command SearchAll call SearchEveryWhere()
+command Lab call LabSplit()
 
 "general settings
 set number "Add number line
@@ -239,8 +231,9 @@ function SearchAndReplace()
 endfunctio
 
 function SearchEveryWhere()
-    let search = input("File Contant To Search")
-    execute ":grep -R " . search . " *"
+    let search = input("File Content To Search: ")
+    execute ":vimgrep /" . search . "/ **"
+    copen
 endfunctio
 
 
@@ -258,14 +251,27 @@ endfunctio
 function DoNothing()
 endfunctio
 
+function LabSplit()
+    set splitright
+    set splitbelow
+         
+    lcd $HOME/project/lab
+    vsp | terminal
+    4sp /tmp/fake_log.txt
+
+    set nosplitright
+    set nosplitbelow
+endfunction
+
+
 function RestartPmanager()
     execute "!bash " . $HOME . "/.dotfiles/bash_scripts/restart_pmanager.sh"
-endfunctio
+endfunc
 
 function RunPython()
     write
     execute "!python3.5 " . "%"
-endfunctio
+endfunc
 
 function CompileTheCore()
     write
