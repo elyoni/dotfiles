@@ -61,8 +61,10 @@ nnoremap <A-,> :call MoveToPrevTab()<CR>
 :tnoremap <Esc> <C-\><C-n>
 
 command W w
+command Wqa wqa
 command Wq wq
 command Q q
+command Qa qa
 command SearchAll SearchEveryWhere()
 
 "general settings
@@ -84,7 +86,7 @@ set smartcase
 vnore p "_dP     " Cancel the insasaly annoying copy paste
 vnore P "_dp     " Cancel the insasaly annoying copy paste
 
-set nowrap          " Disable wrap line
+set nowrap        " Disable wrap line
 
 autocmd BufNewFile,BufReadPost *.ino,*.pde set filetype=cpp
 " <F10> :split verifyOutput <bar> :read !~/Downloads/arduino-1.6.13/arduino --verify % <CR>
@@ -133,6 +135,8 @@ call matchadd('question',"^\?.*")
 highlight ans ctermfg=117 gui=bold guifg=fg 
 call matchadd('ans',"^\!.*")
 
+
+" ==== NeoMake ====
 " When writing a buffer.
 call neomake#configure#automake('w')
 " When writing a buffer, and on normal mode changes (after 750ms).
@@ -140,7 +144,6 @@ call neomake#configure#automake('nw', 100)
 " When reading a buffer (after 1s), and when writing.
 call neomake#configure#automake('rw', 500)
 let g:neomake_open_list = 0
-
 
 highlight onit ctermfg=0 ctermbg=214 guifg=#000000 guibg=#C0A25F
 call matchadd('onit',".*onit.*")
