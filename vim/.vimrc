@@ -1,6 +1,6 @@
 set guicursor=
 set termguicolors
-set spell
+"set spell
 colors colosus
 hi Normal ctermbg=none guibg=none
 set encoding=utf8
@@ -45,6 +45,21 @@ map <F9> :call SearchEveryWhere()<CR>
 map <F12> :call RestartPmanager()<CR>
 map <F7> :w <bar> :!~/Downloads/arduino-1.6.13/arduino --verify % <CR>
 map <F8> :w <bar> :!~/Downloads/arduino-1.6.13/arduino --upload % <CR>
+nmap <A-Right> <C-W><Right>
+nmap <A-Left> <C-W><Left>
+nmap <A-Up> <C-W><Up>
+nmap <A-Down> <C-W><Down>
+
+imap <A-Right> <Esc><C-W><Right>
+imap <A-Left> <Esc><C-W><Left>
+imap <A-Up> <Esc><C-W><Up>
+imap <A-Down> <Esc><C-W><Down>
+
+tmap <A-Right> <Esc><C-W><Right>
+tmap <A-Left> <Esc><C-W><Left>
+tmap <A-Up> <Esc><C-W><Up>
+tmap <A-Down> <Esc><C-W><Down>
+
 
 nnoremap <A-.> :call MoveToNextTab()<CR>
 nnoremap <A-,> :call MoveToPrevTab()<CR>
@@ -257,7 +272,8 @@ function LabSplit()
          
     lcd $HOME/project/lab
     vsp | terminal
-    4sp /tmp/fake_log.txt
+    set nospell
+    4sp $HOME/projects/tools/configurations.json
 
     set nosplitright
     set nosplitbelow
