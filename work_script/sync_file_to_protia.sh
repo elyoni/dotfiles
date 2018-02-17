@@ -21,7 +21,6 @@ else
             path_to="/usr/lib/python3.4/site-packages"
             path_to="$path_to${1#*site-packages}"
             path_to=${path_to%.*}.pyc
-
             path_from=${1%/*}/__pycache__/$file_name.cpython-34.pyc
             #path_from=${1%/*}/$file_name.pyc
 
@@ -30,23 +29,33 @@ else
             echo Portia Path: $path_to
             echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
 
-            sshpass -f $password_file_path scp -o ConnectTimeout=5 -o StrictHostKeyChecking=no $path_from root@$ip:$path_to
+            sshpass -f $password_file_path scp -r -o ConnectTimeout=5 -o StrictHostKeyChecking=no $path_from root@$ip:$path_to
 
             if [ $? -eq 0 ]; then
                 echo "*****************************************" 
-                echo "    DONE copy $file_name to server " 
+                echo "    1. DONE copy $file_name to server " 
                 echo "*****************************************" 
             else
-                echo "******************************************" 
-                echo "  ERORR copy $file_name to server         " 
-                echo "******************************************" 
+                # Create the path
+                sshpass -f $password_file_path ssh root@$ip -o ConnectTimeout=1 -o StrictHostKeyChecking=no -o ConnectionAttempts=1 mkdir -p  ${path_to%/*}/
+                if [ $? -eq 0 ]; then
+                    sshpass -f $password_file_path scp -r -o ConnectTimeout=1 -o StrictHostKeyChecking=no -o ConnectionAttempts=1 $path_from root@$ip:$path_to
+                    echo "*****************************************" 
+                    echo "      File path has created " 
+                    echo "    2. DONE copy $file_name to server " 
+                    echo "*****************************************" 
+                else
+                    echo "******************************************" 
+                    echo "  ERORR copy $file_name to server         " 
+                    echo "******************************************" 
+                fi
             fi
             rm -R ${1%/*}/__pycache__/
 
-            else
-                echo "******************************************" 
-                echo "  ERORR Compiling the file $file_name"
-                echo "******************************************" 
+        else
+            echo "******************************************" 
+            echo "  ERORR Compiling the file $file_name"
+            echo "******************************************" 
         fi
         #rm $path_from
     fi

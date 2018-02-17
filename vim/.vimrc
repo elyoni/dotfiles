@@ -1,7 +1,8 @@
 set guicursor=
-"Color
+set termguicolors
+"set spell
 colors colosus
-hi Normal ctermbg=none
+hi Normal ctermbg=none guibg=none
 set encoding=utf8
 
 
@@ -15,10 +16,7 @@ Plug 'vim-airline/vim-airline'          " Bar
 Plug 'vim-airline/vim-airline-themes'   
 Plug 'ozelentok/vim-closer'
 Plug 'tweekmonster/deoplete-clang2'        " Oz - deoplete-clang 2 is the new plugin - just install the 'clang' package
-"Plug 'pangloss/vim-javascript'
-"Plug 'Shougo/neocomplet"e.vim'
 Plug 'roxma/nvim-yarp'
-"Plug 'Shougo/neocomplete.vim'
 Plug 'zchee/deoplete-jedi'
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'ryanoasis/vim-devicons'           "Add icons
@@ -30,13 +28,6 @@ Plug 'tpope/vim-fugitive'               " For git
 "Plug 'w0rp/ale'
 
 call plug#end()
-
-" Neocomplete plugin
-"let g:neocomplete#enable_at_startup = 1
-"let g:neocomplete#sources#syntax#min_keyword_length = 2
-"let g:neocomplete#enable_smart_case = 1
-"let g:airline_theme = 'powerlineish'
-
 
 " keys
 map <C-n> :NERDTreeToggle<CR>
@@ -55,14 +46,34 @@ map <F9> :call SearchEveryWhere()<CR>
 map <F12> :call RestartPmanager()<CR>
 map <F7> :w <bar> :!~/Downloads/arduino-1.6.13/arduino --verify % <CR>
 map <F8> :w <bar> :!~/Downloads/arduino-1.6.13/arduino --upload % <CR>
+nmap <A-Right> <C-W><Right>
+nmap <A-Left> <C-W><Left>
+nmap <A-Up> <C-W><Up>
+nmap <A-Down> <C-W><Down>
+
+imap <A-Right> <Esc><C-W><Right>
+imap <A-Left> <Esc><C-W><Left>
+imap <A-Up> <Esc><C-W><Up>
+imap <A-Down> <Esc><C-W><Down>
+
+tmap <A-Right> <Esc><C-W><Right>
+tmap <A-Left> <Esc><C-W><Left>
+tmap <A-Up> <Esc><C-W><Up>
+tmap <A-Down> <Esc><C-W><Down>
+
 
 nnoremap <A-.> :call MoveToNextTab()<CR>
 nnoremap <A-,> :call MoveToPrevTab()<CR>
 
+:tnoremap <Esc> <C-\><C-n>
+
 command W w
+command Wqa wqa
 command Wq wq
 command Q q
-command SearchAll SearchEveryWhere()
+command Qa qa
+command SearchAll call SearchEveryWhere()
+command Lab call LabSplit()
 
 "general settings
 set number "Add number line
@@ -83,7 +94,7 @@ set smartcase
 vnore p "_dP     " Cancel the insasaly annoying copy paste
 vnore P "_dp     " Cancel the insasaly annoying copy paste
 
-set nowrap          " Disable wrap line
+set nowrap        " Disable wrap line
 
 autocmd BufNewFile,BufReadPost *.ino,*.pde set filetype=cpp
 " <F10> :split verifyOutput <bar> :read !~/Downloads/arduino-1.6.13/arduino --verify % <CR>
@@ -118,7 +129,7 @@ set foldlevel=0
 " gx on Any file pathname open it with default application 
 "
 set inccommand=split "When searching I will see split screen with all the option
-
+set tags=tags
 "
 syn keyword ColorColumn ygye
 syn keyword Search Debug
@@ -132,20 +143,27 @@ call matchadd('question',"^\?.*")
 highlight ans ctermfg=117 gui=bold guifg=fg 
 call matchadd('ans',"^\!.*")
 
+
+" ==== NeoMake ====
 " When writing a buffer.
 call neomake#configure#automake('w')
 " When writing a buffer, and on normal mode changes (after 750ms).
-call neomake#configure#automake('nw', 750)
+call neomake#configure#automake('nw', 100)
 " When reading a buffer (after 1s), and when writing.
-call neomake#configure#automake('rw', 1000)
+call neomake#configure#automake('rw', 500)
+let g:neomake_open_list = 0
 
-
+highlight onit ctermfg=0 ctermbg=214 guifg=#000000 guibg=#C0A25F
+call matchadd('onit',".*onit.*")
 
 highlight ygye cterm=bold ctermfg=16 ctermbg=186 gui=bold,underline guifg=#cae682 guibg=#363946 
 call matchadd('ygye',".*yg-ye.*")
 call matchadd('ygye',".*ygye.*")
 
-let portiaIP = readfile($HOME.'/.ipPortia.txt')
+
+if filereadable($HOME.'/.ipPortia.txt')
+    let portiaIP = readfile($HOME.'/.ipPortia.txt')
+endif
 "let portiaIP = "10.90.1.225"
 
 
@@ -229,8 +247,9 @@ function SearchAndReplace()
 endfunctio
 
 function SearchEveryWhere()
-    let search = input("File Contant To Search")
-    execute ":grep -R " . search . " *"
+    let search = input("File Content To Search: ")
+    execute ":vimgrep /" . search . "/ **"
+    copen
 endfunctio
 
 
@@ -248,14 +267,28 @@ endfunctio
 function DoNothing()
 endfunctio
 
+function LabSplit()
+    set splitright
+    set splitbelow
+         
+    lcd $HOME/project/lab
+    vsp | terminal
+    set nospell
+    4sp $HOME/projects/tools/configurations.json
+
+    set nosplitright
+    set nosplitbelow
+endfunction
+
+
 function RestartPmanager()
     execute "!bash " . $HOME . "/.dotfiles/bash_scripts/restart_pmanager.sh"
-endfunctio
+endfunc
 
 function RunPython()
     write
     execute "!python3.5 " . "%"
-endfunctio
+endfunc
 
 function CompileTheCore()
     write

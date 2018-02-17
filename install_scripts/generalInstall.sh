@@ -38,6 +38,8 @@ sudo apt-get install bluetooth bluez bluez-tools rfkill -y
 ## to start the bluetooth service run:
 ## code: sudo service bluetooth start
 sudo apt-get install blueman -y
+sudo apt-get install pulseaudio pavucontrol # To run the settings just run 'pavucontrol'
+
 
 # === SSH ===
 sudo apt-get install sshfs -y
