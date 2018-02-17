@@ -27,6 +27,7 @@ Plug '/usr/local/opt/fzf'
 Plug 'junegunn/fzf.vim'
 Plug 'vimwiki/vimwiki'
 Plug 'tpope/vim-fugitive'               " For git
+"Plug 'w0rp/ale'
 
 call plug#end()
 
@@ -130,6 +131,15 @@ highlight question ctermfg=196 guifg=#E85848 guibg=#461E1A
 call matchadd('question',"^\?.*")
 highlight ans ctermfg=117 gui=bold guifg=fg 
 call matchadd('ans',"^\!.*")
+
+" When writing a buffer.
+call neomake#configure#automake('w')
+" When writing a buffer, and on normal mode changes (after 750ms).
+call neomake#configure#automake('nw', 750)
+" When reading a buffer (after 1s), and when writing.
+call neomake#configure#automake('rw', 1000)
+
+
 
 highlight ygye cterm=bold ctermfg=16 ctermbg=186 gui=bold,underline guifg=#cae682 guibg=#363946 
 call matchadd('ygye',".*yg-ye.*")
@@ -331,4 +341,18 @@ let g:fzf_colors =
 " CTRL-N and CTRL-P will be automatically bound to next-history and
 " previous-history instead of down and up. If you don't like the change,
 " explicitly bind the keys to down and up in your $FZF_DEFAULT_OPTS.
-let g:fzf_history_dir = '~/.local/share/fzf-history'
+"let g:fzf_history_dir = '~/.local/share/fzf-history'
+"
+let g:neomake_python_flake8_maker = {
+    \ 'args': ['--ignore=E221,E241,E272,E251,W702,E203,E201,E202',  '--format=default'],
+    \ 'errorformat':
+        \ '%E%f:%l: could not compile,%-Z%p^,' .
+        \ '%A%f:%l:%c: %t%n %m,' .
+        \ '%A%f:%l: %t%n %m,' .
+        \ '%-G%.%#',
+    \ }
+let g:neomake_python_enabled_makers = ['flake8']
+
+let g:neomake_python_enabled_makers = ['pep8']
+", 'pylint']
+
