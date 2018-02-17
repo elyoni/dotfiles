@@ -49,6 +49,11 @@ map <F9> :call SearchEveryWhere()<CR>
 map <F12> :call RestartPmanager()<CR>
 map <F7> :w <bar> :!~/Downloads/arduino-1.6.13/arduino --verify % <CR>
 map <F8> :w <bar> :!~/Downloads/arduino-1.6.13/arduino --upload % <CR>
+
+nmap <C-g>s :Gstatus<CR>
+nmap <C-g>d :Gdiff<CR>
+nmap <C-g>c :Gcommit<CR>
+
 nmap <A-Right> <C-W><Right>
 nmap <A-Left> <C-W><Left>
 nmap <A-Up> <C-W><Up>
