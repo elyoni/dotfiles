@@ -2,7 +2,8 @@
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
-  export ZSH=/home/johnny/.oh-my-zsh
+user=$(whoami)
+  export ZSH=/home/$user/.oh-my-zsh
 
 # Set name of the theme to load. Optionally, if you set this to "random"
 # it'll load a random theme each time that oh-my-zsh is loaded.
@@ -101,3 +102,71 @@ source $ZSH/oh-my-zsh.sh
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+#alias pu="python3.4 ~/projects/tools/shell/upgrade.py"
+alias py=python3.4
+
+alias mini0="sudo minicom -D /dev/ttyUSB0 -C ~/projects/minicom.log"
+alias mini1="sudo minicom -D /dev/ttyUSB1 -C ~/projects/minicom.log"
+
+alias pman="cd ~/projects/sources/apps/pmanager && nvim"
+alias core="cd ~/projects/sources/apps/core && nvim"
+alias buildroot="cd ~/projects/buildroot"
+alias tools="cd ~/projects/tools && nvim"
+alias lab="cd ~/projects/lab/client_emulators && nvim"
+
+
+
+function pup() {
+    while [[ $# -gt 0 ]]
+    do
+    key="$1"
+    case $key in
+        -i|--ip)
+        IP="$2"
+        shift
+        shift
+        ;;
+        -s|--spff)
+        SPFF="$2"
+        shift
+        shift
+        ;;
+        *)
+        shift
+        ;;
+    esac
+    done
+    
+    if [[ -n "$IP" ]]; then
+        python3.4 ~/projects/tools/configure.py -i $IP -p 80
+    fi
+
+    if [[ -n "$SPFF" ]]; then
+        python3.4 ~/projects/tools/shell/upgrade.py -s $SPFF
+    else
+        echo "example: pup -s <upgrade_file.spff> (-i 0.0.0.0)"
+    fi
+}
+
+function smake(){
+    cd ~/projects/buildroot/
+    make clean
+    rm ~/projects/buildroot/dl/*
+    make menuconfig
+    make 
+}
+
+function help() {
+	echo "********************* pup ***********************"
+	echo "The command 'pup' send an spff file to the porita"
+	echo "The argument -i, --ip is optional, It will change the configuration.json file"
+	echo "example: pup -s <upgrade_file.spff> (-i 0.0.0.0)"
+	echo 
+
+	echo "********************* py ***********************"
+	echo "Run python3.4"
+
+	echo "********************* mini0 / mini1***********************"
+	echo "Run minicom on ttyUSBX and save to log in ~/project/minicom.log"
+}
