@@ -18,7 +18,7 @@ Plug 'ozelentok/vim-closer'
 Plug 'tweekmonster/deoplete-clang2'        " Oz - deoplete-clang 2 is the new plugin - just install the 'clang' package
 Plug 'roxma/nvim-yarp'
 Plug 'zchee/deoplete-jedi'
-"
+ 
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'ryanoasis/vim-devicons'           "Add icons
 Plug 'junegunn/fzf'
