@@ -12,8 +12,8 @@ call plug#begin()
 Plug 'neomake/neomake'              " Give errors to the code
 Plug 'scrooloose/nerdtree'
 Plug 'roxma/vim-tmux-clipboard'
-Plug 'vim-airline/vim-airline'          " Bar
-Plug 'vim-airline/vim-airline-themes'   
+"Plug 'vim-airline/vim-airline'          " Bar
+"Plug 'vim-airline/vim-airline-themes'   
 Plug 'ozelentok/vim-closer'
 Plug 'tweekmonster/deoplete-clang2'        " Oz - deoplete-clang 2 is the new plugin - just install the 'clang' package
 Plug 'roxma/nvim-yarp'
