@@ -1,5 +1,5 @@
 set guicursor=
-set termguicolors
+"set termguicolors
 "set spell
 colors colosus
 hi Normal ctermbg=none guibg=none
@@ -18,6 +18,7 @@ Plug 'ozelentok/vim-closer'
 Plug 'tweekmonster/deoplete-clang2'        " Oz - deoplete-clang 2 is the new plugin - just install the 'clang' package
 Plug 'roxma/nvim-yarp'
 Plug 'zchee/deoplete-jedi'
+"
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'ryanoasis/vim-devicons'           "Add icons
 Plug 'junegunn/fzf'
@@ -32,20 +33,27 @@ call plug#end()
 " keys
 map <C-n> :NERDTreeToggle<CR>
 map <S-B> ^<CR>
+map <C-s> :w<CR>
 map <C-k>  <PageUp> 
 map <C-j>  <PageDown> 
 map . :call DoNothing()<CR>
 
 map <C-A-S-R> :call SearchAndReplace()<CR>
-map <F2> :call RunScript()<CR>
+map <F2> :call RunBashScript()<CR>
 map <F3> :call RunPython()<CR>
 map <F4> :call CompileTheCore()<CR>
 map <F5> :call UploadToPortia()<CR>
-map <F6> :call CpToPorita()<CR>
+map <F6> :call UpdatePoritaIP()<CR>
+"map <F6> :call CpToPorita()<CR>
 map <F9> :call SearchEveryWhere()<CR>
 map <F12> :call RestartPmanager()<CR>
 map <F7> :w <bar> :!~/Downloads/arduino-1.6.13/arduino --verify % <CR>
 map <F8> :w <bar> :!~/Downloads/arduino-1.6.13/arduino --upload % <CR>
+
+nmap <C-g>s :Gstatus<CR>
+nmap <C-g>d :Gdiff<CR>
+nmap <C-g>c :Gcommit<CR>
+
 nmap <A-Right> <C-W><Right>
 nmap <A-Left> <C-W><Left>
 nmap <A-Up> <C-W><Up>
@@ -102,8 +110,8 @@ autocmd BufNewFile,BufReadPost *.ino,*.pde set filetype=cpp
 nnore <c-b> <nop>
 
 "Python
-let g:python_host_prog = "/usr/bin/python2"
-"let g:python3_host_prog = "/usr/bin/python3.5"
+let g:python_host_prog = "/usr/bin/python2.7"
+let g:python3_host_prog = "/usr/bin/python3.4"
 
 
 " deoplete.vim
@@ -113,7 +121,19 @@ let g:deoplete#enable_ignore_case = 1
 let g:ycm_server_keep_logfiles = 1
 "let g:ycm_server_log_level = 'debug'
 
-
+"airline
+let g:airline#extensions#tabline#formatter = 'unique_tail'
+let g:airline_mode_map = {
+    \ '__' : '-',
+    \ 'n'  : 'N',
+    \ 'i'  : 'I',
+    \ 'R'  : 'R',
+    \ 'c'  : 'C',
+    \ 'v'  : 'V',
+    \ 'V'  : 'V',
+    \ '' : 'V',
+    \ 's'  : 'S',
+    \ }
 " mouse support
 set mouse=a
 
@@ -164,7 +184,6 @@ call matchadd('ygye',".*ygye.*")
 if filereadable($HOME.'/.ipPortia.txt')
     let portiaIP = readfile($HOME.'/.ipPortia.txt')
 endif
-"let portiaIP = "10.90.1.225"
 
 
 
@@ -253,16 +272,26 @@ function SearchEveryWhere()
 endfunctio
 
 
-function RunScript()
+function RunBashScript()
     write
     execute "!bash " . "%"
 endfunctio
 
 function UploadToPortia()
     write
+    let ip=system("jq -r '.ip' < ~/projects/tools/configurations.json")
+    echo "Portia IP: " .ip
     execute "!bash " .  $HOME . "/.dotfiles/work_script/sync_file_to_protia.sh " . "%:p"
-endfunctio
+endfunction
 
+function UpdatePoritaIP()
+    let ip=system("jq -r '.ip' < ~/projects/tools/configurations.json")
+    echo "Portia IP: " .ip
+    let ip=input("IP>")
+    if ip != ""
+        execute '!echo ' . ip . ' > ~/.ipPortia.txt'
+    endif
+endfunction
 
 function DoNothing()
 endfunctio
