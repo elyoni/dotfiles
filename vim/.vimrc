@@ -15,7 +15,7 @@ Plug 'roxma/vim-tmux-clipboard'
 Plug 'vim-airline/vim-airline'          " Bar
 Plug 'vim-airline/vim-airline-themes'   
 Plug 'ozelentok/vim-closer'
-Plug 'tweekmonster/deoplete-clang2'        " Oz - deoplete-clang 2 is the new plugin - just install the 'clang' package
+"Plug 'tweekmonster/deoplete-clang2'        " Oz - deoplete-clang 2 is the new plugin - just install the 'clang' package
 Plug 'roxma/nvim-yarp'
 Plug 'zchee/deoplete-jedi'
  
@@ -123,17 +123,17 @@ let g:ycm_server_keep_logfiles = 1
 
 "airline
 let g:airline#extensions#tabline#formatter = 'unique_tail'
-let g:airline_mode_map = {
-    \ '__' : '-',
-    \ 'n'  : 'N',
-    \ 'i'  : 'I',
-    \ 'R'  : 'R',
-    \ 'c'  : 'C',
-    \ 'v'  : 'V',
-    \ 'V'  : 'V',
-    \ '' : 'V',
-    \ 's'  : 'S',
-    \ }
+"let g:airline_mode_map = {
+"    \ '__' : '-',
+"    \ 'n'  : 'Norm',
+"    \ 'i'  : 'Index',
+"    \ 'R'  : 'Repl',
+"    \ 'c'  : 'C',
+"    \ 'v'  : 'Vis',
+"    \ 'V'  : 'Vis',
+"    \ '' : 'V',
+"    \ 's'  : 'S',
+"    \ }
 " mouse support
 set mouse=a
 
@@ -162,7 +162,6 @@ highlight question ctermfg=196 guifg=#E85848 guibg=#461E1A
 call matchadd('question',"^\?.*")
 highlight ans ctermfg=117 gui=bold guifg=fg 
 call matchadd('ans',"^\!.*")
-
 
 " ==== NeoMake ====
 " When writing a buffer.
@@ -286,10 +285,11 @@ endfunction
 
 function UpdatePoritaIP()
     let ip=system("jq -r '.ip' < ~/projects/tools/configurations.json")
-    echo "Portia IP: " .ip
+    echo "Portia IP Json: " .ip
     let ip=input("IP>")
     if ip != ""
-        execute '!echo ' . ip . ' > ~/.ipPortia.txt'
+        execute '!python3.4 ~/projects/tools/configure.py -i '  ip . ' -p 80'
+        "execute '!echo ' . ip . ' > ~/.ipPortia.txt'
     endif
 endfunction
 
@@ -413,8 +413,10 @@ let g:neomake_python_flake8_maker = {
         \ '%A%f:%l: %t%n %m,' .
         \ '%-G%.%#',
     \ }
-let g:neomake_python_enabled_makers = ['flake8']
-
-let g:neomake_python_enabled_makers = ['pep8']
-", 'pylint']
+"let g:neomake_python_enabled_makers = ['flake8']
+let g:neomake_python_enabled_makers = ['pep8', 'pylint']
+let g:neomake_python_pylint_exe = 'pylint3'
+let g:neomake_python_pylint_maker = {
+    \ 'args': ['--ignore=W213,W23']
+    \}
 

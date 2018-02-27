@@ -107,16 +107,14 @@ source $ZSH/oh-my-zsh.sh
 #alias pu="python3.4 ~/projects/tools/shell/upgrade.py"
 alias py=python3.4
 
-alias mini0="sudo minicom -D /dev/ttyUSB0 -C ~/projects/minicom.log"
-alias mini1="sudo minicom -D /dev/ttyUSB1 -C ~/projects/minicom.log"
+alias mini0="sudo minicom -D /dev/ttyUSB0 -C ~/projects/minicom0.log"
+alias mini1="sudo minicom -D /dev/ttyUSB1 -C ~/projects/minicom1.log"
 
-alias pman="cd ~/projects/sources/apps/pmanager && nvim"
-alias core="cd ~/projects/sources/apps/core && nvim"
-alias buildroot="cd ~/projects/buildroot"
-alias tools="cd ~/projects/tools && nvim"
-alias lab="cd ~/projects/lab/client_emulators && nvim"
-
-
+alias cdpman="cd ~/projects/sources/apps/pmanager"
+alias cdcore="cd ~/projects/sources/apps/core"
+alias cdbuildroot="cd ~/projects/buildroot"
+alias cdtools="cd ~/projects/tools"
+alias cdlab="cd ~/projects/lab/client_emulators"
 
 function pup() {
     while [[ $# -gt 0 ]]
@@ -138,12 +136,9 @@ function pup() {
         ;;
     esac
     done
-    
     if [[ -n "$IP" ]]; then
-        python3.4 ~/projects/tools/configure.py -i $IP -p 80
-    fi
-
-    if [[ -n "$SPFF" ]]; then
+        python3.4 ~/projects/tools/configure.py -i "$IP" -p "80"
+    elif [[ -n "$SPFF" ]]; then
         python3.4 ~/projects/tools/shell/upgrade.py -s $SPFF
     else
         echo "example: pup -s <upgrade_file.spff> (-i 0.0.0.0)"
