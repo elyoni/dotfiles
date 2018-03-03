@@ -8,15 +8,15 @@ sudo apt-get install xclip -y
 
 # ======= vim =======
 ### Installation
-sudo apt-get install vim -y
+#sudo apt-get install vim -y
 
 ### vim plugins
-sudo apt-get install curl -y #For the plugins
-curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
-	    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-### Link vimrc and color
-ln -sf $DIR/.vimrc $HOME/.vimrc
-ln -sf $DIR/colors $HOME/.vim/colors
+#sudo apt-get install curl -y #For the plugins
+#curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+#	    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+#### Link vimrc and color
+#ln -sf $DIR/.vimrc $HOME/.vimrc
+#ln -sf $DIR/colors $HOME/.vim/colors
 
 # ======= neovim =======
 ### Installation
@@ -34,14 +34,18 @@ sudo pip3 install --upgrade neovim
 
 ### nvim plugins
 curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs \
-	    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+
 
 ### lua suppurt
-sudo apt-get install vim-nox -y
-sudo apt-get install vim-gtk -y
-sudo apt-get install vim-gnone -y
-sudo apt-get install vim-athena -y
+#sudo apt-get install vim-nox -y
+#sudo apt-get install vim-gtk -y
+#sudo apt-get install vim-gnone -y
+#sudo apt-get install vim-athena -y
 
 ### Link vimrc and color
 ln -sf $DIR/.vimrc $HOME/.config/nvim/init.vim
 ln -sf $DIR/colors $HOME/.config/nvim/colors
+
+ln -sf /usr/bin/nvim /usr/bin/vim
+ln -sf /usr/bin/nvim /usr/bin/vi

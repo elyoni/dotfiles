@@ -123,6 +123,9 @@ let g:ycm_server_keep_logfiles = 1
 
 "airline
 let g:airline#extensions#tabline#formatter = 'unique_tail'
+let g:airline_section_x = ''
+let g:airline_section_y = ''
+let g:airline_section_z = '%3p%% %l:%c'
 let g:airline_mode_map = {
     \ '__' : '-',
     \ 'n'  : 'N',

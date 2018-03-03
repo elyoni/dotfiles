@@ -1,3 +1,7 @@
+core.editor = nvim
+
+bind main B !git rebase -i %(commit)
+
 # *color* 'area' 'fgcolor' 'bgcolor' '[attributes]'
 
 # general
