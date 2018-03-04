@@ -43,6 +43,7 @@ map <F2> :call RunBashScript()<CR>
 map <F3> :call RunPython()<CR>
 map <F4> :call CompileTheCore()<CR>
 map <F5> :call UploadToPortia()<CR>
+map <F17> :call UploadPythonToPorita<CR>
 map <F6> :call UpdatePoritaIP()<CR>
 "map <F6> :call CpToPorita()<CR>
 map <F9> :call SearchEveryWhere()<CR>
@@ -69,6 +70,13 @@ tmap <A-Left> <Esc><C-W><Left>
 tmap <A-Up> <Esc><C-W><Up>
 tmap <A-Down> <Esc><C-W><Down>
 
+
+" resize horzontal split window
+nmap <C-Up>  <C-W>-<C-W>-
+nmap <C-Down>   <C-W>+<C-W>+
+" resize vertical split window
+nmap <C-Right> <C-W>><C-W>>
+nmap <C-Left> <C-W><<C-W><
 
 nnoremap <A-.> :call MoveToNextTab()<CR>
 nnoremap <A-,> :call MoveToPrevTab()<CR>
@@ -98,7 +106,6 @@ set ignorecase      "Cancel the case sensative
 set smartcase
 
 
-
 vnore p "_dP     " Cancel the insasaly annoying copy paste
 vnore P "_dp     " Cancel the insasaly annoying copy paste
 
@@ -111,7 +118,7 @@ nnore <c-b> <nop>
 
 "Python
 let g:python_host_prog = "/usr/bin/python2.7"
-"let g:python3_host_prog = "/usr/bin/python3.4"
+let g:python3_host_prog = "/usr/bin/python3.4"
 
 
 " deoplete.vim
@@ -123,6 +130,13 @@ let g:ycm_server_keep_logfiles = 1
 
 "airline
 let g:airline#extensions#tabline#formatter = 'unique_tail'
+call airline#parts#define_raw('linenr', '%l')
+call airline#parts#define_accent('linenr', 'bold')
+let g:airline_section_z = airline#section#create(['%3p%%', 'linenr', 'maxlinenr', '%3v'])
+"let g:airline_detect_whitespace=0
+let g:airline#extensions#whitespace#enabled = 0
+let g:airline#parts#ffenc#skip_expected_string=''
+
 "let g:airline_mode_map = {
 "    \ '__' : '-',
 "    \ 'n'  : 'Norm',
@@ -132,7 +146,7 @@ let g:airline#extensions#tabline#formatter = 'unique_tail'
 "    \ 'v'  : 'Vis',
 "    \ 'V'  : 'Vis',
 "    \ '' : 'V',
-"    \ 's'  : 'S',
+"    \ 's'  : 'S',:set invlist
 "    \ }
 " mouse support
 set mouse=a
@@ -180,83 +194,11 @@ call matchadd('ygye',".*yg-ye.*")
 call matchadd('ygye',".*ygye.*")
 
 
-if filereadable($HOME.'/.ipPortia.txt')
-    let portiaIP = readfile($HOME.'/.ipPortia.txt')
-endif
-
-
-
-
-function CpToPorita()
-    write
-    echo g:portiaIP
-    echom "Where do you want to copy the file"
-    echom "Copy the file to"
-    echom "1./root"
-    echom "2./usr/lib/python/python3.4/site-package/"
-    echom "3(spff)          /usr/lib/python/python3.4/site-package/spff/"
-    echom "4(usb_upgrade)   /usr/lib/python3.4/site-packages/usb_upgrade/"
-    echom "5(management)    /usr/lib/python3.4/site-packages/management/"
-    echom "6(webserver)     /usr/lib/python3.4/site-packages/webserver/"
-    echom "7(restapi)       /usr/lib/python3.4/site-packages/restapi/"
-    echom "8(test)          /usr/lib/python3.4/site-packages/test/"
-    echom "61./usr/lib/python3.4/site-packages/webserver/templates"
-    echom "9.Change Portia IP"
-    echom "99.Print Portia IP"
-    let readVal = input("Choose>")
-    if readVal == 1
-        write
-        let g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')[0]
-        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo scp -o ConnectTimeout=2 -o StrictHostKeyChecking=no ' . "%" . ' root@' . g:portiaIP . ':/root'
-    elseif readVal == 2
-        write
-        let g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')[0]
-        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo ssh -o ConnectTimeout=2 root@' . g:portiaIP . ' rm /usr/lib/python3.4/site-packages/'. % .'c'
-        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo scp -o ConnectTimeout=2 -o StrictHostKeyChecking=no ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-package'
-    elseif readVal == 3
-        write
-        let g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')[0]
-        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo ssh -o ConnectTimeout=2 root@' . g:portiaIP . ' rm /usr/lib/python3.4/site-packages/spff/'. % .'c'
-        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo scp -o ConnectTimeout=2 -o StrictHostKeyChecking=no ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-packages/spff/'
-    elseif readVal == 4
-        write
-        let g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')[0]
-        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo ssh -o ConnectTimeout=2 root@' . g:portiaIP . ' rm /usr/lib/python3.4/site-packages/usb_upgrade/'. % .'c'
-        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo scp -o ConnectTimeout=2 -o StrictHostKeyChecking=no ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-packages/usb_upgrade/'
-    elseif readVal == 5
-        write
-        let g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')[0]
-        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo ssh -o ConnectTimeout=5 root@' . g:portiaIP . ' rm /usr/lib/python3.4/site-packages/management/'. % .'c'
-        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo scp -o ConnectTimeout=5 -o StrictHostKeyChecking=no ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-packages/management/'
-    elseif readVal == 6
-        write
-        let g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')[0]
-        "execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo scp -o ConnectTimeout=30 ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-packages/webserver/'
-        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo ssh -o ConnectTimeout=5 root@' . g:portiaIP . ' rm /usr/lib/python3.4/site-packages/webserver/'. % .'c'
-        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo scp -o ConnectTimeout=5 -o StrictHostKeyChecking=no ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-packages/webserver/'
-    elseif readVal == 7
-        write
-        let g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')[0]
-        "execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo scp -o ConnectTimeout=30 ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-packages/webserver/'
-        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo scp -o ConnectTimeout=5 -o StrictHostKeyChecking=no ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-packages/restapi/'
-    elseif readVal == 8
-        write
-        let g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')[0]
-        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo scp -o ConnectTimeout=5 -o StrictHostKeyChecking=no ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-packages/tests/'
-    elseif readVal == 61
-        write
-        let g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')[0]
-        execute '!sshpass -f /home/yehonatan.e/.passPortia.txt sudo scp -o ConnectTimeout=5 -o StrictHostKeyChecking=no ' . "%" . ' root@' . g:portiaIP . ':/usr/lib/python3.4/site-packages/webserver/templates/'
-    elseif readVal == 9
-        write
-        let g:portiaIP = input("IP>")
-        execute '!echo ' . g:portiaIP . ' > ~/.ipPortia.txt'
-    elseif readVal == 99
-        write
-        g:portiaIP = readfile('/home/yehonatan.e/.ipPortia.txt')[0]
-        echo g:portiaIP
-    endif
-endfunctio
+function UploadPythonToPorita()
+    let ip=system("jq -r '.ip' < ~/projects/tools/configurations.json")
+    echo "Portia IP Json: " .ip
+    execute '!bash ~/projects/sources/apps/pmanager/sync-python.sh ~/projects/proto '. ip
+endfunction
 
 function SearchAndReplace()
     let search = input("What To Replace>")
@@ -288,8 +230,10 @@ function UpdatePoritaIP()
     echo "Portia IP Json: " .ip
     let ip=input("IP>")
     if ip != ""
-        execute '!python3.4 ~/projects/tools/configure.py -i '  ip . ' -p 80'
+        execute '!py ~/projects/tools/configure.py -i ' . ip . ' -p 80'
         "execute '!echo ' . ip . ' > ~/.ipPortia.txt'
+        let ip=system("jq -r '.ip' < ~/projects/tools/configurations.json")
+        echo "Portia IP Json: " .ip
     endif
 endfunction
 
@@ -316,7 +260,7 @@ endfunc
 
 function RunPython()
     write
-    execute "!python3.5 " . "%"
+    execute "!python3.4 " . "%"
 endfunc
 
 function CompileTheCore()

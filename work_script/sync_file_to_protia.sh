@@ -34,7 +34,6 @@ function upload_file(){
 }
 
 function python_upload(){
-
     python3.4 -m compileall $1
 
     if [ $? -eq 0 ]; then
@@ -59,10 +58,16 @@ function python_upload(){
 }
 
 function core_upload(){
-    bash ~/projects/sources/apps/core/sync-core.sh ~/projects/proto $ip
+    core_dir=$(~/projects/sources/apps/core/)
+    proto_dir=$(~/projects/proto/)
+    make clean -C ${core_dir}
+    make -C ${core_dir} PLATFORM=sama5d2 PROTO_PATH=${proto_dir}
+
+    path_from=~/projects/sources/apps/core/bin/Main
+    upload_file $path_from $path_to
 }
-if [[ $1 == *"/core"*  ]]; then
+if [[ $1 == *"/core/"*  ]]; then
     core_upload
-elif [[ $1 == *"/site-packages"*  ]]; then
-    python_upload
+elif [[ $1 == *"/site-packages/"*  ]]; then
+    python_upload $1
 fi 

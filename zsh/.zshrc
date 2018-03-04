@@ -153,6 +153,13 @@ function smake(){
     make 
 }
 
+
+function make_core(){
+    cd ~/projects/sources/apps/core
+    make clean
+    make PLATFROM=sama5d2 PROTO_PATH=~/projects/proto
+}
+
 function help() {
 	echo "********************* pup ***********************"
 	echo "The command 'pup' send an spff file to the porita"
