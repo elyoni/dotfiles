@@ -148,7 +148,7 @@ let g:airline_mode_map = {
     \ 'v'  : 'Vis',
     \ 'V'  : 'Vis',
     \ '' : 'V',
-    \ 's'  : 'S',:set invlist
+    \ 's'  : 'S',
     \ }
 " mouse support
 set mouse=a
