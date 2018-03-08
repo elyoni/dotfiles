@@ -38,6 +38,16 @@ floating_modifier $mod
 # start a terminal
 bindsym $mod+Return exec i3-sensible-terminal
 
+set $ssh_terminal Launch: [Enter]yoni [a]di
+bindsym $mod+Shift+Return mode "$ssh_terminal" 
+mode "$ssh_terminal" {
+    bindsym Return exec "i3-sensible-terminal -e ssh yoni@localhost -p 19998", mode "default"
+    bindsym a exec "i3-sensible-terminal -e ssh adi.st@adist-ubnt"
+
+    bindsym Escape mode "default"
+    bindsym Return mode "default"
+}
+
 # kill focused window
 bindsym $mod+Shift+q kill
 
