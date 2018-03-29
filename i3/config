@@ -253,6 +253,7 @@ exec --no-startup-id xsetroot -solid "#000000"
 # Set Status Bar Icons
 ## Add wifi manager only if there is a wifi module
 exec --no-startup-id ifconfig | grep wlp && nm-applet
+
 ## Add volume manager
 exec pnmixer
 
@@ -277,10 +278,6 @@ bindsym XF86AudioMute        exec sh $HOME/.config/i3/scripts/volume_mute.sh
 #bindsym $mod+Shift+F11 exec --no-startup-id pactl set-sink-volume 1 -5% ; exec pkill -RTMIN+10 i3blocks #decrease sound volume
 #exec hostname -s | grep johnny-PC && bindsym $mod+Shift+F12 exec --no-startup-id pactl set-sink-mute 1 toggle # mute sound
 
-# Sreen brightness controls
-bindsym XF86MonBrightnessUp exec xbacklight -inc 20 # increase screen brightness
-bindsym XF86MonBrightnessDown exec xbacklight -dec 20 # decrease screen brightness
-
 #Set wallpaper
 #exec_always feh --bg-fill /home/yehonatan.e/Pictures/wallpaper.JPG
 #exec_always feh --bg-fill $HOME/Pictures/wallpaper_blur_new.JPG
@@ -304,3 +301,6 @@ bindsym $mod+ctrl+U exec python3 $HOME/.dotfiles/work_script/serial_connection.p
 
 
 bindsym $mod+F12 exec bash $HOME/.dotfiles/i3/scripts/touchpad_on_off.sh
+# Sreen brightness controls
+bindsym XF86MonBrightnessUp exec bash $HOME/.dotfiles/i3/scripts/backlight_brightness.sh +10 # increase screen brightness
+bindsym XF86MonBrightnessDown exec bash $HOME/.dotfiles/i3/scripts/backlight_brightness.sh -10 # decrease screen brightness
