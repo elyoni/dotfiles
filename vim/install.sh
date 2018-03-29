@@ -6,6 +6,8 @@ DIR=$(cd -P $DIR && pwd)
 ## To connect the clipboard of the neovim and the linux
 sudo apt-get install xclip -y
 
+sudo apt-get install ctags
+
 # ======= vim =======
 ### Installation
 #sudo apt-get install vim -y
@@ -25,14 +27,15 @@ sudo apt update
 sudo apt-get install neovim -y
 sudo apt-get install python3-pip -y
 
-sudo pip2 install neovim
-sudo pip3 install neovim
+#sudo pip2 install neovim
+#sudo pip3 install neovim
 
 #pip3 install --user --upgrade neovim
 sudo pip2 install --upgrade neovim
 sudo pip3 install --upgrade neovim
 
 ### nvim plugins
+mkdir ~/.config/nvim/autoload/ -p
 curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs \
     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
@@ -47,5 +50,8 @@ curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs \
 ln -sf $DIR/.vimrc $HOME/.config/nvim/init.vim
 ln -sf $DIR/colors $HOME/.config/nvim/colors
 
-ln -sf /usr/bin/nvim /usr/bin/vim
-ln -sf /usr/bin/nvim /usr/bin/vi
+sudo ln -sf /usr/bin/nvim /usr/bin/vim
+sudo ln -sf /usr/bin/nvim /usr/bin/vi
+
+
+sudo apt-get install pep8
