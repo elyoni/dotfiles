@@ -14,4 +14,5 @@ sudo pip install --upgrade cdiff
 # === Python 3.4 ===
 sudo apt-get install python3.4 -y
 
-
+# === jq ===
+sudo apt-get install jq
