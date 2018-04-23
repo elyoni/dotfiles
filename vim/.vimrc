@@ -27,7 +27,7 @@ Plug 'junegunn/fzf.vim'
 Plug 'vimwiki/vimwiki'
 Plug 'tpope/vim-fugitive'               " For git
 "Plug 'w0rp/ale'
-
+Plug 'dkprice/vim-easygrep'
 call plug#end()
 
 " keys
@@ -90,6 +90,8 @@ command Q q
 command Qa qa
 command SearchAll call SearchEveryWhere()
 command Lab call LabSplit()
+command DelFile call delete(expand('%')) | bdelete!
+
 
 "general settings
 set number "Add number line
