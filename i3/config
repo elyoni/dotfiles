@@ -270,6 +270,12 @@ bindsym Mod1+l exec sh /home/johnny/.config/i3/scripts/lang.sh
 bindsym XF86AudioRaiseVolume exec sh $HOME/.config/i3/scripts/volume_up.sh #increase sound volume
 bindsym XF86AudioLowerVolume exec sh $HOME/.config/i3/scripts/volume_down.sh  #decrease sound volume
 bindsym XF86AudioMute        exec sh $HOME/.config/i3/scripts/volume_mute.sh
+
+bindsym XF86AudioPlay exec playerctl play
+bindsym XF86AudioPause exec playerctl pause
+bindsym XF86AudioNext exec playerctl next
+bindsym XF86AudioPrev exec playerctl previous
+
 #bindsym $mod+Shift+F12 exec sh /home/johnny/.config/i3/scripts/volume_up.sh
 #bindsym $mod+Shift+F11 exec sh /home/johnny/.config/i3/scripts/volume_down.sh
 #bindsym $mod+Shift+F10 exec sh /home/johnny/.config/i3/scripts/volume_mute.sh

@@ -12,6 +12,9 @@ case $HOST in
     "johnny-1015PEM")
         exec pactl set-sink-mute 0 toggle | exec pkill -RTMIN+10 i3blocks
         ;;
+    "yehonatane-ltu")
+        exec pactl set-sink-mute 1 toggle | exec pkill -RTMIN+10 i3blocks
+        ;;
     "yehonatane-ubnt")
         exec pactl set-sink-mute 0 toggle | exec pkill -RTMIN+10 i3blocks
         ;;
