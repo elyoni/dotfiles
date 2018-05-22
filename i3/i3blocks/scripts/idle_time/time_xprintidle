@@ -1,8 +1,10 @@
 #!/bin/bash
 file_path="$HOME/.time_idle"
 log_path="$HOME/.log_time_idle"
-
-counter=$(<$file_path)
+counter=$(sed -n 's/^ *work time://p' $file_path)
+echo $counter
+current_date=$(sed -n 's/^ *current date://p' < $file_path)
+last_water=$(sed -n 's/^ *last water drink://p' < $file_path)
 
 currentTime=$(xprintidle)
 if [[ "$(( $currentTime / 1000 ))" -lt 10 ]]; then
@@ -23,7 +25,8 @@ elif [[ $seconds -eq 0 ]]; then
     printf '00\n'
 fi
 
-if [[ $(date '+%H:%M:%S') == '00:00:00' ]]; then
+#if [[ $(date '+%H:%M:%S') == '00:00:00' ]]; then
+if [[ $(date '+%d%m%y') != $current_date ]]; then
     printf '%s \t %02d:%02d:%02d\n' "$(LANG=en_US date '+%F %a')"  "$hours" "$minutes" "$seconds" >> $log_path
-    echo '0' > $file_path
+    sed -i 's/^work time:.*$/work time:0/' $file_path
 fi
