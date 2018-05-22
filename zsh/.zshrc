@@ -70,7 +70,6 @@ ZSH_THEME="yoni"
 plugins=(
   git
 )
-
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
@@ -114,6 +113,7 @@ alias cdpman="cd ~/projects/sources/apps/pmanager"
 alias cdcore="cd ~/projects/sources/apps/core"
 alias cdbuildroot="cd ~/projects/buildroot"
 alias cdtools="cd ~/projects/tools"
+alias cdshell="cd ~/projects/tools/shell"
 alias cdlab="cd ~/projects/lab/client_emulators"
 
 function pup() {
@@ -145,6 +145,15 @@ function pup() {
     fi
 }
 
+
+function id() {
+    python3.4 ~/projects/tools/shell/identity.py
+}
+
+function id_dsp() {
+    python3.4 ~/projects/tools/shell/dsps_identity.py
+}
+
 function smake(){
     cd ~/projects/buildroot/
     make clean
@@ -173,3 +182,5 @@ function help() {
 	echo "********************* mini0 / mini1***********************"
 	echo "Run minicom on ttyUSBX and save to log in ~/project/minicom.log"
 }
+
+
