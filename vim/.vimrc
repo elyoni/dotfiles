@@ -120,12 +120,14 @@ nnore <c-b> <nop>
 
 "Python
 let g:python_host_prog = "/usr/bin/python2.7"
-let g:python3_host_prog = "/usr/bin/python3"
+"let g:python3_host_prog = "/usr/bin/python3.4"
 
 
 " deoplete.vim
 let g:deoplete#enable_at_startup = 1
 let g:deoplete#enable_ignore_case = 1
+let g:deoplete#auto_completion_start_length = 0
+let g:min_pattern_length = 0
 
 let g:ycm_server_keep_logfiles = 1
 "let g:ycm_server_log_level = 'debug'
