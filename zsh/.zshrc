@@ -11,7 +11,7 @@ user=$(whoami)
 #ZSH_THEME="michelebologna"
 ZSH_THEME="yoni"
 #"powerlevel9k/powerlevel9k"
-
+VISUAL=nvim; export VISUAL EDITOR=nvim; export EDITOR
 
 #"spaceship"
 #michelebologna/af-magic"
