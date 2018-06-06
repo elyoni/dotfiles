@@ -154,6 +154,36 @@ function id_dsp() {
     python3.4 ~/projects/tools/shell/dsps_identity.py
 }
 
+
+function params() {
+    while [[ $# -gt 0 ]]
+    do
+    arg="$1"
+    case $arg in
+        -p|--param)
+        params_num="$2"
+        shift
+        shift
+        ;;
+        -v|--val)
+        value="$2"
+        shift
+        shift
+        ;;
+        *)
+        shift
+        ;;
+    esac
+    done
+    if [[ -n "$params_num" ]]; then
+        python3.4 ~/projects/tools/shell/params.py -p "$params_num"
+    elif [[ -n "$value" ]]; then
+        python3.4 ~/projects/tools/shell/params.py -p "$params_num" -v "$value"
+    else
+        echo "example: pup -s <upgrade_file.spff> (-i 0.0.0.0)"
+    fi
+}
+
 function smake(){
     cd ~/projects/buildroot/
     make clean
