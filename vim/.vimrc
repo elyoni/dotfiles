@@ -4,7 +4,7 @@ set guicursor=
 colors colosus
 hi Normal ctermbg=none guibg=none
 set encoding=utf8
-
+set shell=/usr/bin/zsh
 
 " To install the Plug just write in normal mode ":PlugInstall"
 call plug#begin()
@@ -90,6 +90,7 @@ command Q q
 command Qa qa
 command SearchAll call SearchEveryWhere()
 command Lab call LabSplit()
+command Ter call Ter()
 command DelFile call delete(expand('%')) | bdelete!
 
 
@@ -259,6 +260,10 @@ function LabSplit()
     set nosplitbelow
 endfunction
 
+function Ter()
+    set splitbelow
+    sp | terminal
+endfunction
 
 function RestartPmanager()
     execute "!bash " . $HOME . "/.dotfiles/bash_scripts/restart_pmanager.sh"
