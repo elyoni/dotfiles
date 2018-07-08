@@ -138,12 +138,23 @@ nnore <c-b> <nop>
 let g:python_host_prog = "/usr/bin/python2.7"
 let g:python3_host_prog = "/usr/bin/python3.4"
 
+set completeopt-=preview
+set completeopt+=longest,menuone,noselect
+let g:jedi#popup_on_dot = 0  " It may be 1 as well
+let g:mucomplete#enable_auto_at_startup = 0
+
 
 " deoplete.vim
 "let g:deoplete#enable_at_startup = 1
 "let g:deoplete#enable_ignore_case = 1
 "let g:deoplete#auto_completion_start_length = 0
 "let g:min_pattern_length = 0
+
+set completeopt+=menuone
+
+autocmd FileType python nnoremap <leader>y :0,$!yapf<Cr>
+autocmd CompleteDone * pclose " To close preview window of deoplete automagically
+
 
 let g:ycm_server_keep_logfiles = 1
 "let g:ycm_server_log_level = 'debug'
