@@ -96,15 +96,6 @@ command Ter call Ter()
 command DelFile call delete(expand('%')) | bdelete!
 
 
-"general settings
-set number "Add number line
-set tabstop=4		" tab will insert 4 space
-set shiftwidth=4	" when indeting the '>', use 4 space
-set expandtab		" on pressing tab, insert 4 spaces
-
-set hlsearch        " Highlight the word when search
-set incsearch       " Start search in realtime
-set clipboard=unnamed,unnamedplus " Copy/Paste directly to System/X11 clipboard
 
 "Copy settings
 set ignorecase      "Cancel the case sensative
@@ -123,14 +114,14 @@ nnore <c-b> <nop>
 
 "Python
 let g:python_host_prog = "/usr/bin/python2.7"
-"let g:python3_host_prog = "/usr/bin/python3.4"
+let g:python3_host_prog = "/usr/bin/python3.4"
 
 
 " deoplete.vim
-let g:deoplete#enable_at_startup = 1
-let g:deoplete#enable_ignore_case = 1
-let g:deoplete#auto_completion_start_length = 0
-let g:min_pattern_length = 0
+"let g:deoplete#enable_at_startup = 1
+"let g:deoplete#enable_ignore_case = 1
+"let g:deoplete#auto_completion_start_length = 0
+"let g:min_pattern_length = 0
 
 let g:ycm_server_keep_logfiles = 1
 "let g:ycm_server_log_level = 'debug'
