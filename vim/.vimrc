@@ -101,6 +101,10 @@ nmap <C-Left> <C-W><<C-W><
 nnoremap <A-.> :call MoveToNextTab()<CR>
 nnoremap <A-,> :call MoveToPrevTab()<CR>
 
+
+" Open the tag in split window
+map <C-\> :vsp <CR>:exec("tag ".expand("<cword>"))<CR>
+
 :tnoremap <Esc> <C-\><C-n>
 
 command W w
