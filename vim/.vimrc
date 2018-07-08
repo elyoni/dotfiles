@@ -227,7 +227,7 @@ endfunction
 function SearchAndReplace()
     let search = input("What To Replace>")
     let replace = input("Replace With   >")
-    execute ":%s/" . search . "/" . replace . "/g"
+    execute ":%s/" . search . "/" . replace . "/gc"
 endfunctio
 
 function SearchEveryWhere()
