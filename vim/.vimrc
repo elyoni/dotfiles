@@ -6,6 +6,18 @@ hi Normal ctermbg=none guibg=none
 set encoding=utf8
 set shell=/usr/bin/zsh
 
+
+"general settings
+set number "Add number line
+set tabstop=4		" tab will insert 4 space
+set shiftwidth=4	" when indeting the '>', use 4 space
+set expandtab		" on pressing tab, insert 4 spaces
+
+set hlsearch        " Highlight the word when search
+set incsearch       " Start search in realtime
+set clipboard=unnamed,unnamedplus " Copy/Paste directly to System/X11 clipboard
+
+
 " To install the Plug just write in normal mode ":PlugInstall"
 call plug#begin()
 
@@ -15,10 +27,11 @@ Plug 'roxma/vim-tmux-clipboard'
 Plug 'vim-airline/vim-airline'          " Bar
 Plug 'vim-airline/vim-airline-themes'   
 Plug 'ozelentok/vim-closer'
-"Plug 'tweekmonster/deoplete-clang2'        " Oz - deoplete-clang 2 is the new plugin - just install the 'clang' package
+Plug 'tweekmonster/deoplete-clang2'        " Oz - deoplete-clang 2 is the new plugin - just install the 'clang' package
 Plug 'roxma/nvim-yarp'
 Plug 'zchee/deoplete-jedi'
- 
+
+Plug 'davidhalter/jedi-vim'
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'ryanoasis/vim-devicons'           "Add icons
 Plug 'junegunn/fzf'
@@ -26,9 +39,14 @@ Plug '/usr/local/opt/fzf'
 Plug 'junegunn/fzf.vim'
 Plug 'vimwiki/vimwiki'
 Plug 'tpope/vim-fugitive'               " For git
-"Plug 'w0rp/ale'
-Plug 'dkprice/vim-easygrep'
+Plug 'jremmen/vim-ripgrep'
+Plug 'scrooloose/nerdcommenter'
+Plug 'airblade/vim-gitgutter'
+Plug 'jsfaint/gen_tags.vim'
+"Plug 'lifepillar/vim-mucomplete'
+
 call plug#end()
+
 
 " keys
 map <C-n> :NERDTreeToggle<CR>
