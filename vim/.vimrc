@@ -37,6 +37,8 @@ map <C-s> :w<CR>
 map <C-k>  <PageUp> 
 map <C-j>  <PageDown> 
 map . :call DoNothing()<CR>
+vmap u <nop>
+vmap U <nop>
 
 map <C-A-S-R> :call SearchAndReplace()<CR>
 map <F2> :call RunBashScript()<CR>
