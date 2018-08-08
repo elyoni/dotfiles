@@ -138,13 +138,37 @@ function pup() {
     done
     if [[ -n "$IP" ]]; then
         python3.4 ~/projects/tools/configure.py -i "$IP" -p "80"
+        unset IP
     elif [[ -n "$SPFF" ]]; then
         python3.4 ~/projects/tools/shell/upgrade.py -s $SPFF
+        unset SPFF
     else
         echo "example: pup -s <upgrade_file.spff> (-i 0.0.0.0)"
     fi
 }
 
+function read_pb(){
+    while [[ $# -gt 0 ]]
+    do
+    key="$1"
+    case $key in
+        -s|--spff)
+        SPFF="$2"
+        shift
+        shift
+        ;;
+        *)
+        shift
+        ;;
+    esac
+    done
+    if [[ -n "$SPFF" ]]; then
+        python3.4 ~/projects/tools/utils/spff_tools/read_pb_spff_file/read_pb_spff_file.py -s $SPFF -p ~/project/proto
+        unset SPFF
+    else
+        echo "example: read_pb -s <file.spff>"
+    fi
+}
 
 function id() {
     python3.4 ~/projects/tools/shell/identity.py
@@ -161,7 +185,7 @@ function params() {
     arg="$1"
     case $arg in
         -p|--param)
-        params_num="$2"
+        params_index="$2"
         shift
         shift
         ;;
@@ -175,12 +199,16 @@ function params() {
         ;;
     esac
     done
-    if [[ -n "$params_num" ]]; then
-        python3.4 ~/projects/tools/shell/params.py -p "$params_num"
+    if [[ -n "$params_index" ]]; then
+        python3.4 ~/projects/tools/shell/params.py -p "$params_index"
+        unset params_index
+        unset value
     elif [[ -n "$value" ]]; then
-        python3.4 ~/projects/tools/shell/params.py -p "$params_num" -v "$value"
+        python3.4 ~/projects/tools/shell/params.py -p "$params_index" -v "$value"
+        unset params_index
+        unset value
     else
-        echo "example: pup -s <upgrade_file.spff> (-i 0.0.0.0)"
+        echo "example: params -p <param_index> -v [value]"
     fi
 }
 
