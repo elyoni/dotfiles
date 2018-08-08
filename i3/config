@@ -143,7 +143,7 @@ bindsym $mod+7 workspace $workspace07
 bindsym $mod+8 workspace $workspace08
 bindsym $mod+9 workspace $workspace09
 bindsym $mod+0 workspace $workspace00
-bindsym $mod+Ctrl+0 workspace $workspace11
+bindsym Mod1+1 workspace $workspace11
 
 # move focused container to workspace
 bindsym $mod+Shift+1 move container to workspace $workspace01
@@ -156,7 +156,7 @@ bindsym $mod+Shift+7 move container to workspace $workspace07
 bindsym $mod+Shift+8 move container to workspace $workspace08
 bindsym $mod+Shift+9 move container to workspace $workspace09
 bindsym $mod+Shift+0 move container to workspace $workspace00
-bindsym $mod+Shift+Ctrl+0 move container to workspace $workspace11
+bindsym Mod1+CTRL+1 move container to workspace $workspace11
 
 #Assing program to workspace
 ## To check the click run xprop
