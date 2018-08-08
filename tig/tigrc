@@ -1,5 +1,3 @@
-core.editor = nvim
-
 bind main B !git rebase -i %(commit)
 
 # *color* 'area' 'fgcolor' 'bgcolor' '[attributes]'
@@ -26,7 +24,7 @@ color   main-head               213     default     bold
 color   graph-commit            226     default
 
 # map
-bind generic ^F !?git checkout %(commit) %(file)
+bind generic <Ctrl-F> !?git checkout %(commit) %(file)
 
 # status
 #color  stat-head       81      default
