@@ -253,7 +253,7 @@ bindsym $mod+F8 mode "$xrander_menu"
 #--off --output DP-1-3 --off --output HDMI-1 --off --output DP-2 --off
 
 mode "$xrander_menu" {
-    bindsym 1 exec "xrandr --output HDMI-1 --off --output DP-2 --off --output DP-1-3 --off --output DP-1-1 --off", mode "default"
+    bindsym 1 exec "xrandr --output eDP-1 --auto --output HDMI-1 --off --output DP-2 --off --output DP-1-3 --off --output DP-1-1 --off", mode "default"
     bindsym 2 exec "xrandr --output eDP-1 --pos 1072x1080 --auto --output DP-1-1 --pos 1920x0 --auto --output DP-1-2 --pos 0x0 --auto", mode "default"
     bindsym 3 exec "xrandr --output eDP-1 --pos 968x1200 --auto --output HDMI-1 --pos 0x120 --auto --output DP-2 --pos 1920x0 --auto", mode "default"
     bindsym 4 exec "xrandr --output eDP-1 --off --output HDMI-1 --pos 3840x0 --auto --output DP-1-1 --pos 1920x0 --auto --output DP-1-2 --pos 0x0 --auto", mode "default"

@@ -254,8 +254,8 @@ function SearchAndReplace()
     execute ":%s/" . search . "/" . replace . "/gc"
 endfunctio
 
-function SearchEveryWhere()
-    let search = input("File Content To Search: ")
+function Se()
+    let search = input("Search:@func,any: ")
     execute ":vimgrep /" . search . "/ **"
     copen
 endfunctio

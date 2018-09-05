@@ -18,7 +18,7 @@ sudo apt-get install chromium-browser -y
 sudo apt-get intall firefox -y
 
 #== Curl ==
-udo apt-get install libcurl3 php5-curl -y
+sudo apt-get install libcurl3 php5-curl -y
 
 echo "Install i3"
 bash $HOME/.dotfiles/i3/install.sh
