@@ -237,7 +237,7 @@ mode "$mode_launcher" {
     bindsym f exec firefox
     bindsym t exec thunderbird
     bindsym d exec doublecmd
-    bindsym r exec "i3-sensible-terminal -e remmina -c ~/.remmina/1522745774126.remmina", mode "default"
+    bindsym r exec "i3-sensible-terminal -e remmina -c ~/.remmina/1536472353509.remmina", mode "default"
     bindsym v exec vncviewer YEHONATANEL-PC
     bindsym s exec spotify 
 
