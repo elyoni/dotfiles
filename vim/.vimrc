@@ -155,6 +155,7 @@ set completeopt+=menuone
 autocmd FileType python nnoremap <leader>y :0,$!yapf<Cr>
 autocmd CompleteDone * pclose " To close preview window of deoplete automagically
 
+autocmd FileType vimwiki setlocal spell
 
 let g:ycm_server_keep_logfiles = 1
 "let g:ycm_server_log_level = 'debug'
