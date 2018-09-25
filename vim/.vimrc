@@ -43,6 +43,7 @@ Plug 'jremmen/vim-ripgrep'
 Plug 'scrooloose/nerdcommenter'
 Plug 'airblade/vim-gitgutter'
 Plug 'jsfaint/gen_tags.vim'
+Plug 'neoclide/coc.nvim', {'do': { -> coc#util#install()}}
 "Plug 'lifepillar/vim-mucomplete'
 
 call plug#end()
