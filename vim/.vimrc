@@ -297,7 +297,7 @@ function UpdatePoritaIP()
     echo "Portia IP Json: " .ip
     let ip=input("IP>")
     if ip != ""
-        execute '!py ~/projects/tools/configure.py -i ' . ip . ' -p 80'
+        execute '!python3.4 ~/projects/tools/configure.py -i ' . ip . ' -p 80'
         "execute '!echo ' . ip . ' > ~/.ipPortia.txt'
         let ip=system("jq -r '.ip' < ~/projects/tools/configurations.json")
         echo "Portia IP Json: " .ip
