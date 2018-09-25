@@ -80,23 +80,42 @@ nmap <A-Left> <C-W><Left>
 nmap <A-Up> <C-W><Up>
 nmap <A-Down> <C-W><Down>
 
+nmap <A-l> <C-W><Right>
+nmap <A-h> <C-W><Left>
+nmap <A-k> <C-W><Up>
+nmap <A-j> <C-W><Down>
+
+
 imap <A-Right> <Esc><C-W><Right>
 imap <A-Left> <Esc><C-W><Left>
 imap <A-Up> <Esc><C-W><Up>
 imap <A-Down> <Esc><C-W><Down>
+
+imap <A-l> <Esc><C-W><Right>
+imap <A-h> <Esc><C-W><Left>
+imap <A-k> <Esc><C-W><Up>
+imap <A-j> <Esc><C-W><Down>
 
 tmap <A-Right> <Esc><C-W><Right>
 tmap <A-Left> <Esc><C-W><Left>
 tmap <A-Up> <Esc><C-W><Up>
 tmap <A-Down> <Esc><C-W><Down>
 
+tmap <A-l> <Esc><C-W><Right>
+tmap <A-h> <Esc><C-W><Left>
+tmap <A-k> <Esc><C-W><Up>
+tmap <A-j> <Esc><C-W><Down>
 
 " resize horzontal split window
 nmap <C-Up>  <C-W>-<C-W>-
 nmap <C-Down>   <C-W>+<C-W>+
+nmap <C-k>  <C-W>-<C-W>-
+nmap <C-j>   <C-W>+<C-W>+
 " resize vertical split window
 nmap <C-Right> <C-W>><C-W>>
 nmap <C-Left> <C-W><<C-W><
+nmap <C-h> <C-W>><C-W>>
+nmap <C-l> <C-W><<C-W><
 
 nnoremap <A-.> :call MoveToNextTab()<CR>
 nnoremap <A-,> :call MoveToPrevTab()<CR>
