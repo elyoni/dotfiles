@@ -63,7 +63,8 @@ map <C-A-S-R> :call SearchAndReplace()<CR>
 map <F2> :call RunBashScript()<CR>
 map <F3> :call RunPython()<CR>
 map <F4> :call CompileTheCore()<CR>
-map <F5> :call UploadToPortia()<CR>
+"map <F5> :call UploadToPortia()<CR>
+map <F5> :call SmartF5()<CR>
 map <F17> :call UploadPythonToPorita<CR>
 map <F6> :call UpdatePoritaIP()<CR>
 "map <F6> :call CpToPorita()<CR>
@@ -308,6 +309,21 @@ endfunction
 function DoNothing()
 endfunctio
 
+function SmartF5()
+    let workdir = getcwd()
+    let ip=system("jq -r '.ip' < ~/projects/tools/configurations.json")
+    if (getcwd() =~ "core")
+        let workdir = split(getcwd(), 'core')[0]
+        let run=workdir . "core/sync-core.sh -p ~/projects/proto -i " . ip
+        set splitbelow
+        new
+        call termopen(run)
+        startinsert
+    elseif (getcwd() =~ "pmanager")
+        call UploadToPortia()
+    endif
+endfunctio
+
 function LabSplit()
     set splitright
     set splitbelow
@@ -323,7 +339,7 @@ endfunction
 
 function Ter()
     set splitbelow
-    sp | terminal
+    1sp terminal
 endfunction
 
 function RestartPmanager()
