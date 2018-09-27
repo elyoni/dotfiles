@@ -1,5 +1,4 @@
 set guicursor=
-"set termguicolors
 "set spell
 colors colosus
 hi Normal ctermbg=none guibg=none
@@ -50,11 +49,18 @@ call plug#end()
 
 
 " keys
+
+noremap <Up> <NOP>
+noremap <Down> <NOP>
+noremap <Left> <NOP>
+noremap <Right> <NOP>
+
+
 map <C-n> :NERDTreeToggle<CR>
 map <S-B> ^<CR>
 map <C-s> :w<CR>
-map <C-k>  <PageUp> 
-map <C-j>  <PageDown> 
+"map <C-k>  <PageUp> 
+"map <C-j>  <PageDown> 
 map . :call DoNothing()<CR>
 vmap u <nop>
 vmap U <nop>
@@ -76,48 +82,45 @@ map <F8> :w <bar> :!~/Downloads/arduino-1.6.13/arduino --upload % <CR>
 nmap <C-g>s :Gstatus<CR>
 nmap <C-g>d :Gdiff<CR>
 nmap <C-g>c :Gcommit<CR>
+nmap <C-g>b :Gblame<CR>
 
-nmap <A-Right> <C-W><Right>
-nmap <A-Left> <C-W><Left>
-nmap <A-Up> <C-W><Up>
-nmap <A-Down> <C-W><Down>
-
-nmap <A-l> <C-W><Right>
-nmap <A-h> <C-W><Left>
-nmap <A-k> <C-W><Up>
-nmap <A-j> <C-W><Down>
+"nmap <A-Right> <C-W><Right>
+"nmap <A-Left> <C-W><Left>
+"nmap <A-Up> <C-W><Up>
+"nmap <A-Down> <C-W><Down>
 
 
-imap <A-Right> <Esc><C-W><Right>
-imap <A-Left> <Esc><C-W><Left>
-imap <A-Up> <Esc><C-W><Up>
-imap <A-Down> <Esc><C-W><Down>
 
-imap <A-l> <Esc><C-W><Right>
-imap <A-h> <Esc><C-W><Left>
-imap <A-k> <Esc><C-W><Up>
-imap <A-j> <Esc><C-W><Down>
+"imap <C-Right> <Esc><C-W><Right>
+"imap <C-Left> <Esc><C-W><Left>
+"imap <C-Up> <Esc><C-W><Up>
+"imap <C-Down> <Esc><C-W><Down>
 
-tmap <A-Right> <Esc><C-W><Right>
-tmap <A-Left> <Esc><C-W><Left>
-tmap <A-Up> <Esc><C-W><Up>
-tmap <A-Down> <Esc><C-W><Down>
+imap <C-l> <Esc><C-W><Right>
+imap <C-h> <Esc><C-W><Left>
+imap <C-k> <Esc><C-W><Up>
+imap <C-j> <Esc><C-W><Down>
 
-tmap <A-l> <Esc><C-W><Right>
-tmap <A-h> <Esc><C-W><Left>
-tmap <A-k> <Esc><C-W><Up>
-tmap <A-j> <Esc><C-W><Down>
+"tmap <C-Right> <Esc><C-W><Right>
+"tmap <C-Left> <Esc><C-W><Left>
+"tmap <C-Up> <Esc><C-W><Up>
+"tmap <C-Down> <Esc><C-W><Down>
+
+tmap <C-l> <Esc><C-W><Right>
+tmap <C-h> <Esc><C-W><Left>
+tmap <C-k> <Esc><C-W><Up>
+tmap <C-j> <Esc><C-W><Down>
 
 " resize horzontal split window
-nmap <C-Up>  <C-W>-<C-W>-
-nmap <C-Down>   <C-W>+<C-W>+
-nmap <C-k>  <C-W>-<C-W>-
-nmap <C-j>   <C-W>+<C-W>+
+nmap <C-S-Up>  <C-W>-<C-W>-
+nmap <C-S-Down>   <C-W>+<C-W>+
+"nmap <C-S-k>  <C-W>-<C-W>-
+"nmap <C-S-J>   <C-W>+<C-W>+
 " resize vertical split window
-nmap <C-Right> <C-W>><C-W>>
-nmap <C-Left> <C-W><<C-W><
-nmap <C-h> <C-W>><C-W>>
-nmap <C-l> <C-W><<C-W><
+nmap <C-S-Right> <C-W>><C-W>>
+nmap <C-S-Left> <C-W><<C-W><
+"nmap <C-S-h> <C-W>><C-W>>
+"nmap <C-S-l> <C-W><<C-W><
 
 nnoremap <A-.> :call MoveToNextTab()<CR>
 nnoremap <A-,> :call MoveToPrevTab()<CR>
@@ -127,6 +130,12 @@ nnoremap <A-,> :call MoveToPrevTab()<CR>
 map <C-\> :vsp <CR>:exec("tag ".expand("<cword>"))<CR>
 
 :tnoremap <Esc> <C-\><C-n>
+
+nmap <C-l> <C-W><Right>
+nmap <C-h> <C-W><Left>
+nmap <C-k> <C-W><Up>
+nmap <C-j> <C-W><Down>
+
 
 command W w
 command Wqa wqa
@@ -147,6 +156,8 @@ set smartcase
 
 vnore p "_dP     " Cancel the insasaly annoying copy paste
 vnore P "_dp     " Cancel the insasaly annoying copy paste
+xnoremap p "_dP
+xnoremap P "_dp
 
 set nowrap        " Disable wrap line
 
