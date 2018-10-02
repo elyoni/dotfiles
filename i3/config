@@ -221,9 +221,8 @@ bar {
 exec "setxkbmap -option grp:switch,grp:alt_shift_toggle,grp_led:scroll us,il"
 #exec "setxkbmap -layout us,il"
 #exec "setxkbmap -option 'grp:alt_shift_toggle'"
-
-
 #exec "setxkbmap -layout us"
+
 bindsym --whole-window $mod+button2 kill
 bindsym button3 floating toggle
 
@@ -262,14 +261,8 @@ mode "$xrander_menu" {
     bindsym Return mode "default"
 }
 
-
-# At home
-##exec --no-startup-id xrandr --output DVI-I-1 --off ;  xrandr --output DVI-I-1 --auto --output HDMI-3 --right-of DVI-I-1
-# At Work
-#exec_always xrandr --output HDMI-1 --auto --output DP-1 --left-of HDMI-1
-exec_always bash $HOME/.config/i3/scripts/xrander_script.sh
-exec_always bash $HOME/.dotfiles/i3/scripts/wallpaper_change.sh
-exec --no-startup-id synergy
+#exec_always bash $HOME/.config/i3/scripts/xrander_script.sh
+#exec_always bash $HOME/.dotfiles/i3/scripts/wallpaper_change.sh
 #exec bash $HOME/.time_xprintidle
 
 # Background color
@@ -278,7 +271,6 @@ exec --no-startup-id xsetroot -solid "#000000"
 # Set Status Bar Icons
 ## Add wifi manager only if there is a wifi module
 exec --no-startup-id ifconfig | grep wlp && nm-applet
-
 ## Add volume manager
 exec pnmixer
 
@@ -286,12 +278,7 @@ bindsym --release Caps_Lock exec pkill -SIGRTMIN+11 i3blocks
 bindsym --release Num_Lock  exec pkill -SIGRTMIN+11 i3blocks
 bindsym --release Scroll_Lock exec pkill -SIGRTMIN+11 i3blocks
 
-bindsym Mod1+l exec sh /home/johnny/.config/i3/scripts/lang.sh
-
 # Pulse Audio controls
-#bindsym XF86AudioRaiseVolume exec sh /home/johnny/.config/i3/scripts/volume_up.sh #increase sound volume
-#bindsym XF86AudioLowerVolume exec sh /home/johnny/.config/i3/scripts/volume_down.sh  #decrease sound volume
-#bindsym XF86AudioMute        exec sh /home/johnny/.config/i3/scripts/volume_mute.sh
 bindsym XF86AudioRaiseVolume exec sh $HOME/.config/i3/scripts/volume_up.sh #increase sound volume
 bindsym XF86AudioLowerVolume exec sh $HOME/.config/i3/scripts/volume_down.sh  #decrease sound volume
 bindsym XF86AudioMute        exec sh $HOME/.config/i3/scripts/volume_mute.sh
@@ -305,7 +292,7 @@ bindsym XF86AudioPrev exec playerctl previous
 #bindsym $mod+Shift+F11 exec sh /home/johnny/.config/i3/scripts/volume_down.sh
 #bindsym $mod+Shift+F10 exec sh /home/johnny/.config/i3/scripts/volume_mute.sh
 
-#bindsym $mod+Shift+F12 exec --no-startup-id pactl set-sink-volume 1 +5% ; exec pkill -RTMIN+10 i3blocks #increase sound volume
+#bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume 0 +5% ; exec pkill -RTMIN+10 i3blocks #increase sound volume
 #bindsym $mod+Shift+F11 exec --no-startup-id pactl set-sink-volume 1 -5% ; exec pkill -RTMIN+10 i3blocks #decrease sound volume
 #exec hostname -s | grep johnny-PC && bindsym $mod+Shift+F12 exec --no-startup-id pactl set-sink-mute 1 toggle # mute sound
 
