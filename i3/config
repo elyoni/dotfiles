@@ -279,9 +279,9 @@ bindsym --release Num_Lock  exec pkill -SIGRTMIN+11 i3blocks
 bindsym --release Scroll_Lock exec pkill -SIGRTMIN+11 i3blocks
 
 # Pulse Audio controls
-bindsym XF86AudioRaiseVolume exec sh $HOME/.config/i3/scripts/volume_up.sh #increase sound volume
-bindsym XF86AudioLowerVolume exec sh $HOME/.config/i3/scripts/volume_down.sh  #decrease sound volume
-bindsym XF86AudioMute        exec sh $HOME/.config/i3/scripts/volume_mute.sh
+bindsym XF86AudioRaiseVolume exec bash $HOME/.config/i3/scripts/volume.sh volume_up #increase sound volumeh
+bindsym XF86AudioLowerVolume exec bash $HOME/.config/i3/scripts/volume.sh volume_down #decrease sound volume
+bindsym XF86AudioMute        exec bash $HOME/.config/i3/scripts/volume.sh volume_mute
 
 bindsym XF86AudioPlay exec playerctl play
 bindsym XF86AudioPause exec playerctl pause

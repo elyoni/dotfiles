@@ -30,9 +30,7 @@ sudo apt-get install arandr -y
 
 # Volume Controller
 sudo apt-get install pnmixer -y 
-ln -sf $DIR/scripts/volume_up.sh   $HOME/.config/i3/scripts/volume_up.sh
-ln -sf $DIR/scripts/volume_down.sh $HOME/.config/i3/scripts/volume_down.sh
-ln -sf $DIR/scripts/volume_mute.sh $HOME/.config/i3/scripts/volume_mute.sh
+ln -sf $DIR/scripts/volume.sh   $HOME/.config/i3/scripts/volume.sh
 
 ln -sf $DIR/scripts/xrander_script.sh $HOME/.config/i3/scripts/xrander_script.sh
 ln -sf $DIR/scripts/lang.sh $HOME/.config/i3/scripts/lang.sh
