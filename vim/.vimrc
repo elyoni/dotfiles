@@ -68,6 +68,7 @@ vmap U <nop>
 map <C-A-S-R> :call SearchAndReplace()<CR>
 map <F2> :call RunBashScript()<CR>
 map <F3> :call RunPython()<CR>
+map <Leader><F3> :call RunPythonWithArgs()<CR>
 map <F4> :call CompileTheCore()<CR>
 "map <F5> :call UploadToPortia()<CR>
 map <F5> :call SmartF5()<CR>
@@ -362,6 +363,14 @@ function RunPython()
     execute "!python3.4 " . "%"
 endfunc
 
+function RunPythonWithArgs()
+    write
+    let args = input("Enter Your Args>")
+    echo "\n"
+    execute "!python3.4 " . "% " . args
+endfunction
+
+    
 function CompileTheCore()
     write
     execute "!make -C ~/projects/yehonatan/board/sama5d2_portia/sources/core PLATFORM=sama5d2"
