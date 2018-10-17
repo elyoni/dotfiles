@@ -41,8 +41,8 @@ bindsym $mod+Return exec i3-sensible-terminal
 set $ssh_terminal Launch: [Enter]yoni [a]di
 bindsym $mod+Shift+Return mode "$ssh_terminal" 
 mode "$ssh_terminal" {
-    bindsym Return exec "i3-sensible-terminal -e ssh yoni@yoni-pc", mode "default"
-    bindsym a exec "i3-sensible-terminal -e ssh adi.st@adist-ubnt"
+    bindsym Return exec "i3-sensible-terminal -e ssh yoni@yoni-pc -y", mode "default"
+    bindsym a exec "i3-sensible-terminal -e ssh adi@adi -y"
 
     bindsym Escape mode "default"
     bindsym Return mode "default"

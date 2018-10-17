@@ -219,7 +219,10 @@ function smake(){
     make menuconfig
     make 
 }
-
+function sscp(){ 
+    #Simple SCP 
+    scp -r -o ConnectTimeout=5 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $1 $2 
+}
 
 function make_core(){
     cd ~/projects/sources/apps/core

@@ -43,6 +43,7 @@ Plug 'scrooloose/nerdcommenter'
 Plug 'airblade/vim-gitgutter'
 Plug 'jsfaint/gen_tags.vim'
 Plug 'neoclide/coc.nvim', {'do': { -> coc#util#install()}}
+Plug 'vim-scripts/Conque-GDB'
 "Plug 'lifepillar/vim-mucomplete'
 
 call plug#end()
@@ -70,9 +71,8 @@ map <F2> :call RunBashScript()<CR>
 map <F3> :call RunPython()<CR>
 map <Leader><F3> :call RunPythonWithArgs()<CR>
 map <F4> :call CompileTheCore()<CR>
-"map <F5> :call UploadToPortia()<CR>
 map <F5> :call SmartF5()<CR>
-map <F17> :call UploadPythonToPorita<CR>
+map <F17> :call UploadPythonToPorita()<CR>
 map <F6> :call UpdatePoritaIP()<CR>
 "map <F6> :call CpToPorita()<CR>
 map <F9> :call SearchEveryWhere()<CR>

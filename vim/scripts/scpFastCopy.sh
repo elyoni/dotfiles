@@ -7,8 +7,6 @@ echo "1. Copy this file to /usr/lib/python3.4/site-package/management/"
     
 read opt
 
-echo "sadsadsasadadasd"
-
 case $opt in
 1)
     echo "hellp tp;1"
