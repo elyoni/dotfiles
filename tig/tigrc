@@ -1,4 +1,5 @@
 bind main B !git rebase -i %(commit)
+bind status P !git push origin %(branch)
 
 # *color* 'area' 'fgcolor' 'bgcolor' '[attributes]'
 
