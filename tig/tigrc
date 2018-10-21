@@ -1,6 +1,12 @@
 bind main B !git rebase -i %(commit)
 bind status P !git push origin %(branch)
 
+
+#bind generic     c   none
+#bind generic     cc  !?@git commit
+#bind generic     ca  !?@git commit --amend
+#bind generic     cn  !?@git commit --amend --no-edit
+
 # *color* 'area' 'fgcolor' 'bgcolor' '[attributes]'
 
 # general
