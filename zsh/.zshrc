@@ -163,7 +163,7 @@ function read_pb(){
     esac
     done
     if [[ -n "$SPFF" ]]; then
-        python3.4 ~/projects/tools/utils/spff_tools/read_pb_spff_file/read_pb_spff_file.py -s $SPFF -p ~/project/proto
+        python3.4 ~/projects/tools/utils/spff_tools/read_pb_spff_file/read_pb_spff_file.py -s $SPFF
         unset SPFF
     else
         echo "example: read_pb -s <file.spff>"
