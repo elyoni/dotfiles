@@ -51,10 +51,10 @@ call plug#end()
 
 " keys
 
-noremap <Up> <NOP>
-noremap <Down> <NOP>
-noremap <Left> <NOP>
-noremap <Right> <NOP>
+""noremap <Up> <NOP>
+""noremap <Down> <NOP>
+""noremap <Left> <NOP>
+""noremap <Right> <NOP>
 
 
 map <C-n> :NERDTreeToggle<CR>
