@@ -316,9 +316,10 @@ bindsym $mod+u exec python3 $HOME/.dotfiles/work_script/serial_connection.py -u
 bindsym $mod+ctrl+U exec python3 $HOME/.dotfiles/work_script/serial_connection.py -d
 
 
-
-
 bindsym $mod+F12 exec bash $HOME/.dotfiles/i3/scripts/touchpad_on_off.sh
 # Sreen brightness controls
 bindsym XF86MonBrightnessUp exec bash $HOME/.dotfiles/i3/scripts/backlight_brightness.sh +10 # increase screen brightness
 bindsym XF86MonBrightnessDown exec bash $HOME/.dotfiles/i3/scripts/backlight_brightness.sh -10 # decrease screen brightness
+
+exec --no-startup-id slack 
+exec --no-startup-id ~/apps/Telegram/Telegram

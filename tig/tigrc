@@ -2,6 +2,12 @@ bind main B !git rebase -i %(commit)
 bind status P !git push origin %(branch)
 
 
+
+bind main r none
+bind main rs !git reset --soft %(commit)
+bind main rh !git reset --hard %(commit)
+
+
 #bind generic     c   none
 #bind generic     cc  !?@git commit
 #bind generic     ca  !?@git commit --amend

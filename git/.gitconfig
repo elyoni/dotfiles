@@ -14,3 +14,4 @@
     Delete = !"f() { git push --delete origin \"$1\"; git branch -D \"$1\"; }; f"
     pu = !"f() { branch=$( git branch | grep "^*" | cut -d ' ' -f2 ); git push origin $branch; }; f"
     pl = !"f() { branch=$( git branch | grep "^*" | cut -d ' ' -f2 ); git pull origin $branch; }; f"
+    mr = !"f() { ~/.gitlab/gitlab.sh merge_requests $@; }; f "
