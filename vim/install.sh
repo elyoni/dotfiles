@@ -5,8 +5,9 @@ DIR=$(cd -P $DIR && pwd)
 
 ## To connect the clipboard of the neovim and the linux
 sudo apt-get install xclip -y
-
+sudo apt-get install curl -y
 sudo apt-get install ctags -y
+sudo apt-get install pep8
 
 # ======= vim =======
 ### Installation
@@ -53,5 +54,4 @@ ln -sf $DIR/colors $HOME/.config/nvim/colors
 sudo ln -sf /usr/bin/nvim /usr/bin/vim
 sudo ln -sf /usr/bin/nvim /usr/bin/vi
 
-
-sudo apt-get install pep8
+nvim +PlugInstall +PlugClean! +qall
