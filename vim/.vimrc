@@ -33,9 +33,8 @@ Plug 'zchee/deoplete-jedi'
 Plug 'davidhalter/jedi-vim'
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'ryanoasis/vim-devicons'           "Add icons
-Plug 'junegunn/fzf'
 Plug '/usr/local/opt/fzf'
-Plug 'junegunn/fzf.vim'
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'vimwiki/vimwiki'
 Plug 'tpope/vim-fugitive'               " For git
 Plug 'jremmen/vim-ripgrep'
@@ -43,7 +42,11 @@ Plug 'scrooloose/nerdcommenter'
 Plug 'airblade/vim-gitgutter'
 Plug 'jsfaint/gen_tags.vim'
 Plug 'neoclide/coc.nvim', {'do': { -> coc#util#install()}}
-Plug 'vim-scripts/Conque-GDB'
+Plug 'huawenyu/neogdb.vim'
+Plug 'kien/ctrlp.vim'
+Plug 'ericcurtin/CurtineIncSw.vim'
+"Plug 'vim-scripts/Conque-GDB'
+"Plug 'sakhnik/nvim-gdb', { 'do': './install.sh' }
 "Plug 'lifepillar/vim-mucomplete'
 
 call plug#end()
@@ -57,6 +60,7 @@ call plug#end()
 ""noremap <Right> <NOP>
 
 
+map <C-S-p> :FZF<CR>
 map <C-n> :NERDTreeToggle<CR>
 map <S-B> ^<CR>
 map <C-s> :w<CR>
@@ -72,11 +76,12 @@ map <F3> :call RunPython()<CR>
 map <Leader><F3> :call RunPythonWithArgs()<CR>
 map <F4> :call CompileTheCore()<CR>
 map <F5> :call SmartF5()<CR>
+map <S-F5> :call SmartShiftF5()<CR>
 map <F17> :call UploadPythonToPorita()<CR>
 map <F6> :call UpdatePoritaIP()<CR>
 "map <F6> :call CpToPorita()<CR>
 map <F9> :call SearchEveryWhere()<CR>
-map <F12> :call RestartPmanager()<CR>
+map <F12> :call CurtineIncSw()<CR>
 map <F7> :w <bar> :!~/Downloads/arduino-1.6.13/arduino --verify % <CR>
 map <F8> :w <bar> :!~/Downloads/arduino-1.6.13/arduino --upload % <CR>
 
@@ -274,6 +279,17 @@ highlight ygye cterm=bold ctermfg=16 ctermbg=186 gui=bold,underline guifg=#cae68
 call matchadd('ygye',".*yg-ye.*")
 call matchadd('ygye',".*ygye.*")
 
+" === ctrlp plug in ===
+set wildignore+=*/tmp/*,*.so,*.swp,*.zip     " MacOSX/Linux
+set wildignore+=*\\tmp\\*,*.swp,*.zip,*.exe  " Windows
+
+let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$'
+let g:ctrlp_custom_ignore = {
+  \ 'dir':  '\v[\/]\.(git|hg|svn)$',
+  \ 'file': '\v\.(exe|so|dll)$',
+  \ 'link': 'some_bad_symbolic_links',
+  \ }
+" =====================
 
 function UploadPythonToPorita()
     let ip=system("jq -r '.ip' < ~/projects/tools/configurations.json")
@@ -335,6 +351,21 @@ function SmartF5()
         call UploadToPortia()
     endif
 endfunctio
+
+function SmartShiftF5()
+    let workdir = getcwd()
+    let ip=system("jq -r '.ip' < ~/projects/tools/configurations.json")
+    if (getcwd() =~ "core")
+        let workdir = split(getcwd(), 'core')[0]
+        let run=workdir . "core/sync-core.sh -p ~/projects/proto -i " . ip
+        set splitbelow
+        new
+        call termopen(run)
+        startinsert
+    elseif (getcwd() =~ "pmanager")
+        let run=workdir . "core/sync-python.sh ~/projects/proto " . ip
+    endif
+endfunction
 
 function LabSplit()
     set splitright
@@ -455,7 +486,7 @@ let g:fzf_colors =
 " CTRL-N and CTRL-P will be automatically bound to next-history and
 " previous-history instead of down and up. If you don't like the change,
 " explicitly bind the keys to down and up in your $FZF_DEFAULT_OPTS.
-"let g:fzf_history_dir = '~/.local/share/fzf-history'
+let g:fzf_history_dir = '~/.local/share/fzf-history'
 "
 let g:neomake_python_flake8_maker = {
     \ 'args': ['--ignore=E221,E241,E272,E251,W702,E203,E201,E202',  '--format=default'],
