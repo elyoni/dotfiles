@@ -1,3 +1,5 @@
+autoload -U +X bashcompinit && bashcompinit
+autoload -U +X compinit && compinit
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
@@ -103,7 +105,10 @@ source $ZSH/oh-my-zsh.sh
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-#alias pu="python3.4 ~/projects/tools/shell/upgrade.py"
+source ~/.zsh/portia_fucntions
+
+
+# ========= Aliases =============
 alias py=python3.4
 
 alias mini0="sudo minicom -D /dev/ttyUSB0 -C ~/projects/minicom0.log"
@@ -116,132 +121,23 @@ alias cdtools="cd ~/projects/tools"
 alias cdshell="cd ~/projects/tools/shell"
 alias cdlab="cd ~/projects/lab/client_emulators"
 
-function pup() {
-    while [[ $# -gt 0 ]]
-    do
-    key="$1"
-    case $key in
-        -i|--ip)
-        IP="$2"
-        shift
-        shift
-        ;;
-        -s|--spff)
-        SPFF="$2"
-        shift
-        shift
-        ;;
-        *)
-        shift
-        ;;
-    esac
-    done
-    if [[ -n "$IP" ]]; then
-        python3.4 ~/projects/tools/configure.py -i "$IP" -p "80"
-        unset IP
-    elif [[ -n "$SPFF" ]]; then
-        python3.4 ~/projects/tools/shell/upgrade.py -s $SPFF
-        unset SPFF
-    else
-        echo "example: pup -s <upgrade_file.spff> (-i 0.0.0.0)"
-    fi
-}
 
-function read_pb(){
-    while [[ $# -gt 0 ]]
-    do
-    key="$1"
-    case $key in
-        -s|--spff)
-        SPFF="$2"
-        shift
-        shift
-        ;;
-        *)
-        shift
-        ;;
-    esac
-    done
-    if [[ -n "$SPFF" ]]; then
-        python3.4 ~/projects/tools/utils/spff_tools/read_pb_spff_file/read_pb_spff_file.py -s $SPFF
-        unset SPFF
-    else
-        echo "example: read_pb -s <file.spff>"
-    fi
-}
-
-function id() {
-    python3.4 ~/projects/tools/shell/identity.py
-}
-
-function id_dsp() {
-    python3.4 ~/projects/tools/shell/dsps_identity.py
-}
-
-
-function params() {
-    while [[ $# -gt 0 ]]
-    do
-    arg="$1"
-    case $arg in
-        -p|--param)
-        params_index="$2"
-        shift
-        shift
-        ;;
-        -v|--val)
-        value="$2"
-        shift
-        shift
-        ;;
-        *)
-        shift
-        ;;
-    esac
-    done
-    if [[ -n "$params_index" ]]; then
-        python3.4 ~/projects/tools/shell/params.py -p "$params_index"
-        unset params_index
-        unset value
-    elif [[ -n "$value" ]]; then
-        python3.4 ~/projects/tools/shell/params.py -p "$params_index" -v "$value"
-        unset params_index
-        unset value
-    else
-        echo "example: params -p <param_index> -v [value]"
-    fi
-}
-
-function smake(){
-    cd ~/projects/buildroot/
-    make clean
-    rm ~/projects/buildroot/dl/*
-    make menuconfig
-    make 
-}
 function sscp(){ 
     #Simple SCP 
     scp -r -o ConnectTimeout=5 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $1 $2 
 }
 
-function make_core(){
-    cd ~/projects/sources/apps/core
-    make clean
-    make PLATFROM=sama5d2 PROTO_PATH=~/projects/proto
+# ======= Docker ================
+alias drm="docker rm"
+alias dps="docker ps"
+alias dprune="docker container prune"
+ 
+function newbox() {
+    IMAGE=${1:-devbox}
+    gnome-terminal --geometry=110X32 -e "docker run -it -v ${HOME}/.zshrc:/home/${IMAGE}/.zshrc --mount type=bind,src=${HOME}/docker/shared/${IMAGE},target=/home/${IMAGE}/shared --mount type=bind,src=${HOME}/docker/shared/.dotfile,target=/home/${IMAGE}/.dotfile emb-jenk-slv01:5000/${IMAGE}:latest"
 }
-
-function help() {
-	echo "********************* pup ***********************"
-	echo "The command 'pup' send an spff file to the porita"
-	echo "The argument -i, --ip is optional, It will change the configuration.json file"
-	echo "example: pup -s <upgrade_file.spff> (-i 0.0.0.0)"
-	echo 
-
-	echo "********************* py ***********************"
-	echo "Run python3.4"
-
-	echo "********************* mini0 / mini1***********************"
-	echo "Run minicom on ttyUSBX and save to log in ~/project/minicom.log"
+ 
+function pullbox() {
+    IMAGE=${1:-devbox}
+    docker pull emb-jenk-slv01:5000/${IMAGE}:latest
 }
-
-
