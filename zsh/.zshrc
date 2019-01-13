@@ -103,9 +103,9 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
+# Source
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-source ~/.zsh/portia_fucntions
+[ -f ~/.zsh/portia_fucntions ] && source ~/.zsh/portia_functions
 
 
 # ========= Aliases =============
