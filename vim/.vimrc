@@ -71,6 +71,7 @@ vmap u <nop>
 vmap U <nop>
 
 map <C-A-S-R> :call SearchAndReplace()<CR>
+map ' <nop>
 map <F2> :call RunBashScript()<CR>
 map <F3> :call RunPython()<CR>
 map <Leader><F3> :call RunPythonWithArgs()<CR>
