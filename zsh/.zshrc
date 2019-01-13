@@ -127,13 +127,25 @@ function sscp(){
 }
 
 # ======= Docker ================
+# Docker
 alias drm="docker rm"
 alias dps="docker ps"
 alias dprune="docker container prune"
  
 function newbox() {
     IMAGE=${1:-devbox}
-    gnome-terminal --geometry=110X32 -e "docker run -it -v ${HOME}/.zshrc:/home/${IMAGE}/.zshrc --mount type=bind,src=${HOME}/docker/shared/${IMAGE},target=/home/${IMAGE}/shared --mount type=bind,src=${HOME}/docker/shared/.dotfile,target=/home/${IMAGE}/.dotfile emb-jenk-slv01:5000/${IMAGE}:latest"
+ 
+    docker run -it \
+    -v ${HOME}/docker/${IMAGE}/shared:/home/${IMAGE}/shared \
+    -v ${HOME}/.ssh:/home/${IMAGE}/.ssh \
+    -v ${HOME}/.gitconfig:/home/${IMAGE}/.gitconfig \
+    -v ${HOME}/.zshrc:/home/${IMAGE}/.zsh_host/.zshrc \
+    -v ${HOME}/Share/projects/:/home/${IMAGE}/projects \
+    -v ${HOME}/.zsh_history:/home/${IMAGE}/.zsh_host/.zsh_history \
+    -v ${HOME}/.dotfiles/zsh/yoni.zsh-theme:/home/${IMAGE}/.oh-my-zsh/themes/yoni.zsh-theme \
+    -v ${HONE}/.zsh/portia_fucntions:/home/${IMAGE}/.zsh/portia_fucntions \
+    -v ${HONE}/.zsh/portia_complete:/home/${IMAGE}/.zsh/portia_complete \
+    emb-jenk-slv01:5000/${IMAGE}:latest
 }
  
 function pullbox() {

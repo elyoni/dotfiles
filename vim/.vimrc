@@ -254,6 +254,7 @@ set tags=tags
 syn keyword ColorColumn ygye
 syn keyword Search Debug
 syn keyword SpellBad debug
+:syntax keyword ColorColumn porita
 
 
 
@@ -272,12 +273,12 @@ call neomake#configure#automake('nw', 100)
 call neomake#configure#automake('rw', 500)
 let g:neomake_open_list = 0
 
-highlight onit ctermfg=0 ctermbg=214 guifg=#000000 guibg=#C0A25F
-call matchadd('onit',".*onit.*")
-
-highlight ygye cterm=bold ctermfg=16 ctermbg=186 gui=bold,underline guifg=#cae682 guibg=#363946 
-call matchadd('ygye',".*yg-ye.*")
-call matchadd('ygye',".*ygye.*")
+"highlight onit ctermfg=0 ctermbg=214 guifg=#000000 guibg=#C0A25F
+"call matchadd('onit',".*onit.*")
+"
+"highlight ygye cterm=bold ctermfg=16 ctermbg=186 gui=bold,underline guifg=#cae682 guibg=#363946 
+"call matchadd('ygye',".*yg-ye.*")
+"call matchadd('ygye',".*ygye.*")
 
 " === ctrlp plug in ===
 set wildignore+=*/tmp/*,*.so,*.swp,*.zip     " MacOSX/Linux
