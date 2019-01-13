@@ -121,7 +121,6 @@ alias cdtools="cd ~/projects/tools"
 alias cdshell="cd ~/projects/tools/shell"
 alias cdlab="cd ~/projects/lab/client_emulators"
 
-
 function sscp(){ 
     #Simple SCP 
     scp -r -o ConnectTimeout=5 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $1 $2 
