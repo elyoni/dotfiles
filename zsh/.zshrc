@@ -137,19 +137,25 @@ alias dps="docker ps"
 alias dprune="docker container prune"
  
 function newbox() {
-    IMAGE=${1:-devbox}
+    SYSTEM=${1:-devbox}
+    mkdir ${HOME}/docker/${SYSTEM}/projects -p
  
     docker run -it \
-    -v ${HOME}/docker/${IMAGE}/shared:/home/${IMAGE}/shared \
-    -v ${HOME}/.ssh:/home/${IMAGE}/.ssh \
-    -v ${HOME}/.gitconfig:/home/${IMAGE}/.gitconfig \
-    -v ${HOME}/.zshrc:/home/${IMAGE}/.zsh_host/.zshrc \
-    -v ${HOME}/Share/projects/:/home/${IMAGE}/projects \
-    -v ${HOME}/.zsh_history:/home/${IMAGE}/.zsh_host/.zsh_history \
-    -v ${HOME}/.dotfiles/zsh/yoni.zsh-theme:/home/${IMAGE}/.oh-my-zsh/themes/yoni.zsh-theme \
-    -v ${HONE}/.zsh/portia_fucntions:/home/${IMAGE}/.zsh/portia_fucntions \
-    -v ${HONE}/.zsh/portia_complete:/home/${IMAGE}/.zsh/portia_complete \
-    emb-jenk-slv01:5000/${IMAGE}:latest
+    --name ${SYSTEM}\
+    --hostname ${USER}-docker\
+    --mount type=bind,src=${HOME}/docker/${SYSTEM}/projects,target=/home/devbox/projects\
+    --mount type=bind,src=${HOME}/.ssh,target=/home/devbox/.ssh \
+    --mount type=bind,src=${HOME}/.gitconfig,target=/home/devbox/.gitconfig \
+    --mount type=bind,src=${HOME}/.zshrc,target=/home/devbox/.zsh_host/.zshrc \
+    --mount type=bind,src=${HOME}/.dotfiles/zsh/yoni.zsh-theme,target=/home/devbox/.oh-my-zsh/themes/yoni.zsh-theme \
+    --mount type=bind,src=${HOME}/.dotfiles/tmux/tmux.conf,target=/home/devbox/.tmux.conf \
+    --mount type=bind,src=${HOME}/.zsh_history,target=/home/devbox/.zsh_host/.zsh_history \
+    emb-jenk-slv01:5000/devbox:latest
+    if [ $? -eq 125 ]; then
+        docker attach ${SYSTEM}
+    elif [ $? -eq 1 ]; then
+        docker start ${SYSTEM} --attach 
+    fi
 }
  
 function pullbox() {
