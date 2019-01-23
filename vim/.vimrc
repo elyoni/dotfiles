@@ -102,10 +102,10 @@ nmap <C-g>b :Gblame<CR>
 "imap <C-Up> <Esc><C-W><Up>
 "imap <C-Down> <Esc><C-W><Down>
 
-imap <C-l> <Esc><C-W><Right>
-imap <C-h> <Esc><C-W><Left>
-imap <C-k> <Esc><C-W><Up>
-imap <C-j> <Esc><C-W><Down>
+"imap <C-l> <Esc><C-W><Right>
+"imap <C-h> <Esc><C-W><Left>
+"imap <C-k> <Esc><C-W><Up>
+"imap <C-j> <Esc><C-W><Down>
 
 "tmap <C-Right> <Esc><C-W><Right>
 "tmap <C-Left> <Esc><C-W><Left>
