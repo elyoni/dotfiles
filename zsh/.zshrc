@@ -151,25 +151,6 @@ function newbox() {
     -v ${HOME}/.dotfiles/tmux/tmux.conf:/home/devbox/.tmux.conf \
     emb-jenk-slv01:5000/devbox:latest
 }
-
-
-function newboxw2() {
-    SYSTEM=${1:-devbox}
-
-    mkdir ${HOME}/docker/${SYSTEM}/projects -p
- 
-    docker run -it \
-    --name ${SYSTEM} \
-    --hostname ${USER}-docker\
-    -v ${HOME}/docker/${SYSTEM}/projects:/home/devbox/projects \
-    -v ${HOME}/.ssh:/home/devbox/.ssh \
-    -v ${HOME}/.gitconfig:/home/devbox/.gitconfig \
-    -v ${HOME}/.zshrc:/home/devbox/.zsh_host/.zshrc \
-    -v ${HOME}/.dotfiles/zsh/yoni.zsh-theme:/home/devbox/.oh-my-zsh/themes/yoni.zsh-theme \
-    -v ${HOME}/.dotfiles/tmux/tmux.conf:/home/devbox/.tmux.conf \
-    emb-jenk-slv01:5000/devbox:latest
-}
-
 #docker run -it --name debox --hostname ${USER}-docker -v ${HOME}/docker/debox/projects:/home/devbox/projects -v ${HOME}/.ssh:/home/devbox/.ssh -v ${HOME}/.gitconfig:/home/devbox/.gitconfig -v ${HOME}/.zshrc:/home/devbox/.zsh_host/.zshrc -v ${HOME}/.dotfiles/zsh/yoni.zsh-theme:/home/devbox/.oh-my-zsh/themes/yoni.zsh-theme -v ${HOME}/.dotfiles/tmux/tmux.conf:/home/devbox/.tmux.conf emb-jenk-slv01:5000/devbox:latest
 
 
