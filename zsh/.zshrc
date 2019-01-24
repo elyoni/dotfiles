@@ -1,5 +1,7 @@
 autoload -U +X bashcompinit && bashcompinit
 autoload -U +X compinit && compinit
+fpath=(~/.zsh/completion $fpath) 
+zstyle ":completion:*:descriptions" format "%B%d%b"
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
@@ -105,8 +107,15 @@ source $ZSH/oh-my-zsh.sh
 
 # Source
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-[ -f ~/.zsh/portia_fucntions ] && source ~/.zsh/portia_functions
 
+# ========= Portia function =========
+[ -f ~/.zsh/portia_functions ] && source ~/.zsh/portia_functions
+# ========= General Function =========
+
+function sscp(){ 
+    #Simple SCP 
+    scp -r -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${@:1:(($#)-1)} "${@: -1}"
+}
 
 # ========= Aliases =============
 alias py=python3.4
@@ -121,13 +130,8 @@ alias cdtools="cd ~/projects/tools"
 alias cdshell="cd ~/projects/tools/shell"
 alias cdlab="cd ~/projects/lab/client_emulators"
 
-function sscp(){ 
-    #Simple SCP 
-    scp -r -o ConnectTimeout=5 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $1 $2 
-}
 
 # ======= Docker ================
-# Docker
 alias drm="docker rm"
 alias dps="docker ps"
 alias dprune="docker container prune"
