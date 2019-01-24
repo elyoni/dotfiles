@@ -38,11 +38,16 @@ floating_modifier $mod
 # start a terminal
 bindsym $mod+Return exec i3-sensible-terminal
 
-set $ssh_terminal Launch: [Enter]yoni [a]di
-bindsym $mod+Shift+Return mode "$ssh_terminal" 
+set $ssh_terminal Launch: [Enter]yoni [a]di [j]enk val[2-5]
+bindsym $mod+Shift+Return mode "$ssh_terminal"
 mode "$ssh_terminal" {
-    bindsym Return exec "i3-sensible-terminal -e ssh yoni@yoni-pc -y", mode "default"
-    bindsym a exec "i3-sensible-terminal -e ssh adi@adi -y"
+    bindsym Return exec "i3-sensible-terminal -e ssh -i ~/.ssh/ssh_key yoni@yoni-pc -y", mode "default"
+    bindsym a exec "i3-sensible-terminal -e ssh -i ~/.ssh/ssh_key adi@adi -y", mode "default"
+    bindsym j exec "i3-sensible-terminal -e ssh -i ~/.ssh/ssh_key root@emb-jenk-slv01 -y", mode "default"
+    bindsym 2 exec "i3-sensible-terminal -e ssh -i ~/.ssh/ssh_key portia-linux-val02@portia-linux-val02 -y", mode "default"
+    bindsym 3 exec "i3-sensible-terminal -e ssh -i ~/.ssh/ssh_key se@portia-linux-val03 -y", mode "default"
+    bindsym 4 exec "i3-sensible-terminal -e ssh -i ~/.ssh/ssh_key se@portia-linux-val04 -y", mode "default"
+    bindsym 5 exec "i3-sensible-terminal -e ssh -i ~/.ssh/ssh_key se@portia-linux-val05 -y", mode "default"
 
     bindsym Escape mode "default"
     bindsym Return mode "default"
