@@ -107,10 +107,7 @@ source $ZSH/oh-my-zsh.sh
 
 # Source
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-# ========= Portia function =========
 [ -f ~/.zsh/portia_functions ] && source ~/.zsh/portia_functions
-# ========= General Function =========
 
 function sscp(){ 
     #Simple SCP 
@@ -129,6 +126,8 @@ alias cdbuildroot="cd ~/projects/buildroot"
 alias cdtools="cd ~/projects/tools"
 alias cdshell="cd ~/projects/tools/shell"
 alias cdlab="cd ~/projects/lab/client_emulators"
+alias tm="tmux a -t minicom"
+alias tt="tmux a -t test"
 
 
 # ======= Docker ================
@@ -138,26 +137,42 @@ alias dprune="docker container prune"
  
 function newbox() {
     SYSTEM=${1:-devbox}
+
     mkdir ${HOME}/docker/${SYSTEM}/projects -p
  
     docker run -it \
-    --name ${SYSTEM}\
+    --name ${SYSTEM} \
     --hostname ${USER}-docker\
-    --mount type=bind,src=${HOME}/docker/${SYSTEM}/projects,target=/home/devbox/projects\
-    --mount type=bind,src=${HOME}/.ssh,target=/home/devbox/.ssh \
-    --mount type=bind,src=${HOME}/.gitconfig,target=/home/devbox/.gitconfig \
-    --mount type=bind,src=${HOME}/.zshrc,target=/home/devbox/.zsh_host/.zshrc \
-    --mount type=bind,src=${HOME}/.dotfiles/zsh/yoni.zsh-theme,target=/home/devbox/.oh-my-zsh/themes/yoni.zsh-theme \
-    --mount type=bind,src=${HOME}/.dotfiles/tmux/tmux.conf,target=/home/devbox/.tmux.conf \
-    --mount type=bind,src=${HOME}/.zsh_history,target=/home/devbox/.zsh_host/.zsh_history \
+    -v ${HOME}/docker/${SYSTEM}/projects:/home/devbox/projects \
+    -v ${HOME}/.ssh:/home/devbox/.ssh \
+    -v ${HOME}/.gitconfig:/home/devbox/.gitconfig \
+    -v ${HOME}/.zshrc:/home/devbox/.zsh_host/.zshrc \
+    -v ${HOME}/.dotfiles/zsh/yoni.zsh-theme:/home/devbox/.oh-my-zsh/themes/yoni.zsh-theme \
+    -v ${HOME}/.dotfiles/tmux/tmux.conf:/home/devbox/.tmux.conf \
     emb-jenk-slv01:5000/devbox:latest
-    if [ $? -eq 125 ]; then
-        docker attach ${SYSTEM}
-    elif [ $? -eq 1 ]; then
-        docker start ${SYSTEM} --attach 
-    fi
 }
+
+
+function newboxw2() {
+    SYSTEM=${1:-devbox}
+
+    mkdir ${HOME}/docker/${SYSTEM}/projects -p
  
+    docker run -it \
+    --name ${SYSTEM} \
+    --hostname ${USER}-docker\
+    -v ${HOME}/docker/${SYSTEM}/projects:/home/devbox/projects \
+    -v ${HOME}/.ssh:/home/devbox/.ssh \
+    -v ${HOME}/.gitconfig:/home/devbox/.gitconfig \
+    -v ${HOME}/.zshrc:/home/devbox/.zsh_host/.zshrc \
+    -v ${HOME}/.dotfiles/zsh/yoni.zsh-theme:/home/devbox/.oh-my-zsh/themes/yoni.zsh-theme \
+    -v ${HOME}/.dotfiles/tmux/tmux.conf:/home/devbox/.tmux.conf \
+    emb-jenk-slv01:5000/devbox:latest
+}
+
+#docker run -it --name debox --hostname ${USER}-docker -v ${HOME}/docker/debox/projects:/home/devbox/projects -v ${HOME}/.ssh:/home/devbox/.ssh -v ${HOME}/.gitconfig:/home/devbox/.gitconfig -v ${HOME}/.zshrc:/home/devbox/.zsh_host/.zshrc -v ${HOME}/.dotfiles/zsh/yoni.zsh-theme:/home/devbox/.oh-my-zsh/themes/yoni.zsh-theme -v ${HOME}/.dotfiles/tmux/tmux.conf:/home/devbox/.tmux.conf emb-jenk-slv01:5000/devbox:latest
+
+
 function pullbox() {
     IMAGE=${1:-devbox}
     docker pull emb-jenk-slv01:5000/${IMAGE}:latest
