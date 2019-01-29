@@ -90,27 +90,10 @@ nmap <C-g>d :Gdiff<CR>
 nmap <C-g>c :Gcommit<CR>
 nmap <C-g>b :Gblame<CR>
 
-"nmap <A-Right> <C-W><Right>
-"nmap <A-Left> <C-W><Left>
-"nmap <A-Up> <C-W><Up>
-"nmap <A-Down> <C-W><Down>
-
-
-
-"imap <C-Right> <Esc><C-W><Right>
-"imap <C-Left> <Esc><C-W><Left>
-"imap <C-Up> <Esc><C-W><Up>
-"imap <C-Down> <Esc><C-W><Down>
-
 imap <C-l> <Esc><C-W><Right>
 imap <C-h> <Esc><C-W><Left>
 imap <C-k> <Esc><C-W><Up>
 imap <C-j> <Esc><C-W><Down>
-
-"tmap <C-Right> <Esc><C-W><Right>
-"tmap <C-Left> <Esc><C-W><Left>
-"tmap <C-Up> <Esc><C-W><Up>
-"tmap <C-Down> <Esc><C-W><Down>
 
 tmap <C-l> <Esc><C-W><Right>
 tmap <C-h> <Esc><C-W><Left>
@@ -130,6 +113,9 @@ nmap <C-S-Left> <C-W><<C-W><
 
 nnoremap <A-.> :call MoveToNextTab()<CR>
 nnoremap <A-,> :call MoveToPrevTab()<CR>
+
+nnoremap z] ]s
+nnoremap z[ [s
 
 
 " Open the tag in split window
