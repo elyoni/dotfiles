@@ -152,35 +152,67 @@ alias tt="tmux a -t test"
 # ======= Docker ================
 alias drm="docker rm"
 alias dps="docker ps"
-alias dprune="docker container prune"
- 
-function newbox() {
-    SYSTEM=${1:-devbox}
-    if docker inspect -f '{{.State.Status}}' $SYSTEM | grep -q exited; then
-        docker start $SYSTEM
-        docker attach $SYSTEM
-    elif docker inspect -f '{{.State.Status}}' $SYSTEM | grep -q running; then
-        docker attach $SYSTEM
+alias boxclean="docker container prune"
+
+function run_docker() {
+    mkdir $PROJECTS -p
+
+    docker run -it \
+    --name ${SYSTEM}${NUMBER} \
+    --hostname ${USER}-docker\
+    -v ${PROJECTS}:/home/devbox/projects \
+    -v ${HOME}/.ssh:/home/devbox/.ssh \
+    -v ${HOME}/.gitconfig:/home/devbox/.gitconfig \
+    -v ${HOME}/.zshrc:/home/devbox/.zsh_host/.zshrc \
+    -v ${HOME}/.dotfiles/zsh/yoni.zsh-theme:/home/devbox/.oh-my-zsh/themes/yoni.zsh-theme \
+    -v ${HOME}/.dotfiles/tmux/tmux.conf:/home/devbox/.tmux.conf \
+    emb-jenk-slv01:5000/devbox:latest
+}
+
+function boxnew() {
+    SYSTEM="devbox"
+    NUMBER="0"
+
+    while [[ $# -gt 0 ]]; do
+        key="$1"
+        case $key in
+            -s|--system)
+            SYSTEM="$2"
+            shift # past value
+            shift # past value
+            ;;
+            -n|--number)
+            NUMBER="$2"
+            shift # past argument
+            shift # past value
+            ;;
+            *)    # unknown option
+            shift # past argument
+            ;;
+        esac
+    done
+    echo ${SYSTEM}${NUMBER}
+    if [ $SYSTEM = "local" ]; then
+        PROJECTS="${HOME}/projects"
     else
-        echo weeeeeeeeeeeeeeeeeeeeeeeee
-        mkdir ${HOME}/docker/${SYSTEM}/projects -p
-     
-        docker run -it \
-        --name ${SYSTEM} \
-        --hostname ${USER}-docker\
-        -v ${HOME}/docker/${SYSTEM}/projects:/home/devbox/projects \
-        -v ${HOME}/.ssh:/home/devbox/.ssh \
-        -v ${HOME}/.gitconfig:/home/devbox/.gitconfig \
-        -v ${HOME}/.zshrc:/home/devbox/.zsh_host/.zshrc \
-        -v ${HOME}/.dotfiles/zsh/yoni.zsh-theme:/home/devbox/.oh-my-zsh/themes/yoni.zsh-theme \
-        -v ${HOME}/.dotfiles/tmux/tmux.conf:/home/devbox/.tmux.conf \
-        emb-jenk-slv01:5000/devbox:latest
+        PROJECTS=${HOME}/docker/${SYSTEM}/projects
+    fi
+
+    if [ ! "$(docker ps -a | grep ${SYSTEM}${NUMBER})" ]; then
+        run_docker 
+    elif docker inspect -f '{{.State.Status}}' ${SYSTEM}${NUMBER} | grep -q exited; then
+        docker start ${SYSTEM}${NUMBER}
+        docker attach ${SYSTEM}${NUMBER}
+    elif docker inspect -f '{{.State.Status}}'  ${SYSTEM}${NUMBER}| grep -q running; then
+        docker attach ${SYSTEM}${NUMBER}
+    else 
+        echo Unknown what to do
     fi
 }
 #docker run -it --name debox --hostname ${USER}-docker -v ${HOME}/docker/debox/projects:/home/devbox/projects -v ${HOME}/.ssh:/home/devbox/.ssh -v ${HOME}/.gitconfig:/home/devbox/.gitconfig -v ${HOME}/.zshrc:/home/devbox/.zsh_host/.zshrc -v ${HOME}/.dotfiles/zsh/yoni.zsh-theme:/home/devbox/.oh-my-zsh/themes/yoni.zsh-theme -v ${HOME}/.dotfiles/tmux/tmux.conf:/home/devbox/.tmux.conf emb-jenk-slv01:5000/devbox:latest
 
 
-function pullbox() {
+function boxpull() {
     IMAGE=${1:-devbox}
     docker pull emb-jenk-slv01:5000/${IMAGE}:latest
 }
