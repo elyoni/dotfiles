@@ -36,6 +36,22 @@ exec "stty -F /dev/ttyUSB1 115200 raw -echo -echoe -echok -echoctl -echoke"
 floating_modifier $mod
 
 # start a terminal
+
+set $docker_terminal Launch: [0-6] Docker
+bindsym $mod+Ctrl+Return mode "$docker_terminal"
+mode "$docker_terminal" {
+    bindsym Return exec "i3-sensible-terminal -e boxnew -s local -n 0", mode "default"
+    bindsym 1 exec      "i3-sensible-terminal -e boxnew -s local -n 1", mode "default"
+    bindsym 2 exec      "i3-sensible-terminal -e boxnew -s local -n 2", mode "default"
+    bindsym 3 exec      "i3-sensible-terminal -e boxnew -s local -n 3", mode "default"
+    bindsym 4 exec      "i3-sensible-terminal -e boxnew -s local -n 4", mode "default"
+    bindsym 5 exec      "i3-sensible-terminal -e boxnew -s local -n 5", mode "default"
+    bindsym 6 exec      "i3-sensible-terminal -e boxnew -s local -n 6", mode "default"
+
+    bindsym Escape mode "default"
+    bindsym Return mode "default"
+}
+
 bindsym $mod+Return exec i3-sensible-terminal
 
 set $ssh_terminal Launch: [Enter]yoni [a]di [j]enk val[2-5]
