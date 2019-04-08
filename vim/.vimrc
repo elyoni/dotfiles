@@ -45,6 +45,11 @@ Plug 'neoclide/coc.nvim', {'do': { -> coc#util#install()}}
 Plug 'huawenyu/neogdb.vim'
 Plug 'kien/ctrlp.vim'
 Plug 'ericcurtin/CurtineIncSw.vim'
+"Plug 'vifm/vifm.vim'
+Plug 'wincent/ferret'               "Multifile search and replace
+Plug 'francoiscabrol/ranger.vim'
+Plug 'fedorenchik/VimCalc3'         "To run the calc type :Calc
+Plug 'will133/vim-dirdiff'
 "Plug 'vim-scripts/Conque-GDB'
 "Plug 'sakhnik/nvim-gdb', { 'do': './install.sh' }
 "Plug 'lifepillar/vim-mucomplete'
@@ -59,6 +64,7 @@ call plug#end()
 ""noremap <Left> <NOP>
 ""noremap <Right> <NOP>
 
+:ia td #YE TODO 
 
 map <C-S-p> :FZF<CR>
 map <C-n> :NERDTreeToggle<CR>
@@ -89,6 +95,8 @@ nmap <C-g>s :Gstatus<CR>
 nmap <C-g>d :Gdiff<CR>
 nmap <C-g>c :Gcommit<CR>
 nmap <C-g>b :Gblame<CR>
+nmap <C-S-f> :Rg<CR>
+vmap <C-S-f> :y:@" y:@"<CR>
 
 imap <C-l> <Esc><C-W><Right>
 imap <C-h> <Esc><C-W><Left>
@@ -220,6 +228,17 @@ set grepprg=Rg\ --nogroup\ --nocolor
 "   let g:ctrlp_use_caching = 0
 " endif
 
+"command! -bang -nargs=* Rg
+"  \ call fzf#vim#grep(
+"  \   'rg --column --line-number --no-heading --color=always --smart-case '.shellescape(<q-args>), 1,
+"  \   <bang>0 ? fzf#vim#with_preview('up:60%')
+"  \           : fzf#vim#with_preview('right:50%:hidden', '?'),
+"  \   <bang>0)
+
+" Likewise, Files command with preview window
+"
+command! -bang -nargs=? -complete=dir Files
+  \ call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
 " mouse support
 set mouse=a
 
@@ -296,6 +315,9 @@ function Se()
     copen
 endfunctio
 
+function SearchRG(word)
+    execute Rg a:word
+endfunction
 
 function RunBashScript()
     write
@@ -437,6 +459,31 @@ function MoveToNextTab()
   "opening current buffer in new window
   exe "b".l:cur_buf
 endfunc
+
+
+
+command! -nargs=+ MyCommand :call MyFunction(<f-args>)
+let s:dictionary = {}
+
+function! Srg(...)
+    let myString = ""
+    for arg in a:000
+      myString = myString . arg
+   endfor
+   echo myString
+endfunction
+
+
+command! -nargs=* DN :call DisplayName(<f-args>)
+function DisplayName(...)
+    let rgSearch = ""
+    for i in a:000
+        let rgSearch = rgSearch . " " . i
+    endfor
+    let rgSearch = substitute(rgSearch, '(', '\\(', 'g')
+    let rgSearch = substitute(rgSearch, ')', '\\)', 'g')
+    execute Rg rgSearch
+endfunction
 
 " This is the default extra key bindings
 let g:fzf_action = {
