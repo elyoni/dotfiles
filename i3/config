@@ -8,6 +8,8 @@
 # i3 config file (v4)
 #
 # Please see http://i3wm.org/docs/userguide.html for a complete reference!
+#exec xmodmap -e "keycode 66 = Shift_L NoSymbol Shift_L"
+exec xmodmap -e "keycode 66 = Escape NoSymbol Escape"
 
 set $mod Mod4
 
@@ -152,6 +154,7 @@ set $workspace08 "8:My Log"
 set $workspace09 "9:I3 "
 set $workspace00 "0:Music"
 set $workspace11 "F1:"
+set $workspace21 "F11:MY"
 
 # switch to workspace
 bindsym $mod+1 workspace $workspace01
@@ -165,6 +168,7 @@ bindsym $mod+8 workspace $workspace08
 bindsym $mod+9 workspace $workspace09
 bindsym $mod+0 workspace $workspace00
 bindsym $mod+F1 workspace $workspace11
+bindsym $mod+F11 workspace $workspace21
 
 # move focused container to workspace
 bindsym $mod+Shift+1 move container to workspace $workspace01
@@ -177,6 +181,8 @@ bindsym $mod+Shift+7 move container to workspace $workspace07
 bindsym $mod+Shift+8 move container to workspace $workspace08
 bindsym $mod+Shift+9 move container to workspace $workspace09
 bindsym $mod+Shift+0 move container to workspace $workspace00
+bindsym $mod+Shift+F1 move container to workspace $workspace11
+bindsym $mod+Shift+F11 move container to workspace $workspace21
 
 #Assing program to workspace
 ## To check the click run xprop
