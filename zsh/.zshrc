@@ -9,6 +9,10 @@ zstyle ":completion:*:descriptions" format "%B%d%b"
 user=$(whoami)
   export ZSH=/home/$user/.oh-my-zsh
 
+TRAPWINCH() {
+  zle && { zle reset-prompt; zle -R }
+}
+
 # Set name of the theme to load. Optionally, if you set this to "random"
 # it'll load a random theme each time that oh-my-zsh is loaded.
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
@@ -75,6 +79,7 @@ plugins=(
   git
 )
 source $ZSH/oh-my-zsh.sh
+source $HOME/projects/tools/configurations
 
 # User configuration
 
@@ -127,7 +132,6 @@ export UTILS_DIR="~/projects/tools/utils"
 export LAB_DIR="~/projects/lab"
 export REG_DIR="~/projects/lab/applications/regression"
 
-
 function sscp(){ 
     #Simple SCP 
     scp -r -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${@:1:(($#)-1)} "${@: -1}"
@@ -144,9 +148,12 @@ alias cdcore="cd ~/projects/sources/apps/core"
 alias cdbuildroot="cd ~/projects/buildroot"
 alias cdtools="cd ~/projects/tools"
 alias cdshell="cd ~/projects/tools/shell"
-alias cdlab="cd ~/projects/lab/client_emulators"
+alias cdlab="cd ~/projects/lab/"
+alias cdutils="cd ~/projects/tools/utils/"
 alias tm="tmux a -t minicom"
 alias tt="tmux a -t test"
+alias vm="vifm $PWD"
+alias pip="source ~/projects/tools/env/zsh/update_ip.sh"
 
 
 # ======= Docker ================
@@ -166,6 +173,10 @@ function run_docker() {
     -v ${HOME}/.zshrc:/home/devbox/.zsh_host/.zshrc \
     -v ${HOME}/.dotfiles/zsh/yoni.zsh-theme:/home/devbox/.oh-my-zsh/themes/yoni.zsh-theme \
     -v ${HOME}/.dotfiles/tmux/tmux.conf:/home/devbox/.tmux.conf \
+    -v ${HOME}/.zsh_history:/home/devbox/.zsh_host/.zsh_history \
+    --network=host \
+    -p 22:22${NUMBER} \
+    -e DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix \
     emb-jenk-slv01:5000/devbox:latest
 }
 
@@ -215,4 +226,10 @@ function boxnew() {
 function boxpull() {
     IMAGE=${1:-devbox}
     docker pull emb-jenk-slv01:5000/${IMAGE}:latest
+}
+
+
+function ip_temp(){
+    python3.4 ~/projects/tools/configure.py -i $1
+    source ~/projects/tools/configurations
 }
