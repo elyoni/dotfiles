@@ -50,6 +50,10 @@ Plug 'wincent/ferret'               "Multifile search and replace
 Plug 'francoiscabrol/ranger.vim'
 Plug 'fedorenchik/VimCalc3'         "To run the calc type :Calc
 Plug 'will133/vim-dirdiff'
+"Edit UML
+Plug 'weirongxu/plantuml-previewer.vim'
+Plug 'tyru/open-browser.vim'
+Plug 'aklt/plantuml-syntax'
 "Plug 'vim-scripts/Conque-GDB'
 "Plug 'sakhnik/nvim-gdb', { 'do': './install.sh' }
 "Plug 'lifepillar/vim-mucomplete'
@@ -65,6 +69,7 @@ call plug#end()
 ""noremap <Right> <NOP>
 
 :ia td #YE TODO 
+:map Q <Nop>
 
 map <C-S-p> :FZF<CR>
 map <C-n> :NERDTreeToggle<CR>
@@ -186,7 +191,7 @@ set completeopt+=menuone
 
 autocmd FileType python nnoremap <leader>y :0,$!yapf<Cr>
 autocmd CompleteDone * pclose " To close preview window of deoplete automagically
-autocmd FileType vimwiki setlocal spell wrap
+"autocmd FileType vimwiki setlocal spell wrap
 
 let g:ycm_server_keep_logfiles = 1
 "let g:ycm_server_log_level = 'debug'

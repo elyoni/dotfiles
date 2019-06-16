@@ -137,6 +137,11 @@ function sscp(){
     scp -r -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${@:1:(($#)-1)} "${@: -1}"
 }
 
+function sssh(){
+    #Simple SCP 
+    ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no "${@: -1}"
+}
+
 # ========= Aliases =============
 alias py=python3.4
 
@@ -154,6 +159,7 @@ alias tm="tmux a -t minicom"
 alias tt="tmux a -t test"
 alias vm="vifm $PWD"
 alias pip="source ~/projects/tools/env/zsh/update_ip.sh"
+alias vi="nvim"
 
 
 # ======= Docker ================
@@ -231,5 +237,5 @@ function boxpull() {
 
 function ip_temp(){
     python3.4 ~/projects/tools/configure.py -i $1
-    source ~/projects/tools/configurations
+    #source ~/projects/tools/configurations
 }
