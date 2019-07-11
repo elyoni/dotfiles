@@ -79,7 +79,7 @@ plugins=(
   git
 )
 source $ZSH/oh-my-zsh.sh
-source $HOME/projects/tools/configurations
+#source $HOME/projects/tools/configurations
 
 # User configuration
 
@@ -114,23 +114,23 @@ source $HOME/projects/tools/configurations
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 [ -f ~/.zsh/portia_functions ] && source ~/.zsh/portia_functions
 
-export PROJECTS_DIR="~/projects"
-export BUILDROOT_DIR="~/projects/buildroot"
-export IMAGES_DIR="~/projects/buildroot/output/images"
-export CORE_DIR="~/projects/sources/apps/core"
-export PMANAGER_DIR="~/projects/sources/apps/pmanager"
-export WEB_DIR="~/projects/sources/apps/web"
-export CURATOR_DIR="~/projects/sources/apps/curator"
-export APPS_DIR="~/projects/sources/apps"
-export LIBS_DIR="~/projects/sources/libs"
-export MQTTC_DIR="~/projects/sources/libs/mqttc"
-export SOURCES_DIR="~/projects/sources"
-export PROTO_DIR="~/projects/proto"
-export TOOLS_DIR="~/projects/tools"
-export SHELL_DIR="~/projects/tools/shell"
-export UTILS_DIR="~/projects/tools/utils"
-export LAB_DIR="~/projects/lab"
-export REG_DIR="~/projects/lab/applications/regression"
+export PROJECTS_DIR="/home/yoni/projects"
+export BUILDROOT_DIR="/home/yoni/projects/buildroot"
+export IMAGES_DIR="/home/yoni/projects/buildroot/output/images"
+export CORE_DIR="/home/yoni/projects/sources/apps/core"
+export PMANAGER_DIR="/home/yoni/projects/sources/apps/pmanager"
+export WEB_DIR="/home/yoni/projects/sources/apps/web"
+export CURATOR_DIR="/home/yoni/projects/sources/apps/curator"
+export APPS_DIR="/home/yoni/projects/sources/apps"
+export LIBS_DIR="/home/yoni/projects/sources/libs"
+export MQTTC_DIR="/home/yoni/projects/sources/libs/mqttc"
+export SOURCES_DIR="/home/yoni/projects/sources"
+export PROTO_DIR="/home/yoni/projects/proto"
+export TOOLS_DIR="/home/yoni/projects/tools"
+export SHELL_DIR="/home/yoni/projects/tools/shell"
+export UTILS_DIR="/home/yoni/projects/tools/utils"
+export LAB_DIR="/home/yoni/projects/lab"
+export REG_DIR="/home/yoni/projects/lab/applications/regression"
 
 function sscp(){ 
     #Simple SCP 
