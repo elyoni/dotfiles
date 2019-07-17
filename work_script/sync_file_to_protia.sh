@@ -1,6 +1,7 @@
 #!/bin/bash
 password="a"   #"$HOME/.passPortia.txt"
-ip=$(jq -r '.ip' < ~/projects/tools/configurations.json)
+source ~/projects/tools/configurations
+
 
 function upload_file(){
     path_from=$1
@@ -11,16 +12,16 @@ function upload_file(){
     echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
 
     #sshpass -f $password_file_path scp -r -o ConnectTimeout=5 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $path_from root@$ip:$path_to
-    sshpass -p $password scp -r -o ConnectTimeout=60 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $path_from root@$ip:$path_to
+    sshpass -p $password scp -r -o ConnectTimeout=60 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $path_from root@$PORTIA_IP:$path_to
     if [ $? -eq 0 ]; then
         echo "*****************************************" 
         echo "    1. DONE copy $file_name to server " 
         echo "*****************************************" 
     else
         # Create the path
-        sshpass -p $password scp -r -o ConnectTimeout=60 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $path_from root@$ip:$path_to
+        sshpass -p $password scp -r -o ConnectTimeout=60 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $path_from root@$PORTIA_IP:$path_to
         if [ $? -eq 0 ]; then
-            sshpass -p $password scp -r -o ConnectTimeout=60 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $path_from root@$ip:$path_to
+            sshpass -p $password scp -r -o ConnectTimeout=60 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $path_from root@$PORTIA_IP:$path_to
             echo "*****************************************" 
             echo "      File path has created " 
             echo "    2. DONE copy $file_name to server " 
@@ -45,7 +46,7 @@ function python_upload(){
         path_to=${path_to%.*}.pyc
         path_from=${1%/*}/__pycache__/$file_name.cpython-34.pyc
         #path_from=${1%/*}/$file_name.pyc
-
+        echo $path_from $path_to
         upload_file $path_from $path_to
 
         rm -R ${1%/*}/__pycache__/
