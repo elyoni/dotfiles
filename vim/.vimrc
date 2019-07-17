@@ -20,40 +20,52 @@ set clipboard=unnamed,unnamedplus " Copy/Paste directly to System/X11 clipboard
 " To install the Plug just write in normal mode ":PlugInstall"
 call plug#begin()
 
-Plug 'neomake/neomake'              " Give errors to the code
-Plug 'scrooloose/nerdtree'
-Plug 'roxma/vim-tmux-clipboard'
-Plug 'vim-airline/vim-airline'          " Bar
-Plug 'vim-airline/vim-airline-themes'   
-Plug 'ozelentok/vim-closer'
-Plug 'tweekmonster/deoplete-clang2'        " Oz - deoplete-clang 2 is the new plugin - just install the 'clang' package
-Plug 'roxma/nvim-yarp'
-Plug 'zchee/deoplete-jedi'
+Plug 'vimwiki/vimwiki'                  "Wiki for vim
 
-Plug 'davidhalter/jedi-vim'
-Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+"Status Bar
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+
+Plug 'ozelentok/vim-closer'             "Auto close brackets
 Plug 'ryanoasis/vim-devicons'           "Add icons
-Plug '/usr/local/opt/fzf'
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-Plug 'vimwiki/vimwiki'
-Plug 'tpope/vim-fugitive'               " For git
+
+"Files navigate helper
+Plug '/usr/local/opt/fzf'               "Smart complelete
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' } "Smart complelete
+Plug 'kien/ctrlp.vim'                   " Easy Jump between files
 Plug 'jremmen/vim-ripgrep'
-Plug 'scrooloose/nerdcommenter'
-Plug 'airblade/vim-gitgutter'
-Plug 'jsfaint/gen_tags.vim'
-Plug 'neoclide/coc.nvim', {'do': { -> coc#util#install()}}
-Plug 'huawenyu/neogdb.vim'
-Plug 'kien/ctrlp.vim'
-Plug 'ericcurtin/CurtineIncSw.vim'
-"Plug 'vifm/vifm.vim'
-Plug 'wincent/ferret'               "Multifile search and replace
-Plug 'francoiscabrol/ranger.vim'
-Plug 'fedorenchik/VimCalc3'         "To run the calc type :Calc
-Plug 'will133/vim-dirdiff'
-"Edit UML
+Plug 'scrooloose/nerdtree'
+
+"Edit UML Graphs
 Plug 'weirongxu/plantuml-previewer.vim'
 Plug 'tyru/open-browser.vim'
 Plug 'aklt/plantuml-syntax'
+
+"git
+Plug 'tpope/vim-fugitive'               " For git
+Plug 'airblade/vim-gitgutter'           " Show symbols on change/remove/add line
+
+
+"Code plugins
+Plug 'scrooloose/nerdcommenter'     "Add comments to file, Toggles the comment state: <leader>c<space>
+Plug 'neomake/neomake'              " Give errors to the code
+Plug 'neoclide/coc.nvim', {'branch': 'release'}  " auto complete
+Plug 'sheerun/vim-polyglot'         " A plugin that adds syntax highlighting for almost any language you can think of
+
+Plug 'huawenyu/neogdb.vim'          " Debug for GDBSERVER
+
+"Mist
+Plug 'fedorenchik/VimCalc3'         "To run the calc type :Calc
+
+
+"Plug 'tweekmonster/deoplete-clang2'    " Oz - deoplete-clang 2 is the new plugin - just install the 'clang' package
+"Plug 'zchee/deoplete-jedi'
+"
+"Plug 'davidhalter/jedi-vim'
+"Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+"Plug 'vifm/vifm.vim'
+Plug 'wincent/ferret'               "Multifile search and replace
+Plug 'francoiscabrol/ranger.vim'
 "Plug 'vim-scripts/Conque-GDB'
 "Plug 'sakhnik/nvim-gdb', { 'do': './install.sh' }
 "Plug 'lifepillar/vim-mucomplete'
@@ -130,6 +142,8 @@ nnoremap <A-,> :call MoveToPrevTab()<CR>
 nnoremap z] ]s
 nnoremap z[ [s
 
+nnoremap zt :set spell!<CR>
+
 
 " Open the tag in split window
 map <C-\> :vsp <CR>:exec("tag ".expand("<cword>"))<CR>
@@ -180,6 +194,12 @@ set completeopt+=longest,menuone,noselect
 let g:jedi#popup_on_dot = 0  " It may be 1 as well
 let g:mucomplete#enable_auto_at_startup = 0
 
+" disable autocompletion, cause we use deoplete for completion
+let g:jedi#completions_enabled = 0
+
+" open the go-to function in split, not another buffer
+let g:jedi#use_splits_not_buffers = "right"
+
 
 " deoplete.vim
 "let g:deoplete#enable_at_startup = 1
@@ -191,7 +211,7 @@ set completeopt+=menuone
 
 autocmd FileType python nnoremap <leader>y :0,$!yapf<Cr>
 autocmd CompleteDone * pclose " To close preview window of deoplete automagically
-"autocmd FileType vimwiki setlocal spell wrap
+autocmd FileType vimwiki setlocal spell wrap
 
 let g:ycm_server_keep_logfiles = 1
 "let g:ycm_server_log_level = 'debug'
@@ -331,7 +351,7 @@ endfunctio
 
 function UploadToPortia()
     write
-    let ip=system("jq -r '.ip' < ~/projects/tools/configurations.json")
+    let ip=system("echo $PORTIA_IP")
     echo "Portia IP: " .ip
     execute "!bash " .  $HOME . "/.dotfiles/work_script/sync_file_to_protia.sh " . "%:p"
 endfunction
@@ -353,7 +373,7 @@ endfunctio
 
 function SmartF5()
     let workdir = getcwd()
-    let ip=system("jq -r '.ip' < ~/projects/tools/configurations.json")
+    let ip=system("echo $PORTIA_IP")
     if (getcwd() =~ "core")
         let workdir = split(getcwd(), 'core')[0]
         let run=workdir . "core/sync-core.sh -p ~/projects/proto -i " . ip
@@ -536,9 +556,9 @@ let g:neomake_python_flake8_maker = {
         \ '%-G%.%#',
     \ }
 "let g:neomake_python_enabled_makers = ['flake8']
-let g:neomake_python_enabled_makers = ['pep8', 'pylint']
-let g:neomake_python_pylint_exe = 'pylint3'
-let g:neomake_python_pylint_maker = {
-    \ 'args': ['--ignore=W213,W23']
-    \}
+let g:neomake_python_enabled_makers = ['pylint3']
+"let g:neomake_python_pylint_exe = 'pylint3'
+"let g:neomake_python_pylint_maker = {
+"    \ 'args': ['--ignore=W213,W23']
+"    \}
 
