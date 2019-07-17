@@ -1,4 +1,5 @@
-bind main B !git rebase -i %(commit)
+bind main Bb !git rebase -i %(commit)
+bind main Bf !git rebase -i --autosquash %(commit)
 bind status P !git push origin %(branch)
 
 
