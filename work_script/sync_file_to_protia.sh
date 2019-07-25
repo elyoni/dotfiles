@@ -1,6 +1,6 @@
 #!/bin/bash
 password="a"   #"$HOME/.passPortia.txt"
-source ~/projects/tools/configurations
+source $HOME/projects/tools/configurations
 
 
 function upload_file(){
@@ -15,8 +15,9 @@ function upload_file(){
     sshpass -p $password scp -r -o ConnectTimeout=60 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $path_from root@$PORTIA_IP:$path_to
     if [ $? -eq 0 ]; then
         echo "*****************************************" 
-        echo "    1. DONE copy $file_name to server " 
+        echo "    1. DONE copy $file_name to server" 
         echo "*****************************************" 
+        reset_pmanager
     else
         # Create the path
         sshpass -p $password scp -r -o ConnectTimeout=60 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $path_from root@$PORTIA_IP:$path_to
@@ -31,6 +32,15 @@ function upload_file(){
             echo "  ERORR copy $file_name to server         " 
             echo "******************************************" 
         fi
+    fi
+}
+
+function reset_pmanager(){
+    read -p "Do you want to reset the pmanager [Y/n]? " -n 1 -r
+    if [[ ! $REPLY =~ ^[Yy]$ ]]
+    then
+        sshpass -p 'a' ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$PORTIA_IP 'killall python'
+        echo "# Reset Pmanager"
     fi
 }
 
