@@ -16,8 +16,11 @@ TRAPWINCH() {
 # Set name of the theme to load. Optionally, if you set this to "random"
 # it'll load a random theme each time that oh-my-zsh is loaded.
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
-#ZSH_THEME="michelebologna"
-ZSH_THEME="yoni"
+if [ $HOST = "yoni-docker" ]; then
+    ZSH_THEME="michelebologna"
+else
+    ZSH_THEME="yoni"
+fi
 #"powerlevel9k/powerlevel9k"
 VISUAL=nvim; export VISUAL EDITOR=nvim; export EDITOR
 
@@ -114,23 +117,23 @@ source $ZSH/oh-my-zsh.sh
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 [ -f ~/.zsh/portia_functions ] && source ~/.zsh/portia_functions
 
-export PROJECTS_DIR="/home/yoni/projects"
-export BUILDROOT_DIR="/home/yoni/projects/buildroot"
-export IMAGES_DIR="/home/yoni/projects/buildroot/output/images"
-export CORE_DIR="/home/yoni/projects/sources/apps/core"
-export PMANAGER_DIR="/home/yoni/projects/sources/apps/pmanager"
-export WEB_DIR="/home/yoni/projects/sources/apps/web"
-export CURATOR_DIR="/home/yoni/projects/sources/apps/curator"
-export APPS_DIR="/home/yoni/projects/sources/apps"
-export LIBS_DIR="/home/yoni/projects/sources/libs"
-export MQTTC_DIR="/home/yoni/projects/sources/libs/mqttc"
-export SOURCES_DIR="/home/yoni/projects/sources"
-export PROTO_DIR="/home/yoni/projects/proto"
-export TOOLS_DIR="/home/yoni/projects/tools"
-export SHELL_DIR="/home/yoni/projects/tools/shell"
-export UTILS_DIR="/home/yoni/projects/tools/utils"
-export LAB_DIR="/home/yoni/projects/lab"
-export REG_DIR="/home/yoni/projects/lab/applications/regression"
+export PROJECTS_DIR="$HOME/projects"
+export BUILDROOT_DIR="$HOME/projects/buildroot"
+export IMAGES_DIR="$HOME/projects/buildroot/output/images"
+export CORE_DIR="$HOME/projects/sources/apps/core"
+export PMANAGER_DIR="$HOME/projects/sources/apps/pmanager"
+export WEB_DIR="$HOME/projects/sources/apps/web"
+export CURATOR_DIR="$HOME/projects/sources/apps/curator"
+export APPS_DIR="$HOME/projects/sources/apps"
+export LIBS_DIR="$HOME/projects/sources/libs"
+export MQTTC_DIR="$HOME/projects/sources/libs/mqttc"
+export SOURCES_DIR="$HOME/projects/sources"
+export PROTO_DIR="$HOME/projects/proto"
+export TOOLS_DIR="$HOME/projects/tools"
+export SHELL_DIR="$HOME/projects/tools/shell"
+export UTILS_DIR="$HOME/projects/tools/utils"
+export LAB_DIR="$HOME/projects/lab"
+export REG_DIR="$HOME/projects/lab/applications/regression"
 
 function sscp(){ 
     #Simple SCP 
@@ -158,7 +161,7 @@ alias cdutils="cd ~/projects/tools/utils/"
 alias tm="tmux a -t minicom"
 alias tt="tmux a -t test"
 alias vm="vifm $PWD"
-alias pip="source ~/projects/tools/env/zsh/update_ip.sh"
+alias gip="source ~/projects/tools/env/zsh/update_ip.sh"
 alias vi="nvim"
 
 
@@ -184,6 +187,11 @@ function run_docker() {
     -p 22:22${NUMBER} \
     -e DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix \
     emb-jenk-slv01:5000/devbox:latest
+}
+
+function sip(){
+    export PORTIA_IP=$1
+    export PORTIA_PORT=80
 }
 
 function boxnew() {
@@ -235,7 +243,3 @@ function boxpull() {
 }
 
 
-function ip_temp(){
-    python3.4 ~/projects/tools/configure.py -i $1
-    #source ~/projects/tools/configurations
-}
