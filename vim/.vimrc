@@ -51,7 +51,7 @@ Plug 'scrooloose/nerdcommenter'     "Add comments to file, Toggles the comment s
 Plug 'neomake/neomake'              " Give errors to the code
 Plug 'neoclide/coc.nvim', {'branch': 'release'}  " auto complete
 Plug 'sheerun/vim-polyglot'         " A plugin that adds syntax highlighting for almost any language you can think of
-
+Plug 'vim-syntastic/syntastic'
 Plug 'huawenyu/neogdb.vim'          " Debug for GDBSERVER
 
 "Mist
@@ -179,6 +179,19 @@ xnoremap p "_dP
 xnoremap P "_dp
 
 set nowrap        " Disable wrap line
+" Tags
+
+
+
+
+function CreateTags()
+    let workdir = getcwd()
+    if (workdir =~ "lab")
+        set tags=~/projects/lab/tags,~/projects/tools/lib/tags
+    endif
+endfunctio
+
+autocmd VimEnter * call CreateTags()
 
 autocmd BufNewFile,BufReadPost *.ino,*.pde set filetype=cpp
 " <F10> :split verifyOutput <bar> :read !~/Downloads/arduino-1.6.13/arduino --verify % <CR>
