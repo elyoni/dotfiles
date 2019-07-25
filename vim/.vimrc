@@ -185,9 +185,16 @@ set nowrap        " Disable wrap line
 
 
 function CreateTags()
+    set tags=tags
     let workdir = getcwd()
     if (workdir =~ "lab")
         set tags=~/projects/lab/tags,~/projects/tools/lib/tags
+    elseif (workdir =~ "tools")
+        set tags=~/projects/tools/lib/tags
+    elseif (workdir =~ "pmanager")
+        set tags=~/projects/sources/apps/pmanager/tags
+    elseif (workdir =~ "core")
+        set tags=~/projects/sources/apps/core/tags,~/projects/sources/libs/mqttc/tags
     endif
 endfunctio
 
@@ -292,7 +299,6 @@ set foldlevel=0
 " gx on Any file pathname open it with default application 
 "
 set inccommand=split "When searching I will see split screen with all the option
-set tags=tags
 "
 syn keyword ColorColumn ygye
 syn keyword Search Debug
