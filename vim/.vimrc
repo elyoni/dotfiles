@@ -181,9 +181,6 @@ xnoremap P "_dp
 set nowrap        " Disable wrap line
 " Tags
 
-
-
-
 function CreateTags()
     set tags=tags
     let workdir = getcwd()
@@ -199,6 +196,8 @@ function CreateTags()
 endfunctio
 
 autocmd VimEnter * call CreateTags()
+
+map <C-]> :tselect<CR>
 
 autocmd BufNewFile,BufReadPost *.ino,*.pde set filetype=cpp
 " <F10> :split verifyOutput <bar> :read !~/Downloads/arduino-1.6.13/arduino --verify % <CR>
