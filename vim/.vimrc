@@ -312,6 +312,12 @@ call matchadd('question',"^\?.*")
 highlight ans ctermfg=117 gui=bold guifg=fg 
 call matchadd('ans',"^\!.*")
 
+" === syntastic ===
+let g:syntastic_python_python_exec='/usr/bin/python3'
+let g:syntastic_python_checkers=['pylint']
+let g:syntastic_python_pylint_exec='/usr/bin/pylint3'
+let g:syntastic_python_checker_args = '--ignore=E1004'
+let g:syntastic_python_pylint_post_args="--max-line-length=120"
 " ==== NeoMake ====
 " When writing a buffer.
 call neomake#configure#automake('w')
