@@ -45,6 +45,7 @@ function reset_pmanager(){
 }
 
 function python_upload(){
+    echo -e "\n\t!!!!!!!!!!      $(pylint3 $1 | grep "Your code has been rated at")      !!!!!!!!!!\n"
     python3.4 -m compileall $1
 
     if [ $? -eq 0 ]; then
