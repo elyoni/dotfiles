@@ -318,6 +318,8 @@ let g:syntastic_python_checkers=['pylint']
 let g:syntastic_python_pylint_exec='/usr/bin/pylint3'
 let g:syntastic_python_checker_args = '--ignore=E1004'
 let g:syntastic_python_pylint_post_args="--max-line-length=120"
+"; import sys; sys.path.append('/home/yoni/projects/tools/lib')"
+
 " ==== NeoMake ====
 " When writing a buffer.
 call neomake#configure#automake('w')
