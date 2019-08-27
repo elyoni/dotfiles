@@ -51,7 +51,7 @@ Plug 'scrooloose/nerdcommenter'     "Add comments to file, Toggles the comment s
 Plug 'neomake/neomake'              " Give errors to the code
 Plug 'neoclide/coc.nvim', {'branch': 'release'}  " auto complete
 Plug 'sheerun/vim-polyglot'         " A plugin that adds syntax highlighting for almost any language you can think of
-Plug 'vim-syntastic/syntastic'
+"Plug 'vim-syntastic/syntastic'
 Plug 'huawenyu/neogdb.vim'          " Debug for GDBSERVER
 
 "Mist
@@ -113,7 +113,7 @@ nmap <C-g>d :Gdiff<CR>
 nmap <C-g>c :Gcommit<CR>
 nmap <C-g>b :Gblame<CR>
 nmap <C-S-f> :Rg<CR>
-vmap <C-S-f> :y:@" y:@"<CR>
+"vmap <C-S-f> :y:@" y:@"<CR>
 
 imap <C-l> <Esc><C-W><Right>
 imap <C-h> <Esc><C-W><Left>
@@ -148,7 +148,7 @@ nnoremap zt :set spell!<CR>
 " Open the tag in split window
 map <C-\> :vsp <CR>:exec("tag ".expand("<cword>"))<CR>
 
-:tnoremap <Esc> <C-\><C-n>
+":tnoremap <Esc> <C-\><C-n>
 
 nmap <C-l> <C-W><Right>
 nmap <C-h> <C-W><Left>
@@ -197,7 +197,7 @@ endfunctio
 
 autocmd VimEnter * call CreateTags()
 
-map <C-[> :tselect<CR>
+"map <C-[> :tselect<CR>
 
 autocmd BufNewFile,BufReadPost *.ino,*.pde set filetype=cpp
 " <F10> :split verifyOutput <bar> :read !~/Downloads/arduino-1.6.13/arduino --verify % <CR>
@@ -313,21 +313,27 @@ highlight ans ctermfg=117 gui=bold guifg=fg
 call matchadd('ans',"^\!.*")
 
 " === syntastic ===
-let g:syntastic_python_python_exec='/usr/bin/python3'
-let g:syntastic_python_checkers=['pylint']
-let g:syntastic_python_pylint_exec='/usr/bin/pylint3'
-let g:syntastic_python_checker_args = '--ignore=E1004'
-let g:syntastic_python_pylint_post_args="--max-line-length=120"
+"let g:syntastic_python_python_exec='/usr/bin/python3'
+"let g:syntastic_python_checkers=['pylint']
+"let g:syntastic_python_pylint_exec='/usr/bin/pylint3'
+"let g:syntastic_python_checker_args = '--ignore=E1004'
+"let g:syntastic_python_pylint_post_args="--max-line-length=120"
 "; import sys; sys.path.append('/home/yoni/projects/tools/lib')"
 
 " ==== NeoMake ====
 " When writing a buffer.
-call neomake#configure#automake('w')
+"call neomake#configure#automake('w')
 " When writing a buffer, and on normal mode changes (after 750ms).
 call neomake#configure#automake('nw', 100)
 " When reading a buffer (after 1s), and when writing.
 call neomake#configure#automake('rw', 500)
 let g:neomake_open_list = 0
+let g:neomake_python_enable_makers = ['pylint3']
+let g:neomake_python_pylint_exe = 'pylint3'
+let g:neomake_python_pylint3_maker = {
+    \ 'args': ['--ignore=D103', '--max-line-length=120']
+    \}
+let g:neomake_python_pycodestyle_maker = { 'args': ['--ignore=E402', '--max-line-length=120'] }
 
 "highlight onit ctermfg=0 ctermbg=214 guifg=#000000 guibg=#C0A25F
 "call matchadd('onit',".*onit.*")
@@ -582,7 +588,7 @@ let g:neomake_python_flake8_maker = {
         \ '%-G%.%#',
     \ }
 "let g:neomake_python_enabled_makers = ['flake8']
-let g:neomake_python_enabled_makers = ['pylint3']
+"let g:neomake_python_enabled_makers = ['pylint3']
 "let g:neomake_python_pylint_exe = 'pylint3'
 "let g:neomake_python_pylint_maker = {
 "    \ 'args': ['--ignore=W213,W23']

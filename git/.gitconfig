@@ -18,6 +18,8 @@
 [diff]
 	tool = meld
     merge = meld
+[merge]
+    tool = meld
 [rerere]
 	enabled = true
 [icdiff]

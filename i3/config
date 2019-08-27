@@ -55,11 +55,10 @@ mode "$docker_terminal" {
 }
 
 bindsym $mod+Return exec i3-sensible-terminal
-
 set $ssh_terminal Launch: [Enter]yoni [a]di [j]enk val[2-5]
 bindsym $mod+Shift+Return mode "$ssh_terminal"
 mode "$ssh_terminal" {
-    bindsym Return exec "i3-sensible-terminal -e ssh -i ~/.ssh/ssh_key yoni@yoni-pc -y", mode "default"
+    bindsym Return exec "i3-sensible-terminal -e ssh -R 2222:localhost:22 -i ~/.ssh/ssh_key yoni@yoni-pc -y", mode "default"
     bindsym a exec "i3-sensible-terminal -e ssh -i ~/.ssh/ssh_key adi@adi -y", mode "default"
     bindsym j exec "i3-sensible-terminal -e ssh -i ~/.ssh/ssh_key root@emb-jenk-slv01 -y", mode "default"
     bindsym 2 exec "i3-sensible-terminal -e ssh -i ~/.ssh/ssh_key portia-linux-val02@portia-linux-val02 -y", mode "default"
