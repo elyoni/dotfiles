@@ -134,6 +134,9 @@ export SHELL_DIR="$HOME/projects/tools/shell"
 export UTILS_DIR="$HOME/projects/tools/utils"
 export LAB_DIR="$HOME/projects/lab"
 export REG_DIR="$HOME/projects/lab/applications/regression"
+export PORTIA_LATEST_VER_DTB=""
+export PORTIA_LATEST_VER_SPFF=""  
+export PORTIA_LATEST_VER_ZIMAGE=""
 
 function sscp(){ 
     #Simple SCP 
