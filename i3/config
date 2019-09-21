@@ -356,3 +356,4 @@ bindsym XF86MonBrightnessDown exec bash $HOME/.dotfiles/i3/scripts/backlight_bri
 exec --no-startup-id slack 
 exec --no-startup-id ~/apps/Telegram/Telegram
 exec --no-startup-id thunderbird
+exec --no-startup-id workrave
