@@ -183,7 +183,7 @@ function run_docker() {
 
     docker run -it \
     --name ${SYSTEM}${NUMBER} \
-    --hostname ${USER}-docker\
+    --hostname ${USER}-docker_sys:${SYSTEM}_#:${NUMBER}\
     -v ${PROJECTS}:/home/devbox/projects \
     -v ${HOME}/.ssh:/home/devbox/.ssh \
     -v ${HOME}/.gitconfig:/home/devbox/.gitconfig \
