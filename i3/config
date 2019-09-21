@@ -295,6 +295,11 @@ mode "$xrander_menu" {
 # Background color
 exec --no-startup-id xsetroot -solid "#000000"
 
+# Screenshot. Using flameshoot
+bindsym --release Print exec "flameshot gui"
+bindsym --release Shift+Print exec "flameshot full -c && notify-send Flameshot 'Full picture has been taken, saved in clipboard'"
+
+
 # Set Status Bar Icons
 ## Add wifi manager only if there is a wifi module
 exec --no-startup-id ifconfig | grep wlp && nm-applet
