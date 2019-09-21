@@ -145,6 +145,11 @@ function sssh(){
     ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no "${@: -1}"
 }
 
+function rt(){
+    # Run test
+    python3.4 $@ ; ssh -p 2222 -i ~/.ssh/yoni_laptop yoni@localhost 'DISPLAY=:0 notify-send -u critical Test: "test has finished"'
+}
+
 # ========= Aliases =============
 alias py=python3.4
 
