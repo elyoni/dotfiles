@@ -154,6 +154,7 @@ set $workspace09 "9:I3 "
 set $workspace00 "0:Music"
 set $workspace11 "F1:"
 set $workspace21 "F11:MY"
+set $workspace22 "F10:MY"
 
 # switch to workspace
 bindsym $mod+1 workspace $workspace01
@@ -168,6 +169,7 @@ bindsym $mod+9 workspace $workspace09
 bindsym $mod+0 workspace $workspace00
 bindsym $mod+F1 workspace $workspace11
 bindsym $mod+F11 workspace $workspace21
+bindsym $mod+F10 workspace $workspace22
 
 # move focused container to workspace
 bindsym $mod+Shift+1 move container to workspace $workspace01
@@ -182,6 +184,7 @@ bindsym $mod+Shift+9 move container to workspace $workspace09
 bindsym $mod+Shift+0 move container to workspace $workspace00
 bindsym $mod+Shift+F1 move container to workspace $workspace11
 bindsym $mod+Shift+F11 move container to workspace $workspace21
+bindsym $mod+Shift+F10 move container to workspace $workspace22
 
 #Assing program to workspace
 ## To check the click run xprop
