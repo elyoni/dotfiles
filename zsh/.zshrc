@@ -16,7 +16,7 @@ TRAPWINCH() {
 # Set name of the theme to load. Optionally, if you set this to "random"
 # it'll load a random theme each time that oh-my-zsh is loaded.
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
-if [ $HOST = "yoni-docker" ]; then
+if [ $USER = "devbox" ]; then
     ZSH_THEME="michelebologna"
 else
     ZSH_THEME="yoni"
@@ -80,6 +80,8 @@ VISUAL=nvim; export VISUAL EDITOR=nvim; export EDITOR
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
   git
+  zsh-syntax-highlighting 
+  zsh-autosuggestions
 )
 source $ZSH/oh-my-zsh.sh
 #source $HOME/projects/tools/configurations
@@ -184,6 +186,7 @@ alias boxclean="docker container prune"
 
 function run_docker() {
     mkdir $PROJECTS -p
+    echo $PROJECTS
 
     docker run -it \
     --name ${SYSTEM}${NUMBER} \
@@ -200,12 +203,55 @@ function run_docker() {
     -e DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix \
     emb-jenk-slv01:5000/devbox:latest
 }
+function rund()  {
+    PROJECTS=~/projects
+    docker run -it \
+    --name "TestBuild" \
+    --hostname ${USER}-docker_sys:testbuild\
+    -v ${PROJECTS}:/home/devbox/projects \
+    -v ${HOME}/.ssh:/home/devbox/.ssh \
+    -v ${HOME}/.gitconfig:/home/devbox/.gitconfig \
+    -v ${HOME}/.zshrc:/home/devbox/.zsh_host/.zshrc \
+    -v ${HOME}/.dotfiles/zsh/yoni.zsh-theme:/home/devbox/.oh-my-zsh/themes/yoni.zsh-theme \
+    -v ${HOME}/.dotfiles/tmux/tmux.conf:/home/devbox/.tmux.conf \
+    -v ${HOME}/.zsh_history:/home/devbox/.zsh_host/.zsh_history \
+    -v ${HOME}/mnt/m_drive/:/home/devbox/mnt/m_drive/ \
+    --network=host \
+    -e DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix \
+    ${1}
+    #emb-jenk-slv01:5000/devbox:python3.5
+}
 
 function sip(){
     export PORTIA_IP=$1
     export PORTIA_PORT=80
 }
+#function newbox() {
+    #IMAGE="devbox"
+    #DEVICE="/dev/null"
+    #while getopts i:d: option
+    #do
+    #case "${option}"
+    #in
+    #i) IMAGE=${OPTARG};;
+    #d) DEVICE=${OPTARG};;
+    #esac
+    #done
+  
+    #docker run -it \
+    #-v ${HOME}/.zshrc:/home/devbox/.zshrc2 \
+    #-v ${HOME}/docker/${IMAGE}/shared:/home/${IMAGE}/shared \
+    #emb-jenk-slv01:5000/${IMAGE}:dev
+#}
 
+    #--mount type=bind,src=${HOME}/docker/${IMAGE}/shared,target=/home/${IMAGE}/shared \
+    #--mount type=bind,src=${HOME}/.ssh,target=/home/${IMAGE}/.ssh \
+    #--mount type=bind,src=${HOME}/.gitconfig,target=/home/${IMAGE}/.gitconfig \
+    #--mount type=bind,src=${HOME}/projects/,target=/home/${IMAGE}/projects \
+    #--mount type=bind,src=${HOME}/.zsh_history,target=/home/${IMAGE}/.zsh_history \
+    #--mount type=bind,src=/mnt,target=/mnt \
+    #--device=${DEVICE} \
+    #--network="host" \
 function boxnew() {
     SYSTEM="devbox"
     NUMBER="0"
@@ -234,6 +280,7 @@ function boxnew() {
     else
         PROJECTS=${HOME}/docker/${SYSTEM}/projects
     fi
+    echo $PROJECTS
 
     if [ ! "$(docker ps -a | grep ${SYSTEM}${NUMBER})" ]; then
         run_docker 
