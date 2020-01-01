@@ -49,13 +49,30 @@ Plug 'airblade/vim-gitgutter'           " Show symbols on change/remove/add line
 "Code plugins
 Plug 'scrooloose/nerdcommenter'     "Add comments to file, Toggles the comment state: <leader>c<space>
 Plug 'neomake/neomake'              " Give errors to the code
-Plug 'neoclide/coc.nvim', {'branch': 'release'}  " auto complete
+
+Plug 'neoclide/coc.nvim', {'do': 'yarn install --frozen-lockfile'}
+"Plug 'neoclide/coc-python', {'do': 'yarn install --frozen-lockfile'}
+"Plug 'neoclide/coc-tsserver', {'do': 'yarn install --frozen-lockfile'}
+"Plug 'neoclide/coc-css', {'do': 'yarn install --frozen-lockfile'}
+"Plug 'neoclide/coc-highlight', {'do': 'yarn install --frozen-lockfile'}
+
+
+"Plug 'neoclide/coc.nvim', {'branch': 'release'}  " auto complete
+"Plug 'neoclide/coc.nvim', {'do': { -> coc#util#install()}}
+"Plug 'neoclide/coc.nvim', {'do': 'yarn install --frozen-lockfile'}
+"Plug 'neoclide/coc-jedi', {'do': 'yarn install'}
+"Plug 'neoclide/coc-python'
+
 Plug 'sheerun/vim-polyglot'         " A plugin that adds syntax highlighting for almost any language you can think of
 "Plug 'vim-syntastic/syntastic'
 Plug 'huawenyu/neogdb.vim'          " Debug for GDBSERVER
+"Plug 'kiteco/vim-plugin'
 
 "Mist
 Plug 'fedorenchik/VimCalc3'         "To run the calc type :Calc
+Plug 'vim-scripts/AnsiEsc.vim'
+Plug 'leiserfg/qalc.vim', {'do': ':UpdateRemotePlugins' }
+
 
 
 "Plug 'tweekmonster/deoplete-clang2'    " Oz - deoplete-clang 2 is the new plugin - just install the 'clang' package
@@ -71,7 +88,6 @@ Plug 'francoiscabrol/ranger.vim'
 "Plug 'lifepillar/vim-mucomplete'
 
 call plug#end()
-
 
 " keys
 
@@ -165,7 +181,7 @@ command SearchAll call SearchEveryWhere()
 command Lab call LabSplit()
 command Ter call Ter()
 command DelFile call delete(expand('%')) | bdelete!
-
+command DiffOrig vert new | set buftype=nofile | read ++edit # | 0d_ | diffthis | wincmd p | diffthis
 
 
 "Copy settings
@@ -228,7 +244,7 @@ let g:jedi#use_splits_not_buffers = "right"
 
 set completeopt+=menuone
 
-autocmd FileType python nnoremap <leader>y :0,$!yapf<Cr>
+"autocmd FileType python nnoremap <leader>y :0,$!yapf<Cr>
 autocmd CompleteDone * pclose " To close preview window of deoplete automagically
 autocmd FileType vimwiki setlocal spell wrap
 
@@ -324,9 +340,9 @@ call matchadd('ans',"^\!.*")
 " When writing a buffer.
 "call neomake#configure#automake('w')
 " When writing a buffer, and on normal mode changes (after 750ms).
-call neomake#configure#automake('nw', 100)
+call neomake#configure#automake('nw', 1)
 " When reading a buffer (after 1s), and when writing.
-call neomake#configure#automake('rw', 500)
+call neomake#configure#automake('rw', 5)
 let g:neomake_open_list = 0
 let g:neomake_python_enable_makers = ['pylint3']
 let g:neomake_python_pylint_exe = 'pylint3'
@@ -516,8 +532,6 @@ function MoveToNextTab()
   "opening current buffer in new window
   exe "b".l:cur_buf
 endfunc
-
-
 
 command! -nargs=+ MyCommand :call MyFunction(<f-args>)
 let s:dictionary = {}
