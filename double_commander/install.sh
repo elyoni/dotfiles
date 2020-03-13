@@ -2,7 +2,6 @@
 DIR=$(dirname "${BASH_SOURCE[0]}")
 DIR=$(cd -P $DIR && pwd)
 
-
 #=== Install double commander ===
 sudo apt-get install doublecmd-qt -y
 
