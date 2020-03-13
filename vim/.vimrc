@@ -33,6 +33,7 @@ Plug 'ryanoasis/vim-devicons'           "Add icons
 Plug '/usr/local/opt/fzf'               "Smart complelete
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' } "Smart complelete
 Plug 'kien/ctrlp.vim'                   " Easy Jump between files
+Plug 'skywind3000/asyncrun.vim'
 Plug 'jremmen/vim-ripgrep'
 Plug 'scrooloose/nerdtree'
 
@@ -112,11 +113,14 @@ map ' <nop>
 "map <C-A-S-R> :call SearchAndReplace()<CR>
 map <F2> :call RunBashScript()<CR>
 map <F3> :call RunPython()<CR>
+
+"This map is the same as <S-F3>
+map <F15> :call CheckPython()<CR>
 map <Leader><F3> :call RunPythonWithArgs()<CR>
 map <F4> :call CompileTheCore()<CR>
 map <F5> :call SmartF5()<CR>
-map <S-F5> :call SmartShiftF5()<CR>
-map <F17> :call UploadPythonToPorita()<CR>
+map <F17> :call SmartShiftF5()<CR>
+"map <F17> :call UploadPythonToPorita()<CR>
 map <F6> :call UpdatePoritaIP()<CR>
 "map <F6> :call CpToPorita()<CR>
 map <F9> :call SearchEveryWhere()<CR>
@@ -199,6 +203,7 @@ set nowrap        " Disable wrap line
 
 function CreateTags()
     set tags=tags
+    call Gctag()
     let workdir = getcwd()
     if (workdir =~ "lab")
         set tags=~/projects/lab/tags,~/projects/tools/lib/tags
@@ -222,7 +227,8 @@ nnore <c-b> <nop>
 
 "Python
 let g:python_host_prog = "/usr/bin/python2.7"
-let g:python3_host_prog = "/usr/bin/python3.4"
+"let g:python3_host_prog = "/usr/bin/python3.4"
+let g:python3_host_prog = "/usr/bin/python3.8"
 
 set completeopt-=preview
 set completeopt+=longest,menuone,noselect
@@ -338,11 +344,12 @@ call matchadd('ans',"^\!.*")
 
 " ==== NeoMake ====
 " When writing a buffer.
-"call neomake#configure#automake('w')
+call neomake#configure#automake('w')
 " When writing a buffer, and on normal mode changes (after 750ms).
-call neomake#configure#automake('nw', 1)
+"call neomake#configure#automake('nw', 1)
 " When reading a buffer (after 1s), and when writing.
-call neomake#configure#automake('rw', 5)
+"call neomake#configure#automake('rw', 5)
+"let g:neomake_open_list = 2
 let g:neomake_open_list = 0
 let g:neomake_python_enable_makers = ['pylint3']
 let g:neomake_python_pylint_exe = 'pylint3'
@@ -424,7 +431,7 @@ function SmartF5()
     let ip=system("echo $PORTIA_IP")
     if (getcwd() =~ "core")
         let workdir = split(getcwd(), 'core')[0]
-        let run=workdir . "core/sync-core.sh -p ~/projects/proto -i " . ip
+        let run=workdir . "core/sync-core.sh -l ~/projects/sources/libsuite -i " . ip
         set splitbelow
         new
         call termopen(run)
@@ -445,7 +452,20 @@ function SmartShiftF5()
         call termopen(run)
         startinsert
     elseif (getcwd() =~ "pmanager")
-        let run=workdir . "core/sync-python.sh ~/projects/proto " . ip
+        let workdir = split(getcwd(), 'pmanager')[0]
+        let run=workdir . "pmanager/sync-python.sh -p ~/projects/proto -i " . ip . "-r"
+    endif
+endfunction
+
+function Gctag()
+    if (getcwd() =~ "core")
+        let workdir = split(getcwd(), 'core')[0] . "core/"
+        let cmd="!ctags -R -f " . workdir . "tags ". $LIBSUITE_PATH ."/include " . $CORE_DIR
+        execute cmd
+    elseif (getcwd() =~ "pmanager")
+        let workdir = split(getcwd(), 'pmanager')[0] . "pmanager/"
+        let cmd="!ctags -R -f " . workdir . "tags"
+        AsyncRun cmd
     endif
 endfunction
 
@@ -475,6 +495,14 @@ function RunPython()
     write
     execute "!python3.4 " . "%"
 endfunc
+
+function CheckPython()
+    write
+    echo "\n~~~~~~Check Python code with pyflakes~~~~~~"
+    echo "\n"
+    execute "!pyflakes " . "%"
+endfunction
+
 
 function RunPythonWithArgs()
     write
