@@ -51,14 +51,14 @@ Plug 'airblade/vim-gitgutter'           " Show symbols on change/remove/add line
 Plug 'scrooloose/nerdcommenter'     "Add comments to file, Toggles the comment state: <leader>c<space>
 Plug 'neomake/neomake'              " Give errors to the code
 
-Plug 'neoclide/coc.nvim', {'do': 'yarn install --frozen-lockfile'}
+"Plug 'neoclide/coc.nvim', {'do': 'yarn install --frozen-lockfile'}
 "Plug 'neoclide/coc-python', {'do': 'yarn install --frozen-lockfile'}
 "Plug 'neoclide/coc-tsserver', {'do': 'yarn install --frozen-lockfile'}
 "Plug 'neoclide/coc-css', {'do': 'yarn install --frozen-lockfile'}
 "Plug 'neoclide/coc-highlight', {'do': 'yarn install --frozen-lockfile'}
 
 
-"Plug 'neoclide/coc.nvim', {'branch': 'release'}  " auto complete
+Plug 'neoclide/coc.nvim', {'branch': 'release'}  " auto complete
 "Plug 'neoclide/coc.nvim', {'do': { -> coc#util#install()}}
 "Plug 'neoclide/coc.nvim', {'do': 'yarn install --frozen-lockfile'}
 "Plug 'neoclide/coc-jedi', {'do': 'yarn install'}
