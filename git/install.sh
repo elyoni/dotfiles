@@ -18,7 +18,7 @@ function install_meld()
     sudo apt-get install intltool itstool gir1.2-gtksource-3.0 libxml2-utils libgirepository1.0-dev
     mkdir -p $HOME/Downloads/apps/meld
     wget -P $HOME/Downloads/apps/meld https://download.gnome.org/sources/meld/$LIB_VERSION/${VERSION}.tar.xz
-    tar -C $HOME/Downloads/apps/meld $HOME/Downloads/apps/meld/${VERSION}.tar.xz
+    tar -C $HOME/Downloads/apps/meld -xvf $HOME/Downloads/apps/meld/${VERSION}.tar.xz
 
     cd $HOME/Downloads/apps/meld/${VERSION}/  # Must install from the library
     sudo ./setup.py install --prefix=/usr
@@ -26,9 +26,15 @@ function install_meld()
     echo ======= End  =======
 }
 
+function install_cdiff()
+{
+    sudo pip install --upgrade cdiff
+}
+
 function install()
 {
     install_meld
+    install_cdiff
     link_files
 }
 
