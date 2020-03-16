@@ -20,7 +20,7 @@ sudo aptitude install libreoffice -y
 
 #=== Multimedia Software ===
 ## KDE N Live
-sudo apt-get install kdenlive -y
+#sudo apt-get install kdenlive -y
 
 ## Mp3 player
 #sudo apt-get install rhythmbox -y # I have tried and it wan't work good
@@ -38,6 +38,6 @@ sudo apt-get update
 sudo apt-get install qbittorrent
 
 #=== fstab ===
-mkdir /media/DATA
+#mkdir /media/DATA
 
-sudo echo "/dev/sdc6 /media/DATA ntfs defaults 0 0" >> /etc/fstab
+#sudo echo "/dev/sdc6 /media/DATA ntfs defaults 0 0" >> /etc/fstab
