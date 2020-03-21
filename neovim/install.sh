@@ -10,6 +10,12 @@ function install_packages()
     sudo apt-get install curl -y
     sudo apt-get install ctags -y
     sudo apt-get install pep8 -y
+
+    # Need for th coc.vim
+    sudo apt-get install npm -y
+    sudo npm chach clean -f
+    sudo npm install -g n
+    sudo n stable
     echo ======== End ========
 }
 
@@ -75,17 +81,18 @@ function install_neovim_plugins()
 function link_neovim_files()
 {
     ### Link vimrc and color
-    ln -sf $DIR/.vimrc $HOME/.config/nvim/init.vim
+    ln -sf $DIR/init.vim $HOME/.config/nvim/init.vim
     ln -sf $DIR/colors $HOME/.config/nvim/colors
 }
-
 
 function install()
 {
     install_neovim
+    install_vim
+    install_ripgrap
     link_neovim_files
-    install_neovim_plugins
     install_packages
+    install_neovim_plugins
 }
 
 "$@" 

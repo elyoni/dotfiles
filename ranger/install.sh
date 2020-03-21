@@ -16,6 +16,7 @@ function install_application()
 function link_files()
 {
     echo ======= Link Files =======
+    mkdir -p $HOME/.config/ranger
     ln -sf $DIR/rc.conf $HOME/.config/ranger/rc.conf
     ln -sf $DIR/rifle.conf $HOME/.config/ranger/rifle.conf
     ln -sf $DIR/scope.sh $HOME/.config/ranger/scope.sh

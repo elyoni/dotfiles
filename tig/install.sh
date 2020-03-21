@@ -13,6 +13,7 @@ function link_files()
 
 function install_tig()
 {
+    sudo apt-get install libncurses5-dev libncursesw5-dev -y
     VERSION="tig-2.5.0" 
     echo ======= install tig Version $VERSION  =======
     DOWNLOAD_PATH=$HOME/Downloads/apps/tig
