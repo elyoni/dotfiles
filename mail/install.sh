@@ -24,6 +24,7 @@ function remove_evolution()
 function install()
 {
     install_davmail
+    install_evolution
 }
 
 "$@"
