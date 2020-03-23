@@ -15,8 +15,11 @@ sudo apt-get install okular -y
 
 #=== Browser ===
 #sudo apt-get install chromium-browser -y
-udo apt install net-tools
+sudo apt install net-tools
 sudo apt-get intall firefox -y
+
+#=== workrave ===
+sudo apt install workrave -y
 
 #== Curl ==
 sudo apt-get install libcurl3 php5-curl -y
