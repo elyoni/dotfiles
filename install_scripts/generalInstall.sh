@@ -70,6 +70,7 @@ sudo apt-get install pulseaudio pavucontrol -y # To run the settings just run 'p
 # === SSH ===
 sudo apt-get install sshfs -y
 sudo apt-get install sshpass -y
+sudo apt-get install openssh-server -y
 
 # === Print Screen ===
 sudo apt-get install flameshot -y
