@@ -5,7 +5,7 @@ DIR=$(cd -P $DIR && pwd)
 function install_davmail()
 {
     sudo apt-get install default-jre -y
-    sudo dpkg -i $DIR/davmail_5.4.0-3135-1_all.deb 
+    sudo apt install $DIR/davmail_5.4.0-3135-1_all.deb 
 }
 
 function install_evolution()

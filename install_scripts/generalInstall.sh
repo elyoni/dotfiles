@@ -14,7 +14,8 @@ pip3 install --upgrade pip
 sudo apt-get install okular -y
 
 #=== Browser ===
-sudo apt-get install chromium-browser -y
+#sudo apt-get install chromium-browser -y
+udo apt install net-tools
 sudo apt-get intall firefox -y
 
 #== Curl ==

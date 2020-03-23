@@ -25,7 +25,7 @@ function install_ripgrap()
     DOWNLOAD_PATH=$HOME/Downloads/apps/ripgrep
     mkdir -p ${DOWNLOAD_PATH}
     wget -P ${DOWNLOAD_PATH} https://github.com/BurntSushi/ripgrep/releases/download/$VERSION/ripgrep_${VERSION}_amd64.deb
-    sudo dpkg -i ${DOWNLOAD_PATH}/ripgrep_11.0.2_amd64.deb
+    sudo apt install ${DOWNLOAD_PATH}/ripgrep_11.0.2_amd64.deb
 }
 
 function install_vim()
@@ -39,7 +39,8 @@ function install_vim()
     curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
             https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
     ### Link vimrc and color
-    ln -sf $DIR/.vimrc $HOME/.vimrc
+    ln -sf $DIR/init.vim $HOME/.vimrc
+    mkdir -p $HOME/.vim/
     ln -sf $DIR/colors $HOME/.vim/colors
 
     ### lua suppurt
@@ -81,6 +82,7 @@ function install_neovim_plugins()
 function link_neovim_files()
 {
     ### Link vimrc and color
+    mkdir -p $HOME/.config/nvim/
     ln -sf $DIR/init.vim $HOME/.config/nvim/init.vim
     ln -sf $DIR/colors $HOME/.config/nvim/colors
 }
