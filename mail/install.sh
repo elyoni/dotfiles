@@ -10,9 +10,9 @@ function install_davmail()
 
 function install_evolution()
 {
-    sudo add-apt-repository ppa:gnome3-team/gnome3-staging
+    sudo add-apt-repository ppa:gnome3-team/gnome3-staging -y
     sudo apt-get update
-    sudo apt-get install evolution
+    sudo apt-get install evolution -y
 }
 
 function remove_evolution()
