@@ -16,7 +16,7 @@ TRAPWINCH() {
 # Set name of the theme to load. Optionally, if you set this to "random"
 # it'll load a random theme each time that oh-my-zsh is loaded.
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
-if [ $HOST = "yoni-docker" ]; then
+if [ $USER = "devbox" ]; then
     ZSH_THEME="michelebologna"
 else
     ZSH_THEME="yoni"
@@ -80,6 +80,8 @@ VISUAL=nvim; export VISUAL EDITOR=nvim; export EDITOR
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
   git
+  zsh-syntax-highlighting 
+  zsh-autosuggestions
 )
 source $ZSH/oh-my-zsh.sh
 #source $HOME/projects/tools/configurations
@@ -134,9 +136,11 @@ export SHELL_DIR="$HOME/projects/tools/shell"
 export UTILS_DIR="$HOME/projects/tools/utils"
 export LAB_DIR="$HOME/projects/lab"
 export REG_DIR="$HOME/projects/lab/applications/regression"
+export LIBSUITE_PATH="$HOME/projects/sources/libsuite"
 export PORTIA_LATEST_VER_DTB=""
 export PORTIA_LATEST_VER_SPFF=""  
 export PORTIA_LATEST_VER_ZIMAGE=""
+export PORTIA_LATEST_VER_ZIP=""
 
 function sscp(){ 
     #Simple SCP 
@@ -166,7 +170,8 @@ alias cdtools="cd ~/projects/tools"
 alias cdshell="cd ~/projects/tools/shell"
 alias cdlab="cd ~/projects/lab/"
 alias cdutils="cd ~/projects/tools/utils/"
-alias cdproto="cd ~/projects/proto"
+alias cdproto="cd ~/projects/sources/libsuite/modules/proto/"
+alias cdlibsuite="cd ~/projects/sources/libsuite/"
 alias tm0="tmux a -t minicom0"
 alias tm1="tmux a -t minicom1"
 alias tm_jupiter="tm1"
@@ -184,6 +189,7 @@ alias boxclean="docker container prune"
 
 function run_docker() {
     mkdir $PROJECTS -p
+    echo $PROJECTS
 
     docker run -it \
     --name ${SYSTEM}${NUMBER} \
@@ -195,20 +201,66 @@ function run_docker() {
     -v ${HOME}/.dotfiles/zsh/yoni.zsh-theme:/home/devbox/.oh-my-zsh/themes/yoni.zsh-theme \
     -v ${HOME}/.dotfiles/tmux/tmux.conf:/home/devbox/.tmux.conf \
     -v ${HOME}/.zsh_history:/home/devbox/.zsh_host/.zsh_history \
+    -v ${HOME}/projects/karamba/sign_tool:/etc/karamba/sign_tool \
     --network=host \
     -p 22:22${NUMBER} \
     -e DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix \
-    emb-jenk-slv01:5000/devbox:latest
+    ${IMAGE}
 }
+function rund()  {
+    PROJECTS=~/projects
+    docker run -it \
+    --name "TestBuild" \
+    --hostname ${USER}-docker_sys:testbuild\
+    -v ${PROJECTS}:/home/devbox/projects \
+    -v ${HOME}/.ssh:/home/devbox/.ssh \
+    -v ${HOME}/.gitconfig:/home/devbox/.gitconfig \
+    -v ${HOME}/.zshrc:/home/devbox/.zsh_host/.zshrc \
+    -v ${HOME}/.dotfiles/zsh/yoni.zsh-theme:/home/devbox/.oh-my-zsh/themes/yoni.zsh-theme \
+    -v ${HOME}/.dotfiles/tmux/tmux.conf:/home/devbox/.tmux.conf \
+    -v ${HOME}/.zsh_history:/home/devbox/.zsh_host/.zsh_history \
+    -e DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix \
+    -p 5000:5001 \
+    $1
+}
+    #-v ${HOME}/mnt/m_drive/:/home/devbox/mnt/m_drive/ \
+    #--network=host \
+    #emb-jenk-slv01:5000/devbox:python3.5
 
 function sip(){
     export PORTIA_IP=$1
     export PORTIA_PORT=80
 }
+#function newbox() {
+    #IMAGE="devbox"
+    #DEVICE="/dev/null"
+    #while getopts i:d: option
+    #do
+    #case "${option}"
+    #in
+    #i) IMAGE=${OPTARG};;
+    #d) DEVICE=${OPTARG};;
+    #esac
+    #done
+  
+    #docker run -it \
+    #-v ${HOME}/.zshrc:/home/devbox/.zshrc2 \
+    #-v ${HOME}/docker/${IMAGE}/shared:/home/${IMAGE}/shared \
+    #emb-jenk-slv01:5000/${IMAGE}:dev
+#}
 
+    #--mount type=bind,src=${HOME}/docker/${IMAGE}/shared,target=/home/${IMAGE}/shared \
+    #--mount type=bind,src=${HOME}/.ssh,target=/home/${IMAGE}/.ssh \
+    #--mount type=bind,src=${HOME}/.gitconfig,target=/home/${IMAGE}/.gitconfig \
+    #--mount type=bind,src=${HOME}/projects/,target=/home/${IMAGE}/projects \
+    #--mount type=bind,src=${HOME}/.zsh_history,target=/home/${IMAGE}/.zsh_history \
+    #--mount type=bind,src=/mnt,target=/mnt \
+    #--device=${DEVICE} \
+    #--network="host" \
 function boxnew() {
     SYSTEM="devbox"
     NUMBER="0"
+    IMAGE="emb-jenk-slv01:5000/devbox:latest"
 
     while [[ $# -gt 0 ]]; do
         key="$1"
@@ -220,6 +272,11 @@ function boxnew() {
             ;;
             -n|--number)
             NUMBER="$2"
+            shift # past argument
+            shift # past value
+            ;;
+            -i|--image)
+            IMAGE="$2"
             shift # past argument
             shift # past value
             ;;
@@ -235,12 +292,22 @@ function boxnew() {
         PROJECTS=${HOME}/docker/${SYSTEM}/projects
     fi
 
+    echo The project will be found in: $PROJECTS
     if [ ! "$(docker ps -a | grep ${SYSTEM}${NUMBER})" ]; then
-        run_docker 
-    elif docker inspect -f '{{.State.Status}}' ${SYSTEM}${NUMBER} | grep -q exited; then
+        # There is not container run
+        run_docker
+    elif docker inspect -f '{{.State.Status}}' ${SYSTEM}${NUMBER} | grep -qiE 'exited|Created'; then
+        if [ ! "$(docker ps -a | grep ${SYSTEM}${NUMBER} | grep ${IMAGE})" ]; then
+            echo "The image is diffrenct from what you ask for, will run with the previce image $(docker inspect -f '{{.Config.Image}}' ${SYSTEM}${NUMBER})[Press any key to continue]"
+            read
+        fi
         docker start ${SYSTEM}${NUMBER}
         docker attach ${SYSTEM}${NUMBER}
     elif docker inspect -f '{{.State.Status}}'  ${SYSTEM}${NUMBER}| grep -q running; then
+        if [ ! "$(docker ps -a | grep ${SYSTEM}${NUMBER} | grep ${IMAGE})" ]; then
+            echo "The image is diffrenct from what you ask for, will run with the previce image[Press any key to continue]"
+            read
+        fi
         docker attach ${SYSTEM}${NUMBER}
     else 
         echo Unknown what to do
@@ -251,7 +318,7 @@ function boxnew() {
 
 function boxpull() {
     IMAGE=${1:-devbox}
-    docker pull emb-jenk-slv01:5000/${IMAGE}:latest
+    docker pull emb-jenk-slv01:5000/${IMAGE}
 }
 if [ $COLUMNS -gt 125 ]; then
     echo -e "\e[95m\e[1m     .--.     \e[93m +#++:++#++:++ +#++:++#++:++ +#++:++#++:++ +#++:++#++:++ +#++:++#++:++ +#++:++#++:++ +#++:++#++  \e[0m   \e[95m\e[1m    .--.      "
@@ -301,3 +368,33 @@ WHITE='\e[107m'
 YELLOW='\e[103m'
 GRAY='\e[100m'
 NC='\e[0m'
+
+zle     -N   fzf-test
+_shell_complete(){
+    local output 
+    #output=$(_fzf_complete '+m' "$@" < <(command ls))
+    output=$(_shell_complete_loop | fzf)
+    # need to remove after ##
+    output=$( echo $output | sed -e "s@##.*@@g" | sed -r 's/^\s+$//' )
+    echo $output"yoni"
+}
+
+_shell_complete_loop(){
+    local file_list y 
+    for x in $(find $SHELL_DIR -type f -name "*.py"); do
+        file_list=$( echo $x | sed "s#$SHELL_DIR/##g" )
+        #base=$(echo $x | sed -e 's/\(.*\)\///' -e 's/.py//')
+        y=$(sed -n '2p' $x | grep "##")
+        #echo $file_list
+        echo -e $file_list "\t" $y
+    done
+}
+
+
+function fzf-test(){
+    zle reset-prompt
+    #LBUFFER="${LBUFFER}$(_shell_complete)"
+    LBUFFER="p $(_shell_complete)"
+    return 0
+}
+bindkey '^W' fzf-test

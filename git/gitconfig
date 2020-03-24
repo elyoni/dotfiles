@@ -15,6 +15,7 @@
     ph = !"f() { branch=$( git branch | grep "^*" | cut -d ' ' -f2 ); git push origin $branch; }; f"
     phf = !"f() { branch=$( git branch | grep "^*" | cut -d ' ' -f2 ); git push origin $branch -f; }; f"
     pl = !"f() { branch=$( git branch | grep "^*" | cut -d ' ' -f2 ); git pull origin $branch; }; f"
+    dt = difftool --dir-diff
 [diff]
 	tool = meld
     merge = meld
