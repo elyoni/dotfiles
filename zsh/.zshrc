@@ -82,6 +82,7 @@ plugins=(
   git
   zsh-syntax-highlighting 
   zsh-autosuggestions
+  docker
 )
 source $ZSH/oh-my-zsh.sh
 #source $HOME/projects/tools/configurations
@@ -191,21 +192,23 @@ function run_docker() {
     mkdir $PROJECTS -p
     echo $PROJECTS
 
-    docker run -it \
-    --name ${SYSTEM}${NUMBER} \
-    --hostname ${USER}-docker_sys:${SYSTEM}_#:${NUMBER}\
+    docker run -it -d \
+    --name ${SYSTEM} \
+    --hostname ${USER}-d>${SYSTEM}\
     -v ${PROJECTS}:/home/devbox/projects \
     -v ${HOME}/.ssh:/home/devbox/.ssh \
     -v ${HOME}/.gitconfig:/home/devbox/.gitconfig \
     -v ${HOME}/.zshrc:/home/devbox/.zsh_host/.zshrc \
     -v ${HOME}/.dotfiles/zsh/yoni.zsh-theme:/home/devbox/.oh-my-zsh/themes/yoni.zsh-theme \
     -v ${HOME}/.dotfiles/tmux/tmux.conf:/home/devbox/.tmux.conf \
-    -v ${HOME}/.zsh_history:/home/devbox/.zsh_host/.zsh_history \
+    -v ${HOME}/.zsh_history:/home/devbox/.zsh_history \
     -v ${HOME}/projects/karamba/sign_tool:/etc/karamba/sign_tool \
-    --network=host \
-    -p 22:22${NUMBER} \
+    -p ${PORT}:22 \
     -e DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix \
     ${IMAGE}
+
+	docker exec -dt "${SYSTEM}" sudo service ssh restart # Restart after updating /etc/environment just in case
+    sleep 0.5
 }
 function rund()  {
     PROJECTS=~/projects
@@ -259,7 +262,7 @@ function sip(){
     #--network="host" \
 function boxnew() {
     SYSTEM="devbox"
-    NUMBER="0"
+    PORT="220"
     IMAGE="emb-jenk-slv01:5000/devbox:latest"
 
     while [[ $# -gt 0 ]]; do
@@ -270,8 +273,8 @@ function boxnew() {
             shift # past value
             shift # past value
             ;;
-            -n|--number)
-            NUMBER="$2"
+            -p|--port)
+            PORT="$2"
             shift # past argument
             shift # past value
             ;;
@@ -285,7 +288,6 @@ function boxnew() {
             ;;
         esac
     done
-    echo ${SYSTEM}${NUMBER}
     if [ $SYSTEM = "local" ]; then
         PROJECTS="${HOME}/projects"
     else
@@ -293,25 +295,33 @@ function boxnew() {
     fi
 
     echo The project will be found in: $PROJECTS
-    if [ ! "$(docker ps -a | grep ${SYSTEM}${NUMBER})" ]; then
+    if [ ! "$(docker ps -a | grep -w " ${SYSTEM}")" ]; then
         # There is not container run
+        echo System: ${SYSTEM} Listen on Port ${PORT}
         run_docker
-    elif docker inspect -f '{{.State.Status}}' ${SYSTEM}${NUMBER} | grep -qiE 'exited|Created'; then
-        if [ ! "$(docker ps -a | grep ${SYSTEM}${NUMBER} | grep ${IMAGE})" ]; then
-            echo "The image is diffrenct from what you ask for, will run with the previce image $(docker inspect -f '{{.Config.Image}}' ${SYSTEM}${NUMBER})[Press any key to continue]"
+
+    elif docker inspect -f '{{.State.Status}}' ${SYSTEM} | grep -qiE 'exited|Created'; then
+        if [ ! "$(docker ps -a | grep -w ${SYSTEM} | grep ${IMAGE})" ]; then
+            echo "The image is diffrenct from what you ask for, will run with the previce image $(docker inspect -f '{{.Config.Image}}' ${SYSTEM})[Press any key to continue]"
             read
         fi
-        docker start ${SYSTEM}${NUMBER}
-        docker attach ${SYSTEM}${NUMBER}
-    elif docker inspect -f '{{.State.Status}}'  ${SYSTEM}${NUMBER}| grep -q running; then
-        if [ ! "$(docker ps -a | grep ${SYSTEM}${NUMBER} | grep ${IMAGE})" ]; then
+        docker start ${SYSTEM}
+        #docker attach ${SYSTEM}
+        port=$(docker inspect --format='{{(index (index .NetworkSettings.Ports "22/tcp") 0).HostPort}}' ${SYSTEM})
+        echo System: ${SYSTEM} Listen on Port ${port}
+    elif docker inspect -f '{{.State.Status}}'  ${SYSTEM}| grep -q running; then
+        if [ ! "$(docker ps -a | grep -w ${SYSTEM} | grep ${IMAGE})" ]; then
             echo "The image is diffrenct from what you ask for, will run with the previce image[Press any key to continue]"
             read
         fi
-        docker attach ${SYSTEM}${NUMBER}
+        #docker attach ${SYSTEM}
+        port=$(docker inspect --format='{{(index (index .NetworkSettings.Ports "22/tcp") 0).HostPort}}' ${SYSTEM})
+        echo System: ${SYSTEM} Listen on Port ${port}
     else 
         echo Unknown what to do
+        exit 1
     fi
+    ssh devbox@localhost -p ${PORT}
 }
 #docker run -it --name debox --hostname ${USER}-docker -v ${HOME}/docker/debox/projects:/home/devbox/projects -v ${HOME}/.ssh:/home/devbox/.ssh -v ${HOME}/.gitconfig:/home/devbox/.gitconfig -v ${HOME}/.zshrc:/home/devbox/.zsh_host/.zshrc -v ${HOME}/.dotfiles/zsh/yoni.zsh-theme:/home/devbox/.oh-my-zsh/themes/yoni.zsh-theme -v ${HOME}/.dotfiles/tmux/tmux.conf:/home/devbox/.tmux.conf emb-jenk-slv01:5000/devbox:latest
 

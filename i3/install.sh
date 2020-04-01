@@ -13,6 +13,10 @@ function application_install()
     echo ====== Install i3blocks =======
     sudo apt-get install i3blocks -y
 
+    # Change notification app
+    sudo apt install notify-osd -y
+    sudo apt purge dunst -y
+
     # Graphic application finder, A Graphic replace for dmenu
     echo ====== Install xfce4-appfinder =======
     sudo apt-get install xfce4-appfinder -y

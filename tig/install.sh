@@ -21,6 +21,7 @@ function install_tig()
     wget -P ${DOWNLOAD_PATH} https://github.com/jonas/tig/releases/download/$VERSION/$VERSION.tar.gz
     tar -C ${DOWNLOAD_PATH} -xvf $DOWNLOAD_PATH/${VERSION}.tar.gz
     cd ${DOWNLOAD_PATH}/${VERSION}
+    make clean
     make prefix=/usr/local
     sudo make install prefix=/usr/local
     cd -

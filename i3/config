@@ -55,7 +55,7 @@ mode "$docker_terminal" {
 }
 
 bindsym $mod+Return exec i3-sensible-terminal
-set $ssh_terminal Launch: [Enter]yoni [a]di [j]enk val[2-5]
+set $ssh_terminal Launch: [Enter]yoni [a]di [j]enk val[2-5] [d]ocker
 bindsym $mod+Shift+Return mode "$ssh_terminal"
 mode "$ssh_terminal" {
     bindsym Return exec "i3-sensible-terminal -e ssh -R 2222:localhost:22 -i ~/.ssh/ssh_key yoni@yoni-pc -y", mode "default"
@@ -65,6 +65,7 @@ mode "$ssh_terminal" {
     bindsym 3 exec "i3-sensible-terminal -e ssh -i ~/.ssh/ssh_key se@portia-linux-val03 -y", mode "default"
     bindsym 4 exec "i3-sensible-terminal -e ssh -i ~/.ssh/ssh_key se@portia-linux-val04 -y", mode "default"
     bindsym 5 exec "i3-sensible-terminal -e ssh -i ~/.ssh/ssh_key se@portia-linux-val05 -y", mode "default"
+    bindsym d exec "i3-sensible-terminal -e ssh -i ~/.ssh/ssh_key devbox@localhost -p 221 -y", mode "default"
 
     bindsym Escape mode "default"
     bindsym Return mode "default"
@@ -147,7 +148,7 @@ set $workspace02 "2:  "
 set $workspace03 "3:"
 set $workspace04 "4:DoubleCMD"
 set $workspace05 "F2:Lab/Tools"
-set $workspace06 "6:Thunderbird"
+set $workspace06 "6:Mail"
 set $workspace07 "7: Windows"
 set $workspace08 "8:My Log"
 set $workspace09 "9:I3 "
@@ -194,11 +195,13 @@ assign [class="Doublecmd"] $workspace04
 assign [class="Vncviewer"] $workspace07
 assign [class="Remmina"] $workspace07
 assign [class="Thunderbird"] $workspace06
+assign [class="Evolution"] $workspace06
 
 ### Workspace 0
 for_window [class="Spotify"] move to workspace $workspace00
 assign [class="Telegram"] $workspace00
 assign [class="Slack"] $workspace00
+assign [class="zoom"] $workspace00
 
 #exec --no-startup-id i3-msg 'workspace 8:My Log; exec nvim /media/Data/my_log.md'
 
@@ -262,7 +265,7 @@ bindsym $mod+o mode "$mode_launcher"
 
 mode "$mode_launcher" {
     bindsym f exec firefox
-    bindsym t exec thunderbird
+    bindsym m exec evolution
     bindsym d exec doublecmd
     bindsym r exec "i3-sensible-terminal -e remmina -c ~/.remmina/1536472353509.remmina", mode "default"
     bindsym v exec vncviewer YEHONATANEL-PC
@@ -358,7 +361,10 @@ bindsym XF86MonBrightnessUp exec bash $HOME/.dotfiles/i3/scripts/backlight_brigh
 bindsym XF86MonBrightnessDown exec bash $HOME/.dotfiles/i3/scripts/backlight_brightness.sh -10 # decrease screen brightness
 
 exec --no-startup-id slack 
+exec --no-startup-id zoom
 exec --no-startup-id davmail
 exec --no-startup-id ~/apps/Telegram/Telegram
 #exec --no-startup-id thunderbird
 exec --no-startup-id workrave
+exec --no-startup-id evolution
+

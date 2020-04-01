@@ -16,6 +16,7 @@ sudo apt-get install okular -y
 #=== Browser ===
 #sudo apt-get install chromium-browser -y
 sudo apt install net-tools
+sudo apt-get install arp-scan -y
 sudo apt-get intall firefox -y
 
 #=== workrave ===
@@ -65,6 +66,10 @@ sudo apt-get install bluetooth bluez bluez-tools rfkill -y
 ## code: sudo service bluetooth start
 sudo apt-get install blueman -y
 sudo apt-get install pulseaudio pavucontrol -y # To run the settings just run 'pavucontrol'
+
+# === Enable change lang ===
+sudo apt-get install gnome-tweaks -y
+gsettings set org.gnome.desktop.input-sources xkb-options "['grp:ctrl_shift_toggle']"
 
 
 # === SSH ===

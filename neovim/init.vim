@@ -111,13 +111,14 @@ vmap u <nop>
 vmap U <nop>
 map ' <nop>
 "map <C-A-S-R> :call SearchAndReplace()<CR>
-map <F2> :call RunBashScript()<CR>
+"map <F3> :call RunScript()<CR>
+map <F4> :call RunBashScript()<CR>
 map <F3> :call RunPython()<CR>
 
 "This map is the same as <S-F3>
 map <F15> :call CheckPython()<CR>
 map <Leader><F3> :call RunPythonWithArgs()<CR>
-map <F4> :call CompileTheCore()<CR>
+"map <F4> :call CompileTheCore()<CR>
 map <F5> :call SmartF5()<CR>
 map <F17> :call SmartShiftF5()<CR>
 "map <F17> :call UploadPythonToPorita()<CR>
@@ -537,6 +538,10 @@ function MoveToPrevTab()
   endif
   "opening current buffer in new window
   exe "b".l:cur_buf
+endfunc
+function RunScript()
+
+
 endfunc
 
 function MoveToNextTab()
