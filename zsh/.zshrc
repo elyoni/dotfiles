@@ -3,7 +3,7 @@ autoload -U +X compinit && compinit
 fpath=(~/.zsh/completion $fpath) 
 zstyle ":completion:*:descriptions" format "%B%d%b"
 # If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
+export PATH=$HOME/.local/bin:/usr/local/go/bin:$PATH
 
 # Path to your oh-my-zsh installation.
 user=$(whoami)
@@ -159,7 +159,7 @@ function rt(){
 }
 
 # ========= Aliases =============
-alias py=python3.4
+alias py=python3.8
 
 alias mini0="sudo minicom -D /dev/ttyUSB0 -C ~/projects/minicom0.log"
 alias mini1="sudo minicom -D /dev/ttyUSB1 -C ~/projects/minicom1.log"
@@ -207,9 +207,13 @@ function run_docker() {
     -e DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix \
     ${IMAGE}
 
+}
+
+function reset_ssh(){
 	docker exec -dt "${SYSTEM}" sudo service ssh restart # Restart after updating /etc/environment just in case
     sleep 0.5
 }
+
 function rund()  {
     PROJECTS=~/projects
     docker run -it \
@@ -306,7 +310,6 @@ function boxnew() {
             read
         fi
         docker start ${SYSTEM}
-        #docker attach ${SYSTEM}
         port=$(docker inspect --format='{{(index (index .NetworkSettings.Ports "22/tcp") 0).HostPort}}' ${SYSTEM})
         echo System: ${SYSTEM} Listen on Port ${port}
     elif docker inspect -f '{{.State.Status}}'  ${SYSTEM}| grep -q running; then
@@ -321,7 +324,10 @@ function boxnew() {
         echo Unknown what to do
         exit 1
     fi
-    ssh devbox@localhost -p ${PORT}
+
+    reset_ssh
+    current_path=$(echo $PWD | sed -e "s#\(.*\)$USER\(.*\)#\1devbox\2#")
+    ssh devbox@localhost -p ${PORT} -t "cd $current_path; zsh --login" 
 }
 #docker run -it --name debox --hostname ${USER}-docker -v ${HOME}/docker/debox/projects:/home/devbox/projects -v ${HOME}/.ssh:/home/devbox/.ssh -v ${HOME}/.gitconfig:/home/devbox/.gitconfig -v ${HOME}/.zshrc:/home/devbox/.zsh_host/.zshrc -v ${HOME}/.dotfiles/zsh/yoni.zsh-theme:/home/devbox/.oh-my-zsh/themes/yoni.zsh-theme -v ${HOME}/.dotfiles/tmux/tmux.conf:/home/devbox/.tmux.conf emb-jenk-slv01:5000/devbox:latest
 
@@ -330,6 +336,16 @@ function boxpull() {
     IMAGE=${1:-devbox}
     docker pull emb-jenk-slv01:5000/${IMAGE}
 }
+
+function boxrun(){
+    current_path=$(echo $PWD | sed -e "s#\(.*\)$USER\(.*\)#\1devbox\2#")
+    #ssh devbox@localhost -p ${PORT} -t "cd $current_path; zsh --login" 
+    echo ssh devbox@localhost -p 221 -t "cd $current_path; zsh --login; $@" 
+    ssh devbox@localhost -p 221 -t "cd $current_path; zsh --login; $@" 
+    echo $@
+}
+
+
 if [ $COLUMNS -gt 125 ]; then
     echo -e "\e[95m\e[1m     .--.     \e[93m +#++:++#++:++ +#++:++#++:++ +#++:++#++:++ +#++:++#++:++ +#++:++#++:++ +#++:++#++:++ +#++:++#++  \e[0m   \e[95m\e[1m    .--.      "
     echo -e "\e[95m\e[1m    | o_o|    \e[34m ██╗   ██╗ ██████╗ ███╗   ██╗██╗    ███████╗██╗     ███████╗███╗   ██╗████████╗ ██████╗ ██╗  ██╗ \e[0m   \e[95m\e[1m   |o_o |     "
