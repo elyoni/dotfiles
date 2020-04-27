@@ -97,7 +97,7 @@ call plug#end()
 ""noremap <Left> <NOP>
 ""noremap <Right> <NOP>
 
-:ia td #YE TODO 
+":ia td #YE TODO 
 :map Q <Nop>
 
 map <C-S-p> :FZF<CR>
@@ -494,7 +494,8 @@ endfunc
 
 function RunPython()
     write
-    execute "!python3.4 " . "%"
+    "execute "!python3.4 " . "%"
+    execute "!./" . "%"
 endfunc
 
 function CheckPython()
