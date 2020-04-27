@@ -311,7 +311,7 @@ bindsym --release Shift+Print exec "flameshot full -c && notify-send Flameshot '
 #exec --no-startup-id ifconfig | grep wlp && nm-applet
 exec --no-startup-id nm-applet
 ## Add volume manager
-exec pnmixer
+exec --no-startup-id pasystray
 
 bindsym --release Caps_Lock exec pkill -SIGRTMIN+11 i3blocks
 bindsym --release Num_Lock  exec pkill -SIGRTMIN+11 i3blocks
@@ -367,4 +367,5 @@ exec --no-startup-id ~/apps/Telegram/Telegram
 #exec --no-startup-id thunderbird
 exec --no-startup-id workrave
 exec --no-startup-id evolution
+exec --no-startup-id autorandr -c
 

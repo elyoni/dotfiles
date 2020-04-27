@@ -38,10 +38,12 @@ function application_install()
     # Screen manager
     echo ====== Install arandr =======
     sudo apt-get install arandr -y 
+    sudo apt-get install autorandr -y
 
     # Volume Controller
     echo ====== Install pnmixer =======
-    sudo apt-get install pnmixer -y 
+    #sudo apt-get install pnmixer -y 
+    sudo apt-get install pasystray -y 
 
     gsettings set org.gnome.desktop.background show-desktop-icons false
 }
