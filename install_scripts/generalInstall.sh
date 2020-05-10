@@ -77,6 +77,10 @@ sudo apt-get install sshfs -y
 sudo apt-get install sshpass -y
 sudo apt-get install openssh-server -y
 
+# === Remote desktop ===
+sudo apt-get install remmina -y
+sudo apt-get install xtightvncviewer -y
+
 # === Print Screen ===
 sudo apt-get install flameshot -y
 
