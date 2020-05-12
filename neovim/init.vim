@@ -33,6 +33,9 @@ Plug 'ryanoasis/vim-devicons'           "Add icons
 Plug '/usr/local/opt/fzf'               "Smart complelete
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' } "Smart complelete
 Plug 'kien/ctrlp.vim'                   " Easy Jump between files
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
+"Plug 'kien/ctrlp.vim'                   " Easy Jump between files
 Plug 'skywind3000/asyncrun.vim'
 Plug 'jremmen/vim-ripgrep'
 Plug 'scrooloose/nerdtree'
@@ -100,7 +103,6 @@ call plug#end()
 ":ia td #YE TODO 
 :map Q <Nop>
 
-map <C-S-p> :FZF<CR>
 map <C-n> :NERDTreeToggle<CR>
 map <S-B> ^<CR>
 map <C-s> :w<CR>
@@ -590,6 +592,7 @@ function DisplayName(...)
     execute Rg rgSearch
 endfunction
 
+" =============== fzf ===============
 " This is the default extra key bindings
 let g:fzf_action = {
   \ 'ctrl-t': 'tab split',
@@ -641,4 +644,6 @@ let g:neomake_python_flake8_maker = {
 "let g:neomake_python_pylint_maker = {
 "    \ 'args': ['--ignore=W213,W23']
 "    \}
-
+"
+nmap <C-p> :GFiles<CR>
+nmap <S-p> :Files<CR>
