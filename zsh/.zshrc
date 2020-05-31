@@ -118,6 +118,7 @@ source $ZSH/oh-my-zsh.sh
 # Source
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 [ -f ~/.zsh/portia_functions ] && source ~/.zsh/portia_functions
+[ -f ~/vimwiki/CodeTestings/arduino/portia_relay_control.sh ] && source ~/vimwiki/CodeTestings/arduino/portia_relay_control.sh
 
 export PROJECTS_DIR="$HOME/projects"
 export BUILDROOT_DIR="$HOME/projects/buildroot"
@@ -127,20 +128,22 @@ export PMANAGER_DIR="$HOME/projects/sources/apps/pmanager"
 export WEB_DIR="$HOME/projects/sources/apps/web"
 export CURATOR_DIR="$HOME/projects/sources/apps/curator"
 export APPS_DIR="$HOME/projects/sources/apps"
-export LIBS_DIR="$HOME/projects/sources/libs"
-export MQTTC_DIR="$HOME/projects/sources/libs/mqttc"
+export LIBS_DIR="$HOME/projects/sources/libsuite/modules/libs"
+export MQTTC_DIR="$HOME/projects/sources/libsuite/modules/mqttc"
 export SOURCES_DIR="$HOME/projects/sources"
-export PROTO_DIR="$HOME/projects/proto"
+export PROTO_DIR="$HOME/projects/sources/libsuite/modules/proto"
 export TOOLS_DIR="$HOME/projects/tools"
 export SHELL_DIR="$HOME/projects/tools/shell"
 export UTILS_DIR="$HOME/projects/tools/utils"
 export LAB_DIR="$HOME/projects/lab"
 export REG_DIR="$HOME/projects/lab/applications/regression"
 export LIBSUITE_PATH="$HOME/projects/sources/libsuite"
-export PORTIA_LATEST_VER_DTB=""
-export PORTIA_LATEST_VER_SPFF=""  
-export PORTIA_LATEST_VER_ZIMAGE=""
-export PORTIA_LATEST_VER_ZIP=""
+export PORTIA_LATEST_VER_DTB="$HOME/projects/spffs/portia/test_run/sama5d2_d1186ba.dtb"
+export PORTIA_LATEST_VER_SPFF="$HOME/projects/spffs/portia/test_run/portia.spff"
+export PORTIA_LATEST_VER_ZIMAGE="$HOME/projects/spffs/portia/test_run/zImage"
+export PORTIA_LATEST_VER_ZIP="$HOME/projects/spffs/portia/test_run/portia.zip"
+
+export SHELL="/usr/bin/zsh"
 
 function sscp(){ 
     #Simple SCP 
@@ -202,8 +205,9 @@ function run_docker() {
     -v ${HOME}/.dotfiles/tmux/tmux.conf:/home/devbox/.tmux.conf \
     -v ${HOME}/.zsh_history:/home/devbox/.zsh_host/.zsh_history \
     -v ${HOME}/projects/karamba/sign_tool:/etc/karamba/sign_tool \
+    --device=/dev/ttyUSB0 \
     --network=host \
-    -p 22:22${NUMBER} \
+    -p ${PORT_SHARE}:22 \
     -e DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix \
     ${IMAGE}
 }
@@ -260,6 +264,7 @@ function sip(){
 function boxnew() {
     SYSTEM="devbox"
     NUMBER="0"
+    PORT_SHARE="2222"
     IMAGE="emb-jenk-slv01:5000/devbox:latest"
 
     while [[ $# -gt 0 ]]; do
@@ -272,6 +277,11 @@ function boxnew() {
             ;;
             -n|--number)
             NUMBER="$2"
+            shift # past argument
+            shift # past value
+            ;;
+            -p|--port)
+            PORT_SHARE="$2"
             shift # past argument
             shift # past value
             ;;
@@ -293,18 +303,18 @@ function boxnew() {
     fi
 
     echo The project will be found in: $PROJECTS
-    if [ ! "$(docker ps -a | grep ${SYSTEM}${NUMBER})" ]; then
+    if [ ! "$(docker ps -a | grep ' ${SYSTEM}${NUMBER}')" ]; then
         # There is not container run
         run_docker
     elif docker inspect -f '{{.State.Status}}' ${SYSTEM}${NUMBER} | grep -qiE 'exited|Created'; then
-        if [ ! "$(docker ps -a | grep ${SYSTEM}${NUMBER} | grep ${IMAGE})" ]; then
+        if [ ! "$(docker ps -a | grep ' ${SYSTEM}${NUMBER}' | grep ${IMAGE})" ]; then
             echo "The image is diffrenct from what you ask for, will run with the previce image $(docker inspect -f '{{.Config.Image}}' ${SYSTEM}${NUMBER})[Press any key to continue]"
             read
         fi
         docker start ${SYSTEM}${NUMBER}
         docker attach ${SYSTEM}${NUMBER}
     elif docker inspect -f '{{.State.Status}}'  ${SYSTEM}${NUMBER}| grep -q running; then
-        if [ ! "$(docker ps -a | grep ${SYSTEM}${NUMBER} | grep ${IMAGE})" ]; then
+        if [ ! "$(docker ps -a | grep ' ${SYSTEM}${NUMBER}' | grep ${IMAGE})" ]; then
             echo "The image is diffrenct from what you ask for, will run with the previce image[Press any key to continue]"
             read
         fi
