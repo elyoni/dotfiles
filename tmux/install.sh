@@ -12,8 +12,12 @@ function install_tmux_apt_get()
 {
     echo ======= Install Tmux =======
     sudo apt-get install tmux -y
-    sudo apt-get install jq -y
     echo ======= End  =======
+}
+
+function install_tmux_packages()
+{
+    sudo apt-get install jq -y
 }
 
 function install_tmux_last()
@@ -33,7 +37,7 @@ function install_tmux_last()
 
 function install()
 {
-    install_tmux
+    install_tmux_last
     link_files
 }
 
