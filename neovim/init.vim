@@ -31,8 +31,6 @@ Plug 'ryanoasis/vim-devicons'           "Add icons
 
 "Files navigate helper
 Plug '/usr/local/opt/fzf'               "Smart complelete
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' } "Smart complelete
-Plug 'kien/ctrlp.vim'                   " Easy Jump between files
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 "Plug 'kien/ctrlp.vim'                   " Easy Jump between files
@@ -108,7 +106,7 @@ map <S-B> ^<CR>
 map <C-s> :w<CR>
 "map <C-k>  <PageUp> 
 "map <C-j>  <PageDown> 
-map . :call DoNothing()<CR>
+"map . :call DoNothing()<CR>
 vmap u <nop>
 vmap U <nop>
 map ' <nop>
@@ -306,8 +304,9 @@ set grepprg=Rg\ --nogroup\ --nocolor
 
 " Likewise, Files command with preview window
 "
-command! -bang -nargs=? -complete=dir Files
-  \ call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
+"command! -bang -nargs=? -complete=dir Files
+  "\ call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
+
 " mouse support
 set mouse=a
 
@@ -369,15 +368,15 @@ let g:neomake_python_pycodestyle_maker = { 'args': ['--ignore=E402', '--max-line
 "call matchadd('ygye',".*ygye.*")
 
 " === ctrlp plug in ===
-set wildignore+=*/tmp/*,*.so,*.swp,*.zip     " MacOSX/Linux
-set wildignore+=*\\tmp\\*,*.swp,*.zip,*.exe  " Windows
+"set wildignore+=*/tmp/*,*.so,*.swp,*.zip     " MacOSX/Linux
+"set wildignore+=*\\tmp\\*,*.swp,*.zip,*.exe  " Windows
 
-let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$'
-let g:ctrlp_custom_ignore = {
-  \ 'dir':  '\v[\/]\.(git|hg|svn)$',
-  \ 'file': '\v\.(exe|so|dll)$',
-  \ 'link': 'some_bad_symbolic_links',
-  \ }
+"let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$'
+"let g:ctrlp_custom_ignore = {
+  "\ 'dir':  '\v[\/]\.(git|hg|svn)$',
+  "\ 'file': '\v\.(exe|so|dll)$',
+  "\ 'link': 'some_bad_symbolic_links',
+  "\ }
 " =====================
 
 function UploadPythonToPorita()
