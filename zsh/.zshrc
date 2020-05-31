@@ -56,7 +56,7 @@ VISUAL=nvim; export VISUAL EDITOR=nvim; export EDITOR
 # DISABLE_AUTO_TITLE="true"
 
 # Uncomment the following line to enable command auto-correction.
-# ENABLE_CORRECTION="true"
+#ENABLE_CORRECTION="true"
 
 # Uncomment the following line to display red dots whilst waiting for completion.
 # COMPLETION_WAITING_DOTS="true"
@@ -181,6 +181,7 @@ alias tt="tmux a -t test"
 alias vm="vifm $PWD"
 alias gip="source ~/projects/tools/env/zsh/update_ip.sh"
 alias vi="nvim"
+alias box="bash ${HOME}/projects/yonis_playground/se_dotfiles/docker/box.sh"
 
 
 # ======= Docker ================
@@ -238,32 +239,7 @@ function sip(){
     export PORTIA_IP=$1
     export PORTIA_PORT=80
 }
-#function newbox() {
-    #IMAGE="devbox"
-    #DEVICE="/dev/null"
-    #while getopts i:d: option
-    #do
-    #case "${option}"
-    #in
-    #i) IMAGE=${OPTARG};;
-    #d) DEVICE=${OPTARG};;
-    #esac
-    #done
-  
-    #docker run -it \
-    #-v ${HOME}/.zshrc:/home/devbox/.zshrc2 \
-    #-v ${HOME}/docker/${IMAGE}/shared:/home/${IMAGE}/shared \
-    #emb-jenk-slv01:5000/${IMAGE}:dev
-#}
 
-    #--mount type=bind,src=${HOME}/docker/${IMAGE}/shared,target=/home/${IMAGE}/shared \
-    #--mount type=bind,src=${HOME}/.ssh,target=/home/${IMAGE}/.ssh \
-    #--mount type=bind,src=${HOME}/.gitconfig,target=/home/${IMAGE}/.gitconfig \
-    #--mount type=bind,src=${HOME}/projects/,target=/home/${IMAGE}/projects \
-    #--mount type=bind,src=${HOME}/.zsh_history,target=/home/${IMAGE}/.zsh_history \
-    #--mount type=bind,src=/mnt,target=/mnt \
-    #--device=${DEVICE} \
-    #--network="host" \
 function boxnew() {
     SYSTEM="devbox"
     PORT="220"
