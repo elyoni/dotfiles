@@ -2,7 +2,7 @@
 DIR=$(dirname "${BASH_SOURCE[0]}")
 DIR=$(cd -P $DIR && pwd)
 
-function install_packages()
+function install_packages() # Install additional package for neovim
 {
     ## To connect the clipboard of the neovim and the linux
     echo ====== Install additional packages =====
@@ -19,7 +19,7 @@ function install_packages()
     echo ======== End ========
 }
 
-function install_ripgrap()
+function install_ripgrap()  # Install ripgrep
 {
     VERSION="11.0.2"
     DOWNLOAD_PATH=$HOME/Downloads/apps/ripgrep
@@ -28,7 +28,7 @@ function install_ripgrap()
     sudo apt install ${DOWNLOAD_PATH}/ripgrep_11.0.2_amd64.deb
 }
 
-function install_vim()
+function install_vim()  # Install vim, not in-used
 {
     # ======= vim =======
     ## Installation
@@ -50,7 +50,7 @@ function install_vim()
     #sudo apt-get install vim-athena -y
 }
 
-function install_neovim()
+function install_neovim()  # Install neovim
 {
     echo ======= Install Neovim =======
     ### Installation
@@ -67,7 +67,7 @@ function install_neovim()
     echo ======= End  =======
 }
 
-function install_neovim_plugins()
+function install_neovim_plugins()  # Install neovim plugins
 {
     echo ======= Install Neovim Plugins =======
     ### nvim plugins
@@ -79,7 +79,7 @@ function install_neovim_plugins()
     echo ======= End  =======
 }
 
-function link_neovim_files()
+function link_neovim_files()  # Link neovim files(color + init.vim)
 {
     ### Link vimrc and color
     mkdir -p $HOME/.config/nvim/
@@ -87,7 +87,7 @@ function link_neovim_files()
     ln -sf $DIR/colors $HOME/.config/nvim/colors
 }
 
-function install()
+function install()  # Main function, this function install everything 
 {
     install_neovim
     install_vim
@@ -97,4 +97,14 @@ function install()
     install_neovim_plugins
 }
 
-"$@" 
+function help() # Show a list of functions
+{
+    grep "^function" $0
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi
+
