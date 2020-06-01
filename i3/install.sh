@@ -18,8 +18,10 @@ function application_install()
     sudo apt purge dunst -y
 
     # Graphic application finder, A Graphic replace for dmenu
-    echo ====== Install xfce4-appfinder =======
+    echo ====== Install xfce4-application =======
     sudo apt-get install xfce4-appfinder -y
+    sudo apt-get install xfce4-panel -y
+    sudo apt-get install gnome-icon-theme -y
 
     # Test application finder, A test replace for dmenu
     #echo ====== Install j4-dmenu-desktop =======
