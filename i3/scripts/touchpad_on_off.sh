@@ -1,5 +1,6 @@
 #!/bin/bash
 state=$(synclient | grep TouchpadOff | sed 's/[^0-1]*//g')
+echo $state
 if [ "$state" == "1" ]; then
     state="0"
     synclient TouchpadOff=0

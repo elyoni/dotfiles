@@ -59,7 +59,7 @@ Plug 'neomake/neomake'              " Give errors to the code
 "Plug 'neoclide/coc-highlight', {'do': 'yarn install --frozen-lockfile'}
 
 
-Plug 'neoclide/coc.nvim', {'branch': 'release'}  " auto complete
+"Plug 'neoclide/coc.nvim', {'branch': 'release'}  " auto complete
 "Plug 'neoclide/coc.nvim', {'do': { -> coc#util#install()}}
 "Plug 'neoclide/coc.nvim', {'do': 'yarn install --frozen-lockfile'}
 "Plug 'neoclide/coc-jedi', {'do': 'yarn install'}
@@ -88,8 +88,21 @@ Plug 'francoiscabrol/ranger.vim'
 "Plug 'vim-scripts/Conque-GDB'
 "Plug 'sakhnik/nvim-gdb', { 'do': './install.sh' }
 "Plug 'lifepillar/vim-mucomplete'
+Plug 'majutsushi/tagbar'
+"Plug 'ncm2/ncm2'
+"Plug 'roxma/nvim-yarp'
+
+"Plug 'ncm2/ncm2-bufword'
+"Plug 'ncm2/ncm2-path'
 
 call plug#end()
+
+" enable ncm2 for all buffers
+"autocmd BufEnter * call ncm2#enable_for_buffer()
+
+"" IMPORTANT: :help Ncm2PopupOpen for more information
+"set completeopt=noinsert,menuone,noselect
+
 
 " keys
 
@@ -126,8 +139,9 @@ map <F6> :call UpdatePoritaIP()<CR>
 "map <F6> :call CpToPorita()<CR>
 map <F9> :call SearchEveryWhere()<CR>
 map <F12> :call CurtineIncSw()<CR>
-map <F7> :w <bar> :!~/Downloads/arduino-1.6.13/arduino --verify % <CR>
-map <F8> :w <bar> :!~/Downloads/arduino-1.6.13/arduino --upload % <CR>
+"map <F7> :w <bar> :!~/Downloads/arduino-1.6.13/arduino --verify % <CR>
+"map <F8> :w <bar> :!~/Downloads/arduino-1.6.13/arduino --upload % <CR>
+nmap <F8> :TagbarToggle<CR>
 
 nmap <C-g>s :Gstatus<CR>
 nmap <C-g>d :Gdiff<CR>
@@ -204,7 +218,7 @@ set nowrap        " Disable wrap line
 
 function CreateTags()
     set tags=tags
-    call Gctag()
+    "call Gctag()
     let workdir = getcwd()
     if (workdir =~ "lab")
         set tags=~/projects/lab/tags,~/projects/tools/lib/tags
@@ -468,6 +482,10 @@ function Gctag()
         let workdir = split(getcwd(), 'pmanager')[0] . "pmanager/"
         let cmd="!ctags -R -f " . workdir . "tags"
         AsyncRun cmd
+    elseif (getcwd() =~ "lab")
+        let workdir = split(getcwd(), 'lab')[0] . "lab/"
+        let cmd="!ctags -R " . $LAB_DIR . " ". $TOOLS_DIR ."/lib " 
+        echo cmd
     endif
 endfunction
 
@@ -646,3 +664,37 @@ let g:neomake_python_flake8_maker = {
 "
 nmap <C-p> :GFiles<CR>
 nmap <S-p> :Files<CR>
+
+
+" suppress the annoying 'match x of y', 'The only match' and 'Pattern not
+" found' messages
+set shortmess+=c
+
+" CTRL-C doesn't trigger the InsertLeave autocmd . map to <ESC> instead.
+inoremap <c-c> <ESC>
+
+" When the <Enter> key is pressed while the popup menu is visible, it only
+" hides the menu. Use this mapping to close the menu and also start a new
+" line.
+"inoremap <expr> <CR> (pumvisible() ? "\<c-y>\<cr>" : "\<CR>")
+
+"" Use <TAB> to select the popup menu:
+"inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
+"inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+
+" wrap existing omnifunc
+" Note that omnifunc does not run in background and may probably block the
+" editor. If you don't want to be blocked by omnifunc too often, you could
+" add 180ms delay before the omni wrapper:
+"  'on_complete': ['ncm2#on_complete#delay', 180,
+"               \ 'ncm2#on_complete#omni', 'csscomplete#CompleteCSS'],
+au User Ncm2Plugin call ncm2#register_source({
+            \ 'name' : 'css',
+            \ 'priority': 9,
+            \ 'subscope_enable': 1,
+            \ 'scope': ['css','scss'],
+            \ 'mark': 'css',
+            \ 'word_pattern': '[\w\-]+',
+            \ 'complete_pattern': ':\s*',
+            \ 'on_complete': ['ncm2#on_complete#omni', 'csscomplete#CompleteCSS'],
+            \ })

@@ -400,3 +400,45 @@ function fzf-test(){
     return 0
 }
 bindkey '^W' fzf-test
+
+function ssh-auto-retry()
+{
+    false
+    while [ $? -ne 0 ]; do
+        sshpass -p $1 ssh "${@:2}" || (sleep 1;false)
+    done
+}
+function retry-command()
+{
+    false
+    while [ $? -ne 0 ]; do
+        "${@}" || (sleep 1;false)
+    done
+}
+
+function newbox() {
+        IMAGE="devbox"
+    DEVICE="/dev/null"
+        while getopts i:d: option
+        do
+        case "${option}"
+        in
+        i) IMAGE=${OPTARG};;
+        d) DEVICE=${OPTARG};;
+        esac
+        done
+
+    docker run -it \
+    --mount type=bind,src=${HOME}/docker/${IMAGE}/shared,target=/home/${IMAGE}/shared \
+    --mount type=bind,src=${HOME}/.ssh,target=/home/${IMAGE}/.ssh \
+    --mount type=bind,src=${HOME}/.gitconfig,target=/home/${IMAGE}/.gitconfig \
+    --mount type=bind,src=${HOME}/.zshrc,target=/home/${IMAGE}/.zsh_host/.zshrc \
+    --mount type=bind,src=${HOME}/projects/,target=/home/${IMAGE}/projects \
+        --mount type=bind,src=${HOME}/.zsh_history,target=/home/${IMAGE}/.zsh_host/.zsh_history \
+        --mount type=bind,src=${HOME}/.config/se/,target=/home/${IMAGE}/.config/se/ \
+        --mount type=bind,src=/mnt,target=/mnt \
+    --device=${DEVICE} \
+    --network="host" \
+    -e DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix \
+    emb-jenk-slv01:5000/${IMAGE}:latest
+}

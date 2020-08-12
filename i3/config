@@ -58,14 +58,14 @@ bindsym $mod+Return exec i3-sensible-terminal
 set $ssh_terminal Launch: [Enter]yoni [a]di [j]enk val[2-5] [d]ocker
 bindsym $mod+Shift+Return mode "$ssh_terminal"
 mode "$ssh_terminal" {
-    bindsym Return exec "i3-sensible-terminal -e ssh -R 2222:localhost:22 -i ~/.ssh/ssh_key yoni@yoni-pc -y", mode "default"
-    bindsym a exec "i3-sensible-terminal -e ssh -i ~/.ssh/ssh_key adi@adi -y", mode "default"
-    bindsym j exec "i3-sensible-terminal -e ssh -i ~/.ssh/ssh_key root@emb-jenk-slv01 -y", mode "default"
-    bindsym 2 exec "i3-sensible-terminal -e ssh -i ~/.ssh/ssh_key portia-linux-val02@portia-linux-val02 -y", mode "default"
-    bindsym 3 exec "i3-sensible-terminal -e ssh -i ~/.ssh/ssh_key se@portia-linux-val03 -y", mode "default"
-    bindsym 4 exec "i3-sensible-terminal -e ssh -i ~/.ssh/ssh_key se@portia-linux-val04 -y", mode "default"
-    bindsym 5 exec "i3-sensible-terminal -e ssh -i ~/.ssh/ssh_key se@portia-linux-val05 -y", mode "default"
-    bindsym d exec "i3-sensible-terminal -e ssh -i ~/.ssh/ssh_key devbox@localhost -p 221 -y", mode "default"
+    bindsym Return exec "i3-sensible-terminal -e ssh -R 2222:localhost:22 yoni@yoni-pc -y", mode "default"
+    bindsym a exec "i3-sensible-terminal -e ssh adi@adi -y", mode "default"
+    bindsym j exec "i3-sensible-terminal -e ssh root@emb-jenk-slv01 -y", mode "default"
+    bindsym 2 exec "i3-sensible-terminal -e ssh portia-linux-val02@portia-linux-val02 -y", mode "default"
+    bindsym 3 exec "i3-sensible-terminal -e ssh se@portia-linux-val03 -y", mode "default"
+    bindsym 4 exec "i3-sensible-terminal -e ssh se@portia-linux-val04 -y", mode "default"
+    bindsym 5 exec "i3-sensible-terminal -e ssh se@portia-linux-val05 -y", mode "default"
+    bindsym d exec "i3-sensible-terminal -e ssh devbox@localhost -p 221 -y", mode "default"
 
     bindsym Escape mode "default"
     bindsym Return mode "default"
@@ -360,7 +360,8 @@ bindsym $mod+F12 exec bash $HOME/.dotfiles/i3/scripts/touchpad_on_off.sh
 bindsym XF86MonBrightnessUp exec bash $HOME/.dotfiles/i3/scripts/backlight_brightness.sh +4 # increase screen brightness
 bindsym XF86MonBrightnessDown exec bash $HOME/.dotfiles/i3/scripts/backlight_brightness.sh -4 # decrease screen brightness
 
-exec --no-startup-id slack 
+#exec --no-startup-id slack 
+exec --no-startup-id teams
 exec --no-startup-id zoom
 exec --no-startup-id davmail
 exec --no-startup-id ~/apps/Telegram/Telegram
@@ -368,6 +369,6 @@ exec --no-startup-id ~/apps/Telegram/Telegram
 exec --no-startup-id workrave
 exec --no-startup-id evolution
 exec --no-startup-id autorandr -c
-exec --no-startup-id xfce4-panel --disable-wm-check
+#exec --no-startup-id xfce4-panel --disable-wm-check
 exec --no-startup-id xfce4-power-manager --disable-wm-check
 #exec --no-startup-id xfce4-session
