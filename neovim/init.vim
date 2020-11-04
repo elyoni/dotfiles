@@ -50,7 +50,8 @@ Plug 'airblade/vim-gitgutter'           " Show symbols on change/remove/add line
 
 "Code plugins
 Plug 'scrooloose/nerdcommenter'     "Add comments to file, Toggles the comment state: <leader>c<space>
-Plug 'neomake/neomake'              " Give errors to the code
+"Plug 'neomake/neomake'              " Give errors to the code
+Plug 'dense-analysis/ale'
 
 "Plug 'neoclide/coc.nvim', {'do': 'yarn install --frozen-lockfile'}
 "Plug 'neoclide/coc-python', {'do': 'yarn install --frozen-lockfile'}
@@ -79,6 +80,7 @@ Plug 'leiserfg/qalc.vim', {'do': ':UpdateRemotePlugins' }
 
 "Plug 'tweekmonster/deoplete-clang2'    " Oz - deoplete-clang 2 is the new plugin - just install the 'clang' package
 "Plug 'zchee/deoplete-jedi'
+Plug 'davidhalter/jedi'
 "
 "Plug 'davidhalter/jedi-vim'
 "Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
@@ -115,6 +117,8 @@ call plug#end()
 :map Q <Nop>
 
 map <C-n> :NERDTreeToggle<CR>
+let g:NERDTreeHijackNetrw = 0
+let g:ranger_replace_netrw = 1
 map <S-B> ^<CR>
 map <C-s> :w<CR>
 "map <C-k>  <PageUp> 
@@ -358,21 +362,6 @@ call matchadd('ans',"^\!.*")
 "let g:syntastic_python_pylint_post_args="--max-line-length=120"
 "; import sys; sys.path.append('/home/yoni/projects/tools/lib')"
 
-" ==== NeoMake ====
-" When writing a buffer.
-call neomake#configure#automake('w')
-" When writing a buffer, and on normal mode changes (after 750ms).
-"call neomake#configure#automake('nw', 1)
-" When reading a buffer (after 1s), and when writing.
-"call neomake#configure#automake('rw', 5)
-"let g:neomake_open_list = 2
-let g:neomake_open_list = 0
-let g:neomake_python_enable_makers = ['pylint3']
-let g:neomake_python_pylint_exe = 'pylint3'
-let g:neomake_python_pylint3_maker = {
-    \ 'args': ['--ignore=D103', '--max-line-length=120']
-    \}
-let g:neomake_python_pycodestyle_maker = { 'args': ['--ignore=E402', '--max-line-length=120'] }
 
 "highlight onit ctermfg=0 ctermbg=214 guifg=#000000 guibg=#C0A25F
 "call matchadd('onit',".*onit.*")
@@ -646,24 +635,8 @@ let g:fzf_colors =
 " previous-history instead of down and up. If you don't like the change,
 " explicitly bind the keys to down and up in your $FZF_DEFAULT_OPTS.
 let g:fzf_history_dir = '~/.local/share/fzf-history'
-"
-let g:neomake_python_flake8_maker = {
-    \ 'args': ['--ignore=E221,E241,E272,E251,W702,E203,E201,E202',  '--format=default'],
-    \ 'errorformat':
-        \ '%E%f:%l: could not compile,%-Z%p^,' .
-        \ '%A%f:%l:%c: %t%n %m,' .
-        \ '%A%f:%l: %t%n %m,' .
-        \ '%-G%.%#',
-    \ }
-"let g:neomake_python_enabled_makers = ['flake8']
-"let g:neomake_python_enabled_makers = ['pylint3']
-"let g:neomake_python_pylint_exe = 'pylint3'
-"let g:neomake_python_pylint_maker = {
-"    \ 'args': ['--ignore=W213,W23']
-"    \}
-"
 nmap <C-p> :GFiles<CR>
-nmap <S-p> :Files<CR>
+nmap <C-S-p> :Files<CR>
 
 
 " suppress the annoying 'match x of y', 'The only match' and 'Pattern not

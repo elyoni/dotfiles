@@ -58,7 +58,7 @@ bindsym $mod+Return exec i3-sensible-terminal
 set $ssh_terminal Launch: [Enter]yoni [a]di [j]enk val[2-5] [d]ocker
 bindsym $mod+Shift+Return mode "$ssh_terminal"
 mode "$ssh_terminal" {
-    bindsym Return exec "i3-sensible-terminal -e ssh -R 2222:localhost:22 yoni@yoni-pc -y", mode "default"
+    bindsym Return exec "i3-sensible-terminal -e ssh -i ~/.ssh/id_rsa -R 2222:localhost:22 yoni@yoni-pc -y", mode "default"
     bindsym a exec "i3-sensible-terminal -e ssh adi@adi -y", mode "default"
     bindsym j exec "i3-sensible-terminal -e ssh root@emb-jenk-slv01 -y", mode "default"
     bindsym 2 exec "i3-sensible-terminal -e ssh portia-linux-val02@portia-linux-val02 -y", mode "default"
@@ -243,9 +243,9 @@ bindsym $mod+r mode "resize"
 bar {
         status_command i3blocks
 #        status_command i3status
-        tray_output primary
-        font xft:DejaVu Sans Mono Book 11
-        #Droid Sans Mono, FontAwesome 10
+        #tray_output primary
+        font xft:DejaVu Sans Mono Book 14
+        #font xft:Droid Sans Mono, FontAwesome 14
 }
 
 
@@ -278,15 +278,17 @@ mode "$mode_launcher" {
 
 
 
-set $xrander_menu Launch: [1]StandAlone [2]Work [3]Home
+#set $xrander_menu Launch: [1]StandAlone [2]Work [3]Home
+set $xrander_menu Launch: [1]StandAlone [2]Auto
 bindsym $mod+F8 mode "$xrander_menu"
 #--off --output DP-1-3 --off --output HDMI-1 --off --output DP-2 --off
 
 mode "$xrander_menu" {
-    bindsym 1 exec "xrandr --output HDMI-1 --off --output DP-1 --off --output DP-2 --off --output DP-1-3 --off --output DP-1-1 --off --output DP-1-2 --off  --output eDP-1 --auto ", mode "default"
-    bindsym 2 exec "xrandr --output eDP-1 --off --output HDMI-1 --pos 3840x0 --auto --output DP-1-1 --pos 1920x0 --primary --auto --output DP-1-2 --pos 0x0 --auto", mode "default"
+    bindsym 1 exec "xrandr --output HDMI-1-1 --off --output DP-1-1-1 --off --output DP-1-1-2 --off --output DP-1-2 --off --output DP-1-1 --off --output DP-1-2 --off  --output eDP-1 --auto ", mode "default"
+    bindsym 2 exec "autorandr -c"
+    #bindsym 2 exec "xrandr --output eDP-1-1 --off --output HDMI-1 --pos 3840x0 --auto --output DP-1-1 --pos 1920x0 --primary --auto --output DP-1-2 --pos 0x0 --auto", mode "default"
     #bindsym 2 exec "xrandr --output DP-2 --pos 3840x0 --auto --output DP-1-1 --pos 1920x0 --auto --output DP-1-2 --pos 0x0 --auto  --output eDP-1 --off ", mode "default"
-    bindsym 3 exec "xrandr --output eDP-1 --pos 3296x1200 --auto --output HDMI-1 --pos 1920x120 --auto --output DP-1 --primary --pos 0x0 --auto ", mode "default"
+    #bindsym 3 exec "xrandr --output eDP-1-1 --pos 3296x1200 --auto --output HDMI-1 --pos 1920x120 --auto --output DP-1 --primary --pos 0x0 --auto ", mode "default"
     #bindsym 4 exec "xrandr --output eDP-1 --off --output HDMI-1 --pos 3840x0 --auto --output DP-1-1 --pos 1920x0 --auto --output DP-1-2 --pos 0x0 --auto", mode "default"
 
 
@@ -361,7 +363,7 @@ bindsym XF86MonBrightnessUp exec bash $HOME/.dotfiles/i3/scripts/backlight_brigh
 bindsym XF86MonBrightnessDown exec bash $HOME/.dotfiles/i3/scripts/backlight_brightness.sh -4 # decrease screen brightness
 
 #exec --no-startup-id slack 
-exec --no-startup-id teams
+#exec --no-startup-id teams
 exec --no-startup-id zoom
 exec --no-startup-id davmail
 exec --no-startup-id ~/apps/Telegram/Telegram
