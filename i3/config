@@ -31,28 +31,8 @@ font pango:DejaVu Sans Mono 8
 # font, it doesn’t scale on retina/hidpi displays.
 
 
-exec "sudo chmod o+rw /dev/ttyUSB1"
-exec "stty -F /dev/ttyUSB1 115200 raw -echo -echoe -echok -echoctl -echoke"
-
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
-
-# start a terminal
-
-set $docker_terminal Launch: [0-6] Docker
-bindsym $mod+Ctrl+Return mode "$docker_terminal"
-mode "$docker_terminal" {
-    bindsym Return exec "i3-sensible-terminal -e boxnew -s local -n 0", mode "default"
-    bindsym 1 exec      "i3-sensible-terminal -e boxnew -s local -n 1", mode "default"
-    bindsym 2 exec      "i3-sensible-terminal -e boxnew -s local -n 2", mode "default"
-    bindsym 3 exec      "i3-sensible-terminal -e boxnew -s local -n 3", mode "default"
-    bindsym 4 exec      "i3-sensible-terminal -e boxnew -s local -n 4", mode "default"
-    bindsym 5 exec      "i3-sensible-terminal -e boxnew -s local -n 5", mode "default"
-    bindsym 6 exec      "i3-sensible-terminal -e boxnew -s local -n 6", mode "default"
-
-    bindsym Escape mode "default"
-    bindsym Return mode "default"
-}
 
 bindsym $mod+Return exec i3-sensible-terminal
 set $ssh_terminal Launch: [Enter]yoni [a]di [j]enk val[2-5] [d]ocker
@@ -73,6 +53,7 @@ mode "$ssh_terminal" {
 
 # kill focused window
 bindsym $mod+Shift+q kill
+bindsym $mod+Ctrl+q xkill
 
 # start dmenu (a program launcher)
 #bindsym $mod+d exec dmenu_run
@@ -80,7 +61,7 @@ bindsym $mod+Shift+q kill
 # shipping a .desktop file. It is a wrapper around dmenu, so you need that
 # installed.
 # bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
-bindsym $mod+Shift+d exec j4-dmenu-desktop
+#bindsym $mod+Shift+d exec j4-dmenu-desktop
 bindsym $mod+d exec xfce4-appfinder --class floatingWin
 for_window [class="^floatingWin$"] floating enable
 
@@ -89,10 +70,10 @@ bindsym $mod+Shift+m move workspace to output down
 
 
 # change focus
-bindsym $mod+j focus left
-bindsym $mod+k focus down
-bindsym $mod+l focus up
-bindsym $mod+semicolon focus right
+bindsym $mod+h focus left
+bindsym $mod+j focus down
+bindsym $mod+k focus up
+bindsym $mod+l focus right
 
 # alternatively, you can use the cursor keys:
 bindsym $mod+Left focus left
@@ -101,10 +82,10 @@ bindsym $mod+Up focus up
 bindsym $mod+Right focus right
 
 # move focused window
-bindsym $mod+Shift+j move left
-bindsym $mod+Shift+k move down
-bindsym $mod+Shift+l move up
-bindsym $mod+Shift+semicolon move right
+bindsym $mod+Shift+h move left
+bindsym $mod+Shift+j move down
+bindsym $mod+Shift+k move up
+bindsym $mod+Shift+l move right
 
 # alternatively, you can use the cursor keys:
 bindsym $mod+Shift+Left move left
@@ -113,7 +94,7 @@ bindsym $mod+Shift+Up move up
 bindsym $mod+Shift+Right move right
 
 # split in horizontal orientation
-bindsym $mod+h split h
+bindsym $mod+b split h
 
 # split in vertical orientation
 bindsym $mod+v split v
@@ -135,75 +116,75 @@ bindsym $mod+space focus mode_toggle
 # focus the parent container
 bindsym $mod+a focus parent
 
-
-bindsym $mod+shift+ctrl+o exec echo '+' > /dev/ttyUSB0
-bindsym $mod+shift+ctrl+p exec echo '-' > /dev/ttyUSB0
-
-
 # focus the child container
 #bindsym $mod+d focus child
 
-set $workspace01 "1:"
-set $workspace02 "2:  "
-set $workspace03 "3:"
-set $workspace04 "4:DoubleCMD"
-set $workspace05 "F2:Lab/Tools"
-set $workspace06 "6:Mail"
-set $workspace07 "7: Windows"
-set $workspace08 "8:My Log"
-set $workspace09 "9:I3 "
-set $workspace00 "0:Music"
-set $workspace11 "F1:"
-set $workspace21 "F11:MY"
-set $workspace22 "F10:MY"
+set $workspaceCode1 "1:C"
+bindsym $mod+1 workspace $workspaceCode1
+bindsym $mod+Shift+1 move container to workspace $workspaceCode1
 
-# switch to workspace
-bindsym $mod+1 workspace $workspace01
-bindsym $mod+2 workspace $workspace02
-bindsym $mod+3 workspace $workspace03
-bindsym $mod+4 workspace $workspace04
-bindsym $mod+F2 workspace $workspace05
-bindsym $mod+6 workspace $workspace06
-bindsym $mod+7 workspace $workspace07
-bindsym $mod+8 workspace $workspace08
-bindsym $mod+9 workspace $workspace09
-bindsym $mod+0 workspace $workspace00
-bindsym $mod+F1 workspace $workspace11
-bindsym $mod+F11 workspace $workspace21
-bindsym $mod+F10 workspace $workspace22
+set $workspaceCode2 "2:Py"
+bindsym $mod+2 workspace $workspaceCode2
+bindsym $mod+Shift+2 move container to workspace $workspaceCode2
 
-# move focused container to workspace
-bindsym $mod+Shift+1 move container to workspace $workspace01
-bindsym $mod+Shift+2 move container to workspace $workspace02
-bindsym $mod+Shift+3 move container to workspace $workspace03
-bindsym $mod+Shift+4 move container to workspace $workspace04
-bindsym $mod+Shift+F2 move container to workspace $workspace05
-bindsym $mod+Shift+6 move container to workspace $workspace06
-bindsym $mod+Shift+7 move container to workspace $workspace07
-bindsym $mod+Shift+8 move container to workspace $workspace08
-bindsym $mod+Shift+9 move container to workspace $workspace09
-bindsym $mod+Shift+0 move container to workspace $workspace00
-bindsym $mod+Shift+F1 move container to workspace $workspace11
-bindsym $mod+Shift+F11 move container to workspace $workspace21
-bindsym $mod+Shift+F10 move container to workspace $workspace22
+#Browser Workspace
+set $workspaceBrowser "3: "
+bindsym $mod+3 workspace $workspaceBrowser
+bindsym $mod+Shift+3 move container to workspace $workspaceBrowser
+assign [class="Firefox"] $workspaceBrowser
+assign [class="Chromium-browser"] $workspaceBrowser
 
-#Assing program to workspace
-## To check the click run xprop
-assign [class="Firefox"] $workspace02
-assign [class="Chromium-browser"] $workspace02
-assign [class="Doublecmd"] $workspace04
-assign [class="Vncviewer"] $workspace07
-assign [class="Remmina"] $workspace07
-assign [class="Thunderbird"] $workspace06
-assign [class="Evolution"] $workspace06
+#Files Workspace
+set $workspaceFiles "4:Files"
+bindsym $mod+3 workspace $workspaceFiles
+bindsym $mod+Shift+3 move container to workspace $workspaceFiles
+assign [class="Doublecmd"] $workspaceFiles
 
-### Workspace 0
-for_window [class="Spotify"] move to workspace $workspace00
-assign [class="Telegram"] $workspace00
-assign [class="Slack"] $workspace00
-assign [class="zoom"] $workspace00
+set $workspaceCode3 "g:Lab/Tools"
+bindsym $mod+g workspace $workspaceCode3
+bindsym $mod+Shift+g move container to workspace $workspaceCode3
 
-#exec --no-startup-id i3-msg 'workspace 8:My Log; exec nvim /media/Data/my_log.md'
+set $workspaceRemoteSSH "t:"
+bindsym $mod+t workspace $workspaceRemoteSSH
+bindsym $mod+Shift+t move container to workspace $workspaceRemoteSSH
+
+set $workspaceMail "6:Mail"
+bindsym $mod+6 workspace $workspaceMail
+bindsym $mod+Shift+6 move container to workspace $workspaceMail
+assign [class="Thunderbird"] $workspaceMail
+assign [class="Evolution"] $workspaceMail
+
+#Windows/Remote Workspace
+set $workspaceWindow "7:Win"
+bindsym $mod+7 workspace $workspaceWindow
+bindsym $mod+Shift+7 move container to workspace $workspaceWindow
+assign [class="Vncviewer"] $workspaceWindow
+assign [class="Remmina"] $workspaceWindow
+
+set $workspaceCode4 "8:Buildroot"
+bindsym $mod+8 workspace $workspaceCode4
+bindsym $mod+Shift+8 move container to workspace $workspaceCode4
+
+set $workspacePrivate "0:Connect"
+bindsym $mod+0 workspace $workspacePrivate
+bindsym $mod+Shift+0 move container to workspace $workspacePrivate
+for_window [class="Spotify"] move to workspace $workspacePrivate
+assign [class="Telegram"] $workspacePrivate
+assign [class="Slack"] $workspacePrivate
+assign [class="zoom"] $workspacePrivate
+
+set $workspaceSystem "9:"
+bindsym $mod+0 workspace $workspaceSystem
+bindsym $mod+Shift+0 move container to workspace $workspaceSystem
+
+set $workspaceCode5 "F10:MY"
+bindsym $mod+F10 workspace $workspaceCode5
+bindsym $mod+Shift+F10 workspace $workspaceCode5
+
+set $workspaceCode6 "F11:MY"
+bindsym $mod+F11 workspace $workspaceCode6
+bindsym $mod+Shift+F11 workspace $workspaceCode6
+
 
 # reload the configuration file
 bindsym $mod+Shift+c reload
@@ -285,12 +266,7 @@ bindsym $mod+F8 mode "$xrander_menu"
 
 mode "$xrander_menu" {
     bindsym 1 exec "xrandr --output HDMI-1-1 --off --output DP-1-1-1 --off --output DP-1-1-2 --off --output DP-1-2 --off --output DP-1-1 --off --output DP-1-2 --off  --output eDP-1 --auto ", mode "default"
-    bindsym 2 exec "autorandr -c"
-    #bindsym 2 exec "xrandr --output eDP-1-1 --off --output HDMI-1 --pos 3840x0 --auto --output DP-1-1 --pos 1920x0 --primary --auto --output DP-1-2 --pos 0x0 --auto", mode "default"
-    #bindsym 2 exec "xrandr --output DP-2 --pos 3840x0 --auto --output DP-1-1 --pos 1920x0 --auto --output DP-1-2 --pos 0x0 --auto  --output eDP-1 --off ", mode "default"
-    #bindsym 3 exec "xrandr --output eDP-1-1 --pos 3296x1200 --auto --output HDMI-1 --pos 1920x120 --auto --output DP-1 --primary --pos 0x0 --auto ", mode "default"
-    #bindsym 4 exec "xrandr --output eDP-1 --off --output HDMI-1 --pos 3840x0 --auto --output DP-1-1 --pos 1920x0 --auto --output DP-1-2 --pos 0x0 --auto", mode "default"
-
+    bindsym 2 exec "autorandr -c", mode "default"
 
     bindsym Escape mode "default"
     bindsym Return mode "default"
