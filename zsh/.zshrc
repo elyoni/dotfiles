@@ -137,7 +137,7 @@ export SHELL_DIR="$HOME/projects/tools/shell"
 export UTILS_DIR="$HOME/projects/tools/utils"
 export LAB_DIR="$HOME/projects/lab"
 export REG_DIR="$HOME/projects/lab/applications/regression"
-export LIBSUITE_PATH="$HOME/projects/sources/libsuite"
+export LIBSUITE_DIR="$HOME/projects/sources/libsuite"
 export PORTIA_LATEST_VER_DTB=""
 export PORTIA_LATEST_VER_SPFF=""  
 export PORTIA_LATEST_VER_ZIMAGE=""
@@ -400,6 +400,10 @@ function fzf-test(){
     return 0
 }
 bindkey '^W' fzf-test
+bindkey "^[k" up-line-or-beginning-search # Up
+bindkey '^[j' down-line-or-search
+bindkey '^[h' backward-char
+bindkey '^[l' forward-char
 
 function ssh-auto-retry()
 {

@@ -51,6 +51,7 @@ Plug 'airblade/vim-gitgutter'           " Show symbols on change/remove/add line
 "Code plugins
 Plug 'scrooloose/nerdcommenter'     "Add comments to file, Toggles the comment state: <leader>c<space>
 "Plug 'neomake/neomake'              " Give errors to the code
+"Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'dense-analysis/ale'
 
 "Plug 'neoclide/coc.nvim', {'do': 'yarn install --frozen-lockfile'}
@@ -69,6 +70,7 @@ Plug 'dense-analysis/ale'
 Plug 'sheerun/vim-polyglot'         " A plugin that adds syntax highlighting for almost any language you can think of
 "Plug 'vim-syntastic/syntastic'
 Plug 'huawenyu/neogdb.vim'          " Debug for GDBSERVER
+Plug 'zxqfl/tabnine-vim'
 "Plug 'kiteco/vim-plugin'
 
 "Mist
@@ -103,15 +105,21 @@ call plug#end()
 "autocmd BufEnter * call ncm2#enable_for_buffer()
 
 "" IMPORTANT: :help Ncm2PopupOpen for more information
-"set completeopt=noinsert,menuone,noselect
+"set completeopt=noinsert,menuone,noselec<NOP>
 
 
 " keys
+nnoremap ss i<space><esc>
 
 ""noremap <Up> <NOP>
 ""noremap <Down> <NOP>
 ""noremap <Left> <NOP>
 ""noremap <Right> <NOP>
+"noremap l <up>
+"noremap k <Down>
+"noremap j <left>
+"noremap ; <right>
+"noremap h <NOP>
 
 ":ia td #YE TODO 
 :map Q <Nop>
@@ -164,6 +172,9 @@ tmap <C-h> <Esc><C-W><Left>
 tmap <C-k> <Esc><C-W><Up>
 tmap <C-j> <Esc><C-W><Down>
 
+cnoremap <A-k> <Up>
+cnoremap <A-j> <Down>
+
 " resize horzontal split window
 nmap <C-S-Up>  <C-W>-<C-W>-
 nmap <C-S-Down>   <C-W>+<C-W>+
@@ -182,6 +193,9 @@ nnoremap z] ]s
 nnoremap z[ [s
 
 nnoremap zt :set spell!<CR>
+
+noremap d] ]c 
+noremap d[ [c 
 
 
 " Open the tag in split window

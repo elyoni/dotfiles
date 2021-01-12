@@ -136,8 +136,8 @@ assign [class="Chromium-browser"] $workspaceBrowser
 
 #Files Workspace
 set $workspaceFiles "4:Files"
-bindsym $mod+3 workspace $workspaceFiles
-bindsym $mod+Shift+3 move container to workspace $workspaceFiles
+bindsym $mod+4 workspace $workspaceFiles
+bindsym $mod+Shift+4 move container to workspace $workspaceFiles
 assign [class="Doublecmd"] $workspaceFiles
 
 set $workspaceCode3 "g:Lab/Tools"
@@ -174,16 +174,16 @@ assign [class="Slack"] $workspacePrivate
 assign [class="zoom"] $workspacePrivate
 
 set $workspaceSystem "9:"
-bindsym $mod+0 workspace $workspaceSystem
-bindsym $mod+Shift+0 move container to workspace $workspaceSystem
+bindsym $mod+9 workspace $workspaceSystem
+bindsym $mod+Shift+9 move container to workspace $workspaceSystem
 
-set $workspaceCode5 "F10:MY"
-bindsym $mod+F10 workspace $workspaceCode5
-bindsym $mod+Shift+F10 workspace $workspaceCode5
+set $workspaceCode5 "y:MY"
+bindsym $mod+y workspace $workspaceCode5
+bindsym $mod+Shift+y workspace $workspaceCode5
 
-set $workspaceCode6 "F11:MY"
-bindsym $mod+F11 workspace $workspaceCode6
-bindsym $mod+Shift+F11 workspace $workspaceCode6
+set $workspaceCode6 "u:MY"
+bindsym $mod+u workspace $workspaceCode6
+bindsym $mod+Shift+u workspace $workspaceCode6
 
 
 # reload the configuration file
@@ -261,7 +261,7 @@ mode "$mode_launcher" {
 
 #set $xrander_menu Launch: [1]StandAlone [2]Work [3]Home
 set $xrander_menu Launch: [1]StandAlone [2]Auto
-bindsym $mod+F8 mode "$xrander_menu"
+bindsym $mod+p mode "$xrander_menu"
 #--off --output DP-1-3 --off --output HDMI-1 --off --output DP-2 --off
 
 mode "$xrander_menu" {
@@ -329,8 +329,8 @@ bindsym $mod+Ctrl+l exec bash $HOME/.dotfiles/i3/scripts/i3lock.sh
 
 #Alias
 #exec --no-startup-id alias plant="python3 ~/.dotfiles/work_script/serial_connection.py"
-bindsym $mod+u exec python3 $HOME/.dotfiles/work_script/serial_connection.py -u
-bindsym $mod+ctrl+U exec python3 $HOME/.dotfiles/work_script/serial_connection.py -d
+#bindsym $mod+u exec python3 $HOME/.dotfiles/work_script/serial_connection.py -u
+#bindsym $mod+ctrl+U exec python3 $HOME/.dotfiles/work_script/serial_connection.py -d
 
 
 bindsym $mod+F12 exec bash $HOME/.dotfiles/i3/scripts/touchpad_on_off.sh
