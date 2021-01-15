@@ -21,6 +21,7 @@ set clipboard=unnamed,unnamedplus " Copy/Paste directly to System/X11 clipboard
 call plug#begin()
 
 Plug 'vimwiki/vimwiki'                  "Wiki for vim
+Plug 'easymotion/vim-easymotion'
 
 "Status Bar
 Plug 'vim-airline/vim-airline'
@@ -46,6 +47,7 @@ Plug 'aklt/plantuml-syntax'
 "git
 Plug 'tpope/vim-fugitive'               " For git
 Plug 'airblade/vim-gitgutter'           " Show symbols on change/remove/add line
+Plug 'will133/vim-dirdiff'
 
 
 "Code plugins
@@ -110,6 +112,7 @@ call plug#end()
 
 " keys
 nnoremap ss i<space><esc>
+imap kj <Esc>
 
 ""noremap <Up> <NOP>
 ""noremap <Down> <NOP>

@@ -37,6 +37,7 @@ floating_modifier $mod
 bindsym $mod+Return exec i3-sensible-terminal
 set $ssh_terminal Launch: [Enter]yoni [a]di [j]enk val[2-5] [d]ocker
 bindsym $mod+Shift+Return mode "$ssh_terminal"
+bindsym $mod+Ctrl+Return mode "$ssh_terminal"
 mode "$ssh_terminal" {
     bindsym Return exec "i3-sensible-terminal -e ssh -i ~/.ssh/id_rsa -R 2222:localhost:22 yoni@yoni-pc -y", mode "default"
     bindsym a exec "i3-sensible-terminal -e ssh adi@adi -y", mode "default"
