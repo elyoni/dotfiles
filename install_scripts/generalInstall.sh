@@ -14,23 +14,47 @@ pip3 install --upgrade pip
 sudo apt-get install okular -y
 
 #=== Browser ===
-sudo apt-get install chromium-browser -y
+#sudo apt-get install chromium-browser -y
+sudo apt install net-tools
+sudo apt-get install arp-scan -y
 sudo apt-get intall firefox -y
+
+#=== workrave ===
+sudo apt install workrave -y
 
 #== Curl ==
 sudo apt-get install libcurl3 php5-curl -y
 
-echo "Install i3"
-bash $HOME/.dotfiles/i3/install.sh
+echo "Install zsh"
+bash $HOME/.dotfiles/zsh/install.sh install
 
-echo "Install VIM & VIMRC"
-bash $HOME/.dotfiles/vim/install.sh
+# === FZF ===
+git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+yes | ~/.fzf/install
+
+echo "Install i3"
+bash $HOME/.dotfiles/i3/install.sh install
+
+echo "Install neovim"
+bash $HOME/.dotfiles/neovim/install.sh install
 
 echo "Install Double Commander"
 bash $HOME/.dotfiles/double_commander/install.sh
 
 echo "Install tmux"
-bash $HOME/.dotfiles/tmux/install.sh
+bash $HOME/.dotfiles/tmux/install.sh install
+
+echo "Install git"
+bash $HOME/.dotfiles/git/install.sh install
+
+echo "Install tig"
+bash $HOME/.dotfiles/tig/install.sh install
+
+echo "Install mail"
+bash $HOME/.dotfiles/mail/install.sh install
+
+echo "Install ranger"
+bash $HOME/.dotfiles/ranger/install.sh install
 
 # === bluetooth === 
 sudo apt-get install bluetooth bluez bluez-tools rfkill -y
@@ -41,27 +65,40 @@ sudo apt-get install bluetooth bluez bluez-tools rfkill -y
 ## to start the bluetooth service run:
 ## code: sudo service bluetooth start
 sudo apt-get install blueman -y
-sudo apt-get install pulseaudio pavucontrol # To run the settings just run 'pavucontrol'
+sudo apt-get install pulseaudio pavucontrol -y # To run the settings just run 'pavucontrol'
+
+# === Enable change lang ===
+sudo apt-get install gnome-tweaks -y
+gsettings set org.gnome.desktop.input-sources xkb-options "['grp:ctrl_shift_toggle']"
 
 
 # === SSH ===
 sudo apt-get install sshfs -y
 sudo apt-get install sshpass -y
+sudo apt-get install openssh-server -y
+
+# === Remote desktop ===
+sudo apt-get install remmina -y
+sudo apt-get install xtightvncviewer -y
 
 # === Print Screen ===
-sudo apt-get install scrot -y
+sudo apt-get install flameshot -y
 
 
-# === FZF ===
-git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-~/.fzf/install
+#=== Install keepassx ===
+sudo apt-get install keepassx -y
+
+#=== Torrent ===
+sudo add-apt-repository ppa:qbittorrent-team/qbittorrent-stable -y
+sudo apt-get update
+sudo apt-get install qbittorrent -y
+
+#=== Libre Office ===
+## to install libre office we need to install aptitude
+sudo apt install aptitude -y
+sudo aptitude install libreoffice -y
 
 # === Font Copy ===
 dotfile_dir=$( dirname $( cd $(dirname $0) && pwd ))
 mkdir -p $HOME/.fonts
 cp $dotfile_dir/fonts/* $HOME/.fonts/
-
-# === ZSH ===
-sudo apt-get install zsh -y
-chsh -s $(which zsh)
-sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"

@@ -3,7 +3,7 @@ autoload -U +X compinit && compinit
 fpath=(~/.zsh/completion $fpath) 
 zstyle ":completion:*:descriptions" format "%B%d%b"
 # If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
+export PATH=$HOME/.local/bin:/usr/local/go/bin:$PATH
 
 # Path to your oh-my-zsh installation.
 user=$(whoami)
@@ -56,7 +56,7 @@ VISUAL=nvim; export VISUAL EDITOR=nvim; export EDITOR
 # DISABLE_AUTO_TITLE="true"
 
 # Uncomment the following line to enable command auto-correction.
-# ENABLE_CORRECTION="true"
+#ENABLE_CORRECTION="true"
 
 # Uncomment the following line to display red dots whilst waiting for completion.
 # COMPLETION_WAITING_DOTS="true"
@@ -82,6 +82,7 @@ plugins=(
   git
   zsh-syntax-highlighting 
   zsh-autosuggestions
+  docker
 )
 source $ZSH/oh-my-zsh.sh
 #source $HOME/projects/tools/configurations
@@ -137,13 +138,11 @@ export SHELL_DIR="$HOME/projects/tools/shell"
 export UTILS_DIR="$HOME/projects/tools/utils"
 export LAB_DIR="$HOME/projects/lab"
 export REG_DIR="$HOME/projects/lab/applications/regression"
-export LIBSUITE_PATH="$HOME/projects/sources/libsuite"
-export PORTIA_LATEST_VER_DTB="$HOME/projects/spffs/portia/test_run/sama5d2_d1186ba.dtb"
-export PORTIA_LATEST_VER_SPFF="$HOME/projects/spffs/portia/test_run/portia.spff"
-export PORTIA_LATEST_VER_ZIMAGE="$HOME/projects/spffs/portia/test_run/zImage"
-export PORTIA_LATEST_VER_ZIP="$HOME/projects/spffs/portia/test_run/portia.zip"
-
-export SHELL="/usr/bin/zsh"
+export LIBSUITE_DIR="$HOME/projects/sources/libsuite"
+export PORTIA_LATEST_VER_DTB=""
+export PORTIA_LATEST_VER_SPFF=""  
+export PORTIA_LATEST_VER_ZIMAGE=""
+export PORTIA_LATEST_VER_ZIP=""
 
 function sscp(){ 
     #Simple SCP 
@@ -161,7 +160,7 @@ function rt(){
 }
 
 # ========= Aliases =============
-alias py=python3.4
+alias py=python3.8
 
 alias mini0="sudo minicom -D /dev/ttyUSB0 -C ~/projects/minicom0.log"
 alias mini1="sudo minicom -D /dev/ttyUSB1 -C ~/projects/minicom1.log"
@@ -183,6 +182,7 @@ alias tt="tmux a -t test"
 alias vm="vifm $PWD"
 alias gip="source ~/projects/tools/env/zsh/update_ip.sh"
 alias vi="nvim"
+alias box="bash ${HOME}/.se_dotfiles/docker/box.sh"
 
 
 # ======= Docker ================
@@ -194,23 +194,28 @@ function run_docker() {
     mkdir $PROJECTS -p
     echo $PROJECTS
 
-    docker run -it \
-    --name ${SYSTEM}${NUMBER} \
-    --hostname ${USER}-docker_sys:${SYSTEM}_#:${NUMBER}\
+    docker run -it -d \
+    --name ${SYSTEM} \
+    --hostname ${USER}-d>${SYSTEM}\
     -v ${PROJECTS}:/home/devbox/projects \
     -v ${HOME}/.ssh:/home/devbox/.ssh \
     -v ${HOME}/.gitconfig:/home/devbox/.gitconfig \
     -v ${HOME}/.zshrc:/home/devbox/.zsh_host/.zshrc \
     -v ${HOME}/.dotfiles/zsh/yoni.zsh-theme:/home/devbox/.oh-my-zsh/themes/yoni.zsh-theme \
     -v ${HOME}/.dotfiles/tmux/tmux.conf:/home/devbox/.tmux.conf \
-    -v ${HOME}/.zsh_history:/home/devbox/.zsh_host/.zsh_history \
+    -v ${HOME}/.zsh_history:/home/devbox/.zsh_history \
     -v ${HOME}/projects/karamba/sign_tool:/etc/karamba/sign_tool \
-    --device=/dev/ttyUSB0 \
-    --network=host \
-    -p ${PORT_SHARE}:22 \
+    -p ${PORT}:22 \
     -e DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix \
     ${IMAGE}
+
 }
+
+function reset_ssh(){
+	docker exec -dt "${SYSTEM}" sudo service ssh restart # Restart after updating /etc/environment just in case
+    sleep 0.5
+}
+
 function rund()  {
     PROJECTS=~/projects
     docker run -it \
@@ -235,36 +240,10 @@ function sip(){
     export PORTIA_IP=$1
     export PORTIA_PORT=80
 }
-#function newbox() {
-    #IMAGE="devbox"
-    #DEVICE="/dev/null"
-    #while getopts i:d: option
-    #do
-    #case "${option}"
-    #in
-    #i) IMAGE=${OPTARG};;
-    #d) DEVICE=${OPTARG};;
-    #esac
-    #done
-  
-    #docker run -it \
-    #-v ${HOME}/.zshrc:/home/devbox/.zshrc2 \
-    #-v ${HOME}/docker/${IMAGE}/shared:/home/${IMAGE}/shared \
-    #emb-jenk-slv01:5000/${IMAGE}:dev
-#}
 
-    #--mount type=bind,src=${HOME}/docker/${IMAGE}/shared,target=/home/${IMAGE}/shared \
-    #--mount type=bind,src=${HOME}/.ssh,target=/home/${IMAGE}/.ssh \
-    #--mount type=bind,src=${HOME}/.gitconfig,target=/home/${IMAGE}/.gitconfig \
-    #--mount type=bind,src=${HOME}/projects/,target=/home/${IMAGE}/projects \
-    #--mount type=bind,src=${HOME}/.zsh_history,target=/home/${IMAGE}/.zsh_history \
-    #--mount type=bind,src=/mnt,target=/mnt \
-    #--device=${DEVICE} \
-    #--network="host" \
 function boxnew() {
     SYSTEM="devbox"
-    NUMBER="0"
-    PORT_SHARE="2222"
+    PORT="220"
     IMAGE="emb-jenk-slv01:5000/devbox:latest"
 
     while [[ $# -gt 0 ]]; do
@@ -275,8 +254,8 @@ function boxnew() {
             shift # past value
             shift # past value
             ;;
-            -n|--number)
-            NUMBER="$2"
+            -p|--port)
+            PORT="$2"
             shift # past argument
             shift # past value
             ;;
@@ -295,7 +274,6 @@ function boxnew() {
             ;;
         esac
     done
-    echo ${SYSTEM}${NUMBER}
     if [ $SYSTEM = "local" ]; then
         PROJECTS="${HOME}/projects"
     else
@@ -303,25 +281,34 @@ function boxnew() {
     fi
 
     echo The project will be found in: $PROJECTS
-    if [ ! "$(docker ps -a | grep ' ${SYSTEM}${NUMBER}')" ]; then
+    if [ ! "$(docker ps -a | grep -w " ${SYSTEM}")" ]; then
         # There is not container run
+        echo System: ${SYSTEM} Listen on Port ${PORT}
         run_docker
-    elif docker inspect -f '{{.State.Status}}' ${SYSTEM}${NUMBER} | grep -qiE 'exited|Created'; then
-        if [ ! "$(docker ps -a | grep ' ${SYSTEM}${NUMBER}' | grep ${IMAGE})" ]; then
-            echo "The image is diffrenct from what you ask for, will run with the previce image $(docker inspect -f '{{.Config.Image}}' ${SYSTEM}${NUMBER})[Press any key to continue]"
+    elif docker inspect -f '{{.State.Status}}' ${SYSTEM} | grep -qiE 'exited|Created'; then
+        if [ ! "$(docker ps -a | grep -w ${SYSTEM} | grep ${IMAGE})" ]; then
+            echo "The image is diffrenct from what you ask for, will run with the previce image $(docker inspect -f '{{.Config.Image}}' ${SYSTEM})[Press any key to continue]"
             read
         fi
-        docker start ${SYSTEM}${NUMBER}
-        docker attach ${SYSTEM}${NUMBER}
-    elif docker inspect -f '{{.State.Status}}'  ${SYSTEM}${NUMBER}| grep -q running; then
-        if [ ! "$(docker ps -a | grep ' ${SYSTEM}${NUMBER}' | grep ${IMAGE})" ]; then
+        docker start ${SYSTEM}
+        port=$(docker inspect --format='{{(index (index .NetworkSettings.Ports "22/tcp") 0).HostPort}}' ${SYSTEM})
+        echo System: ${SYSTEM} Listen on Port ${port}
+    elif docker inspect -f '{{.State.Status}}'  ${SYSTEM}| grep -q running; then
+        if [ ! "$(docker ps -a | grep -w ${SYSTEM} | grep ${IMAGE})" ]; then
             echo "The image is diffrenct from what you ask for, will run with the previce image[Press any key to continue]"
             read
         fi
-        docker attach ${SYSTEM}${NUMBER}
+        #docker attach ${SYSTEM}
+        port=$(docker inspect --format='{{(index (index .NetworkSettings.Ports "22/tcp") 0).HostPort}}' ${SYSTEM})
+        echo System: ${SYSTEM} Listen on Port ${port}
     else 
         echo Unknown what to do
+        exit 1
     fi
+
+    reset_ssh
+    current_path=$(echo $PWD | sed -e "s#\(.*\)$USER\(.*\)#\1devbox\2#")
+    ssh devbox@localhost -p ${PORT} -t "cd $current_path; zsh --login" 
 }
 #docker run -it --name debox --hostname ${USER}-docker -v ${HOME}/docker/debox/projects:/home/devbox/projects -v ${HOME}/.ssh:/home/devbox/.ssh -v ${HOME}/.gitconfig:/home/devbox/.gitconfig -v ${HOME}/.zshrc:/home/devbox/.zsh_host/.zshrc -v ${HOME}/.dotfiles/zsh/yoni.zsh-theme:/home/devbox/.oh-my-zsh/themes/yoni.zsh-theme -v ${HOME}/.dotfiles/tmux/tmux.conf:/home/devbox/.tmux.conf emb-jenk-slv01:5000/devbox:latest
 
@@ -330,6 +317,16 @@ function boxpull() {
     IMAGE=${1:-devbox}
     docker pull emb-jenk-slv01:5000/${IMAGE}
 }
+
+function boxrun(){
+    current_path=$(echo $PWD | sed -e "s#\(.*\)$USER\(.*\)#\1devbox\2#")
+    #ssh devbox@localhost -p ${PORT} -t "cd $current_path; zsh --login" 
+    echo ssh devbox@localhost -p 221 -t "cd $current_path; zsh --login; $@" 
+    ssh devbox@localhost -p 221 -t "cd $current_path; zsh --login; $@" 
+    echo $@
+}
+
+
 if [ $COLUMNS -gt 125 ]; then
     echo -e "\e[95m\e[1m     .--.     \e[93m +#++:++#++:++ +#++:++#++:++ +#++:++#++:++ +#++:++#++:++ +#++:++#++:++ +#++:++#++:++ +#++:++#++  \e[0m   \e[95m\e[1m    .--.      "
     echo -e "\e[95m\e[1m    | o_o|    \e[34m ██╗   ██╗ ██████╗ ███╗   ██╗██╗    ███████╗██╗     ███████╗███╗   ██╗████████╗ ██████╗ ██╗  ██╗ \e[0m   \e[95m\e[1m   |o_o |     "
@@ -408,3 +405,64 @@ function fzf-test(){
     return 0
 }
 bindkey '^W' fzf-test
+bindkey "^[k" up-line-or-beginning-search # Up
+bindkey '^[j' down-line-or-search
+bindkey '^[h' backward-char
+bindkey '^[l' forward-char
+
+function ssh-auto-retry()
+{
+    false
+    while [ $? -ne 0 ]; do
+        sshpass -p $1 ssh "${@:2}" || (sleep 1;false)
+    done
+}
+function retry-command()
+{
+    false
+    while [ $? -ne 0 ]; do
+        "${@}" || (sleep 1;false)
+    done
+}
+
+function newbox() {
+        IMAGE="devbox"
+    DEVICE="/dev/null"
+        while getopts i:d: option
+        do
+        case "${option}"
+        in
+        i) IMAGE=${OPTARG};;
+        d) DEVICE=${OPTARG};;
+        esac
+        done
+
+    docker run -it \
+    --cpus=1 \
+    --mount type=bind,src=${HOME}/docker/${IMAGE}/shared,target=/home/${IMAGE}/shared \
+    --mount type=bind,src=${HOME}/.ssh,target=/home/${IMAGE}/.ssh \
+    --mount type=bind,src=${HOME}/.gitconfig,target=/home/${IMAGE}/.gitconfig \
+    --mount type=bind,src=${HOME}/.zshrc,target=/home/${IMAGE}/.zsh_host/.zshrc \
+    --mount type=bind,src=${HOME}/projects/,target=/home/${IMAGE}/projects \
+    --mount type=bind,src=${HOME}/.config/se/,target=/home/${IMAGE}/.config/se/ \
+    --device=${DEVICE} \
+    --network="host" \
+    -e DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix \
+    emb-jenk-slv01:5000/${IMAGE}:latest
+}
+
+function newbox() {
+    IMAGE="devbox"
+    DEVICE="/dev/null"
+    docker run -it \
+    --mount type=bind,src=${HOME}/docker/${IMAGE}/shared,target=/home/${IMAGE}/shared \
+    --mount type=bind,src=${HOME}/.ssh,target=/home/${IMAGE}/.ssh \
+    --mount type=bind,src=${HOME}/.gitconfig,target=/home/${IMAGE}/.gitconfig \
+    --mount type=bind,src=${HOME}/.zshrc,target=/home/${IMAGE}/.zsh_host/.zshrc \
+    --mount type=bind,src=${HOME}/projects/,target=/home/${IMAGE}/projects \
+    --mount type=bind,src=${HOME}/.config/se/,target=/home/${IMAGE}/.config/se/ \
+    --device=${DEVICE} \
+    --network="host" \
+    -e DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix \
+    emb-jenk-slv01:5000/${IMAGE}:latest
+}

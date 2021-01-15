@@ -2,45 +2,72 @@
 DIR=$(dirname "${BASH_SOURCE[0]}")
 DIR=$(cd -P $DIR && pwd)
 
+function application_install()
+{
+    echo ====== Start Application install =======
+    echo ====== Install i3 =======
+    sudo apt-get install i3 -y
 
-mkdir $HOME/.config/i3/scripts
+    # ===== Install modules for i3 =====
+    # Install an alternative for i3status
+    echo ====== Install i3blocks =======
+    sudo apt-get install i3blocks -y
 
-sudo apt-get install i3 -y
+    # Change notification app
+    sudo apt install notify-osd -y
+    sudo apt purge dunst -y
 
-# ===== Install moduls for i3 =====
-# Install an alternative for i3status
-sudo apt-get install i3blocks -y
+    # Graphic application finder, A Graphic replace for dmenu
+    echo ====== Install xfce4-application =======
+    sudo apt-get install xfce4-appfinder -y
+    sudo apt-get install xfce4-panel -y
+    sudo apt-get install gnome-icon-theme -y
 
-# Graphic application finder, A Graphic replace for dmenu
-sudo apt-get install xfce4-appfinder -y
+    # Test application finder, A test replace for dmenu
+    #echo ====== Install j4-dmenu-desktop =======
+    #sudo apt-get install j4-dmenu-desktop -y
 
-# Test application finder, A test replace for dmenu
-sudo apt-get install j4-dmenu-desktop -y
+    # Text folder size viewer
+    sudo apt-get install gt5 -y
 
-# Text folder size viewer
-sudo apt-get install gt5 -y
+    # Network Manager
+    echo ====== Install network-manager =======
+    sudo apt-get install network-manager -y
 
-# Network Manaer
-sudo apt-get install network-manager -y
+    echo ====== Install feh =======
+    sudo apt-get install feh -y
 
-sudo apt-get install feh -y
+    # Screen manager
+    echo ====== Install arandr =======
+    sudo apt-get install arandr -y 
+    sudo apt-get install autorandr -y
 
-# Screen manager
-sudo apt-get install arandr -y 
+    # Volume Controller
+    echo ====== Install pnmixer =======
+    #sudo apt-get install pnmixer -y 
+    sudo apt-get install pasystray -y 
 
-# Volume Controller
-sudo apt-get install pnmixer -y 
-ln -sf $DIR/scripts/volume.sh   $HOME/.config/i3/scripts/volume.sh
+    gsettings set org.gnome.desktop.background show-desktop-icons false
+}
 
-ln -sf $DIR/scripts/xrander_script.sh $HOME/.config/i3/scripts/xrander_script.sh
-ln -sf $DIR/scripts/lang.sh $HOME/.config/i3/scripts/lang.sh
+function link_files()
+{
+    mkdir -p $HOME/.config/i3/scripts
 
-rm $HOME/.config/i3/config
-ln -sf $DIR/config $HOME/.config/i3/config
+    ln -sf $DIR/scripts/volume.sh   $HOME/.config/i3/scripts/volume.sh
 
-rm $HOME/.i3blocks.conf
-ln -sf $DIR/i3blocks.conf $HOME/.i3blocks.conf
+    ln -sf $DIR/scripts/xrander_script.sh $HOME/.config/i3/scripts/xrander_script.sh
+    ln -sf $DIR/scripts/lang.sh $HOME/.config/i3/scripts/lang.sh
 
-bash $DIR/i3blocks/scripts/idle_time/install.sh
+    ln -sf $DIR/config $HOME/.config/i3/config
 
-gsettings set org.gnome.desktop.background show-desktop-icons false
+    ln -sf $DIR/i3blocks.conf $HOME/.i3blocks.conf
+}
+
+function install()
+{
+    application_install
+    link_files
+}
+
+"$@"
