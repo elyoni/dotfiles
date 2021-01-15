@@ -41,7 +41,7 @@ dump() { /bin/echo -E "$output"; }
 # a common post-processing function used after most commands
 trim() { head -n "$maxln"; }
 
-spff() { /usr/bin/python3.4 /home/yoni/projects/tools/utils/spff_tools/spff_generator/spff_generator.py -s "$@"; }
+spff() { /usr/bin/python3.8 /home/yoni/projects/tools/utils/spff_tools/spff_generator/spff_generator.py -s "$@"; }
 
 # wraps highlight to treat exit code 141 (killed by SIGPIPE) as success
 highlight() { command highlight "$@"; test $? = 0 -o $? = 141; }

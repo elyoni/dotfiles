@@ -119,6 +119,7 @@ source $ZSH/oh-my-zsh.sh
 # Source
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 [ -f ~/.zsh/portia_functions ] && source ~/.zsh/portia_functions
+[ -f ~/vimwiki/CodeTestings/arduino/portia_relay_control.sh ] && source ~/vimwiki/CodeTestings/arduino/portia_relay_control.sh
 
 export PROJECTS_DIR="$HOME/projects"
 export BUILDROOT_DIR="$HOME/projects/buildroot"
@@ -128,10 +129,10 @@ export PMANAGER_DIR="$HOME/projects/sources/apps/pmanager"
 export WEB_DIR="$HOME/projects/sources/apps/web"
 export CURATOR_DIR="$HOME/projects/sources/apps/curator"
 export APPS_DIR="$HOME/projects/sources/apps"
-export LIBS_DIR="$HOME/projects/sources/libs"
-export MQTTC_DIR="$HOME/projects/sources/libs/mqttc"
+export LIBS_DIR="$HOME/projects/sources/libsuite/modules/libs"
+export MQTTC_DIR="$HOME/projects/sources/libsuite/modules/mqttc"
 export SOURCES_DIR="$HOME/projects/sources"
-export PROTO_DIR="$HOME/projects/proto"
+export PROTO_DIR="$HOME/projects/sources/libsuite/modules/proto"
 export TOOLS_DIR="$HOME/projects/tools"
 export SHELL_DIR="$HOME/projects/tools/shell"
 export UTILS_DIR="$HOME/projects/tools/utils"
@@ -258,6 +259,11 @@ function boxnew() {
             shift # past argument
             shift # past value
             ;;
+            -p|--port)
+            PORT_SHARE="$2"
+            shift # past argument
+            shift # past value
+            ;;
             -i|--image)
             IMAGE="$2"
             shift # past argument
@@ -279,7 +285,6 @@ function boxnew() {
         # There is not container run
         echo System: ${SYSTEM} Listen on Port ${PORT}
         run_docker
-
     elif docker inspect -f '{{.State.Status}}' ${SYSTEM} | grep -qiE 'exited|Created'; then
         if [ ! "$(docker ps -a | grep -w ${SYSTEM} | grep ${IMAGE})" ]; then
             echo "The image is diffrenct from what you ask for, will run with the previce image $(docker inspect -f '{{.Config.Image}}' ${SYSTEM})[Press any key to continue]"
