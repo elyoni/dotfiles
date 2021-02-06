@@ -1,7 +1,11 @@
 # Yoni Elentok Dotfiles
-- Linux Distribution: ubuntu 16.04
+- Linux Distribution: ubuntu 20.04
 - Window Manager: i3
-- Music Player: Clemantina
+- Test Editor: neovim
+- IDE: neovim
+- Git interface: tig
+- File manager: Ranger
+- Browser: Firefox
 
 ## Installation
 
