@@ -10,7 +10,6 @@
 # Please see http://i3wm.org/docs/userguide.html for a complete reference!
 #exec xmodmap -e "keycode 66 = Shift_L NoSymbol Shift_L"
 exec xmodmap -e "keycode 66 = Escape NoSymbol Escape"
-
 set $mod Mod4
 
 # Font for window titles. Will also be used by the bar unless a different font
@@ -22,14 +21,6 @@ set $mod Mod4
 # This font is widely installed, provides lots of unicode glyphs, right-to-left
 # text rendering and scalability on retina/hidpi displays (thanks to pango).
 font pango:DejaVu Sans Mono 8
-
-# Before i3 v4.8, we used to recommend this one as the default:
-# font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
-# The font above is very space-efficient, that is, it looks good, sharp and
-# clear in small sizes. However, its unicode glyph coverage is limited, the old
-# X core fonts rendering does not support right-to-left and this being a bitmap
-# font, it doesn’t scale on retina/hidpi displays.
-
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
@@ -54,20 +45,16 @@ mode "$ssh_terminal" {
 
 # kill focused window
 bindsym $mod+Shift+q kill
-bindsym $mod+Ctrl+q xkill
+bindsym $mod+Ctrl+q kill
 
 # start dmenu (a program launcher)
-#bindsym $mod+d exec dmenu_run
-# There also is the (new) i3-dmenu-desktop which only displays applications
-# shipping a .desktop file. It is a wrapper around dmenu, so you need that
-# installed.
-# bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
-#bindsym $mod+Shift+d exec j4-dmenu-desktop
 bindsym $mod+d exec xfce4-appfinder --class floatingWin
 for_window [class="^floatingWin$"] floating enable
 
-bindsym $mod+m move workspace to output left
-bindsym $mod+Shift+m move workspace to output down
+bindsym $mod+Shift+h move workspace to output left
+bindsym $mod+Shift+l move workspace to output right
+bindsym $mod+Shift+j move workspace to output down
+bindsym $mod+Shift+k move workspace to output up
 
 
 # change focus
@@ -83,16 +70,16 @@ bindsym $mod+Up focus up
 bindsym $mod+Right focus right
 
 # move focused window
-bindsym $mod+Shift+h move left
-bindsym $mod+Shift+j move down
-bindsym $mod+Shift+k move up
-bindsym $mod+Shift+l move right
+bindsym $mod+Ctrl+h move left
+bindsym $mod+Ctrl+j move down
+bindsym $mod+Ctrl+k move up
+bindsym $mod+Ctrl+l move right
 
 # alternatively, you can use the cursor keys:
-bindsym $mod+Shift+Left move left
-bindsym $mod+Shift+Down move down
-bindsym $mod+Shift+Up move up
-bindsym $mod+Shift+Right move right
+bindsym $mod+Ctrl+Left move left
+bindsym $mod+Ctrl+Down move down
+bindsym $mod+Ctrl+Up move up
+bindsym $mod+Ctrl+Right move right
 
 # split in horizontal orientation
 bindsym $mod+b split h
@@ -123,15 +110,18 @@ bindsym $mod+a focus parent
 set $workspaceCode1 "1:C"
 bindsym $mod+1 workspace $workspaceCode1
 bindsym $mod+Shift+1 move container to workspace $workspaceCode1
+bindsym $mod+Ctrl+1 move container to workspace $workspaceCode1
 
 set $workspaceCode2 "2:Py"
 bindsym $mod+2 workspace $workspaceCode2
 bindsym $mod+Shift+2 move container to workspace $workspaceCode2
+bindsym $mod+Ctrl+2 move container to workspace $workspaceCode2
 
 #Browser Workspace
 set $workspaceBrowser "3: "
 bindsym $mod+3 workspace $workspaceBrowser
 bindsym $mod+Shift+3 move container to workspace $workspaceBrowser
+bindsym $mod+Ctrl+3 move container to workspace $workspaceBrowser
 assign [class="Firefox"] $workspaceBrowser
 assign [class="Chromium-browser"] $workspaceBrowser
 
@@ -139,19 +129,23 @@ assign [class="Chromium-browser"] $workspaceBrowser
 set $workspaceFiles "4:Files"
 bindsym $mod+4 workspace $workspaceFiles
 bindsym $mod+Shift+4 move container to workspace $workspaceFiles
+bindsym $mod+Ctrl+4 move container to workspace $workspaceFiles
 assign [class="Doublecmd"] $workspaceFiles
 
 set $workspaceCode3 "g:Lab/Tools"
 bindsym $mod+g workspace $workspaceCode3
 bindsym $mod+Shift+g move container to workspace $workspaceCode3
+bindsym $mod+Ctrl+g move container to workspace $workspaceCode3
 
 set $workspaceRemoteSSH "t:"
 bindsym $mod+t workspace $workspaceRemoteSSH
 bindsym $mod+Shift+t move container to workspace $workspaceRemoteSSH
+bindsym $mod+Ctrl+t move container to workspace $workspaceRemoteSSH
 
 set $workspaceMail "6:Mail"
 bindsym $mod+6 workspace $workspaceMail
 bindsym $mod+Shift+6 move container to workspace $workspaceMail
+bindsym $mod+Ctrl+6 move container to workspace $workspaceMail
 assign [class="Thunderbird"] $workspaceMail
 assign [class="Evolution"] $workspaceMail
 
@@ -159,16 +153,19 @@ assign [class="Evolution"] $workspaceMail
 set $workspaceWindow "7:Win"
 bindsym $mod+7 workspace $workspaceWindow
 bindsym $mod+Shift+7 move container to workspace $workspaceWindow
+bindsym $mod+Ctrl+7 move container to workspace $workspaceWindow
 assign [class="Vncviewer"] $workspaceWindow
 assign [class="Remmina"] $workspaceWindow
 
 set $workspaceCode4 "8:Buildroot"
 bindsym $mod+8 workspace $workspaceCode4
 bindsym $mod+Shift+8 move container to workspace $workspaceCode4
+bindsym $mod+Ctrl+8 move container to workspace $workspaceCode4
 
 set $workspacePrivate "0:Connect"
 bindsym $mod+0 workspace $workspacePrivate
 bindsym $mod+Shift+0 move container to workspace $workspacePrivate
+bindsym $mod+Ctrl+0 move container to workspace $workspacePrivate
 for_window [class="Spotify"] move to workspace $workspacePrivate
 assign [class="Telegram"] $workspacePrivate
 assign [class="Slack"] $workspacePrivate
@@ -177,20 +174,26 @@ assign [class="zoom"] $workspacePrivate
 set $workspaceSystem "9:"
 bindsym $mod+9 workspace $workspaceSystem
 bindsym $mod+Shift+9 move container to workspace $workspaceSystem
+bindsym $mod+Ctrl+9 move container to workspace $workspaceSystem
 
 set $workspaceCode5 "y:MY"
 bindsym $mod+y workspace $workspaceCode5
 bindsym $mod+Shift+y workspace $workspaceCode5
+bindsym $mod+Ctrl+y workspace $workspaceCode5
 
 set $workspaceCode6 "u:MY"
 bindsym $mod+u workspace $workspaceCode6
+#bindsym $mod+Shift+u workspace $workspaceCode6
 bindsym $mod+Shift+u workspace $workspaceCode6
+bindsym $mod+Ctrl+u workspace $workspaceCode6
 
 
 # reload the configuration file
 bindsym $mod+Shift+c reload
+bindsym $mod+Ctrl+c reload
 # restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
 bindsym $mod+Shift+r restart
+bindsym $mod+Ctrl+r restart
 # exit i3 (logs you out of your X session)
 bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
 
@@ -224,10 +227,8 @@ bindsym $mod+r mode "resize"
 # finds out, if available)
 bar {
         status_command i3blocks
-#        status_command i3status
-        #tray_output primary
-        font xft:DejaVu Sans Mono Book 14
-        #font xft:Droid Sans Mono, FontAwesome 14
+        font xft:DejaVu Sans Mono Book 10
+        #font xft:Droid Sans Mono, FontAwesome 12
 }
 
 
@@ -272,10 +273,6 @@ mode "$xrander_menu" {
     bindsym Escape mode "default"
     bindsym Return mode "default"
 }
-
-#exec_always bash $HOME/.config/i3/scripts/xrander_script.sh
-#exec_always bash $HOME/.dotfiles/i3/scripts/wallpaper_change.sh
-#exec bash $HOME/.time_xprintidle
 
 # Background color
 exec --no-startup-id xsetroot -solid "#000000"
@@ -323,7 +320,7 @@ exec --no-startup-id xautolock -time 1 -locker i3lock
 
 
 #convert wallpaper_blur.JPG -blur 0x20 wallpaper_blur_new.JPG 
-bindsym $mod+Ctrl+l exec bash $HOME/.dotfiles/i3/scripts/i3lock.sh
+#bindsym $mod+Ctrl+l exec bash $HOME/.dotfiles/i3/scripts/i3lock.sh
 #bindsym $mod+Ctrl+l exec i3lock -i $HOME/Pictures/wallpaper.png
 #bindsym $mod+Ctrl+l exec i3lock -c 000000
 
@@ -342,11 +339,11 @@ bindsym XF86MonBrightnessDown exec bash $HOME/.dotfiles/i3/scripts/backlight_bri
 #exec --no-startup-id slack 
 #exec --no-startup-id teams
 exec --no-startup-id zoom
-exec --no-startup-id davmail
+#exec --no-startup-id davmail
 exec --no-startup-id ~/apps/Telegram/Telegram
 #exec --no-startup-id thunderbird
 exec --no-startup-id workrave
-exec --no-startup-id evolution
+#exec --no-startup-id evolution
 exec --no-startup-id autorandr -c
 #exec --no-startup-id xfce4-panel --disable-wm-check
 exec --no-startup-id xfce4-power-manager --disable-wm-check
