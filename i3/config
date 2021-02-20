@@ -178,14 +178,14 @@ bindsym $mod+Ctrl+9 move container to workspace $workspaceSystem
 
 set $workspaceCode5 "y:MY"
 bindsym $mod+y workspace $workspaceCode5
-bindsym $mod+Shift+y workspace $workspaceCode5
-bindsym $mod+Ctrl+y workspace $workspaceCode5
+bindsym $mod+Shift+y move container to workspace $workspaceCode5
+bindsym $mod+Ctrl+y move container to workspace $workspaceCode5
 
 set $workspaceCode6 "u:MY"
 bindsym $mod+u workspace $workspaceCode6
 #bindsym $mod+Shift+u workspace $workspaceCode6
-bindsym $mod+Shift+u workspace $workspaceCode6
-bindsym $mod+Ctrl+u workspace $workspaceCode6
+bindsym $mod+Shift+u move container to workspace $workspaceCode6
+bindsym $mod+Ctrl+u move container to workspace $workspaceCode6
 
 
 # reload the configuration file
