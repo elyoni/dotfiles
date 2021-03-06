@@ -183,6 +183,7 @@ alias vm="vifm $PWD"
 alias gip="source ~/projects/tools/env/zsh/update_ip.sh"
 alias vi="nvim"
 alias box="bash ${HOME}/.se_dotfiles/docker/box.sh"
+alias ydl-mp3="youtube-dl --extract-audio --audio-format mp3"
 
 
 # ======= Docker ================
