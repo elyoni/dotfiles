@@ -22,11 +22,24 @@ function install_packages() # Install additional package for neovim
 
 function install_ripgrap()  # Install ripgrep
 {
-    VERSION="11.0.2"
+    local res
+    local download_url
+    local file_name
+
+    # Tools to download the latest version
+    sudo apt-get install jq -y
+    sudo apt-get install curl -y
+
     DOWNLOAD_PATH=$HOME/Downloads/apps/ripgrep
     mkdir -p ${DOWNLOAD_PATH}
-    wget -P ${DOWNLOAD_PATH} https://github.com/BurntSushi/ripgrep/releases/download/$VERSION/ripgrep_${VERSION}_amd64.deb
-    sudo apt install ${DOWNLOAD_PATH}/ripgrep_11.0.2_amd64.deb
+
+    # Find the latest release for deb
+    res=$(curl -s https://api.github.com/repos/BurntSushi/ripgrep/releases/latest | jq -r '.assets[] | select(.name | contains("deb"))')
+    download_url=$(jq -r .browser_download_url <<< "$res")
+    file_name=$(jq -r .name <<< "$res")
+
+    wget -P "${DOWNLOAD_PATH}" "$download_url"
+    sudo apt install "${DOWNLOAD_PATH}/$file_name"
 }
 
 function install_vim()  # Install vim, not in-used
