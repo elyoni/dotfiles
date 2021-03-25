@@ -2,7 +2,6 @@
 DIR=$(dirname "${BASH_SOURCE[0]}")
 DIR=$(cd -P $DIR && pwd)
 
-
 function install_packages() # Install additional package for neovim
 {
     ## To connect the clipboard of the neovim and the linux
@@ -56,12 +55,6 @@ function install_vim()  # Install vim, not in-used
     ln -sf $DIR/init.vim $HOME/.vimrc
     mkdir -p $HOME/.vim/
     ln -sf $DIR/colors $HOME/.vim/colors
-
-    ### lua suppurt
-    #sudo apt-get install vim-nox -y
-    #sudo apt-get install vim-gtk -y
-    #sudo apt-get install vim-gnone -y
-    #sudo apt-get install vim-athena -y
 }
 
 function install_neovim()  # Install neovim
@@ -73,42 +66,57 @@ function install_neovim()  # Install neovim
     sudo apt-get install neovim -y
     sudo apt-get install python3-pip -y
 
-    sudo pip2 install --upgrade neovim
     sudo pip3 install --upgrade neovim
+    sudo pip3 install pynvim
 
     sudo ln -sf /usr/bin/nvim /usr/bin/vim
     sudo ln -sf /usr/bin/nvim /usr/bin/vi
     echo ======= End  =======
 }
 
-function install_neovim_plugins()  # Install neovim plugins
+function install_autocomplete
 {
+    sudo apt-get install npm -y
+
+    # THis i done:
+    sudo npm install -g neovim
+    sudo npm i -g pyright
+    sudo npm i -g pyright
+    sudo pip3 install python-language-server
+}
+
+function install_plug_plugin_legacy
+{
+    local autoload_dir="$NEOVIM_PATH/autoload"
     echo ======= Install Neovim Plugins =======
     ### nvim plugins
-    mkdir ~/.config/nvim/autoload/ -p
-    curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs \
-        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-
+    sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
+       https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
     nvim +PlugInstall +PlugClean! +qall
     echo ======= End  =======
 }
 
-function link_neovim_files()  # Link neovim files(color + init.vim)
+function install_plug_plugin_new
 {
-    ### Link vimrc and color
-    mkdir -p $HOME/.config/nvim/
-    ln -sf $DIR/init.vim $HOME/.config/nvim/init.vim
-    ln -sf $DIR/colors $HOME/.config/nvim/colors
+    # I am replacing the plugin manager because I want it to be writen in lua
+    git clone https://github.com/savq/paq-nvim.git \
+        "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/pack/paqs/opt/paq-nvim
 }
 
-function install()  # Main function, this function install everything 
+function link_neovim_files  # Link neovim files(color + init.vim)
+{
+    ln -sf $DIR/nvim $HOME/.config
+}
+
+function install  # Main function, this function install everything 
 {
     install_neovim
-    install_vim
+    #install_vim
     install_ripgrap
     link_neovim_files
     install_packages
-    install_neovim_plugins
+    install_plug_plugin_legacy 
+    install_autocomplete
 }
 
 function help() # Show a list of functions

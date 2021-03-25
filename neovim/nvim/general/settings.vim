@@ -52,7 +52,9 @@ au! BufWritePost $MYVIMRC source %      " auto source when writing to init.vm al
 
 hi Normal ctermbg=none guibg=none
 set encoding=utf8
-set shell=/usr/bin/zsh
+if !empty(glob("path/to/file"))
+    set shell=/usr/bin/zsh
+endif
 
 " You can't stop me
 cmap w!! w !sudo tee %
