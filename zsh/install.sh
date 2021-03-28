@@ -4,21 +4,24 @@ DIR=$(dirname "${BASH_SOURCE[0]}")
 DIR=$(cd -P $DIR && pwd)
 
 ZSH="$HOME/.oh-my-zsh" 
-export ZSH_CUSTOM="$ZSH/custom" 
 
-function install_zsh
+# ZSH_CUSTOM the path of the user settings
+export ZSH_CUSTOM="$HOME/.config/zsh" 
+
+function zsh
 {
     sudo apt-get install zsh -y
     sh -c "$(wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
 
 }
 
-function install_plugin
+function plugin
 {
     local plugin_path="$ZSH_CUSTOM/plugins"
+    local github_url="https://github.com/zsh-users"
     mkdir -p "$plugin_path"
-    git clone https://github.com/zsh-users/zsh-syntax-highlighting "$plugin_path/zsh-syntax-highlighting"
-    git clone https://github.com/zsh-users/zsh-autosuggestions "$plugin_path/zsh-autosuggestions"
+    git clone "$github_url/zsh-syntax-highlighting" "$plugin_path/zsh-syntax-highlighting"
+    git clone "$github_url/zsh-autosuggestions" "$plugin_path/zsh-autosuggestions"
 }
 
 function _smart_link
@@ -39,20 +42,19 @@ function _smart_link
 
 function link_files
 {
-    echo ======= Link Files =======
-    export -f _smart_link
+    echo ======= Start Link Files =======
+    # export -f _smart_link
 
     # Link zshrc
-    _smart_link $PWD/zshrc $HOME/.zshrc yes
-
-    # Link the settings files
-    find zsh_config -name "*.zsh" -exec bash -c '_smart_link "$PWD/$0" "$ZSH_CUSTOM"' {} \;
-    echo =======   End   =======
+    ln -sf "$PWD/zshrc" "$HOME/.zshrc"
+    # Link configs
+    ln -sf "$PWD/zsh_config" "$HOME/.config/zsh"
+    echo ======= End Link Files =======
 }
 
 function install
 {
-    install_zsh
+    zsh
     link_files
 }
 
