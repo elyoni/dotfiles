@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+setxkbmap us,il
+
+# Reset all options
+setxkbmap -option
+
+# see /usr/share/X11/xkb/rules/base.lst for more options
+
+# Use Win+Space to change languages
+# setxkbmap -option 'grp:win_space_toggle'
+
+# Use Alt+Shift to change languages
+setxkbmap -option 'grp:alt_shift_toggle'
+
+# Use the scroll lock led to show the language
+setxkbmap -option 'grp_led:scroll'
+
+# Use Caps Lock as a secondary Control
+setxkbmap -option 'ctrl:nocaps'
+
+# Swap Left Alt with Left Win
+# setxkbmap -option 'altwin:swap_lalt_lwin'
+
+# Swap (both) Alt with (both Win)
+# setxkbmap -option 'altwin:swap_alt_win'
