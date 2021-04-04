@@ -1,4 +1,4 @@
-if PlugLoaded("nerdcommenter")
+function! NerdCommenterSettings()
     " Create default mappings
     let g:NERDCreateDefaultMappings = 1
 
@@ -18,14 +18,18 @@ if PlugLoaded("nerdcommenter")
     let g:NERDTrimTrailingWhitespace = 1
     " Enable NERDCommenterToggle to check all selected lines is commented or not 
     let g:NERDToggleCheckAllLines = 1
+endfunction
 
-    if PlugLoaded("vim-which-key")
-       let g:which_key_map = get(g:, 'which_key_sep', {})
-       let g:which_key_map.c = {
-                   \ 'c': ['<leader>cc', 'Comment'],
-                   \ 'n': ['<leader>cn', 'Nested Comment'],
-                   \ '<space>': ['<leader>c<space>', 'Toggle Comment'],
-                   \ 'y': ['<leader>cy', 'Comment and Yank'],
-                   \}
-    endif
+function! NerdCommenterWhichKey()
+    return {
+                \ 'name': '+nerdcommenter',
+                \ 'c': ['<leader>cc', 'Comment'],
+                \ 'n': ['<leader>cn', 'Nested Comment'],
+                \ '<space>': ['<leader>c<space>', 'Toggle Comment'],
+                \ 'y': ['<leader>cy', 'Comment and Yank'],
+                \}
+endfunction
+
+if PlugLoaded("nerdcommenter")
+    call NerdCommenterSettings()
 endif

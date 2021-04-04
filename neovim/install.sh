@@ -19,7 +19,20 @@ function install_packages() # Install additional package for neovim
     echo ======== End ========
 }
 
-function install_ripgrap()  # Install ripgrep
+function install_grammer_plugin_dependecy
+{
+    # TODO, need to verify ubuntu version, assume ubuntu version 20.04
+    sudo apt-get install default-jre              # version 2:1.11-72, or
+    # sudo apt install openjdk-11-jre-headless  # version 11.0.7+10-3ubuntu1
+    # sudo apt install openjdk-13-jre-headless  # version 13.0.3+3-1ubuntu2
+    # sudo apt install openjdk-14-jre-headless  # version 14.0.1+7-1ubuntu1
+    # sudo apt install openjdk-8-jre-headless   # version 8u252-b09-1ubuntu1
+
+    sudo apt-get install unzip
+}
+
+
+function install_ripgrap  # Install ripgrep
 {
     local res
     local download_url
@@ -115,6 +128,7 @@ function install  # Main function, this function install everything
     install_ripgrap
     link_neovim_files
     install_packages
+    install_grammer_plugin_dependecy
     install_plug_plugin_legacy 
     install_autocomplete
 }

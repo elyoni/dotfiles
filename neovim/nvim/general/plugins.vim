@@ -1,11 +1,3 @@
-" auto-install vim-plug
-" if empty(glob('~/.config/nvim/autoload/plug.vim'))
-"   silent !curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs
-"     \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-"   "autocmd VimEnter * PlugInstall
-"   autocmd VimEnter * PlugInstall | source $MYVIMRC
-" endif
-
 " function! auto_plugin_update()
 "     " Automatically install missing plugins on startup
 "     autocmd VimEnter *
@@ -18,6 +10,8 @@
 
 " To install the Plug just write in normal mode :PlugInstall"
 call plug#begin()
+Plug 'liuchengxu/vim-which-key'
+
 " Must have
 " " I am using this plugin on every day
 Plug 'vimwiki/vimwiki'                  "Wiki for vim
@@ -25,6 +19,9 @@ Plug 'vimwiki/vimwiki'                  "Wiki for vim
 " Auto complete
 Plug 'neovim/nvim-lspconfig'
 Plug 'nvim-lua/completion-nvim'
+" " Snippet
+Plug 'SirVer/ultisnips'
+Plug 'honza/vim-snippets'
 
 
 " Status Bar
@@ -44,15 +41,17 @@ Plug 'nvim-telescope/telescope.nvim'
 Plug 'kyazdani42/nvim-web-devicons' " for file icons
 Plug 'kyazdani42/nvim-tree.lua'
 
-" Adding color with colorizer & rainbow
+" Adding color with colorizes & rainbow
 Plug 'norcalli/nvim-colorizer.lua'
 
 "Add comments to file, Toggles the comment state: <leader>c<space>
 Plug 'scrooloose/nerdcommenter'
 
-Plug 'liuchengxu/vim-which-key'
 
 " Distraction-free writing in Vim.
 Plug 'junegunn/goyo.vim'
+
+" Grammar check 
+Plug 'rhysd/vim-grammarous'
 
 call plug#end()

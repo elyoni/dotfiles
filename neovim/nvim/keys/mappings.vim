@@ -19,6 +19,7 @@ nnoremap ss i<space><esc>
 nnoremap <TAB> :bnext<CR>
 " SHIFT-TAB will go back
 nnoremap <S-TAB> :bprevious<CR>
+nnoremap bd :bd<CR>
 
 " Easy save
 map <C-s> :w<CR>
