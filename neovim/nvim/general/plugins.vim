@@ -54,4 +54,6 @@ Plug 'junegunn/goyo.vim'
 " Grammar check 
 Plug 'rhysd/vim-grammarous'
 
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}  " We recommend updating the parsers on update
+
 call plug#end()

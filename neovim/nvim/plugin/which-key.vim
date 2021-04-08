@@ -6,7 +6,6 @@ if PlugLoaded("vim-which-key")
     " Create map to add keys to
     " let g:which_key_map = {}
     let g:which_key_map = get(g:, 'which_key_map', {})
-    echo "which key start" . string(g:which_key_map)
     " Define a separator
     let g:which_key_sep = '→'
     " set timeoutlen=100
@@ -45,6 +44,5 @@ if PlugLoaded("vim-which-key")
     "             \}
     " Register which key map
     call which_key#register('<Space>', "g:which_key_map")
-    echo "which key end" . string(g:which_key_map)
 
 endif

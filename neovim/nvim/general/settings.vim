@@ -1,6 +1,8 @@
 " set leader key
 let g:mapleader = "\<Space>"
 
+colors colosus
+
 syntax enable                           " Enables syntax highlighing
 set hidden                              " Required to keep multiple buffers open multiple buffers
 set nowrap                              " Display long lines as just one line
