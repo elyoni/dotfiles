@@ -2,18 +2,28 @@
 inoremap <expr> <c-j> ("\<C-n>")
 inoremap <expr> <c-k> ("\<C-p>")
 
-" Use alt + hjkl to resize windows
+" View
+" " Use alt + hjkl to resize windows
 nnoremap <A-j> :resize -2<CR>
 nnoremap <A-k> :resize +2<CR>
 nnoremap <A-h> :vertical resize -2<CR>
 nnoremap <A-l> :vertical resize +2<CR>
+" " window options
+nnoremap <leader>vf <C-w><bar>
+nnoremap <leader>ve <C-w>=
+
 
 " I hate escape more than anything else
 inoremap jk <Esc>
 inoremap kj <Esc>
+tnoremap <C-k><C-j> <C-\><C-n>
 
 " Add a space in normal mode
 nnoremap ss i<space><esc>
+
+" Add a quotes around word in visual mode
+" vnoremap "" c""<Esc>"*
+
 
 " TAB in general mode will move to text buffer
 nnoremap <TAB> :bnext<CR>
@@ -42,10 +52,10 @@ imap <C-h> <Esc><C-W><Left>
 imap <C-k> <Esc><C-W><Up>
 imap <C-j> <Esc><C-W><Down>
 
-tmap <C-l> <Esc><C-W><Right>
-tmap <C-h> <Esc><C-W><Left>
-tmap <C-k> <Esc><C-W><Up>
-tmap <C-j> <Esc><C-W><Down>
+tmap <C-l> <C-\><C-n><C-W><Right>
+tmap <C-h> <C-\><C-n><C-W><Left>
+tmap <C-k> <C-\><C-n><C-W><Up>
+tmap <C-j> <C-\><C-n><C-W><Down>
 
 " Prevent from entering visual mode
 map Q <Nop>
