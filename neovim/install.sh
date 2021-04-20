@@ -82,6 +82,7 @@ function install_neovim()  # Install neovim
     sudo pip3 install --upgrade neovim
     sudo pip3 install pynvim
 
+
     sudo ln -sf /usr/bin/nvim /usr/bin/vim
     sudo ln -sf /usr/bin/nvim /usr/bin/vi
     echo ======= End  =======
@@ -91,11 +92,13 @@ function install_autocomplete
 {
     sudo apt-get install npm -y
 
-    # THis i done:
     sudo npm install -g neovim
-    sudo npm i -g pyright
-    sudo npm i -g pyright
+    sudo npm install -g pyright
+
+    sudo npm install -g bash-language-server
     sudo pip3 install python-language-server
+    sudo pip3 install cmake-language-server
+    sudo apt-get install clangd-9 -y
 }
 
 function install_plug_plugin_legacy

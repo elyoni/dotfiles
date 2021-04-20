@@ -12,10 +12,15 @@ function! TelescopeSettings()
     nnoremap <leader>gs <cmd>Telescope git_status<cr>
 endfunction
 
-function! TelescopeWhichKey()
+function! TelescopeWhichKeyFile()
     return {
-                \ 'name': '+telescope',
-                \ 'f': ['<leader>ff', 'find_files'],
+                \ 'name': '+telescope_file',
+                \}
+endfunction
+
+function! TelescopeWhichKeyGit()
+    return {
+                \ 'name': '+telescope_git',
                 \}
 endfunction
 

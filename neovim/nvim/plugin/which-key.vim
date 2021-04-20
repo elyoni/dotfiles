@@ -25,24 +25,13 @@ if PlugLoaded("vim-which-key")
     autocmd  FileType which_key set laststatus=0 noshowmode noruler
       \| autocmd BufLeave <buffer> set laststatus=2 noshowmode ruler
 
-    if PlugLoaded("nerdcommenter")
-        let g:which_key_map['c'] = NerdCommenterWhichKey()
+    if PlugLoaded("nerdcommenter") | let g:which_key_map['c'] = NerdCommenterWhichKey() | endif
+    if PlugLoaded("telescope.nvim")
+        let g:which_key_map['f'] = TelescopeWhichKeyFile() 
+        let g:which_key_map['g'] = TelescopeWhichKeyGit() 
     endif
-    " Single mappings
-    " let g:which_key_map['/'] = [ '<Plug>NERDCommenterToggle'  , 'comment' ]
-    "let g:which_key_map['n'] = [ ':NvimTreeToggle'            , 'Explorer' ]
-    " let g:which_key_map['h'] = [ '<C-W>s'                     , 'split below']
-    " let g:which_key_map['s'] = [ ':Startify'                  , 'start screen' ]
-    let g:which_key_map['e'] = [ ':call hello world'                  , 'start screen' ]
-    " let g:which_key_map['T'] = [ ':Rg'                        , 'search text' ]
-    " let g:which_key_map.c = [ 'name' , 'nerd....' ]
 
-    
-    " View/window options
-    " let g:which_key_map.v = {
-    "             \ 'z' : [ ':Goyo', 'zen' ],
-    "             \}
-    " Register which key map
+    " Set the leasder Key
     call which_key#register('<Space>', "g:which_key_map")
 
 endif

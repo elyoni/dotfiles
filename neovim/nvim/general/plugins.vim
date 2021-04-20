@@ -18,7 +18,11 @@ Plug 'vimwiki/vimwiki'                  "Wiki for vim
 
 " Auto complete
 Plug 'neovim/nvim-lspconfig'
+Plug 'glepnir/lspsaga.nvim'
 Plug 'nvim-lua/completion-nvim'
+Plug 'nvim-lua/lsp-status.nvim'
+Plug 'nvim-lua/popup.nvim'
+Plug 'nvim-lua/lsp_extensions.nvim'
 " " Snippet
 Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
@@ -55,5 +59,12 @@ Plug 'junegunn/goyo.vim'
 Plug 'rhysd/vim-grammarous'
 
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}  " We recommend updating the parsers on update
+Plug 'lambdalisue/gina.vim'
+
+" Git
+Plug 'tpope/vim-fugitive'
+
+" 
+Plug 'tpope/vim-surround'
 
 call plug#end()
