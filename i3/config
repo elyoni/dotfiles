@@ -340,4 +340,4 @@ exec --no-startup-id workrave
 exec --no-startup-id autorandr -c
 exec --no-startup-id xfce4-power-manager --disable-wm-check
 exec --no-startup-id /usr/bin/setxkbmap -option "ctrl:nocaps"
-exec $HOME/.dotfiles/i3/scripts/lang_settings.sh
+exec --no-startup-id $HOME/.dotfiles/i3/scripts/lang_settings.sh

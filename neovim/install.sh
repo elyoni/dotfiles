@@ -2,6 +2,7 @@
 DIR=$(dirname "${BASH_SOURCE[0]}")
 DIR=$(cd -P $DIR && pwd)
 
+
 function install_packages() # Install additional package for neovim
 {
     ## To connect the clipboard of the neovim and the linux
@@ -13,7 +14,7 @@ function install_packages() # Install additional package for neovim
 
     # Need for th coc.vim
     sudo apt-get install npm -y
-    sudo npm chach clean -f
+    sudo npm cache clean -f
     sudo npm install -g n
     sudo n stable
     echo ======== End ========

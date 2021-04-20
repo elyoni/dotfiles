@@ -4,6 +4,7 @@ fpath=(~/.zsh/completion $fpath)
 zstyle ":completion:*:descriptions" format "%B%d%b"
 # If you come from bash you might have to change your $PATH.
 export PATH=$HOME/.local/bin:/usr/local/go/bin:$PATH
+export PATH="$(yarn global bin):$PATH"
 
 # Path to your oh-my-zsh installation.
 user=$(whoami)
@@ -189,6 +190,8 @@ alias ydl-mp3="youtube-dl --extract-audio --audio-format mp3"
 # ======= Docker ================
 alias drm="docker rm"
 alias dps="docker ps"
+alias dat="docker attach"
+alias dst="docker stop"
 alias boxclean="docker container prune"
 
 function run_docker() {

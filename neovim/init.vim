@@ -55,19 +55,7 @@ Plug 'scrooloose/nerdcommenter'     "Add comments to file, Toggles the comment s
 "Plug 'neomake/neomake'              " Give errors to the code
 "Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'dense-analysis/ale'
-
-"Plug 'neoclide/coc.nvim', {'do': 'yarn install --frozen-lockfile'}
-"Plug 'neoclide/coc-python', {'do': 'yarn install --frozen-lockfile'}
-"Plug 'neoclide/coc-tsserver', {'do': 'yarn install --frozen-lockfile'}
-"Plug 'neoclide/coc-css', {'do': 'yarn install --frozen-lockfile'}
-"Plug 'neoclide/coc-highlight', {'do': 'yarn install --frozen-lockfile'}
-
-
-"Plug 'neoclide/coc.nvim', {'branch': 'release'}  " auto complete
-"Plug 'neoclide/coc.nvim', {'do': { -> coc#util#install()}}
-"Plug 'neoclide/coc.nvim', {'do': 'yarn install --frozen-lockfile'}
-"Plug 'neoclide/coc-jedi', {'do': 'yarn install'}
-"Plug 'neoclide/coc-python'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}  " auto complete
 
 Plug 'sheerun/vim-polyglot'         " A plugin that adds syntax highlighting for almost any language you can think of
 "Plug 'vim-syntastic/syntastic'
@@ -130,7 +118,7 @@ imap kj <Esc>
 map <C-n> :NERDTreeToggle<CR>
 let g:NERDTreeHijackNetrw = 0
 let g:ranger_replace_netrw = 1
-map <S-B> ^<CR>
+map <S-B> ^
 map <C-s> :w<CR>
 "map <C-k>  <PageUp> 
 "map <C-j>  <PageDown> 
@@ -175,6 +163,8 @@ tmap <C-h> <Esc><C-W><Left>
 tmap <C-k> <Esc><C-W><Up>
 tmap <C-j> <Esc><C-W><Down>
 
+inoremap <C-r>r <C-r>"
+
 cnoremap <A-k> <Up>
 cnoremap <A-j> <Down>
 
@@ -200,6 +190,7 @@ nnoremap zt :set spell!<CR>
 noremap d] ]c 
 noremap d[ [c 
 
+noremap <C-l> :
 
 " Open the tag in split window
 map <C-\> :vsp <CR>:exec("tag ".expand("<cword>"))<CR>
