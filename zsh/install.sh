@@ -56,6 +56,7 @@ function install
 {
     zsh
     link_files
+    plugin
 }
 
 function help # Show a list of functions
