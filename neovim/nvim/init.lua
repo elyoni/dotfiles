@@ -5,3 +5,4 @@ vim.api.nvim_command('source $HOME/.config/nvim/general/commands.vim')
 vim.api.nvim_command('source $HOME/.config/nvim/keys/mappings.vim')
 
 require('lsp.server_config')
+require('lsp.keymap_lsp')
