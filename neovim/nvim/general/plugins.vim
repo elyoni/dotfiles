@@ -23,8 +23,8 @@ Plug 'nvim-lua/completion-nvim'
 Plug 'nvim-lua/lsp-status.nvim'
 Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-lua/lsp_extensions.nvim'
-Plug 'kristijanhusak/completion-tags'  " Help with the tags
-Plug 'kristijanhusak/vim-packager'     " Needed for the completion-tags
+" Plug 'kristijanhusak/completion-tags'  " Help with the tags
+" Plug 'kristijanhusak/vim-packager'     " Needed for the completion-tags
 " " Snippet
 Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
