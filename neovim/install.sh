@@ -13,9 +13,10 @@ function install_packages() # Install additional package for neovim
 
     # Need for th coc.vim
     sudo apt-get install npm -y
-    sudo npm cache clean -f
-    sudo npm install -g n
-    sudo n stable
+    sudo npm install -g neovim
+    # sudo npm cache clean -f
+    # sudo npm install -g n
+    # sudo n stable
     echo ======== End ========
 }
 
@@ -92,7 +93,6 @@ function install_autocomplete
 {
     sudo apt-get install npm -y
 
-    sudo npm install -g neovim
     sudo npm install -g pyright
 
     sudo npm install -g bash-language-server
