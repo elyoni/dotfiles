@@ -75,8 +75,8 @@ nnoremap zh [s
 nnoremap dt :diffthis<CR>
 
 " " Diff jump
-noremap dj ]c 
-noremap dk [c 
+nnoremap dj ]c 
+nnoremap dk [c 
 
 " Cancel the insasaly annoying copy paste
 vnore p "_dP
