@@ -59,14 +59,21 @@ Plug 'junegunn/goyo.vim'
 " Grammar check 
 Plug 'rhysd/vim-grammarous'
 
+" Syntax
+Plug 'mtdl9/vim-log-highlighting'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}  " We recommend updating the parsers on update
-Plug 'lambdalisue/gina.vim'
 
 " Git
 Plug 'tpope/vim-fugitive'
+Plug 'lambdalisue/gina.vim'
 
 " 
 Plug 'tpope/vim-surround'
+
+" Plantuml
+Plug 'weirongxu/plantuml-previewer.vim'
+Plug 'tyru/open-browser.vim'  " plantuml-preview dependency
+Plug 'aklt/plantuml-syntax'  " plantuml-preview dependency
 
 call plug#end()
 

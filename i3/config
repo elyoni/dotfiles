@@ -56,7 +56,7 @@ mode "$ssh_terminal" {
 
 # kill focused window
 bindsym $mod+Shift+q kill
-bindsym $mod+Ctrl+q xkill
+bindsym $mod+Ctrl+q kill
 
 # start dmenu (a program launcher)
 bindsym $mod+d exec xfce4-appfinder --class floatingWin

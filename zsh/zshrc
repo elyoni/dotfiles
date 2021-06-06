@@ -4,7 +4,7 @@ fpath=(~/.zsh/completion $fpath)
 zstyle ":completion:*:descriptions" format "%B%d%b"
 # If you come from bash you might have to change your $PATH.
 export PATH=$HOME/.local/bin:/usr/local/go/bin:$PATH
-export PATH="$(yarn global bin):$PATH"
+#export PATH="$(yarn globa bin):$PATH"
 
 # Path to your oh-my-zsh installation.
 user=$(whoami)
@@ -74,3 +74,11 @@ source $ZSH/oh-my-zsh.sh
 
 # You may need to manually set your language environment
 export LANG=en_US.UTF-8
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+autoload -Uz compinit
+zstyle ':completion:*' menu select
+fpath+=~/.zfunc
+
+

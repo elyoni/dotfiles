@@ -9,10 +9,12 @@ vim.api.nvim_set_keymap('n', '<space>dn', '<Cmd>lua vim.lsp.diagnostic.goto_next
 -- nnoremap(']d', 'vim.lsp.diagnostic.goto_next()')
 
 -- require'lspconfig'.pyright.setup{}
-require'lspconfig'.pyls.setup{on_attach=require'completion'.on_attach}
+require'lspconfig'.pyls.setup{on_attach=require'completion'.on_attach, root_dir=vim.api.nvim_command('pwd')}
 require'lspconfig'.pyright.setup{on_attach=require'completion'.on_attach}
 require'lspconfig'.bashls.setup{on_attach=require'completion'.on_attach}
 require'lspconfig'.cmake.setup{on_attach=require'completion'.on_attach}
+require'lspconfig'.jedi_language_server.setup{on_attach=require'completion'.on_attach, root_dir=vim.api.nvim_command('pwd')}
+require'lspconfig'.clangd.setup{on_attach=require'completion'.on_attach}
 
 require 'lspconfig'.diagnosticls.setup{
   on_attach = on_attach,
