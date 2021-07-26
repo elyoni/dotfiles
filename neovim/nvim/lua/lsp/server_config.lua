@@ -9,11 +9,11 @@ vim.api.nvim_set_keymap('n', '<space>dn', '<Cmd>lua vim.lsp.diagnostic.goto_next
 -- nnoremap(']d', 'vim.lsp.diagnostic.goto_next()')
 
 -- require'lspconfig'.pyright.setup{}
-require'lspconfig'.pyls.setup{on_attach=require'completion'.on_attach, root_dir=vim.api.nvim_command('pwd')}
+-- require'lspconfig'.pyls.setup{on_attach=require'completion'.on_attach}
 require'lspconfig'.pyright.setup{on_attach=require'completion'.on_attach}
 require'lspconfig'.bashls.setup{on_attach=require'completion'.on_attach}
 require'lspconfig'.cmake.setup{on_attach=require'completion'.on_attach}
-require'lspconfig'.jedi_language_server.setup{on_attach=require'completion'.on_attach, root_dir=vim.api.nvim_command('pwd')}
+require'lspconfig'.jedi_language_server.setup{on_attach=require'completion'.on_attach}
 require'lspconfig'.clangd.setup{on_attach=require'completion'.on_attach}
 
 require 'lspconfig'.diagnosticls.setup{
@@ -65,3 +65,14 @@ local lsp_status = require('lsp-status')
 
 -- Register the progress handler
 lsp_status.register_progress()
+vim.g.completion_chain_complete_list = {
+    default = {
+        {
+            complete_items = { 'lsp' },
+        },
+        {
+            complete_items = { 'tags' },
+        }
+    }
+}
+
