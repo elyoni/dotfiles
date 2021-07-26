@@ -10,6 +10,10 @@ function scp.no_verify(){
 
 function ssh.auto-retry()
 {
+    if [ "$#" -lt 2 ]; then
+        echo "Please provied the password and the connection settings"
+        exit
+    fi
     false
     while [ $? -ne 0 ]; do
         sshpass -p $1 ssh "${@:2}" || (sleep 1;false)
