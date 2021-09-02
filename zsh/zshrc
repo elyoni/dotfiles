@@ -6,6 +6,7 @@ zstyle ":completion:*:descriptions" format "%B%d%b"
 export PATH=$HOME/.local/bin:/usr/local/go/bin:$PATH
 #export PATH="$(yarn globa bin):$PATH"
 
+eval "$(direnv hook zsh)"
 # Path to your oh-my-zsh installation.
 user=$(whoami)
   export ZSH=/home/$user/.oh-my-zsh
@@ -45,7 +46,7 @@ VISUAL=nvim; export VISUAL EDITOR=nvim; export EDITOR
 # HYPHEN_INSENSITIVE="true"
 
 # Uncomment the following line to enable command auto-correction.
-ENABLE_CORRECTION="true"
+# ENABLE_CORRECTION="true"
 
 # Uncomment the following line to display red dots whilst waiting for completion.
 # COMPLETION_WAITING_DOTS="true"
@@ -67,6 +68,7 @@ plugins=(
   zsh-syntax-highlighting 
   zsh-autosuggestions
   docker
+  z
 )
 source $ZSH/oh-my-zsh.sh
 
