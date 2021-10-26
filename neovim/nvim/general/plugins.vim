@@ -17,16 +17,11 @@ Plug 'vimwiki/vimwiki'                  "Wiki for vim
 
 " Auto complete
 Plug 'neovim/nvim-lspconfig'
-Plug 'glepnir/lspsaga.nvim'
-Plug 'nvim-lua/completion-nvim'
-Plug 'nvim-lua/lsp-status.nvim'
-Plug 'nvim-lua/popup.nvim'
-Plug 'nvim-lua/lsp_extensions.nvim'
-" Plug 'kristijanhusak/completion-tags'  " Help with the tags
-" Plug 'kristijanhusak/vim-packager'     " Needed for the completion-tags
+Plug 'hrsh7th/cmp-nvim-lsp'
+Plug 'hrsh7th/cmp-buffer'
+Plug 'hrsh7th/nvim-cmp'
+
 " " Snippet
-Plug 'SirVer/ultisnips'
-Plug 'honza/vim-snippets'
 
 
 " Status Bar

@@ -1,78 +1,46 @@
-local saga = require 'lspsaga'
-saga.init_lsp_saga()
+local nvim_lsp = require('lspconfig')
 
-vim.api.nvim_set_keymap('n', '<space>ds', '<Cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<space>dp', '<Cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<space>dn', '<Cmd>lua vim.lsp.diagnostic.goto_next()<CR>', { noremap = true, silent = true })
--- nnoremap('<space>e', 'vim.lsp.diagnostic.show_line_diagnostics()')
--- nnoremap('[d', 'vim.lsp.diagnostic.goto_prev()')
--- nnoremap(']d', 'vim.lsp.diagnostic.goto_next()')
+-- Use an on_attach function to only map the following keys
+-- after the language server attaches to the current buffer
+local on_attach = function(client, bufnr)
+    local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
+    local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
 
--- require'lspconfig'.pyright.setup{}
--- require'lspconfig'.pyls.setup{on_attach=require'completion'.on_attach}
-require'lspconfig'.pyright.setup{on_attach=require'completion'.on_attach}
-require'lspconfig'.bashls.setup{on_attach=require'completion'.on_attach}
-require'lspconfig'.cmake.setup{on_attach=require'completion'.on_attach}
-require'lspconfig'.jedi_language_server.setup{on_attach=require'completion'.on_attach}
-require'lspconfig'.clangd.setup{on_attach=require'completion'.on_attach}
+    -- Enable completion triggered by <c-x><c-o>
+    buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
 
-require 'lspconfig'.diagnosticls.setup{
-  on_attach = on_attach,
-  filetypes = {"sh"},
-  init_options = {
-    filetypes = {
-      sh = "shellcheck",
-    },
-    formatFiletypes = {
-      sh = "shfmt"
-    },
-    linters = {
-      shellcheck = {
-        command = "shellcheck",
-        debounce = 100,
-        args = { "--format", "json", "-" },
-        sourceName = "shellcheck",
-        parseJson = {
-          line = "line",
-          column = "column",
-          endLine = "endLine",
-          endColumn = "endColumn",
-          message = "${message} [${code}]",
-          security = "level"
-        },
-        securities = {
-          error = "error",
-          warning = "warning",
-          info = "info",
-          style = "hint"
-        },
-      },
-    },
-    formatters = {
-      shfmt = {
-        command = "shfmt",
-        args = {"-i", "2", "-bn", "-ci", "-sr"},
-      }
-    }
-  }
-}
-local lsp_status = require('lsp-status')
--- completion_customize_lsp_label as used in completion-nvim
--- Optional: customize the kind labels used in identifying the current function.
--- g:completion_customize_lsp_label is a dict mapping from LSP symbol kind 
--- to the string you want to display as a label
--- lsp_status.config { kind_labels = vim.g.completion_customize_lsp_label }
+    -- Mappings.
+    local opts = { noremap=true, silent=true }
 
--- Register the progress handler
-lsp_status.register_progress()
-vim.g.completion_chain_complete_list = {
-    default = {
-        {
-            complete_items = { 'lsp' },
-        },
-        {
-            complete_items = { 'tags' },
+    -- See `:help vim.lsp.*` for documentation on any of the below functions
+    buf_set_keymap('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>', opts)
+    buf_set_keymap('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
+    buf_set_keymap('n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
+    buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
+    buf_set_keymap('n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+    buf_set_keymap('n', '<space>wa', '<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>', opts)
+    buf_set_keymap('n', '<space>wr', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>', opts)
+    buf_set_keymap('n', '<space>wl', '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', opts)
+    buf_set_keymap('n', '<space>D', '<cmd>lua vim.lsp.buf.type_definition()<CR>', opts)
+    buf_set_keymap('n', '<space>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
+    buf_set_keymap('n', '<space>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
+    buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
+    buf_set_keymap('n', '<space>e', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
+    buf_set_keymap('n', '[d', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
+    buf_set_keymap('n', ']d', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
+    buf_set_keymap('n', '<space>q', '<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>', opts)
+    buf_set_keymap('n', '<space>f', '<cmd>lua vim.lsp.buf.formatting()<CR>', opts)
+
+end
+
+-- Use a loop to conveniently call 'setup' on multiple servers and
+-- map buffer local keybindings when the language server attaches
+local servers = { 'pyright', 'rust_analyzer', 'tsserver' }
+for _, lsp in ipairs(servers) do
+    nvim_lsp[lsp].setup {
+        on_attach = on_attach,
+        flags = {
+            debounce_text_changes = 150,
         }
     }
-}
-
+end
