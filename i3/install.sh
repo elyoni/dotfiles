@@ -2,6 +2,23 @@
 DIR=$(dirname "${BASH_SOURCE[0]}")
 DIR=$(cd -P $DIR && pwd)
 
+function audio(){
+    echo ====== Install audio application =======
+    sudo apt-get install pulseaudio -y # To run the settings just run 'pavucontrol'
+
+    # GUI application to control the pulseaudio
+    sudo apt-get install pavucontrol -y # To run the settings just run 'pavucontrol'
+
+    # Terminal application to control the pulseaudio
+    sudo pip3 install pulsemixer -y
+}
+
+function bluetooth(){
+    echo ====== Install bluetooth application =======
+    # Give GUI
+    sudo apt-get install blueman -y
+}
+
 function application_install()
 {
     echo ====== Start Application install =======
@@ -29,6 +46,9 @@ function application_install()
 
     # Text folder size viewer
     sudo apt-get install gt5 -y
+
+    audio
+    blueman
 
     # Network Manager
     echo ====== Install network-manager =======

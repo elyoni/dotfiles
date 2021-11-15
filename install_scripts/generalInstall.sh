@@ -64,8 +64,6 @@ sudo apt-get install bluetooth bluez bluez-tools rfkill -y
 ## code: sudo rfkill unblock bluetooth
 ## to start the bluetooth service run:
 ## code: sudo service bluetooth start
-sudo apt-get install blueman -y
-sudo apt-get install pulseaudio pavucontrol -y # To run the settings just run 'pavucontrol'
 
 # === Enable change lang ===
 sudo apt-get install gnome-tweaks -y
