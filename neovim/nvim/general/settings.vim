@@ -74,3 +74,6 @@ set foldlevel=0
 
 " When searching I will see split screen with all the option
 set inccommand=split 
+
+" Go to file support for bash environment variable with {}
+set isfname+={,}
