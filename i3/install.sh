@@ -19,6 +19,22 @@ function bluetooth(){
     sudo apt-get install blueman -y
 }
 
+function application_finder(){
+    echo ====== Install application_finder =======
+    # Not Using - xfce4 - application finder. Stopped using the app because I have found rofi more readable
+    # sudo apt-get install xfce4-appfinder -y
+    # sudo apt-get install xfce4-panel -y
+    sudo apt-get install gnome-icon-theme -y
+
+    # Rofi - My main application finder
+    sudo apt-get install rofi -y
+
+    # Test application finder, A test replace for dmenu
+    #echo ====== Install j4-dmenu-desktop =======
+    #sudo apt-get install j4-dmenu-desktop -y
+    
+}
+
 function application_install()
 {
     echo ====== Start Application install =======
@@ -35,14 +51,7 @@ function application_install()
     sudo apt purge dunst -y
 
     # Graphic application finder, A Graphic replace for dmenu
-    echo ====== Install xfce4-application =======
-    sudo apt-get install xfce4-appfinder -y
-    sudo apt-get install xfce4-panel -y
-    sudo apt-get install gnome-icon-theme -y
-
-    # Test application finder, A test replace for dmenu
-    #echo ====== Install j4-dmenu-desktop =======
-    #sudo apt-get install j4-dmenu-desktop -y
+    application_finder
 
     # Text folder size viewer
     sudo apt-get install gt5 -y
@@ -66,6 +75,7 @@ function application_install()
     echo ====== Install pnmixer =======
     #sudo apt-get install pnmixer -y 
     sudo apt-get install pasystray -y 
+    sudo pip3 install pulsemixer 
 
     gsettings set org.gnome.desktop.background show-desktop-icons false
 }
