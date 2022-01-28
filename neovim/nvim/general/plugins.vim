@@ -14,6 +14,7 @@ Plug 'liuchengxu/vim-which-key'
 " Must have
 " " I am using this plugin on every day
 Plug 'vimwiki/vimwiki'                  "Wiki for vim
+Plug 'habamax/vim-asciidoctor'
 
 " Auto complete
 Plug 'neovim/nvim-lspconfig'
