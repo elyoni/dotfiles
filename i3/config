@@ -255,16 +255,17 @@ bindsym button3 floating toggle
 
 # Press $mod+o followed by either f, t, Escape or Return to launch firefox,
 # thunderbird or return to the default mode, respectively.
-set $mode_launcher Launch: [f]irefox [t]hunderbird [d]oubleCommander [v]nc Viewer [r]dp [s]potify
+set $mode_launcher Launch: [c]hrome [f]irefox [d]oubleCommander [v]nc Viewer [r]dp [t]eams
 bindsym $mod+o mode "$mode_launcher"
 
 mode "$mode_launcher" {
     bindsym f exec firefox
+    bindsym c exec google-chrome
     bindsym m exec evolution
     bindsym d exec doublecmd
     bindsym r exec "i3-sensible-terminal -e remmina -c ~/.remmina/1536472353509.remmina", mode "default"
     bindsym v exec vncviewer YEHONATANEL-PC
-    bindsym s exec spotify 
+    bindsym t exec teams
 
     #bindsym Escape mode "default"
     bindsym Return mode "default"
@@ -338,6 +339,7 @@ exec --no-startup-id xautolock -time 60 -locker i3lock
 
 
 bindsym $mod+F12 exec bash $HOME/.dotfiles/i3/scripts/touchpad_on_off.sh
+bindsym $mod+F4 exec /usr/local/bin/pulsemixer --id source-5 --toggle-mute
 # Sreen brightness controls
 bindsym XF86MonBrightnessUp exec bash $HOME/.dotfiles/i3/scripts/backlight_brightness.sh +4 # increase screen brightness
 bindsym XF86MonBrightnessDown exec bash $HOME/.dotfiles/i3/scripts/backlight_brightness.sh -4 # decrease screen brightness

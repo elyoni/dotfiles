@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+function ssh.create_key(){
+    local email=$1
+    local algorithm=$2
+    local key_size=$3
+    local file_name=$3
+    ssh-keygen -t ed25519 -C "your_email@example.com"
+}
+ssh-keygen -t rsa -b 4096 ssh-keygen -t dsa ssh-keygen -t ecdsa -b 521 ssh-keygen -t ed25519

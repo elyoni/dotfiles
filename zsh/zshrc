@@ -1,6 +1,7 @@
 autoload -U +X bashcompinit && bashcompinit
 autoload -U +X compinit && compinit
-fpath=(~/.zsh/completion $fpath) 
+# fpath=(~/.zsh/completion $fpath)
+fpath=(~/.zsh/completion $fpath ~/.zfunc)
 zstyle ":completion:*:descriptions" format "%B%d%b"
 # If you come from bash you might have to change your $PATH.
 export PATH=$HOME/.local/bin:/usr/local/go/bin:$PATH
@@ -81,6 +82,10 @@ export LANG=en_US.UTF-8
 
 autoload -Uz compinit
 zstyle ':completion:*' menu select
-fpath+=~/.zfunc
+
+export WIKI_URL="https://confluence.solaredge.com"
+source <(kubectl completion zsh)
+export PYENV_ROOT="$HOME"/.pyenv
+export PATH="$PYENV_ROOT"/bin:"$PATH"
 
 
