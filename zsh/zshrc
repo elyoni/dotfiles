@@ -6,58 +6,25 @@ zstyle ":completion:*:descriptions" format "%B%d%b"
 # If you come from bash you might have to change your $PATH.
 export PATH=$HOME/.local/bin:/usr/local/go/bin:$PATH
 #export PATH="$(yarn globa bin):$PATH"
+# export RECORDING=${RECORDING:-"false"}
+# export RECORDING="true"
 
-eval "$(direnv hook zsh)"
+# eval "$(direnv hook zsh)"
 # Path to your oh-my-zsh installation.
-user=$(whoami)
-  export ZSH=/home/$user/.oh-my-zsh
+USER=$(whoami)
+if [ -d "/home/$USER/.oh-my-zsh" ]; then
+    export ZSH=/home/$USER/.oh-my-zsh
+fi
 
 TRAPWINCH() {
   zle && { zle reset-prompt; zle -R }
 }
 
-# Set name of the theme to load. Optionally, if you set this to "random"
-# it'll load a random theme each time that oh-my-zsh is loaded.
-# See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
-if [ "$USER" = "devbox" ]; then
-    ZSH_THEME="michelebologna"
-else
-    ZSH_THEME="yoni"
-fi
-#"powerlevel9k/powerlevel9k"
 VISUAL=nvim; export VISUAL EDITOR=nvim; export EDITOR
 
-#"spaceship"
-#michelebologna/af-magic"
-#powerlevel9k/powerlevel9k"
-#"robbyrussell"
 
-# Set list of themes to load
-# Setting this variable when ZSH_THEME=random
-# cause zsh load theme from this variable instead of
-# looking in ~/.oh-my-zsh/themes/
-# An empty array have no effect
-# ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
-
-# Uncomment the following line to use case-sensitive completion.
-# CASE_SENSITIVE="true"
-
-# Uncomment the following line to use hyphen-insensitive completion. Case
-# sensitive completion must be off. _ and - will be interchangeable.
-# HYPHEN_INSENSITIVE="true"
-
-# Uncomment the following line to enable command auto-correction.
-# ENABLE_CORRECTION="true"
-
-# Uncomment the following line to display red dots whilst waiting for completion.
-# COMPLETION_WAITING_DOTS="true"
-
-# Uncomment the following line if you want to change the command execution time
-# stamp shown in the history command output.
-# The optional three formats: "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
 HIST_STAMPS="dd.mm.yyyy"
 
-# Would you like to use another custom folder than $ZSH/custom?
 export ZSH_CUSTOM="$HOME/.config/zsh"
 
 # Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
@@ -69,8 +36,8 @@ plugins=(
   zsh-syntax-highlighting 
   zsh-autosuggestions
   docker
-  z
 )
+  # z
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
@@ -83,9 +50,17 @@ export LANG=en_US.UTF-8
 autoload -Uz compinit
 zstyle ':completion:*' menu select
 
-export WIKI_URL="https://confluence.solaredge.com"
-source <(kubectl completion zsh)
+# export WIKI_URL="https://confluence.solaredge.com"
 export PYENV_ROOT="$HOME"/.pyenv
 export PATH="$PYENV_ROOT"/bin:"$PATH"
 
 
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+fpath+=~/.zfunc
+if [[ "$RECORDING" == "true" ]]; then
+    export PS1=" $ "
+fi

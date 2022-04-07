@@ -346,10 +346,11 @@ bindsym XF86MonBrightnessDown exec bash $HOME/.dotfiles/i3/scripts/backlight_bri
 
 exec --no-startup-id zoom
 #exec --no-startup-id davmail
-exec --no-startup-id thunderbird
-exec --no-startup-id ~/apps/Telegram/Telegram
+# exec --no-startup-id thunderbird
+# exec --no-startup-id ~/apps/Telegram/Telegram
 exec --no-startup-id workrave
 exec --no-startup-id autorandr -c
 exec --no-startup-id xfce4-power-manager --disable-wm-check
 exec --no-startup-id /usr/bin/setxkbmap -option "ctrl:nocaps"
 exec --no-startup-id $HOME/.dotfiles/i3/scripts/lang_settings.sh
+exec --no-startup-id deadd-notification-center

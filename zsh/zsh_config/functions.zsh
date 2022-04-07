@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 function ssh.no_verify(){
     local user_host="$1"
     local command="${@:2}"
@@ -15,7 +16,7 @@ function scp.no_verify(){
 
 function ssh.auto-retry()
 {
-    if [[ "$1" == "-h"
+    # if [[ "$1" == "-h"
     if [ "$#" -lt 2 ]; then
         echo "Please provied the password and the connection settings"
         exit

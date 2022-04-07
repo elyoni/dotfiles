@@ -34,6 +34,7 @@ Plug 'vim-airline/vim-airline-themes'
 " Code plugin
 Plug 'ozelentok/vim-closer'             "Auto close brackets
 Plug 'ryanoasis/vim-devicons'           "Add icons
+Plug 'editorconfig/editorconfig-vim'
 
 " fzf alternative
 Plug 'nvim-lua/popup.nvim'

@@ -39,4 +39,4 @@ function fzf-test(){
     return 0
 }
 
-bindkey '^W' fzf-test
+# bindkey '^W' fzf-test
