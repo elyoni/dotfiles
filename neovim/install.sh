@@ -119,6 +119,16 @@ function install_plug_plugin_new
         "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/pack/paqs/opt/paq-nvim
 }
 
+function install_asciidoc_dependencies
+{
+    sudo apt-get install ruby-full rubygems -y
+    sudo gem install asciidoctor
+    sudo gem install asciidoctor-diagram
+    sudo gem install asciidoctor-rouge
+    
+    
+}
+
 function link_neovim_files  # Link neovim files(color + init.vim)
 {
     ln -sf $DIR/nvim $HOME/.config
