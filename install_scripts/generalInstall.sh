@@ -19,6 +19,9 @@ sudo apt install net-tools
 sudo apt-get install arp-scan -y
 sudo apt-get intall firefox -y
 
+#=== ruby ===
+sudo apt-get install ruby-full rubygems -y
+
 #=== workrave ===
 sudo apt install workrave -y
 
