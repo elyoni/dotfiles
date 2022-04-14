@@ -92,6 +92,11 @@ function install_neovim()  # Install neovim
 function install_autocomplete
 {
     sudo apt-get install npm -y
+    # Install Nodejs 16
+    ## Install nvm to install nodejs
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash
+    source $HOME/.zshrc
+    nvm install v16
 
     sudo npm install -g pyright
 
