@@ -9,7 +9,7 @@ endif
 
 " To install the Plug just write in normal mode :PlugInstall"
 call plug#begin()
-Plug 'liuchengxu/vim-which-key'
+" Plug 'liuchengxu/vim-which-key'
 
 " Must have
 " " I am using this plugin on every day
