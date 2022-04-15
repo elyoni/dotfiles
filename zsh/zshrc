@@ -4,7 +4,10 @@ autoload -U +X compinit && compinit
 fpath=(~/.zsh/completion $fpath ~/.zfunc)
 zstyle ":completion:*:descriptions" format "%B%d%b"
 # If you come from bash you might have to change your $PATH.
-export PATH=$HOME/.local/bin:/usr/local/go/bin:$PATH
+if [ -d /usr/local/go/bin ]; then
+    export PATH=$HOME/.local/go/bin:/usr/local/go/bin:$PATH
+    export GOPATH=$HOME/.local/go
+fi
 #export PATH="$(yarn globa bin):$PATH"
 # export RECORDING=${RECORDING:-"false"}
 # export RECORDING="true"
