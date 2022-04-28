@@ -83,3 +83,5 @@ vnore p "_dP
 vnore P "_dp
 xnoremap p "_dP
 xnoremap P "_dp
+
+map <C-n> :Neotree toggle<cr>
