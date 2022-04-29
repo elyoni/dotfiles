@@ -2,22 +2,23 @@
 	email = yehonatan.e@solaredge.com
 	name = Yehonatan Elentok
 [push]
-	default = upstream
+	default = current
 [alias]
     co = checkout
     br = branch
     ci = commit
+    cia = commit --amend
+    cif = commit --amend --no-edit
     st = status
     visual = !gitg
     lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
     delete = !"f() { git fetch --prune origin; git push --delete origin \"$1\" ; git branch -d \"$1\"; git fetch --prune origin; }; f"
     mustdelete = !"f() { git fetch --prune origin; git push --delete origin \"$1\"; git branch -D \"$1\" ; }; f"
-    ;ph = !"f() { branch=$( git branch | grep "^*" | cut -d ' ' -f2 ); git push origin $branch; }; f"
-    ph = git push 
-    phf = !"f() { branch=$( git branch | grep "^*" | cut -d ' ' -f2 ); git push origin $branch -f; }; f"
-    pl = git pull
-    ;pl = !"f() { branch=$( git branch | grep "^*" | cut -d ' ' -f2 ); git pull origin $branch; }; f"
+    ph = push 
+    phf = push -f
+    pl = pull
     dt = difftool --dir-diff
+    dtv = difftool -v vimdiff
 [diff]
 	tool = meld
     merge = meld
@@ -29,3 +30,5 @@
 	options = --highlight --line-numbers
 [include]
 	path = ~/projects/tools/env/gitlab/se_gitconfig
+[submodule]
+	recurse = true
