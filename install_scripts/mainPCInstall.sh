@@ -11,7 +11,7 @@ echo "Main PC Install"
 
 
 ## Install Fritzing 
-sudo apt-get install fritzing -y
+# sudo apt-get install fritzing -y
 
 #=== Libre Office ===
 ## to install libre office we need to install aptitude
