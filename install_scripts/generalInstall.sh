@@ -13,11 +13,21 @@ pip3 install --upgrade pip
 #=== PDF Reader ===
 sudo apt-get install okular -y
 
-#=== Browser ===
-#sudo apt-get install chromium-browser -y
+#=== Network tools ===
 sudo apt install net-tools
 sudo apt-get install arp-scan -y
+
+#=== Browser ===
+## === Firefox ===
 sudo apt-get intall firefox -y
+
+## === Chrome ===
+chrome_deb="google-chrome-stable_current_amd64.deb"
+wget https://dl.google.com/linux/direct/${chrome_deb}
+sudo apt-get install ./${chrome_deb}
+rm ${chrome_deb}
+
+
 
 #=== ruby ===
 sudo apt-get install ruby-full rubygems -y
