@@ -1,5 +1,7 @@
 autoload -U +X bashcompinit && bashcompinit
 autoload -U +X compinit && compinit
+
+export ZSH_COMPDUMP=$ZSH/cache/.zcompdump-$HOST
 # fpath=(~/.zsh/completion $fpath)
 fpath=(~/.zsh/completion $fpath ~/.zfunc)
 zstyle ":completion:*:descriptions" format "%B%d%b"
