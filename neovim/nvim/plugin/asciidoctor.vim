@@ -1,8 +1,8 @@
 " What to use for HTML, default `asciidoctor`.
-let g:asciidoctor_executable = 'asciidoctor'
+" let g:asciidoctor_executable = 'asciidoctor'
 
 " What extensions to use for HTML, default `[]`.
-let g:asciidoctor_extensions = ['asciidoctor-diagram', 'asciidoctor-rouge']
+" let g:asciidoctor_extensions = ['asciidoctor-diagram', 'asciidoctor-rouge']
 
 " Path to the custom css
 " let g:asciidoctor_css_path = '~/docs/AsciiDocThemes'
