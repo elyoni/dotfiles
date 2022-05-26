@@ -66,6 +66,9 @@ endif
 " You can't stop me
 cmap w!! w !sudo tee %
 
+" When using vimdiff will open the find in read write
+set noro
+
 " folding
 set foldenable
 "set foldmethod=syntax
