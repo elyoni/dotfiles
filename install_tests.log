@@ -1,8 +1,0 @@
-= Evolution Email Client On Ubuntu 16.04 =
-== Install ==
-sudo add-apt-repository ppa:gnome3-team/gnome3-staging
-sudo apt-get update
-sudo apt-get install evolution
-== Remove ==
-ppa-purge gnome3-team/gnome3-staging
-ppa-purge gnome3-team/gnome3
