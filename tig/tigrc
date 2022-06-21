@@ -1,6 +1,7 @@
 bind main Bb !git rebase -i %(commit)
 bind main Bf !git rebase -i --autosquash %(commit)
-bind status P !git push origin %(branch)
+bind status P !git phf
+bind status p !git ph
 
 
 
@@ -9,10 +10,10 @@ bind main rs !git reset --soft %(commit)
 bind main rh !git reset --hard %(commit)
 
 
-#bind generic     c   none
-#bind generic     cc  !?@git commit
-#bind generic     ca  !?@git commit --amend
-#bind generic     cn  !?@git commit --amend --no-edit
+bind generic     c   none
+bind generic     cc  !?@git commit
+bind generic     ca  !?@git commit --amend
+bind generic     cn  !?@git commit --amend --no-edit
 
 # *color* 'area' 'fgcolor' 'bgcolor' '[attributes]'
 
