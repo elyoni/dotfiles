@@ -28,6 +28,8 @@
 	enabled = true
 [icdiff]
 	options = --highlight --line-numbers
+[difftool "nvimdiff"]
+    cmd = "nvim -d \"$LOCAL\" \"$REMOTE\""
 [include]
 	path = ~/projects/tools/env/gitlab/se_gitconfig
 [submodule]
