@@ -62,6 +62,8 @@ Plug 'rhysd/vim-grammarous'
 " Syntax
 Plug 'mtdl9/vim-log-highlighting'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}  " We recommend updating the parsers on update
+Plug 'sirtaj/vim-openscad'
+Plug 'kergoth/vim-bitbake'
 
 " Git
 Plug 'tpope/vim-fugitive'
