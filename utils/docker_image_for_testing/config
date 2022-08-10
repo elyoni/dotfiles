@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+DOCKER_IMAGE_NAME=dotfile-test
+DOTFILE=$(realpath $DIR/../../)
