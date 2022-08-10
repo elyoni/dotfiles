@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P $DIR && pwd)
+
+function _image_packages_dependecies()
+{
+    sudo apt-get install wget git -y
+    
+}
+
+function _download_and_install()
+{
+    echo ====== START: Downloading and installing cheat =====
+    cd /tmp \
+        && wget https://github.com/cheat/cheat/releases/download/4.3.1/cheat-linux-amd64.gz \
+        && gunzip cheat-linux-amd64.gz \
+        && chmod +x cheat-linux-amd64 \
+        && sudo mv cheat-linux-amd64 /usr/local/bin/cheat
+    echo ====== END: Downloading and installing cheat =====
+}
+
+function _link_personal_cheats()
+{
+    echo ====== START: Cheat install - link personal directory =====
+    local config_path="$HOME/.config/cheat/cheatsheets/"
+    mkdir -p "${config_path}"
+    ln -sf $DIR/settings/personal ${config_path}
+    echo ====== START: Downloading and installing cheat =====
+}
+
+function install()
+{
+    _image_packages_dependecies
+    _download_and_install
+    _link_personal_cheats
+}
+
+function verify()
+{
+    :
+}
+
+function help() # Show a list of functions
+{
+    grep "^function" $0
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi
