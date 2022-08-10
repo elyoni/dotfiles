@@ -32,6 +32,12 @@ function install_grammer_plugin_dependecy
     sudo apt-get install unzip
 }
 
+function install_packer()
+{
+    git clone --depth 1 https://github.com/wbthomason/packer.nvim\
+        ~/.local/share/nvim/site/pack/packer/start/packer.nvim
+}
+
 
 function install_ripgrap  # Install ripgrep
 {
@@ -149,6 +155,7 @@ function install  # Main function, this function install everything
     install_grammer_plugin_dependecy
     install_plug_plugin_legacy 
     install_autocomplete
+    install_packer
 }
 
 function help() # Show a list of functions
