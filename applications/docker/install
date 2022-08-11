@@ -82,6 +82,7 @@ function _verify_buildx()
 function install()
 {
     _install_docker_engine_with_buildx
+    _fix_docker_permissions
 }
 
 function verify()
