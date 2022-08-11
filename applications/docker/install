@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-function _verify_docker_permissions()
+function __verify_docker_permissions()
 {
+    # NOTE: utile function, not for the verification stage
     # If the permissions is correct I can remove the `sudo` from the verify commands
     # return 1 if the permission is only for sudo
     # return 0 if the permission are for the users
@@ -50,6 +51,7 @@ function _fix_docker_permissions()
 
 function _verify_fix_docker_permissions()
 {
+    # Run docker command without sudo
     local test-image="hello-world"
     if ! docker run "${test-image}"; then
         echo "INSTALL_FAILED: Docker permission fix WASN'T install successfully"
@@ -76,7 +78,8 @@ function _verify_docker_engine()
 
 function _verify_buildx()
 {
-    :
+    echo "NOTE: WIP verify buildx installation not support yet"
+    echo "Continue"
 }
 
 function install()
@@ -89,6 +92,7 @@ function verify()
 {
     _verify_docker_engine
     _verify_buildx
+    _verify_fix_docker_permissions
 }
 
 function help() # Show a list of functions
