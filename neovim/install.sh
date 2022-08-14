@@ -119,9 +119,8 @@ function install_plug_plugin_legacy
 
 function install_plug_plugin_new
 {
-    # I am replacing the plugin manager because I want it to be writen in lua
-    git clone https://github.com/savq/paq-nvim.git \
-        "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/pack/paqs/opt/paq-nvim
+    git clone --depth 1 https://github.com/wbthomason/packer.nvim\
+        "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/pack/packer/start/packer.nvim
     nvim +PackerInstall +qall
 }
 
