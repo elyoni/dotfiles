@@ -122,6 +122,7 @@ function install_plug_plugin_new
     # I am replacing the plugin manager because I want it to be writen in lua
     git clone https://github.com/savq/paq-nvim.git \
         "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/pack/paqs/opt/paq-nvim
+    nvim +PackerInstall +qall
 }
 
 function install_asciidoc_dependencies
