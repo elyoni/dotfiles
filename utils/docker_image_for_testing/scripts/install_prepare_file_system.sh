@@ -18,7 +18,8 @@ user_config()
     useradd -g 1000 $USER
     usermod -a -G adm $USER
     echo $USER':a' | chpasswd
-    echo "$USER ALL=(ALL) NOPASSWD: ALL \nroot ALL=(ALL) NOPASSWD: ALL" >/etc/sudoers
+    echo "$USER ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+    echo "root ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 }
 
 create_directories()
