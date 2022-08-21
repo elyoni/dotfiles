@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P $DIR && pwd)
+
 function __verify_docker_permissions()
 {
     # NOTE: utile function, not for the verification stage
@@ -8,10 +11,11 @@ function __verify_docker_permissions()
     :
 }
 
-function _install_docker_engine_with_buildx()
+function _install_docker_engine()
 {
-    # Original tutorial: https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository
-    echo ====== START: Install docker engine with buildx =====
+    local download_path=/tmp/apps/docker
+    # OrigInal tutorial: https://github.com/docker/docker-install
+    echo ====== START: Install docker engine =====
 
     echo == Install packages ==
     sudo apt-get update
@@ -21,18 +25,11 @@ function _install_docker_engine_with_buildx()
         gnupg \
         lsb-release -y
 
-    echo == Add Docker’s official GPG key ==
-    sudo mkdir -p /etc/apt/keyrings
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-echo \
-    echo == Set up the docker repository ==
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-        $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-    echo == Install docker engine with buildx ==
-    sudo apt-get update
-    sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin -y
-    echo ====== END: Install docker engine with buildx =====
+    echo == Install docker with get-docker.sh ==
+    curl -fsSL https://get.docker.com -o "${download_path}"/get-docker.sh
+    sudo sh "${download_path}"/get-docker.sh
+    rm "${download_path}"/get-docker.sh
+    echo ====== END: Install docker engine =====
 }
 
 function _fix_docker_permissions()
@@ -84,7 +81,7 @@ function _verify_buildx()
 
 function install()
 {
-    _install_docker_engine_with_buildx
+    _install_docker_engine 
     _fix_docker_permissions
 }
 
