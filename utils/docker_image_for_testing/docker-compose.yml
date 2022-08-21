@@ -1,0 +1,8 @@
+version: "3.9"  # optional since v1.27.0
+services:
+  dotfile-test:
+    build: .
+    image: dotfile-test
+    volumes:
+      - ../../:/tmp/dotfile
+    working_dir: /tmp/dotfile
