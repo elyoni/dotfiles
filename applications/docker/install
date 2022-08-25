@@ -26,6 +26,7 @@ function _install_docker_engine()
         lsb-release -y
 
     echo == Install docker with get-docker.sh ==
+    mkdir -p "${download_path}"
     curl -fsSL https://get.docker.com -o "${download_path}"/get-docker.sh
     sudo sh "${download_path}"/get-docker.sh
     rm "${download_path}"/get-docker.sh
