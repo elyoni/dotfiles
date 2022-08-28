@@ -6,3 +6,4 @@ services:
     volumes:
       - ../../:/tmp/dotfile
     working_dir: /tmp/dotfile
+    runtime: sysbox-runc
