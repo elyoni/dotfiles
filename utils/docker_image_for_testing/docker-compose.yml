@@ -4,6 +4,7 @@ services:
     build: .
     image: dotfile-test
     volumes:
-      - ../../:/tmp/dotfile
-    working_dir: /tmp/dotfile
+      - ../../:/tmp/dotfiles
+      - /tmp/dotfiles-test:/tmp/dotfiles-test
+    working_dir: /tmp/dotfiles
     runtime: sysbox-runc

@@ -17,8 +17,11 @@ tasks:
           - when: 
               equal: {no-remove: true}
             value: ""
-
-    run: docker compose run ${_rm-string} dotfile-test bash
+    run: 
+      - when:
+          not-exists: /tmp/dotfiles-test
+        command: mkdir -p /tmp/dotfiles-test
+      - command: docker compose run ${_rm-string} dotfile-test bash
 
   build:
     run: docker compose build
