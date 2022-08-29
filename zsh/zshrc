@@ -70,3 +70,9 @@ fpath+=~/.zfunc
 if [[ "$RECORDING" == "true" ]]; then
     export PS1=" $ "
 fi
+export DOTFILES_WORK_PATH="$HOME/.dotfiles_work"
+if [ -d "${DOTFILES_WORK_PATH}" ]; then
+    for f in ${DOTFILES_WORK_PATH}/*.zsh; do source $f; done
+fi
+
+
