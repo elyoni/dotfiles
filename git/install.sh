@@ -33,7 +33,7 @@ function install_cdiff()
 
 function install()
 {
-    install_meld
+    [ ! -z ${DISPLAY} ] && install_meld
     install_cdiff
     link_files
 }
