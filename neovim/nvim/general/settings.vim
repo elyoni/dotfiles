@@ -4,7 +4,8 @@ let g:mapleader = ","
 
 colors colosus
 
-syntax enable                           " Enables syntax highlighing
+" syntax disable                        " Disable syntax highlighing, moved to
+" treesitter
 set hidden                              " Required to keep multiple buffers open multiple buffers
 set nowrap                              " Display long lines as just one line
 set encoding=utf-8                      " The encoding displayed
