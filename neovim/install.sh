@@ -98,8 +98,8 @@ function install_autocomplete
     source $HOME/.zshrc
     nvm install v16
 
-    sudo npm install -g pyright
-
+    # sudo npm install -g pyright
+    sudo pip install pyright
     sudo npm install -g bash-language-server
     sudo pip3 install python-language-server
     sudo pip3 install cmake-language-server
@@ -148,7 +148,7 @@ function install  # Main function, this function install everything
     install_packages
     install_grammer_plugin_dependecy
     install_plug_plugin_legacy 
-    install_autocomplete
+    # install_autocomplete
 }
 
 function help() # Show a list of functions
