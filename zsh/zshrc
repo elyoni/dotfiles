@@ -13,8 +13,9 @@ fi
 #export PATH="$(yarn globa bin):$PATH"
 # export RECORDING=${RECORDING:-"false"}
 # export RECORDING="true"
+#
+eval "$(direnv hook zsh)"
 
-# eval "$(direnv hook zsh)"
 # Path to your oh-my-zsh installation.
 USER=$(whoami)
 if [ -d "/home/$USER/.oh-my-zsh" ]; then
@@ -58,12 +59,6 @@ zstyle ':completion:*' menu select
 # export WIKI_URL="https://confluence.solaredge.com"
 export PYENV_ROOT="$HOME"/.pyenv
 export PATH="$PYENV_ROOT"/bin:"$PATH"
-
-
-# Comment out this part - take too match time to run
-# export NVM_DIR="$HOME/.nvm"
-# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm 
-# [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 
 fpath+=~/.zfunc
