@@ -71,3 +71,6 @@ if [ -d "${DOTFILES_WORK_PATH}/zsh" ]; then
 fi
 
 
+
+# Created by `pipx` on 2022-08-31 13:49:32
+export PATH="$PATH:$HOME/.local/bin"
