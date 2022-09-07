@@ -28,9 +28,9 @@ function! TelescopeWhichKeyGit()
                 \}
 endfunction
 
-if PlugLoaded("telescope.nvim")
-    call TelescopeSettings()
-endif
+" if PlugLoaded("telescope.nvim")
+call TelescopeSettings()
+" endif
 
 
 
