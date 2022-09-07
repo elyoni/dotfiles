@@ -39,7 +39,6 @@ Plug 'editorconfig/editorconfig-vim'
 " fzf alternative
 Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-lua/plenary.nvim'
-Plug 'nvim-telescope/telescope.nvim'
 
 " A File Explorer For Neovim Written In Lua
 Plug 'kyazdani42/nvim-web-devicons' " for file icons
