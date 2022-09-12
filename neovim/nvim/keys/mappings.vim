@@ -85,3 +85,5 @@ xnoremap p "_dP
 xnoremap P "_dp
 
 map <C-n> :Neotree toggle<cr>
+
+autocmd FileType python map <buffer> <F5> :w<CR>:exec '!python3' shellescape(@%, 1)<CR>
