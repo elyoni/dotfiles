@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 DIR=$(dirname "${BASH_SOURCE[0]}")
-DIR=$(cd -P $DIR && pwd)
+DIR=$(cd -P "$DIR" && pwd)
 
 function __verify_docker_permissions()
 {
@@ -11,13 +11,24 @@ function __verify_docker_permissions()
     :
 }
 
+function __uninstall_docker()
+{
+    # uninstall when using get-docker.sh install
+    sudo dpkg -P \
+        docker-ce \
+        docker-ce-cli \
+        docker-compose-plugin \
+        docker-scan-plugin
+    sudo apt-get install -f
+}
+
 function _install_docker_engine()
 {
     local download_path=/tmp/apps/docker
     # OrigInal tutorial: https://github.com/docker/docker-install
     echo ====== START: Install docker engine =====
 
-    echo == Install packages ==
+    echo "== Install packages =="
     sudo apt-get update
     sudo apt-get install \
         ca-certificates \
@@ -25,7 +36,7 @@ function _install_docker_engine()
         gnupg \
         lsb-release -y
 
-    echo == Install docker with get-docker.sh ==
+    echo "== Install docker with get-docker.sh =="
     mkdir -p "${download_path}"
     curl -fsSL https://get.docker.com -o "${download_path}"/get-docker.sh
     sudo sh "${download_path}"/get-docker.sh
@@ -37,14 +48,14 @@ function _fix_docker_permissions()
 {
     # Original tutorial: https://docs.docker.com/engine/install/linux-postinstall/
     echo ====== START: Fix docker permissions =====
-    echo == Create the docker group ==
+    echo "== Create the docker group =="
     sudo groupadd docker
 
-    echo == Add your user to the docker group ==
-    sudo usermod -aG docker $USER
+    echo "== Add your user to the docker group =="
+    sudo usermod -aG docker "$USER"
 
     newgrp docker  # Remove the needs of logout and login
-    echo ====== END: Fix docker permissions =====
+    echo "====== END: Fix docker permissions ====="
 }
 
 function _verify_fix_docker_permissions()
@@ -95,7 +106,7 @@ function verify()
 
 function help() # Show a list of functions
 {
-    grep "^function" $0
+    grep "^function" "$0"
 }
 
 if [ $# -eq 0 ]; then
