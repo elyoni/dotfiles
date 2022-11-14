@@ -9,7 +9,8 @@
 if [ "$USER" = "devbox" ]; then
     ZSH_THEME="michelebologna"
 else
-    ZSH_THEME="yoni"
+    # ZSH_THEME="yoni"
+    ZSH_THEME="yoni_bira"
     if [[ "$RECORDING" == "true"  ]]; then
         ZSH_THEME="record"
     fi
