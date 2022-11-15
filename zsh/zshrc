@@ -5,12 +5,7 @@ export ZSH_COMPDUMP=$ZSH/cache/.zcompdump-$HOST
 # fpath=(~/.zsh/completion $fpath)
 fpath=(~/.zsh/completion $fpath ~/.zfunc)
 zstyle ":completion:*:descriptions" format "%B%d%b"
-# If you come from bash you might have to change your $PATH.
-if [ -d /usr/local/go/bin ]; then
-    export PATH=$HOME/.local/go/bin:/usr/local/go/bin:$PATH
-    export GOPATH=$HOME/.local/go
-fi
-#export PATH="$(yarn globa bin):$PATH"
+#
 # export RECORDING=${RECORDING:-"false"}
 # export RECORDING="true"
 #
@@ -56,9 +51,6 @@ export LANG=en_US.UTF-8
 autoload -Uz compinit
 zstyle ':completion:*' menu select
 
-# export WIKI_URL="https://confluence.solaredge.com"
-export PYENV_ROOT="$HOME"/.pyenv
-export PATH="$PYENV_ROOT"/bin:"$PATH"
 
 
 fpath+=~/.zfunc
@@ -69,8 +61,3 @@ export DOTFILES_WORK_PATH="$HOME/.dotfiles_work"
 if [ -d "${DOTFILES_WORK_PATH}/zsh" ]; then
     for f in ${DOTFILES_WORK_PATH}/zsh/*.zsh; do source $f; done
 fi
-
-
-
-# Created by `pipx` on 2022-08-31 13:49:32
-export PATH="$PATH:$HOME/.local/bin"
