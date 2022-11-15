@@ -38,7 +38,7 @@ local current_dir_output="$current_dir_color$current_dir$reset"
 
 # local vcs_branch='$(git_prompt_info)$(git_prompt_status)$(git_remote_status)$(hg_prompt_info)${white})${reset}'
 local rvm_ruby='$(ruby_prompt_info)'
-local ranger_background='$(ps -fp $PPID | grep -q ranger && echo *📂*)'
+local ranger_background='$(ps -fp $PPID | grep -q ranger && echo "📂")'
 local venv_prompt='$(virtualenv_prompt_info)'
 
 ZSH_THEME_RVM_PROMPT_OPTIONS="i v g"
