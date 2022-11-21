@@ -3,11 +3,11 @@ require'lspconfig'.ltex.setup{}
 local lsp = require('lsp-zero')
 lsp.preset('recommended')
 
--- lsp.configure('pyright', {
---   flags = {
---     debounce_text_changes = 150,
---   }
--- })
+lsp.configure('pyright', {})
+  flags = {
+    debounce_text_changes = 150,
+  }
+})
 lsp.configure('grammarly', {
     filetypes = { 'asciidoctor' },
     cmd = { "grammarly-languageserver", "--stdio" },

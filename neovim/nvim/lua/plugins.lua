@@ -2,7 +2,24 @@ return require('packer').startup(function(use)
     -- Packer can manage itself
     use 'wbthomason/packer.nvim'
     -----------------------------
-    
+    -- use 'neovim/nvim-lspconfig' -- Configurations for Nvim LSP
+    -- use {
+    --     'neovim/nvim-lspconfig',
+    --     requires = {
+    --         -- LSP Support
+    --         {'williamboman/mason.nvim'},
+    --         {'williamboman/mason-lspconfig.nvim'},
+    --
+    --         -- Autocompletion
+    --         {'hrsh7th/cmp-nvim-lsp'},
+    --         {'hrsh7th/cmp-buffer'},
+    --         {'hrsh7th/cmp-path'},
+    --         {'hrsh7th/cmp-cmdline'},
+    --         {'hrsh7th/nvim-cmp'},
+    --     }
+    -- }
+
+    -- LSP-ZERO - notworking
     use {
         'VonHeikemen/lsp-zero.nvim',
         requires = {
@@ -34,6 +51,11 @@ return require('packer').startup(function(use)
             "MunifTanjim/nui.nvim",
         }
     }
+    use {
+        "ms-jpq/chadtree",
+        branch = "chad",
+        run = 'python3 -m chadtree deps'
+    }
 
     use {
         'nvim-telescope/telescope.nvim', tag = '0.1.0',
@@ -60,4 +82,11 @@ return require('packer').startup(function(use)
         }
     }
 
+
+    use {
+        'nvim-treesitter/nvim-treesitter',
+        run = ':TSUpdate'
+    }
+
 end)
+
