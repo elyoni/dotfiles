@@ -2,22 +2,6 @@ return require('packer').startup(function(use)
     -- Packer can manage itself
     use 'wbthomason/packer.nvim'
     -----------------------------
-    -- use 'neovim/nvim-lspconfig' -- Configurations for Nvim LSP
-    -- use {
-    --     'neovim/nvim-lspconfig',
-    --     requires = {
-    --         -- LSP Support
-    --         {'williamboman/mason.nvim'},
-    --         {'williamboman/mason-lspconfig.nvim'},
-    --
-    --         -- Autocompletion
-    --         {'hrsh7th/cmp-nvim-lsp'},
-    --         {'hrsh7th/cmp-buffer'},
-    --         {'hrsh7th/cmp-path'},
-    --         {'hrsh7th/cmp-cmdline'},
-    --         {'hrsh7th/nvim-cmp'},
-    --     }
-    -- }
 
     -- LSP-ZERO - notworking
     use {
@@ -42,15 +26,6 @@ return require('packer').startup(function(use)
         }
     }
 
-    use {
-        "nvim-neo-tree/neo-tree.nvim",
-        branch = "v2.x",
-        requires = {
-            "nvim-lua/plenary.nvim",
-            "kyazdani42/nvim-web-devicons", -- not strictly required, but recommended
-            "MunifTanjim/nui.nvim",
-        }
-    }
     use {
         "ms-jpq/chadtree",
         branch = "chad",
