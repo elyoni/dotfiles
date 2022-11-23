@@ -29,7 +29,10 @@ return require('packer').startup(function(use)
     use {
         "ms-jpq/chadtree",
         branch = "chad",
-        run = 'python3 -m chadtree deps'
+        run = 'python3 -m chadtree deps',
+        config = {
+            vim.api.nvim_set_keymap("n", "<C-n>", ":CHADopen<CR>", {})
+        }
     }
 
     use {
@@ -61,6 +64,10 @@ return require('packer').startup(function(use)
     use {
         'nvim-treesitter/nvim-treesitter',
         run = ':TSUpdate'
+    }
+
+    use {
+        'kdheepak/lazygit.nvim'
     }
 
 end)
