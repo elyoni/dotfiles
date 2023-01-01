@@ -35,5 +35,21 @@ lsp.set_preferences({
   }
 })
 
+-- lsp.on_attach(function(client, bufnr)
+--   local opts = {buffer = bufnr, remap = false}
+--   local bind = vim.keymap.set
+--
+--   bind('n', '<Ctrl-k>', '<cmd>lua vim.diagnostic.open_float()<cr>', opts)
+-- end)
+
 lsp.setup()
+
+vim.diagnostic.config({
+  virtual_text = true,
+  signs = true,
+  update_in_insert = true,
+  underline = true,
+  severity_sort = false,
+  float = true,
+})
 

@@ -54,3 +54,7 @@ function newbox() {
     -e DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix \
     emb-jenk-slv01:5000/${IMAGE}:latest
 }
+
+dockersize() {
+    docker manifest inspect -v "$1" | jq -c 'if type == "array" then .[] else . end' |  jq -r '[ ( .Descriptor.platform | [ .os, .architecture, .variant, ."os.version" ] | del(..|nulls) | join("/") ), ( [ .SchemaV2Manifest.layers[].size ] | add ) ] | join(" ")' | numfmt --to iec --format '%.2f' --field 2 | column -t
+}
