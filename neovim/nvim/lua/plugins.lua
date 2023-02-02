@@ -49,7 +49,7 @@ return require('packer').startup(function(use)
     }
 
     use {
-        'nvim-telescope/telescope.nvim', tag = '0.1.0',
+        'nvim-telescope/telescope.nvim', tag = '0.1.1',
         requires = { {'nvim-lua/plenary.nvim'} }
     }
 
@@ -86,7 +86,28 @@ return require('packer').startup(function(use)
 
     use {
         'tpope/vim-fugitive',
-        config = { vim.api.nvim_set_keymap("n", "<leader>gb", ":Git blame<CR>", {}) }
+        config = {
+            vim.api.nvim_set_keymap("n", "<leader>gs", ":Git status<CR>", {}),
+            vim.api.nvim_set_keymap("n", "<leader>gd", ":Git difftool<CR>", {}),
+            vim.api.nvim_set_keymap("n", "<leader>gc", ":Git commit<CR>", {}),
+            vim.api.nvim_set_keymap("n", "<leader>gl", ":Git log<CR>", {}),
+            vim.api.nvim_set_keymap("n", "<leader>gb", ":Git blame<CR>", {}),
+        },
+        requires = {
+            {
+                'shumphrey/fugitive-gitlab.vim',
+                setup = function ()
+                    vim.g.fugitive_gitlab_domains = 'https://gitlab.solaredge.com'
+                    vim.g.gitlab_api_keys = "{'gitlab.solaredge.com': 'mPjW9aXaqUBueDQ6HAPy'}"
+                end
+            }
+        }
+        -- requires = {
+        --     {
+        --         'shumphrey/fugitive-gitlab.vim',
+        --         setup = function () vim.g.fugitive_gitlab_domains = ['https://gitlab.solaredge.com']  end
+        --     }
+        -- }
     }
     
     use {
@@ -97,6 +118,29 @@ return require('packer').startup(function(use)
             vim.api.nvim_set_keymap("n", "<leader>tT", ":TigOpenCurrentFile<CR>", {}),
             -- open tig with Project root path
             vim.api.nvim_set_keymap("n", "<leader>tt", ":TigOpenProjectRootDir<CR>", {}),
+        }
+    }
+
+    use {
+        'vimwiki/vimwiki',
+        setup = function () -- load stuff before the plugin is loaded
+            vim.g.vimwiki_auto_chdir = 1
+        end
+
+    }
+
+    -- use {
+    --     'skanehira/preview-uml.vim',
+    --     setup = function () -- load stuff before the plugin is loaded
+    --         vim.g.preview_uml_url = 'http://localhost:8888'
+    --     end
+    -- }
+
+    use {
+        'weirongxu/plantuml-previewer.vim',
+        requires = {
+            {'tyru/open-browser.vim'},
+            {'aklt/plantuml-syntax'}
         }
     }
 

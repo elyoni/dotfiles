@@ -75,7 +75,8 @@ function install_neovim()  # Install neovim
 {
     echo ======= Install Neovim =======
     ### Installation
-    sudo add-apt-repository ppa:neovim-ppa/unstable -y
+    # sudo add-apt-repository ppa:neovim-ppa/unstable -y
+    sudo add-apt-repository ppa:neovim-ppa/stable
     sudo apt update
     sudo apt-get install neovim -y
     sudo apt-get install python3-pip -y

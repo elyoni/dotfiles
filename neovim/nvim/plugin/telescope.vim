@@ -8,9 +8,9 @@ function! TelescopeSettings()
     nnoremap <leader>fe <cmd>Telescope file_browser<cr>
     nnoremap <leader>fg <cmd>Telescope live_grep<cr>
 
-    nnoremap <leader>gc <cmd>Telescope git_commits<cr>
-    nnoremap <leader>gb <cmd>Telescope git_branches<cr>
-    nnoremap <leader>gs <cmd>Telescope git_status<cr>
+    " nnoremap <leader>gc <cmd>Telescope git_commits<cr>
+    " nnoremap <leader>gb <cmd>Telescope git_branches<cr>
+    " nnoremap <leader>gs <cmd>Telescope git_status<cr>
     nnoremap <C-f> <cmd>Telescope grep_string<cr>
     vnoremap <C-f> <cmd>Telescope grep_string<cr>
 
