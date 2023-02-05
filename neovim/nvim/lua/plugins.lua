@@ -102,12 +102,6 @@ return require('packer').startup(function(use)
                 end
             }
         }
-        -- requires = {
-        --     {
-        --         'shumphrey/fugitive-gitlab.vim',
-        --         setup = function () vim.g.fugitive_gitlab_domains = ['https://gitlab.solaredge.com']  end
-        --     }
-        -- }
     }
     
     use {
