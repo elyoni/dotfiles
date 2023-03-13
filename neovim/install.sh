@@ -71,7 +71,24 @@ function install_vim()  # Install vim, not in-used
     ln -sf $DIR/colors $HOME/.vim/colors
 }
 
-function install_neovim()  # Install neovim
+function install_neovim()
+{
+    local download_path="/tmp/download/neovim"
+    local file_name="nvim-linux64.deb"
+    local neovim_version="0.8.3"
+    local download_url="https://github.com/neovim/neovim/releases/download/v${neovim_version}/nvim-linux64.deb"
+    
+    # Clean folder if exits
+    [ -d "${download_path}" ] && rm -rf "${download_path}"
+
+    # Download file
+    curl -fLo "${download_path}/${file_name}" --create-dirs "${download_url}"
+    
+    # Install neovim
+    sudo apt-get install "${download_path}/${file_name}" -y
+}
+
+function install_neovim_old()  # Install neovim
 {
     echo ======= Install Neovim =======
     ### Installation
