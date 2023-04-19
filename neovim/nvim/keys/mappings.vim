@@ -84,5 +84,9 @@ vnore P "_dp
 xnoremap p "_dP
 xnoremap P "_dp
 
-
+" To print the file type execute `:set filetype?`
 autocmd FileType python map <buffer> <F5> :w<CR>:exec '!python3' shellescape(@%, 1)<CR>
+autocmd FileType rust map <buffer> <leader>r :w<CR>:exec '!cargo run'<CR>
+autocmd FileType rust map <buffer> <leader>ir :w<CR>:terminal cargo run<CR>
+autocmd FileType rust map <buffer> <leader>cr :w<CR>:exec '!cargo check'<CR>
+:tnoremap <Esc> <C-\><C-n>

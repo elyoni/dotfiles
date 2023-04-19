@@ -81,3 +81,6 @@ set inccommand=split
 
 " Go to file support for bash environment variable with {}
 set isfname+={,}
+
+" Auto insert when entering into a terminal window
+autocmd TermOpen * startinsert

@@ -93,6 +93,7 @@ call plug#end()
 
 " enable ncm2 for all buffers
 "autocmd BufEnter * call ncm2#enable_for_buffer()
+autocmd BufWinEnter,WinEnter term://* startinsert
 
 "" IMPORTANT: :help Ncm2PopupOpen for more information
 "set completeopt=noinsert,menuone,noselec<NOP>

@@ -16,7 +16,7 @@ lsp.configure('grammarly', {
 })
 
 lsp.configure('ltex', {
-    filetypes = { 'asciidoctor' },
+    filetypes = { 'asciidoctor', 'vimwiki' },
 })
 
 lsp.set_preferences({
@@ -35,12 +35,24 @@ lsp.set_preferences({
   }
 })
 
--- lsp.on_attach(function(client, bufnr)
---   local opts = {buffer = bufnr, remap = false}
---   local bind = vim.keymap.set
---
---   bind('n', '<Ctrl-k>', '<cmd>lua vim.diagnostic.open_float()<cr>', opts)
--- end)
+lsp.on_attach(function(client, bufnr)
+  local opts = {buffer = bufnr, remap = false}
+  lsp.default_keymaps({buffer = bufnr})
+
+  vim.keymap.set({'n', 'i'}, '<F7>',
+      '<cmd>lua vim.lsp.buf.signature_help()<cr>', opts)
+
+  vim.keymap.set({'n', 'x'}, '<F8>', function()
+    vim.lsp.buf.format({async = false, timeout_ms = 10000})
+  end)
+end)
+
+lsp.format_on_save({
+  servers = {
+    ['lua_ls'] = {'lua'},
+    ['rust_analyzer'] = {'rust'},
+  }
+})
 
 lsp.setup()
 
