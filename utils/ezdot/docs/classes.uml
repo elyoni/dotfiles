@@ -1,0 +1,55 @@
+@startuml
+
+IPackageConfig <|-- GithubConfig
+IPackage <|-- AptPackage
+IPackage <|-- GithubPackage
+IPackage <|-- PipPackage
+IPackage <|-- PipxPackage
+
+class IPackage {
+    void __init__(self, name:str, version:str|None=None, dependencies: list(IPackage)=[], settings: IPackageConfig=None, dotfiles: list[str]=[])
+    bool install(self, force:bool=False)
+    bool _install_dependencies(self, force:bool=False)
+    bool _install_dotfiles(self, force:bool=False)
+    bool verify(self)
+    name: str
+    version: str|None
+    dependencies: list(IPackage)
+    settings: IPackageConfig
+    dotfiles: list[str]
+}
+
+class AptPackage {
+    bool install(self, force:bool=False)
+    bool verify(self)
+}
+
+class GithubPackage {
+    bool install(self, force:bool=False)
+    bool _download(self)
+    bool _make(self)
+    bool verify(self)
+}
+
+class PipPackage {
+    bool install(self, force:bool=False)
+    bool verify(self)
+}
+
+class PipxPackage {
+    bool install(self, force:bool=False)
+    bool verify(self)
+}
+
+note top of IPackageConfig : Describe the how to install the packge.
+class IPackageConfig {
+    repo: str
+    install_script: List(str)
+}
+class GithubConfig {
+    repo: str
+    suffix: str
+}
+
+
+@enduml
