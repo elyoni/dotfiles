@@ -27,16 +27,21 @@ VISUAL=nvim; export VISUAL EDITOR=nvim; export EDITOR
 HIST_STAMPS="dd.mm.yyyy"
 
 export ZSH_CUSTOM="$HOME/.config/zsh"
+# Exclude some commands
+ZSH_COMMAND_TIME_EXCLUDE=(vim mcedit man vi nvim tig git fg)
 
 # Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
+  command-time
+  notification-time
   git
   zsh-syntax-highlighting 
   zsh-autosuggestions
   docker
+  taskwarrior
 )
   # z
 source $ZSH/oh-my-zsh.sh
@@ -61,3 +66,10 @@ export DOTFILES_WORK_PATH="$HOME/.dotfiles_work"
 if [ -d "${DOTFILES_WORK_PATH}/zsh" ]; then
     for f in ${DOTFILES_WORK_PATH}/zsh/*.zsh; do source $f; done
 fi
+
+
+if [ -e /home/yehonatan/.nix-profile/etc/profile.d/nix.sh ]; then . /home/yehonatan/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
+
+source /home/yehonatan/.config/broot/launcher/bash/br
+source ~/.config/zsh/invoke-completion.sh
+eval "$(register-python-argcomplete gitlab)"
