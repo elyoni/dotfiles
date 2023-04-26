@@ -1,0 +1,33 @@
+tasks:
+  attach:
+    options: 
+      no-remove:
+        usage: Disable - Automatically remove the container when it exits
+        short: "n"
+        type: bool
+        default: false
+ 
+      _rm-string:
+        usage: add --rm to docker command
+        private: true
+        default:
+          - when: 
+              equal: {no-remove: false}
+            value: "--rm"
+          - when: 
+              equal: {no-remove: true}
+            value: ""
+    run: 
+      - when:
+          not-exists: /tmp/dotfiles-test
+        command: mkdir -p /tmp/dotfiles-test
+      - command: docker compose run ${_rm-string} dotfile-test bash
+
+  build:
+    run: docker compose build
+
+  down:
+    run: docker compose down
+
+  ps:
+    run: docker compose ps -a

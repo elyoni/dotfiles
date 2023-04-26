@@ -1,0 +1,10 @@
+version: "3.9"  # optional since v1.27.0
+services:
+  dotfile-test:
+    build: .
+    image: dotfile-test
+    volumes:
+      - ../../:/tmp/dotfiles
+      - /tmp/dotfiles-test:/tmp/dotfiles-test
+    working_dir: /tmp/dotfiles
+    runtime: sysbox-runc
