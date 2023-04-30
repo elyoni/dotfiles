@@ -85,8 +85,9 @@ xnoremap p "_dP
 xnoremap P "_dp
 
 " To print the file type execute `:set filetype?`
-autocmd FileType python map <buffer> <F5> :w<CR>:exec '!python3' shellescape(@%, 1)<CR>
-autocmd FileType rust map <buffer> <leader>r :w<CR>:exec '!cargo run'<CR>
-autocmd FileType rust map <buffer> <leader>ir :w<CR>:terminal cargo run<CR>
-autocmd FileType rust map <buffer> <leader>cr :w<CR>:exec '!cargo check'<CR>
+autocmd FileType python map <buffer> <leader>rr :w<CR>:exec '!python3' shellescape(@%, 2)<CR>
+autocmd FileType python map <buffer> <leader>rb :w<CR>:exec '!poetry run python' shellescape(@%, 1)<CR>
+autocmd FileType rust map <buffer> <leader>rr :w<CR>:split term://cargo run<CR>
+autocmd FileType rust map <buffer> <leader>rb :w<CR>:split term://cargo build<CR>
+autocmd FileType rust map <buffer> <leader>rc :w<CR>:exec '!cargo check'<CR>
 :tnoremap <Esc> <C-\><C-n>
