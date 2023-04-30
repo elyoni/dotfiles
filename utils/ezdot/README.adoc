@@ -1,0 +1,75 @@
+= ezdot: Simplify Your Dotfiles Workflow
+
+ezdot is a tool that simplifies the management of your dotfiles. It provides a consistent and modular approach to installing, updating, and linking your configuration files across different systems.
+
+== Features
+
+. Wraps common package managers (e.g. pip, apt, pipx) and treats file linking, shell script execution, and Makefile installation as packages.
+. Describes each package as an implementation of the IPackage abstract class, allowing for flexible package definitions.
+. Allows installing packages from local or remote sources (e.g. Git repositories).
+. Supports versioning and updating packages.
+. Provides a simple CLI for managing packages.
+
+== Usage
+
+To use ezdot, you need to describe your dotfiles as a collection of packages. Each package should be defined in a Python file using the Package class provided by ezdot. For example:
+[source, python]
+.Using the Application class
+----
+from ezdot.package import Application, AptPackage, PipPackage, MakePackage, GithubScriptPackage
+tmux_app = Application(
+        name="tmux",
+        description="Terminal multiplexer",
+        dependencies=[
+            AptPackage(name="libevent-dev"),
+            AptPackage(name="ncurses-dev"),
+            AptPackage(name="build-essential"),
+            AptPackage(name="bison"),
+            AptPackage(name="pkg-config"),
+            MakePackage(configure=True, make=True, install_sudo=True),
+            PipPackage(name="tmux_test"),
+            GithubScriptPackage(project_name="robbyrussell/oh-my-zsh",
+                                version="master",
+                                file_path="tools/install.sh",
+                                output_file_dir="/tmp/install",
+                                output_file_name="new_install.sh")
+            ]
+        )
+
+----
+
+This package definition describes the installation of tmux from source, along with its dependencies. It also includes a pip package, a GitHub script package, and a Makefile package.
+
+Once you have defined your packages, you can install, update, or remove them using the ezdot CLI:
+[source, bash]
+.Installing a package
+$ ezdot install tmux_app.py
+
+This command installs the tmux_app application.
+
+You can also update all packages:
+[source, bash]
+.Updating all packages
+$ ezdot update
+
+For more information on how to use ezdot, please refer to the documentation.
+
+== Installation
+
+To install ezdot, simply run:
+[source, bash]
+.Installing ezdot
+----
+$ pip install ezdot
+----
+
+ezdot requires Python 3.8 or later and works on Linux
+//, macOS, and Windows.
+
+// == Contribution
+//
+// If you want to contribute to ezdot, please fork the project on GitHub and submit a pull request. We welcome bug reports, feature requests, and other contributions.
+
+== License
+
+ezdot is licensed under the MIT License. See the LICENSE file for details.

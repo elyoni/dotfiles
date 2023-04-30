@@ -1,49 +1,31 @@
 from __future__ import annotations
+from abc import ABC, abstractmethod
 import subprocess
 
-class IPackageConfig():
-    pass
 
-class GithubShPackageConfig(IPackageConfig):
-    def __init__(self,
-                 script_path: str|None):
-        self.script_path = script_path
-
-class IPackage():
-    def __init__(self, name:str,
-                 version:str|None=None,
-                 settings: IPackageConfig|None=None,
-                 dotfiles: list[str]=[]):
-        self.name: str = name
-        self.version: str|None = version  # If version is None then version=Latest
-
+class IPackage(ABC):
+    def __init__(self):
         self.dependencies: list[IPackage] = []
-        self.settings = None
-        self.dotfiles: list[str] = []
 
     def set_dependencies(self, dependencies: list[IPackage]):
         self.dependencies: list[IPackage] = dependencies
 
-    def set_package_settings(self, settings: IPackageConfig):
-        self.settings = settings
-
-    def set_dotfiles(self, dotfiles: list[str]):
-        self.dotfiles: list[str] = dotfiles
-
-    def install(self, force:bool=False) -> bool:
+    @abstractmethod
+    def install(self, with_dependeices=True, force:bool=False) -> bool:
         return False
 
+    @abstractmethod
     def uninstall(self) -> bool:
         return False
 
-    def _install_dependencies(self, force:bool=False) -> bool:
-        return False
-
-    def _install_dotfiles(self, force:bool=False)  -> bool:
-        return False
-
+    @abstractmethod
     def verify(self) -> bool:
         return False
+
+    def _install_dependencies(self, force:bool=False) -> bool:
+        # TODO
+        return False
+
 
 class PipPackage(IPackage):
     PIP_GLOBAL_PATH="${HOME}/.local/bin/pip"
