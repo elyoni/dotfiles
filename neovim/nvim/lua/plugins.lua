@@ -57,23 +57,6 @@ return require('packer').startup(function(use)
         'habamax/vim-asciidoctor'
     }
 
-    -- use {
-    --     "folke/noice.nvim",
-    --     event = "VimEnter",
-    --     config = function()
-    --         require("noice").setup()
-    --     end,
-    --     requires = {
-    --         -- if you lazy-load any plugin below, make sure to add proper `module="..."` entries
-    --         "MunifTanjim/nui.nvim",
-    --         -- OPTIONAL:
-    --         --   `nvim-notify` is only needed, if you want to use the notification view.
-    --         --   If not available, we use `mini` as the fallback
-    --         "rcarriga/nvim-notify",
-    --     }
-    -- }
-
-
     use {
         'nvim-treesitter/nvim-treesitter',
         run = ':TSUpdate'
@@ -123,12 +106,12 @@ return require('packer').startup(function(use)
 
     }
 
-    -- use {
-    --     'skanehira/preview-uml.vim',
-    --     setup = function () -- load stuff before the plugin is loaded
-    --         vim.g.preview_uml_url = 'http://localhost:8888'
-    --     end
-    -- }
+    use {
+        'skanehira/preview-uml.vim',
+        setup = function () -- load stuff before the plugin is loaded
+            vim.g.preview_uml_url = 'http://localhost:8888'
+        end
+    }
 
     use {
         'weirongxu/plantuml-previewer.vim',
