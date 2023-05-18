@@ -121,6 +121,31 @@ return require('packer').startup(function(use)
         }
     }
 
+    use {
+        'ratfactor/vviki',
+        config = { vim.api.nvim_set_keymap("n", "<leader>we", ":e ~/Documents/asciwiki.adoc<CR>", {}) },
+        setup = function () -- load stuff before the plugin is loaded
+            vim.g.vviki_root = "~/Documents/asciwiki"
+        end
+
+    }
+
+    -- use {
+    --     'ratfactor/vviki',
+    --
+    --     setup = function () -- load stuff before the plugin is loaded
+    --         asciiwiki_dir = "~/Documents/asciwiki"
+    --         vim.g.vviki_root = asciiwiki_dir,
+    --     end
+    --
+    --     config = {
+    --         -- open tig with current file
+    --         vim.api.nvim_set_keymap("n", "<leader>we", ":e %s<CR>" % asciiwiki_dir, {}),
+    --
+    --     }
+    --
+    -- }
+
     -- Automatically set up your configuration after cloning packer.nvim
     -- Put this at the end after all plugins
     if packer_bootstrap then

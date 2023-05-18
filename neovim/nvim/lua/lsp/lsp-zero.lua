@@ -19,6 +19,10 @@ lsp.configure('ltex', {
     filetypes = { 'asciidoctor', 'vimwiki' },
 })
 
+lsp.configure('black', {
+    filetypes = { 'python' },
+})
+
 lsp.set_preferences({
   suggest_lsp_servers = true,
   setup_servers_on_start = true,
@@ -34,23 +38,40 @@ lsp.set_preferences({
     info = ''
   }
 })
-
 lsp.on_attach(function(client, bufnr)
+
+  local nmap = function(keys, func, desc)
+    if desc then
+      desc = 'LSP: ' .. desc
+    end
+
+    vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
+  end
+
+
+
   local opts = {buffer = bufnr, remap = false}
   lsp.default_keymaps({buffer = bufnr})
 
+  nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
   vim.keymap.set({'n', 'i'}, '<F7>',
-      '<cmd>lua vim.lsp.buf.signature_help()<cr>', opts)
+      '<cmd>lua vim.lsp.buf.signature_help()<cr>', opts
+      )
 
   vim.keymap.set({'n', 'x'}, '<F8>', function()
     vim.lsp.buf.format({async = false, timeout_ms = 10000})
   end)
+
+  -- vim.keymap.set({'n','x'}, '<K>',
+  --   '<cmd>lua vim.lsp.buf.hover()<cr>', opts
+  --   )
 end)
 
 lsp.format_on_save({
   servers = {
     ['lua_ls'] = {'lua'},
     ['rust_analyzer'] = {'rust'},
+    ['black'] = {'python'},
   }
 })
 
