@@ -8,6 +8,12 @@ function link_files()
     echo =======   End   =======
 }
 
+function prepare_installation(){
+    echo ======= Prepare for Tmux Install =======
+    sudo apt-get install wget -y
+    echo ======= End  =======
+}
+
 function install_tmux_apt_get()
 {
     echo ======= Install Tmux =======
@@ -24,7 +30,7 @@ function install_tmux_last()
 {
     sudo apt-get install libevent-dev ncurses-dev build-essential bison pkg-config -y
     DOWNLOAD_PATH=$HOME/Downloads/apps/tmux
-    VERSION="3.1b"
+    VERSION="3.3a"
     VERSION_ONLY=$(echo $VERSION | sed -e 's/^\([0-9]\+\.[0-9]\+\).*/\1/')
     mkdir -p ${DOWNLOAD_PATH}
     wget -P ${DOWNLOAD_PATH} https://github.com/tmux/tmux/releases/download/${VERSION}/tmux-${VERSION}.tar.gz
@@ -37,6 +43,7 @@ function install_tmux_last()
 
 function install()
 {
+    prepare_installation
     install_tmux_last
     link_files
 }
