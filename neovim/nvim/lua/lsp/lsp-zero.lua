@@ -1,6 +1,10 @@
 require'lspconfig'.ltex.setup{}
 
+
 local lsp = require('lsp-zero')
+
+
+
 lsp.preset('recommended')
 
 lsp.configure('pyright', {
@@ -21,6 +25,11 @@ lsp.configure('ltex', {
 
 lsp.configure('black', {
     filetypes = { 'python' },
+})
+
+lsp.configure('shfmt', {
+    cmd = { "shfmt" },
+    filetypes = { 'sh' },
 })
 
 lsp.set_preferences({
@@ -49,7 +58,6 @@ lsp.on_attach(function(client, bufnr)
   end
 
 
-
   local opts = {buffer = bufnr, remap = false}
   lsp.default_keymaps({buffer = bufnr})
 
@@ -59,13 +67,25 @@ lsp.on_attach(function(client, bufnr)
       )
 
   vim.keymap.set({'n', 'x'}, '<F8>', function()
-    vim.lsp.buf.format({async = false, timeout_ms = 10000})
+    vim.lsp.buf.format({async = false, timeout_ms = 10000,
+})
   end)
 
   -- vim.keymap.set({'n','x'}, '<K>',
   --   '<cmd>lua vim.lsp.buf.hover()<cr>', opts
   --   )
 end)
+lsp.format_mapping('gq', {
+  format_opts = {
+    async = false,
+    timeout_ms = 10000,
+  },
+  servers = {
+    ['lua_ls'] = {'lua'},
+    ['rust_analyzer'] = {'rust'},
+    ['shfmt'] = {'sh'},
+  }
+})
 
 lsp.format_on_save({
   servers = {

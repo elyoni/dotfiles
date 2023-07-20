@@ -88,6 +88,8 @@ xnoremap P "_dp
 autocmd FileType python map <buffer> <leader>rr :w<CR>:exec '!python3' shellescape(@%, 2)<CR>
 autocmd FileType python map <buffer> <leader>rb :w<CR>:exec '!poetry run python' shellescape(@%, 1)<CR>
 autocmd FileType rust map <buffer> <leader>rr :w<CR>:split term://cargo run<CR>
-autocmd FileType rust map <buffer> <leader>rb :w<CR>:split term://cargo build<CR>
+autocmd FileType rust map <buffer> <leader>rbx :w<CR>:split term://cargo build<CR>
+autocmd FileType rust map <buffer> <leader>rba :w<CR>:split term://cargo build --target aarch64-unknown-linux-gnu<CR>
 autocmd FileType rust map <buffer> <leader>rc :w<CR>:exec '!cargo check'<CR>
+autocmd FileType rust map <buffer> <leader>rt :w<CR>:exec '!cargo test -- --nocapture'<CR>
 :tnoremap <Esc> <C-\><C-n>

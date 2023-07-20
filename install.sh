@@ -1,6 +1,8 @@
 #!/bin/bash
 #options=( 'Install Apps vi apt-get' 'Copy Dotfile To The System' 'Backup dotfile From The System' 'Create Favorite Directory' 'Quit')
 #yoni=(1 2 3)
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P $DIR && pwd)
 
 DIR=$(dirname "${BASH_SOURCE[0]}")
 DIR=$(cd -P $DIR && pwd)

@@ -71,10 +71,13 @@ cmap w!! w !sudo tee %
 set noro
 
 " folding
-set foldenable
+" set foldenable
 "set foldmethod=syntax
-set foldmethod=marker
-set foldlevel=0
+" set foldmethod=marker
+" set foldlevel=0
+set foldmethod=expr
+set foldexpr=nvim_treesitter#foldexpr()
+set nofoldenable                     " Disable folding at startup.
 
 " When searching I will see split screen with all the option
 set inccommand=split 

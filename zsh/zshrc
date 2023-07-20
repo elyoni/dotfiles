@@ -73,3 +73,7 @@ if [ -e /home/yehonatan/.nix-profile/etc/profile.d/nix.sh ]; then . /home/yehona
 source /home/yehonatan/.config/broot/launcher/bash/br
 source ~/.config/zsh/invoke-completion.sh
 eval "$(register-python-argcomplete gitlab)"
+
+# Generated for envman. Do not edit.
+[ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
+

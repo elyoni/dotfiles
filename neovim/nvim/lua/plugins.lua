@@ -15,6 +15,18 @@ return require('packer').startup(function(use)
     -- Packer can manage itself
     use 'wbthomason/packer.nvim'
     -----------------------------
+    use 'will133/vim-dirdiff'
+
+    use({
+        "kylechui/nvim-surround",
+        tag = "*", -- Use for stability; omit to use `main` branch for the latest features
+        config = function()
+            require("nvim-surround").setup({
+                -- Configuration here, or leave empty to use defaults
+            })
+        end
+    })
+    use 'ElPiloto/telescope-vimwiki.nvim'
 
     -- LSP-ZERO - notworking
     use {
@@ -37,6 +49,15 @@ return require('packer').startup(function(use)
             {'L3MON4D3/LuaSnip'},
             {'rafamadriz/friendly-snippets'},
         }
+    }
+
+    use "lukas-reineke/lsp-format.nvim"
+
+    use {
+        'fei6409/log-highlight.nvim',
+        config = function()
+            require('log-highlight').setup {}
+        end,
     }
 
     use {

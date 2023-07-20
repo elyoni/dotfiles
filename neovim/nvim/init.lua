@@ -4,7 +4,8 @@ vim.api.nvim_command('source $HOME/.config/nvim/general/settings.vim')
 vim.api.nvim_command('source $HOME/.config/nvim/general/commands.vim')
 vim.api.nvim_command('source $HOME/.config/nvim/keys/mappings.vim')
 
-
+require("nvim-surround").setup()
+require('telescope').load_extension('vimwiki')
 require('lsp/lsp-zero')
 require('lsp/lsp-cmp')
 require('plugins')

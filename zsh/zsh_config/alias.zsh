@@ -3,6 +3,11 @@
 alias mini0="sudo minicom -D /dev/ttyUSB0 -C ~/projects/minicom0.log"
 alias mini1="sudo minicom -D /dev/ttyUSB1 -C ~/projects/minicom1.log"
 alias svi="sudo -E nvim"
+alias ssh='env TERM=xterm-256color ssh'
+alias box2='tusk -f /home/yehonatan/projects/private/my_projects/box2/tusk.yml'
+alias b2='tusk -f /home/yehonatan/projects/private/my_projects/box2/tusk.yml'
+
+alias pwdcp='pwd | xclip -sel clip'
 
 alias cdpman="cd ~/projects/sources/apps/pmanager"
 alias cdcore="cd ~/projects/sources/apps/core"
@@ -16,6 +21,7 @@ alias cdlibsuite="cd ~/projects/sources/libsuite/"
 alias gip="source ~/projects/tools/env/zsh/update_ip.sh"
 alias vi="nvim"
 alias rr="ranger"
+alias tt="taskwarrior-tui"
 alias ydl-mp3="youtube-dl --extract-audio --audio-format mp3"
 if [[ -f $(where pulsemixer) ]]; then
     alias px="pulsemixer"
