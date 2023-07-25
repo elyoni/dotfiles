@@ -2,12 +2,17 @@
 
 alias mini0="sudo minicom -D /dev/ttyUSB0 -C ~/projects/minicom0.log"
 alias mini1="sudo minicom -D /dev/ttyUSB1 -C ~/projects/minicom1.log"
+<<<<<<< HEAD
 alias svi="sudo -E nvim"
 alias ssh='env TERM=xterm-256color ssh'
 alias box2='tusk -f /home/yehonatan/projects/private/my_projects/box2/tusk.yml'
 alias b2='tusk -f /home/yehonatan/projects/private/my_projects/box2/tusk.yml'
 
 alias pwdcp='pwd | xclip -sel clip'
+=======
+alias box2='tusk -f /home/yoni/apps/box2/tusk.yml'
+alias b2='tusk -f /home/yoni/apps/box2/tusk.yml'
+>>>>>>> Before rebase
 
 alias cdpman="cd ~/projects/sources/apps/pmanager"
 alias cdcore="cd ~/projects/sources/apps/core"

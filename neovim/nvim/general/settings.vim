@@ -28,18 +28,18 @@ set autoindent                          " Good auto indent
 "set laststatus=0                        " Always display the status line
 
 " Number bar
-set number norelativenumber             " Line numbers
+" set number norelativenumber             " Line numbers
 set number relativenumber               " Line numbers relative with current line
+
 
 set cursorline                          " Enable highlighting of the current line
 set background=dark                     " tell vim what the background color looks like
 set showtabline=2                       " Always show tabs
-set noshowmode                          " We don't need to see things like -- INSERT -- anymore
+" set noshowmode                          " We don't need to see things like -- INSERT -- anymore
 set backup                              " This is recommended by coc
 if empty(glob($HOME."/.nvim_backup/"))
     call mkdir($HOME."/.nvim_backup/")
 endif
-
 set backupdir=~/.nvim_backup/                              " This is recommended by coc
 set updatetime=300                      " Faster completion
 set timeoutlen=500                      " By default timeoutlen is 1000 ms
@@ -60,9 +60,6 @@ au! BufWritePost $MYVIMRC source %      " auto source when writing to init.vm al
 
 hi Normal ctermbg=none guibg=none
 set encoding=utf8
-if !empty(glob("path/to/file"))
-    set shell=/usr/bin/zsh
-endif
 
 " You can't stop me
 cmap w!! w !sudo tee %

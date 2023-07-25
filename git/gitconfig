@@ -30,6 +30,8 @@
 	enabled = true
 [icdiff]
 	options = --highlight --line-numbers
+[mergetool "nvimdiff"]
+    cmd = "nvim -d \"$LOCAL\" \"$REMOTE\""
 [difftool "nvimdiff"]
     cmd = "nvim -d \"$LOCAL\" \"$REMOTE\""
 [include]
