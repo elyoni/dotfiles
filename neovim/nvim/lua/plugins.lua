@@ -23,11 +23,16 @@ return require('packer').startup(function(use)
         config = function()
             require("nvim-surround").setup({
                 -- Configuration here, or leave empty to use defaults
+                vim.api.nvim_set_keymap("v", "s", "S", {}),
             })
         end
     })
-    use 'ElPiloto/telescope-vimwiki.nvim'
 
+    use ({ 'nvim-tree/nvim-tree.lua',
+        requires = {
+            'nvim-tree/nvim-web-devicons', -- optional
+        }
+    })
     -- LSP-ZERO - notworking
     use {
         'VonHeikemen/lsp-zero.nvim',
@@ -58,15 +63,6 @@ return require('packer').startup(function(use)
         config = function()
             require('log-highlight').setup {}
         end,
-    }
-
-    use {
-        "ms-jpq/chadtree",
-        branch = "chad",
-        run = 'python3 -m chadtree deps',
-        config = {
-            vim.api.nvim_set_keymap("n", "<C-n>", ":CHADopen<CR>", {})
-        }
     }
 
     use {
@@ -118,14 +114,18 @@ return require('packer').startup(function(use)
             vim.api.nvim_set_keymap("n", "<leader>tt", ":TigOpenProjectRootDir<CR>", {}),
         }
     }
-
     use {
-        'vimwiki/vimwiki',
-        setup = function () -- load stuff before the plugin is loaded
-            vim.g.vimwiki_auto_chdir = 1
-        end
-
+        'lervag/wiki.vim'
     }
+    
+
+    -- use {
+    --     'vimwiki/vimwiki',
+    --     setup = function () -- load stuff before the plugin is loaded
+    --         vim.g.vimwiki_auto_chdir = 1
+    --     end
+    --
+    -- }
 
     use {
         'skanehira/preview-uml.vim',

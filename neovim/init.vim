@@ -20,7 +20,7 @@ set clipboard=unnamed,unnamedplus " Copy/Paste directly to System/X11 clipboard
 " To install the Plug just write in normal mode ":PlugInstall"
 call plug#begin()
 
-Plug 'vimwiki/vimwiki'                  "Wiki for vim
+" Plug 'vimwiki/vimwiki'                  "Wiki for vim
 Plug 'easymotion/vim-easymotion'
 
 "Status Bar
@@ -280,7 +280,7 @@ set completeopt+=menuone
 
 "autocmd FileType python nnoremap <leader>y :0,$!yapf<Cr>
 autocmd CompleteDone * pclose " To close preview window of deoplete automagically
-autocmd FileType vimwiki setlocal spell wrap
+" autocmd FileType vimwiki setlocal spell wrap
 
 let g:ycm_server_keep_logfiles = 1
 "let g:ycm_server_log_level = 'debug'
