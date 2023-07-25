@@ -5,13 +5,13 @@ vim.api.nvim_command('source $HOME/.config/nvim/general/commands.vim')
 vim.api.nvim_command('source $HOME/.config/nvim/keys/mappings.vim')
 
 
+require('plugins')
 require("nvim-surround").setup()
 require('telescope')
 --.load_extension('vimwiki')
 require('lsp/lsp-zero')
 require('lsp/lsp-cmp')
-require('plugins')
--- require('treesitter')
+require('treesitter')
 -- vim.api.nvim_command('source $HOME/.config/nvim/general/wiki_settings.vim')
 
 vim.g.wiki_root = "~/wiki"
