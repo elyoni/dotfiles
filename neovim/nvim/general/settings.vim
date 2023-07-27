@@ -26,6 +26,7 @@ set expandtab                           " Converts tabs to spaces
 set smartindent                         " Makes indenting smart
 set autoindent                          " Good auto indent
 "set laststatus=0                        " Always display the status line
+set scrolloff=10
 
 " Number bar
 " set number norelativenumber             " Line numbers
