@@ -68,8 +68,6 @@ if [ -d "${DOTFILES_WORK_PATH}/zsh" ]; then
     for f in ${DOTFILES_WORK_PATH}/zsh/*.zsh; do source $f; done
 fi
 
-<<<<<<< HEAD
-
 if [ -e /home/yehonatan/.nix-profile/etc/profile.d/nix.sh ]; then . /home/yehonatan/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
 
 source /home/yehonatan/.config/broot/launcher/bash/br
@@ -78,6 +76,3 @@ eval "$(register-python-argcomplete gitlab)"
 
 # Generated for envman. Do not edit.
 [ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
-
-=======
->>>>>>> Before rebase

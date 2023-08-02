@@ -40,21 +40,12 @@ function install_tmux_last()
 {
     sudo apt-get install libevent-dev ncurses-dev build-essential bison pkg-config -y
     DOWNLOAD_PATH=$HOME/Downloads/apps/tmux
-<<<<<<< HEAD
-    VERSION="3.3a"
-    # VERSION_ONLY=$(echo $VERSION | sed -e 's/^\([0-9]\+\.[0-9]\+\).*/\1/')
-    mkdir -p "${DOWNLOAD_PATH}"
-    wget -P "${DOWNLOAD_PATH}" https://github.com/tmux/tmux/releases/download/${VERSION}/tmux-${VERSION}.tar.gz
-    tar -C "${DOWNLOAD_PATH}" -zxf "${DOWNLOAD_PATH}"/tmux-${VERSION}.tar.gz
-    pushd "${DOWNLOAD_PATH}"/tmux-${VERSION} || return 
-=======
     VERSION="3.3"
     VERSION_ONLY=$(echo $VERSION | sed -e 's/^\([0-9]\+\.[0-9]\+\).*/\1/')
     mkdir -p ${DOWNLOAD_PATH}
     wget -P ${DOWNLOAD_PATH} https://github.com/tmux/tmux/releases/download/${VERSION}/tmux-${VERSION}.tar.gz
     tar -C ${DOWNLOAD_PATH} -zxf $DOWNLOAD_PATH/tmux-${VERSION}.tar.gz
     cd ${DOWNLOAD_PATH}/tmux-${VERSION}
->>>>>>> Before rebase
     ./configure
     make && sudo make install
     popd || return
