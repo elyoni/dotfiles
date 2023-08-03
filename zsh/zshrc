@@ -44,7 +44,7 @@ plugins=(
   taskwarrior
 )
   # z
-source $ZSH/oh-my-zsh.sh
+[ -f ${ZSH}/oh-my-zsh.sh ] && source ${ZSH}/oh-my-zsh.sh
 
 # User configuration
 
@@ -70,8 +70,8 @@ fi
 
 if [ -e /home/yehonatan/.nix-profile/etc/profile.d/nix.sh ]; then . /home/yehonatan/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
 
-source /home/yehonatan/.config/broot/launcher/bash/br
-source ~/.config/zsh/invoke-completion.sh
+[ -f ${HOME}/.config/broot/launcher/bash/br ] && source ${HOME}/.config/broot/launcher/bash/br
+[ -f ${HOME}/.config/zsh/invoke-completion.sh ] && source ~/.config/zsh/invoke-completion.sh
 eval "$(register-python-argcomplete gitlab)"
 
 # Generated for envman. Do not edit.
