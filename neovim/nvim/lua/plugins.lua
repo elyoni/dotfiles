@@ -122,9 +122,13 @@ require("lazy").setup({
         dependencies = {
             'nvim-lua/plenary.nvim',
         },
+            --builtin.grep_string
         keys = {
             { '<leader>fg', "<cmd>Telescope live_grep<CR>",    desc = "Live grep" },
             { '<leader>ff', "<cmd>Telescope find_files<CR>",   desc = "Find file" },
+            { '<leader>fF', "<cmd>Telescope git_files<CR>",    desc = "Find file git" },
+            { '<C-p>',      "<cmd>Telescope find_files<CR>",   desc = "Find file" },
+            { '<C-f>',      "<cmd>Telescope grep_string<CR>",  desc = "Find Word", mode={"v", "n"} },
             { '<leader>fb', "<cmd>Telescope buffers<CR>",      desc = "Buffers list" },
             { '<leader>fe', "<cmd>Telescope file_browser<CR>", desc = "Files Explorer" },
             { '<leader>fh', "<cmd>Telescope help_tags<CR>",    desc = "Help Tags" },
