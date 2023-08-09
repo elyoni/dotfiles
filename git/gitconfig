@@ -1,8 +1,8 @@
 [user]
-	email = yehonatan.e@solaredge.com
-	name = Yehonatan Elentok
+    email = yehonatan.e@solaredge.com
+    name = Yehonatan Elentok
 [push]
-	default = current
+    default = current
 [alias]
     co = checkout
     br = branch
@@ -22,19 +22,19 @@
     site = !"current_branch=$(git branch --show-current) && git config --get remote.origin.url | sed 's|git@\\(.*\\):\\(.*\\).git|https://\\1\\/\\2/tree/'${current_branch}'|' | xargs xdg-open "
     root = rev-parse --show-toplevel
 [diff]
-	tool = meld
+    tool = meld
     merge = meld
 [merge]
     tool = meld
 [rerere]
-	enabled = true
+    enabled = true
 [icdiff]
-	options = --highlight --line-numbers
+    options = --highlight --line-numbers
 [mergetool "nvimdiff"]
     cmd = "nvim -d \"$LOCAL\" \"$REMOTE\""
 [difftool "nvimdiff"]
     cmd = "nvim -d \"$LOCAL\" \"$REMOTE\""
 [include]
-	path = ~/projects/tools/env/gitlab/se_gitconfig
+    path = ~/projects/tools/env/gitlab/se_gitconfig
 [submodule]
-	recurse = true
+    recurse = true
