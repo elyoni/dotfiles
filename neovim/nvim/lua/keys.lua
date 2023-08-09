@@ -77,6 +77,10 @@ vim.api.nvim_set_keymap("n", "dj", "]c", {})
 vim.api.nvim_set_keymap("n", "dk", "[c", {}) 
 
 --" Cancel the insasaly annoying copy paste
+vim.api.nvim_set_keymap("v", "p", "\"_dP", {}) 
+vim.api.nvim_set_keymap("v", "P", "\"_dp", {}) 
+vim.api.nvim_set_keymap("s", "P", "\"_dP", {}) 
+vim.api.nvim_set_keymap("s", "p", "\"_dp", {}) 
 --vnore p "_dP
 --vnore P "_dp
 --xnoremap p "_dP
