@@ -3,6 +3,7 @@ vim.g.mapleader = "," -- Make sure to set `mapleader` before lazy so your mappin
 
 vim.opt.hidden = true                    -- Required to keep multiple buffers open multiple buffers
 vim.opt.wrap = false                     -- Display long lines as just one line
+vim.opt.linebreak= true                  -- Don't split the word and wrap is set
 vim.opt.encoding = "utf-8"                 -- The encoding displayed
 vim.opt.pumheight = 10                   -- Makes popup menu smaller
 vim.opt.fileencoding = "utf-8"             -- The encoding written to file
