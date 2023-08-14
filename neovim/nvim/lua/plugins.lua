@@ -139,6 +139,9 @@ require("lazy").setup({
         init = function()
             vim.g.wiki_root = '~/wiki'
         end,
+        --keys = {
+            --{ '<leader>wt', "<cmd>WikiTagList<CR>",    desc = "Open Tags List" },
+        --},
 
     },
     {
