@@ -54,7 +54,7 @@ require("lazy").setup({
         config = function()
             require("nvim-surround").setup({
                 keymaps = {
-                    virtual = "s",
+                    visual = "m",
                 },
             })
         end
