@@ -12,7 +12,7 @@ function install_packages() # Install additional package for neovim
     sudo apt-get update
     sudo apt-get install -y xclip \
         curl \
-        ctags \
+        exuberant-ctags \
         tar \
         git
     echo ======== End ========
@@ -65,11 +65,17 @@ function link_neovim_files  # Link neovim files(color + init.vim)
     ln -sf ${HOME}/.local/bin/nvim ${HOME}/.local/bin/vi
 }
 
+function install_plugins
+{
+    nvim +Lazy +qall
+} 
+
 function install  # Main function, this function install everything 
 {
     install_packages
     install_neovim
     link_neovim_files
+    install_plugins
 }
 
 function qinst
