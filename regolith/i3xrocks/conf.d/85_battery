@@ -1,0 +1,3 @@
+[battery]
+command=$HOME/.config/regolith/i3xrocks/conf.d/battery.sh
+interval=10 Displays notifications.

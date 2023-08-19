@@ -1,0 +1,10 @@
+#define WORKSPACE_NAME(INDEX, FONT, COLOR, GLYPH)
+!INDEX:<span font_desc=FONT> INDEX </span>
+! ! i3-wm.workspace.01.name: WORKSPACE_NAME(1, glyph_font, QUOTE(color_blue), glyph)
+! ! i3-wm.workspace.02.name: WORKSPACE_NAME(2, glyph_font, QUOTE(color_cyan), glyph)
+i3-wm.workspace.Files.name: 4:AAAA
+gnome.terminal.background-transparency-percent 50
+rofi.ssh-client:                     ssh
+rofi.ssh-command:          {terminal} -e "{ssh-client} {host}"
+gnome.terminal.font:	JetBrains Mono 14
+
