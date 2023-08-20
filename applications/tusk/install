@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P $DIR && pwd)
+
+function _install_tusk()
+{
+    sudo apt-get update
+    sudo apt-get install curl -y
+    curl -sL https://git.io/tusk | sudo ${SHELL} -s -- -b /usr/local/bin latest
+}
+
+
+function _install_tusk_autocomplition()
+{
+    local current_shell
+    current_shell=$(ps -hp $$|awk '{printf $5}')
+    case ${current_shell} in
+        bash|fish) tusk --install-completion "${current_shell}" ;;
+        zsh)
+            sudo chown $(id -u):$(id -g) /usr/local/share/zsh/site-functions/
+            tusk --install-completion "${current_shell}" ;;
+        *) echo "Cannot install auto completion the shell: ${current_shell} isn't support"
+    esac
+}
+
+function install()
+{
+    _install_tusk
+    _install_tusk_autocomplition
+}
+
+function verify()
+{
+    if [[ -f $(which task) ]];then
+        return 0
+    else
+        return 1
+    fi
+}
+
+function help() # Show a list of functions
+{
+    grep "^function" $0
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi

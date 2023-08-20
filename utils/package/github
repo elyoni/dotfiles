@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+DOWNLOAD_PATH=/tmp/dotfile/packages
+
+function download_latest_release()
+{
+    local file_structure=${1}
+    local repository_path=${2}
+    local file_uri
+    local filename
+    local filename_without_extension
+    local file_downloaded_path
+
+    if [[ ! -d ${DOWNLOAD_PATH} ]]; then
+        mkdir -p ${DOWNLOAD_PATH}
+    fi
+     
+    file_uri=$(curl -s https://api.github.com/repos/"${repository_path}"/releases/latest \
+        | jq -r --arg file_structure "${file_structure}" \
+        '.assets[] | select (.name|test($file_structure)) | .browser_download_url')
+
+    filename=$(basename "$file_uri")
+    file_downloaded_path="${DOWNLOAD_PATH}"/"${filename}"
+
+    if [[ -f ${file_downloaded_path} ]]; then
+        rm "${file_downloaded_path}"
+    fi
+
+    wget -P "${DOWNLOAD_PATH}" "${file_uri}"
+    tar -C "${DOWNLOAD_PATH}" -xvf "${file_downloaded_path}"
+
+    filename_without_extension="${file_downloaded_path%.tar.gz}"
+    
+    rm "${file_downloaded_path}"
+
+    # Return extract file path
+    echo "${filename_without_extension}"
+
+}

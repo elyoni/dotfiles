@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 function install_fzf() {
     echo 'Installing FZF... '
     if [ -e ~/.fzf ]; then
@@ -17,8 +19,20 @@ function install_packages() # Install additional package for neovim
     echo ======== End ========
 }
 
+function verify()
+{
+    if [[ -f $(which fzf) ]]; then
+        return 0
+    else
+        return 1
+    fi
+
+
+}
+
 function install
 {
+    install_packages
     install_fzf
 }
 
