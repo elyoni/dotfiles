@@ -1,0 +1,36 @@
+function install_fzf() {
+    echo 'Installing FZF... '
+    if [ -e ~/.fzf ]; then
+        echo 'already installed.'
+    else
+        git clone https://github.com/junegunn/fzf.git ~/.fzf --depth 1
+        ~/.fzf/install --completion --key-bindings --no-update-rc
+    fi
+}
+
+function install_packages() # Install additional package for neovim
+{
+    ## To connect the clipboard of the neovim and the linux
+    echo ====== Install additional packages =====
+    sudo apt-get update
+    sudo apt-get install -y git
+    echo ======== End ========
+}
+
+function install
+{
+    install_fzf
+}
+
+
+function help # Show a list of functions
+{
+    grep "^function" $0
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi
+

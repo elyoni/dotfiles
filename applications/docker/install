@@ -1,0 +1,117 @@
+#!/usr/bin/env bash
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P "$DIR" && pwd)
+
+function __verify_docker_permissions()
+{
+    # NOTE: utile function, not for the verification stage
+    # If the permissions is correct I can remove the `sudo` from the verify commands
+    # return 1 if the permission is only for sudo
+    # return 0 if the permission are for the users
+    :
+}
+
+function __uninstall_docker()
+{
+    # uninstall when using get-docker.sh install
+    sudo dpkg -P \
+        docker-ce \
+        docker-ce-cli \
+        docker-compose-plugin \
+        docker-scan-plugin
+    sudo apt-get install -f
+}
+
+function _install_docker_engine()
+{
+    local download_path=/tmp/apps/docker
+    # OrigInal tutorial: https://github.com/docker/docker-install
+    echo ====== START: Install docker engine =====
+
+    echo "== Install packages =="
+    sudo apt-get update
+    sudo apt-get install \
+        ca-certificates \
+        curl \
+        gnupg \
+        lsb-release -y
+
+    echo "== Install docker with get-docker.sh =="
+    mkdir -p "${download_path}"
+    curl -fsSL https://get.docker.com -o "${download_path}"/get-docker.sh
+    sudo sh "${download_path}"/get-docker.sh
+    rm "${download_path}"/get-docker.sh
+    echo ====== END: Install docker engine =====
+}
+
+function _fix_docker_permissions()
+{
+    # Original tutorial: https://docs.docker.com/engine/install/linux-postinstall/
+    echo ====== START: Fix docker permissions =====
+    echo "== Create the docker group =="
+    sudo groupadd docker
+
+    echo "== Add your user to the docker group =="
+    sudo usermod -aG docker "$USER"
+
+    newgrp docker  # Remove the needs of logout and login
+    echo "====== END: Fix docker permissions ====="
+}
+
+function _verify_fix_docker_permissions()
+{
+    # Run docker command without sudo
+    local test-image="hello-world"
+    if ! docker run "${test-image}"; then
+        echo "INSTALL_FAILED: Docker permission fix WASN'T install successfully"
+        return 1
+    else
+        docker rmi "${test-image}"
+        echo "INSTALL_SUCCESS: Docker permission fix install successfully"
+        return 0
+    fi
+}
+
+function _verify_docker_engine()
+{
+    local test-image="hello-world"
+    if ! sudo docker run "${test-image}"; then
+        echo "INSTALL_FAILED: Docker permission fix WASN'T install successfully"
+        return 1
+    else
+        sudo docker rmi "${test-image}"
+        echo "INSTALL_SUCCESS: Docker permission fix install successfully"
+        return 0
+    fi
+}
+
+function _verify_buildx()
+{
+    echo "NOTE: WIP verify buildx installation not support yet"
+    echo "Continue"
+}
+
+function install()
+{
+    _install_docker_engine 
+    _fix_docker_permissions
+}
+
+function verify()
+{
+    _verify_docker_engine
+    _verify_buildx
+    _verify_fix_docker_permissions
+}
+
+function help() # Show a list of functions
+{
+    grep "^function" "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi
+
