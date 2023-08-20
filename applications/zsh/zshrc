@@ -19,4 +19,6 @@ if [ -d ${ZSH_CUSTOM} ]; then
      for f in ${ZSH_CUSTOM}/*.zsh; do source $f; done
 fi
 
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
 source ~/.powerlevel10k/powerlevel10k.zsh-theme
