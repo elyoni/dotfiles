@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+# Support Only one package
+function fast_apt_install()
+{
+    local package_name=${1}
+    function _verify_apt_package_install()
+    {
+        local package_name=${1}
+        dpkg --list "${package_name}" 2>/dev/null 1>/dev/null
+    }
+
+    if ! _verify_apt_package_install "${package_name}"; then
+        sudo apt-get install "${package_name}" -y
+    fi
+}

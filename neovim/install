@@ -85,7 +85,7 @@ function install  # Main function, this function install everything
 
 function qinst
 {
-    if ! verify_installation; then
+    if ! verify; then
         install
     else
         echo "Neovim is already install"

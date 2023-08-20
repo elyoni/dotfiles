@@ -1,9 +1,23 @@
 #!/usr/bin/env bash
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P $DIR && pwd)
+
+source ${DIR}/apt
 
 DOWNLOAD_PATH=/tmp/dotfile/packages
 
+function install_dependenices {
+    fast_apt_install wget
+    fast_apt_install tar
+    fast_apt_install curl
+    fast_apt_install jq
+}
+
+install_dependenices
+
 function download_latest_release()
 {
+
     local file_structure=${1}
     local repository_path=${2}
     local file_uri

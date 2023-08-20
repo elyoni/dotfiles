@@ -51,10 +51,19 @@ function link_files
 function set_zsh_as_default_shell() {
     zsh_bin="$(which zsh)"
     echo "Changing user's shell to $zsh_bin... "
-    if [[ "$SHELL" =~ /zsh ]]; then
-        echo 'already set'
+    #if [[ "$SHELL" =~ /zsh ]]; then
+        #echo 'already set'
+    #else
+        #chsh -s "$zsh_bin"
+    #fi
+}
+
+function verify()
+{
+    if [[ -f $(which zsh) ]];then
+        return 0
     else
-        chsh -s "$zsh_bin"
+        return 1
     fi
 }
 
