@@ -1,0 +1,111 @@
+#!/usr/bin/env bash
+
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P $DIR && pwd)
+
+#sudo apt-get install tig -y
+
+function __util_fast_apt_install()
+{
+    local package_name=${1}
+    function __verify_apt_package_install()
+    {
+        local package_name=${1}
+        dpkg --list ${package_name} 2>/dev/null 1>/dev/null
+    }
+
+    if ! __verify_apt_package_install ${package_name}; then
+        sudo apt-get install ${package_name} -y
+    fi
+}
+
+
+function _link_files()
+{
+    echo ======= link_files =======
+    ln -sf $DIR/tigrc $HOME/.tigrc
+    echo =======    end    =======
+}
+
+function _install_tig()
+{
+    local latest_version
+    local download_path=/tmp/apps/tig
+    local extract_dir
+    echo ====== START: Install tig =====
+    sudo apt-get install -y \
+        libncurses5-dev \
+        libncursesw5-dev \
+        curl \
+        tar \
+        wget \
+        build-essential \
+        make
+
+    latest_version=$(curl -s https://api.github.com/repos/jonas/tig/releases/latest | awk -F\" '/browser_download_url.*.*tig-.*.tar.gz"$/{print $(NF-1)}')
+    echo ======= install tig Version $VERSION  =======
+    mkdir -p ${download_path}
+    wget -O ${download_path}/tig.tar.gz ${latest_version}
+    tar -C ${download_path} -xvf ${download_path}/tig.tar.gz
+    extract_dir=$(find ${download_path} -maxdepth 1 -mindepth 1 -type d)
+    pushd ${extract_dir}
+    make clean
+    make prefix=/usr/local
+    sudo make install prefix=/usr/local
+    popd
+    echo ====== END: Install tig =====
+}
+
+function install() # Install everything
+{
+    _install_tig
+    _link_files
+}
+
+function _verify_tig_binary()
+{
+    local tig_binary_path
+
+    if ! which tig; then
+        echo "VERIFY FAILED: tig binary file wasn't installed"
+        exit 1
+    fi
+}
+
+function _verify_tig_version()
+{
+    local tig_binary_path
+    local tig_install_version
+    local tig_latest_version
+    tig_binary_path=$(which tig)
+
+    __util_fast_apt_install curl
+
+    tig_install_version=$($tig_binary_path --version | awk '/tig version.*/{print $3}')
+    echo tig_install_version: $tig_install_version
+    tig_latest_version=$(curl -s https://api.github.com/repos/jonas/tig/releases/latest | awk -F\/ '/browser_download_url.*.*tig-.*.tar.gz"$/{print $(NF-1)}' | sed -e 's/tig-//')
+    echo tig_latest_version: $tig_latest_version
+
+    if [[ "${tig_install_version}" != "${tig_latest_version}" ]]; then
+        echo "VERIFY FAILED: tig isn't updated, your install version is ${tig_install_version} and the latest version is ${tig_latest_version}"
+        exit 1
+    fi
+}
+
+function verify()
+{
+    _verify_tig_binary
+    _verify_tig_version
+}
+
+function help() # Show a list of functions
+{
+    awk '/^function / && ! /^function _/' $0
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi
+
