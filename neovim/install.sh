@@ -18,13 +18,18 @@ function install_packages() # Install additional package for neovim
     echo ======== End ========
 }
 
-function verify_installation()
+function verify()
 {
+    local neovim_installed_version="${NEOVIM_VERSION}"
+    local neovim_current_version
+    neovim_current_version=$(nvim --version | grep -e "v[0-9]" |  sed -e 's/^.*v\(.*\)/\1/g')
     if [[ ! -f $( which nvim ) ]]; then
         return 1
     fi
 
-    if [[ $(nvim --version | grep nvim | sed -e 's/^nvim v\(.*\)/\1/g') = ${neovim_version} ]]; then
+
+
+    if [[ "${neovim_current_version}"  == "${neovim_installed_version}" ]]; then
         return 0
     else
         return 1
