@@ -26,7 +26,7 @@ function download_latest_release()
     local file_downloaded_path
 
     if [[ ! -d ${DOWNLOAD_PATH} ]]; then
-        mkdir -p ${DOWNLOAD_PATH}
+        mkdir --parents ${DOWNLOAD_PATH}
     fi
      
     file_uri=$(curl -s https://api.github.com/repos/"${repository_path}"/releases/latest \
@@ -40,8 +40,8 @@ function download_latest_release()
         rm "${file_downloaded_path}"
     fi
 
-    wget -P "${DOWNLOAD_PATH}" "${file_uri}"
-    tar -C "${DOWNLOAD_PATH}" -xvf "${file_downloaded_path}"
+    wget --quiet --directory-prefix="${DOWNLOAD_PATH}" "${file_uri}"
+    tar --directory="${DOWNLOAD_PATH}" --extract --file="${file_downloaded_path}"
 
     filename_without_extension="${file_downloaded_path%.tar.gz}"
     
