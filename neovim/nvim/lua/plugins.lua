@@ -41,7 +41,18 @@ require("lazy").setup({
         'nvim-tree/nvim-web-devicons', -- optional
     },
     cmd = "NvimTreeToggle",
-    config = true,
+    config = function()
+        require("nvim-tree").setup({
+            auto_reload_on_write = true,
+            update_focused_file = {
+                enable = true,
+                update_root = false,
+                ignore_list = {},
+            },
+            number = true,
+            relativenumber = true,
+        })
+    end,
     keys = {
         { "<C-n>",      "<cmd>NvimTreeToggle<CR>",   mode = "n" },
         { "<leader>nf", "<cmd>NvimTreeFindFile<CR>", mode = "n" },
