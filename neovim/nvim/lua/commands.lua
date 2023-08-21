@@ -5,4 +5,3 @@ vim.cmd("command Wq wq")
 vim.cmd("command Q q")
 vim.cmd("command Qa qa")
 vim.cmd("command DelFile call delete(expand('%')) | bdelete!")
-

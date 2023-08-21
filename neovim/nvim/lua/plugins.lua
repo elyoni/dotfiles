@@ -68,8 +68,8 @@ require("lazy").setup({
         },
         config = function()
             require 'nvim-treesitter.configs'.setup {
-                ensure_installed = { "yaml", "rust", "c", "lua", "python", "bash" },
-                highlight = { enable = false },
+                ensure_installed = { "yaml", "rust", "c", "lua", "python", "bash", "go" },
+                highlight = { enable = true },
                 autopairs = { enable = true },
                 incremental_selection = {
                     enable = true,
@@ -122,13 +122,13 @@ require("lazy").setup({
         dependencies = {
             'nvim-lua/plenary.nvim',
         },
-            --builtin.grep_string
+        --builtin.grep_string
         keys = {
             { '<leader>fg', "<cmd>Telescope live_grep<CR>",    desc = "Live grep" },
             { '<leader>ff', "<cmd>Telescope find_files<CR>",   desc = "Find file" },
             { '<leader>fF', "<cmd>Telescope git_files<CR>",    desc = "Find file git" },
             { '<C-p>',      "<cmd>Telescope find_files<CR>",   desc = "Find file" },
-            { '<C-f>',      "<cmd>Telescope grep_string<CR>",  desc = "Find Word", mode={"v", "n"} },
+            { '<C-f>',      "<cmd>Telescope grep_string<CR>",  desc = "Find Word",     mode = { "v", "n" } },
             { '<leader>fb', "<cmd>Telescope buffers<CR>",      desc = "Buffers list" },
             { '<leader>fe', "<cmd>Telescope file_browser<CR>", desc = "Files Explorer" },
             { '<leader>fh', "<cmd>Telescope help_tags<CR>",    desc = "Help Tags" },
@@ -140,7 +140,7 @@ require("lazy").setup({
             vim.g.wiki_root = '~/wiki'
         end,
         --keys = {
-            --{ '<leader>wt', "<cmd>WikiTagList<CR>",    desc = "Open Tags List" },
+        --{ '<leader>wt', "<cmd>WikiTagList<CR>",    desc = "Open Tags List" },
         --},
 
     },
@@ -163,7 +163,7 @@ require("lazy").setup({
         },
         -- stylua: ignore
         keys = {
-            { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash" },
+            { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end,       desc = "Flash" },
             { "S", mode = { "n", "o", "x" }, function() require("flash").treesitter() end, desc = "Flash Treesitter" },
             --{ "r", mode = "o", function() require("flash").remote() end, desc = "Remote Flash" },
             --{ "R", mode = { "o", "x" }, function() require("flash").treesitter_search() end, desc = "Treesitter Search" },
@@ -212,6 +212,26 @@ require("lazy").setup({
             lsp.configure('shfmt', {
                 cmd = { "shfmt" },
                 filetypes = { 'sh' },
+            })
+
+            local lua_runtime_path = vim.split(package.path, ";")
+            lsp.configure("lua_ls", {
+                settings = {
+                    Lua = {
+                        telemetry = { enable = false },
+                        diagnostics = {
+                            -- Get the language server to recognize the `vim` global
+                            globals = { "vim" },
+                        },
+                        workspace = {
+                            -- Make the server aware of Neovim runtime files
+                            library = {
+                                vim.fn.expand("$VIMRUNTIME/lua"),
+                                vim.fn.stdpath("config") .. "/lua",
+                            },
+                        },
+                    },
+                },
             })
 
             lsp.set_preferences({
@@ -281,17 +301,17 @@ require("lazy").setup({
             local cmp_action = require('lsp-zero').cmp_action()
 
             cmp.setup({
-              mapping = {
-                -- `Enter` key to confirm completion
-                ['<CR>'] = cmp.mapping.confirm({select = false}),
+                mapping = {
+                    -- `Enter` key to confirm completion
+                    ['<CR>'] = cmp.mapping.confirm({ select = false }),
 
-                -- Ctrl+Space to trigger completion menu
-                ['<C-Space>'] = cmp.mapping.complete(),
+                    -- Ctrl+Space to trigger completion menu
+                    ['<C-Space>'] = cmp.mapping.complete(),
 
-                -- Navigate between snippet placeholder
-                ['<C-f>'] = cmp_action.luasnip_jump_forward(),
-                ['<C-b>'] = cmp_action.luasnip_jump_backward(),
-              }
+                    -- Navigate between snippet placeholder
+                    ['<C-f>'] = cmp_action.luasnip_jump_forward(),
+                    ['<C-b>'] = cmp_action.luasnip_jump_backward(),
+                }
             })
         end,
     },
