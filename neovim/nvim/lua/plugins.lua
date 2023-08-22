@@ -25,39 +25,61 @@ local function my_on_attach(bufnr)
 end
 
 require("lazy").setup({
+    --{
+    --"folke/tokyonight.nvim",
+    --dependencies = {
+    --'nvim-lualine/lualine.nvim',
+    --'nvim-tree/nvim-web-devicons',
+    --},
+    --init = function()
+    --vim.cmd [[colorscheme tokyonight-night]]
+    --require('lualine').setup()
+    --end,
+    --},
+    --
     {
-        "folke/tokyonight.nvim",
+        "catppuccin/nvim",
+        name = "catppuccin",
+        priority = 1000,
         dependencies = {
             'nvim-lualine/lualine.nvim',
-            'nvim-tree/nvim-web-devicons',
         },
         init = function()
-            vim.cmd [[colorscheme tokyonight-night]]
-            require('lualine').setup()
+            vim.cmd.colorscheme "catppuccin"
+            require("catppuccin").setup({
+                flavour = "mocha", -- latte, frappe, macchiato, mocha
+                transparent_background = false,
+            })
+            require('lualine').setup {
+                options = {
+                    theme = "catppuccin"
+                }
+            }
         end,
-    }, {
-    'nvim-tree/nvim-tree.lua',
-    dependencies = {
-        'nvim-tree/nvim-web-devicons', -- optional
     },
-    cmd = "NvimTreeToggle",
-    config = function()
-        require("nvim-tree").setup({
-            auto_reload_on_write = true,
-            update_focused_file = {
-                enable = true,
-                update_root = false,
-                ignore_list = {},
-            },
-            number = true,
-            relativenumber = true,
-        })
-    end,
-    keys = {
-        { "<C-n>",      "<cmd>NvimTreeToggle<CR>",   mode = "n" },
-        { "<leader>nf", "<cmd>NvimTreeFindFile<CR>", mode = "n" },
+    {
+        'nvim-tree/nvim-tree.lua',
+        dependencies = {
+            'nvim-tree/nvim-web-devicons', -- optional
+        },
+        cmd = "NvimTreeToggle",
+        config = function()
+            require("nvim-tree").setup({
+                auto_reload_on_write = true,
+                update_focused_file = {
+                    enable = true,
+                    update_root = false,
+                    ignore_list = {},
+                },
+                number = true,
+                relativenumber = true,
+            })
+        end,
+        keys = {
+            { "<C-n>",      "<cmd>NvimTreeToggle<CR>",   mode = "n" },
+            { "<leader>nf", "<cmd>NvimTreeFindFile<CR>", mode = "n" },
+        },
     },
-},
     {
         "kylechui/nvim-surround",
         version = "*", -- Use for stability; omit to use `main` branch for the latest features
@@ -80,7 +102,7 @@ require("lazy").setup({
         config = function()
             require 'nvim-treesitter.configs'.setup {
                 ensure_installed = { "yaml", "rust", "c", "lua", "python", "bash", "go" },
-                highlight = { enable = true },
+                highlight = { enable = false },
                 autopairs = { enable = true },
                 incremental_selection = {
                     enable = true,
