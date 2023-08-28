@@ -73,6 +73,14 @@ require("lazy").setup({
                 },
                 number = true,
                 relativenumber = true,
+                filters = {
+                    git_ignored = true,
+                    dotfiles = true,
+                    git_clean = true,
+                    no_buffer = false,
+                    custom = {},
+                    exclude = {},
+                },
             })
         end,
         keys = {
@@ -242,10 +250,10 @@ require("lazy").setup({
 
             --lsp.configure('black', { filetypes = { 'python' }, })
 
-            lsp.configure('shfmt', {
-                cmd = { "shfmt" },
-                filetypes = { 'sh' },
-            })
+            --lsp.configure('shfmt', {
+            --cmd = { "shfmt" },
+            --filetypes = { 'sh' },
+            --})
 
             local lua_runtime_path = vim.split(package.path, ";")
             lsp.configure("lua_ls", {
