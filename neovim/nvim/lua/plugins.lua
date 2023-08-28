@@ -63,7 +63,7 @@ require("lazy").setup({
             'nvim-tree/nvim-web-devicons', -- optional
         },
         cmd = "NvimTreeToggle",
-        config = function()
+        init = function()
             require("nvim-tree").setup({
                 auto_reload_on_write = true,
                 update_focused_file = {
@@ -71,8 +71,10 @@ require("lazy").setup({
                     update_root = false,
                     ignore_list = {},
                 },
-                number = true,
-                relativenumber = true,
+                view = {
+                    number = true,
+                    relativenumber = true,
+                },
                 filters = {
                     git_ignored = true,
                     dotfiles = true,
