@@ -254,8 +254,8 @@ bindsym $mod+$i3-wm.binding.fullscreen_toggle fullscreen toggle
 set_from_resource $i3-wm.binding.float_toggle i3-wm.binding.float_toggle Shift+f
 bindsym $mod+Shift+$i3-wm.binding.float_toggle floating toggle
 
-## Modify // Move to Scratchpad // <><Shift> m ##
-set_from_resource $i3-wm.binding.move_scratchpad i3-wm.binding.move_scratchpad Shift+m
+# Modify // Move to Scratchpad // <><Ctrl> s ##
+set_from_resource $i3-wm.binding.move_scratchpad i3-wm.binding.move_scratchpad Ctrl+s
 bindsym $mod+$i3-wm.binding.move_scratchpad move to scratchpad
 
 # change container layout (stacked, tabbed, toggle split)
@@ -447,6 +447,21 @@ mode "Resize Mode" {
         bindsym $mod+r mode "default"
 }
 bindsym $mod+r mode "Resize Mode"
+
+# Press $mod+o followed by either f, t, Escape or Return to launch firefox,
+# thunderbird or return to the default mode, respectively.
+set $mode_launcher Scratchpad: [t]oggle [m]ove
+
+mode "$mode_launcher" {
+    bindsym t scratchpad show
+    bindsym m move to scratchpad
+
+    #bindsym w exec kitty --detach /home/yehonatan/.config/regolith/i3/scratchpad -s 'wiki' -c 'nvim +WikiIndex'
+    bindsym Escape mode "default"
+    bindsym Return mode "default"
+}
+bindsym $mod+s mode "$mode_launcher"
+#bindsym $mod+c [instance="wiki"] scratchpad show
 
 ###############################################################################
 # i3 Appearance and Behavior
