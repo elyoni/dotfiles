@@ -21,5 +21,6 @@ install_package "Ripgrep" "${DIR}"/../applications/ripgrep
 install_package "Neovim" "${DIR}"/../neovim
 install_package "Fzf" "${DIR}"/../applications/fzf
 install_package "Zsh" "${DIR}"/../applications/zsh
+install_package "tig" "${DIR}"/../applications/tig
 
 echo "${summary}"
