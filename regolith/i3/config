@@ -140,17 +140,7 @@ bindsym $mod+$i3-wm.binding.terminal exec /usr/bin/x-terminal-emulator
 set_from_resource $i3-wm.binding.ssh-yoni i3-wm.binding.terminal Shift+Return
 bindsym $mod+$i3-wm.binding.ssh-yoni exec "i3-sensible-terminal -e env TERM=xterm-256color ssh -X -R 8888:localhost:22 -R 9999:localhost:9999 yoni-vm -y"
 
-
-# ## Launch // Browser // <><Shift> Enter ##
-# set_from_resource $i3-wm.binding.browser i3-wm.binding.browser Shift+Return
-# bindsym $mod+$i3-wm.binding.browser exec gtk-launch $(xdg-settings get default-web-browser)
-
 set_from_resource $rofiTheme rofi.theme /etc/regolith/styles/lascaille/rofi.rasi
-
-# ## Launch // Application // <> Space ##
-# set_from_resource $i3-wm.binding.launcher.app i3-wm.binding.launcher.app space
-# set_from_resource $i3-wm.program.launcher.app i3-wm.program.launcher.app rofi -show drun -theme $rofiTheme
-# bindsym $mod+$i3-wm.binding.launcher.app exec $i3-wm.program.launcher.app
 
 ## Launch // Application // <> d ##
 set_from_resource $i3-wm.binding.launcher.app i3-wm.binding.launcher.app d
