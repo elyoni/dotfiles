@@ -1,0 +1,3 @@
+[jira]
+command=/usr/bin/python3 $HOME/projects/private/my_projects/ye-jira-cli/ye_jira_cli/main.py
+interval=60 Displays notifications.
