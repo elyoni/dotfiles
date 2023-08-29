@@ -78,7 +78,7 @@ require("lazy").setup({
                 filters = {
                     git_ignored = true,
                     dotfiles = true,
-                    git_clean = true,
+                    git_clean = false,
                     no_buffer = false,
                     custom = {},
                     exclude = {},
@@ -162,6 +162,7 @@ require("lazy").setup({
     {
         'nvim-telescope/telescope.nvim',
         version = '0.1.2',
+        lazy = false,
         dependencies = {
             'nvim-lua/plenary.nvim',
         },
@@ -336,6 +337,7 @@ require("lazy").setup({
                     ['lua_ls'] = { 'lua' },
                     ['rust_analyzer'] = { 'rust' },
                     ['black'] = { 'python' },
+                    ['gopls'] = { 'go' },
                 }
             })
 
