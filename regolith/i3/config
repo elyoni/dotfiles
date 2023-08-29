@@ -450,18 +450,17 @@ bindsym $mod+r mode "Resize Mode"
 
 # Press $mod+o followed by either f, t, Escape or Return to launch firefox,
 # thunderbird or return to the default mode, respectively.
-set $mode_launcher Scratchpad: [t]oggle [m]ove
+set $mode_launcher Scratchpad: [w]iki [s]ettings
 
 mode "$mode_launcher" {
-    bindsym t scratchpad show
-    bindsym m move to scratchpad
+    bindsym w exec ${HOME}/.config/regolith/i3/scratchpad.sh -s wiki; mode "default"
+    bindsym s exec ${HOME}/.config/regolith/i3/scratchpad.sh -s settings; mode "default"
 
     #bindsym w exec kitty --detach /home/yehonatan/.config/regolith/i3/scratchpad -s 'wiki' -c 'nvim +WikiIndex'
     bindsym Escape mode "default"
     bindsym Return mode "default"
 }
-bindsym $mod+s mode "$mode_launcher"
-#bindsym $mod+c [instance="wiki"] scratchpad show
+bindsym $mod+Shift+o mode "$mode_launcher"
 
 ###############################################################################
 # i3 Appearance and Behavior
