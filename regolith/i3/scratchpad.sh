@@ -57,7 +57,8 @@ function toggle_scratchpad(){
 
             i3-msg -t subscribe  '[ "window" ]'
         fi
-
+        i3-msg [title="${scratchpad_title}" instance="${scratchpad_title}"] title_format "<b>${scratchpad_title}</b>"
+        i3-msg [title="${scratchpad_title}" instance="${scratchpad_title}"] border normal 10
         i3-msg [title="${scratchpad_title}" instance="${scratchpad_title}"] move scratchpad
         i3-msg [title="${scratchpad_title}" instance="${scratchpad_title}"] scratchpad show
     fi
