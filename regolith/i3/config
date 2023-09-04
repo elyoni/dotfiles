@@ -314,9 +314,9 @@ set_from_resource $i3-wm.program.reboot i3-wm.program.reboot /usr/bin/gnome-sess
 bindsym $mod+$i3-wm.binding.reboot exec $i3-wm.program.reboot
 
 ## Session // Power Down // <><Shift> p ##
-set_from_resource $i3-wm.binding.shutdown i3-wm.binding.shutdown Shift+p
-set_from_resource $i3-wm.program.shutdown i3-wm.program.shutdown /usr/bin/gnome-session-quit --power-off
-bindsym $mod+$i3-wm.binding.shutdown exec $i3-wm.program.shutdown
+#set_from_resource $i3-wm.binding.shutdown i3-wm.binding.shutdown Shift+p
+#set_from_resource $i3-wm.program.shutdown i3-wm.program.shutdown /usr/bin/gnome-session-quit --power-off
+#bindsym $mod+$i3-wm.binding.shutdown exec $i3-wm.program.shutdown
 
 ## Session // Lock Screen // <> Escape ##
 set_from_resource $i3-wm.binding.lock i3-wm.binding.lock Escape
@@ -408,6 +408,7 @@ set_from_resource $i3-wm.binding.dec_gaps i3-wm.binding.dec_gaps minus
 
 set_from_resource $i3-wm.binding.inc_gaps_big i3-wm.binding.inc_gaps_big Shift+plus
 set_from_resource $i3-wm.binding.dec_gaps_big i3-wm.binding.dec_gaps_big Shift+minus
+bindsym $mod+space focus mode_toggle
 
 ## Resize // Enter Resize Mode // <> r ##
 mode "Resize Mode" {
@@ -419,10 +420,21 @@ mode "Resize Mode" {
         bindsym Up resize shrink height 6 px or 6 ppt
         bindsym Right resize grow width 6 px or 6 ppt
 
+        ## move floating window
+        bindsym h move left
+        bindsym j move down
+        bindsym k move up
+        bindsym l move right
+
         bindsym Shift+Left resize shrink width 12 px or 12 ppt
         bindsym Shift+Down resize grow height 12 px or 12 ppt
         bindsym Shift+Up resize shrink height 12 px or 12 ppt
         bindsym Shift+Right resize grow width 12 px or 12 ppt
+
+        bindsym Shift+h resize shrink width 20 px or 20 ppt
+        bindsym Shift+j resize grow height 20 px or 20 ppt
+        bindsym Shift+k resize shrink height 20 px or 20 ppt
+        bindsym Shift+l resize grow width 20 px or 20 ppt
 
         ## Resize // Resize Window // k j h l ##
         bindsym $i3-wm.binding.left resize shrink width 6 px or 6 ppt
@@ -460,7 +472,7 @@ mode "$mode_launcher" {
     bindsym Escape mode "default"
     bindsym Return mode "default"
 }
-bindsym $mod+Shift+o mode "$mode_launcher"
+bindsym $mod+Shift+p mode "$mode_launcher"
 
 ###############################################################################
 # i3 Appearance and Behavior
