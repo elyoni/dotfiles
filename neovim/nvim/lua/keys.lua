@@ -37,7 +37,7 @@ vim.api.nvim_set_keymap("n", "<C-s>", "<cmd>w<CR>", {})
 --inoremap <expr><TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
 
 --" Better tabbing
-vim.api.nvim_set_keymap("v", "<", ">gv", {})
+vim.api.nvim_set_keymap("v", "<", "<gv", {})
 vim.api.nvim_set_keymap("v", ">", ">gv", {})
 
 --" Better window navigation
