@@ -7,6 +7,7 @@ alias ssh='env TERM=xterm-256color ssh'
 alias box2='tusk -f /home/yehonatan/projects/private/my_projects/box2/tusk.yml'
 alias b2='tusk -f /home/yehonatan/projects/private/my_projects/box2/tusk.yml'
 
+alias clp='xclip -sel clip'
 alias pwdcp='pwd | xclip -sel clip'
 
 alias cdpman="cd ~/projects/sources/apps/pmanager"
