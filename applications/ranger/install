@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P "$DIR" && pwd)
+
+source "${DIR}"/../../utils/package/apt
+
+function _install_dependeices()
+{
+    echo ====== Install Ranger + Packages =====
+    fast_apt_install ranger
+    fast_apt_install xsel
+    fast_apt_install dialog
+    fast_apt_install file
+    echo ====== End =====
+}
+
+function _verify_ranger()
+{
+    if ! which ranger >/dev/null; then
+        echo "VERIFY FAILED: tig binary file wasn't installed"
+        exit 1
+    fi
+}
+
+
+function _link_files()
+{
+    echo ======= Link Files =======
+    mkdir -p "${HOME}"/.config/
+    ln -sf "${DIR}/ranger/" "${HOME}/.config/"
+    echo =======   End   =======
+}
+
+function _verify_link()
+{
+    link_path="${HOME}"/.config/ranger
+    if [ ! -L "${link_path}" ]; then # && [ -e "${link_path}" ]; then
+        echo "VERIFY FAILED: Ranger link not exists"
+        exit 1
+    elif [ ! -e "${link_path}" ]; then
+        echo "VERIFY FAILED: Ranger link not exists"
+        exit 2
+    fi
+}
+
+function install()
+{
+    _install_dependeices
+    _link_files
+}
+
+function verify()
+{
+    _verify_ranger
+    _verify_link
+    echo "Verification Pass"
+}
+
+function help() # Show a list of functions
+{
+    awk '/^function / && ! /^function _/' "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi
+
+
