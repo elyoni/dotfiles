@@ -78,7 +78,6 @@ eval "$(register-python-argcomplete gitlab)"
 # Generated for envman. Do not edit.
 [ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
 #eval "$(zoxide init zsh)"
-export OPENAI_KEY=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
 export PATH=$PATH:/usr/local/bin
 export PATH="$HOME/.jenv/bin:$PATH"
 time (eval "$(jenv init -)")
