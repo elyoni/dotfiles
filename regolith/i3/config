@@ -414,38 +414,43 @@ bindsym $mod+space focus mode_toggle
 mode "Resize Mode" {
         # These bindings trigger as soon as you enter the resize mode
 
-        ## Resize // Resize Window // ↑ ↓ ← → ##
-        bindsym Left resize shrink width 6 px or 6 ppt
-        bindsym Down resize grow height 6 px or 6 ppt
-        bindsym Up resize shrink height 6 px or 6 ppt
-        bindsym Right resize grow width 6 px or 6 ppt
-
+        ## Move 
         ## move floating window
         bindsym h move left
         bindsym j move down
         bindsym k move up
         bindsym l move right
 
-        bindsym Shift+Left resize shrink width 12 px or 12 ppt
-        bindsym Shift+Down resize grow height 12 px or 12 ppt
-        bindsym Shift+Up resize shrink height 12 px or 12 ppt
-        bindsym Shift+Right resize grow width 12 px or 12 ppt
+        bindsym Shift+h move left 30 px
+        bindsym Shift+j move down 30 px
+        bindsym Shift+k move up 30 px
+        bindsym Shift+l move right 30 px
 
-        bindsym Shift+h resize shrink width 20 px or 20 ppt
-        bindsym Shift+j resize grow height 20 px or 20 ppt
-        bindsym Shift+k resize shrink height 20 px or 20 ppt
-        bindsym Shift+l resize grow width 20 px or 20 ppt
+        bindsym Ctrl+Shift+h move left 60 px
+        bindsym Ctrl+Shift+j move down 60 px
+        bindsym Ctrl+Shift+k move up 60 px
+        bindsym Ctrl+Shift+l move right 60 px
 
-        ## Resize // Resize Window // k j h l ##
-        bindsym $i3-wm.binding.left resize shrink width 6 px or 6 ppt
-        bindsym $i3-wm.binding.up resize grow height 6 px or 6 ppt
-        bindsym $i3-wm.binding.down resize shrink height 6 px or 6 ppt
-        bindsym $i3-wm.binding.right resize grow width 6 px or 6 ppt
+        bindsym $mod+Ctrl+Shift+h move left 90 px
+        bindsym $mod+Ctrl+Shift+j move down 90 px
+        bindsym $mod+Ctrl+Shift+k move up 90 px
+        bindsym $mod+Ctrl+Shift+l move right 90 px
 
-        bindsym $i3-wm.binding.move_left resize shrink width 12 px or 12 ppt
-        bindsym $i3-wm.binding.move_up resize grow height 12 px or 12 ppt
-        bindsym $i3-wm.binding.move_down resize shrink height 12 px or 12 ppt
-        bindsym $i3-wm.binding.move_right resize grow width 12 px or 12 ppt
+        # Resize
+        bindsym Left resize shrink width 6 px or 6 ppt
+        bindsym Down resize grow height 6 px or 6 ppt
+        bindsym Up resize shrink height 6 px or 6 ppt
+        bindsym Right resize grow width 6 px or 6 ppt
+
+        bindsym Shift+Left resize shrink width 30 px or 30 ppt
+        bindsym Shift+Down resize grow height 30 px or 30 ppt
+        bindsym Shift+Up resize shrink height 30 px or 30 ppt
+        bindsym Shift+Right resize grow width 30 px or 30 ppt
+
+        bindsym Ctrl+Shift+Left   resize shrink width 90 px or 90 ppt
+        bindsym Ctrl+Shift+Down   resize grow height 90 px or 90 ppt
+        bindsym Ctrl+Shift+Up     resize shrink height 90 px or 90 ppt
+        bindsym Ctrl+Shift+Right  resize grow width 90 px or 90 ppt
 
         ## Resize // Window Gaps // + - ##
         bindsym $i3-wm.binding.dec_gaps gaps inner current minus 6
