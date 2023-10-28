@@ -59,9 +59,9 @@ vim.opt.smartcase = true
 -- When using vimdiff will open the find in read write
 vim.opt.ro = false
 
---vim.opt.foldmethod=expr
+--vim.opt.foldmethod = marker
 --vim.opt.foldexpr=nvim_treesitter#foldexpr()
-vim.opt.foldenable = false -- Disable folding at startup.
+vim.opt.foldenable = true -- Disable folding at startup.
 
 -- When searching I will see split screen with all the option
 vim.opt.inccommand = split

@@ -58,6 +58,34 @@ require("lazy").setup({
         end,
     },
     {
+        "folke/zen-mode.nvim",
+        opts = {
+            plugins = {
+                -- disable some global vim options (vim.o...)
+                -- comment the lines to not apply the options
+                options = {
+                    enabled = true,
+                    ruler = false,             -- disables the ruler text in the cmd line area
+                    showcmd = false,           -- disables the command in the last line of the screen
+                },
+                twilight = { enabled = true }, -- enable to start Twilight when zen mode opens
+                gitsigns = { enabled = true }, -- enable git signs
+                tmux = { enabled = false },    -- disables the tmux statusline
+                -- this will change the font size on kitty when in zen mode
+                -- to make this work, you need to set the following kitty options:
+                -- - allow_remote_control socket-only
+                -- - listen_on unix:/tmp/kitty
+                kitty = {
+                    enabled = true,
+                    font = "+20", -- font size increment
+                },
+            },
+        },
+        keys = {
+            { "<leader>vz", "<cmd>ZenMode<CR>", mode = "n" },
+        },
+    },
+    {
         "toppair/peek.nvim",
         event = { "BufRead", "BufNewFile" },
         build = "/home/yehonatan/.deno/bin/deno task --quiet build:fast",
@@ -66,6 +94,14 @@ require("lazy").setup({
             vim.api.nvim_create_user_command("PeekOpen", require("peek").open, {})
             vim.api.nvim_create_user_command("PeekClose", require("peek").close, {})
         end,
+    },
+    {
+        'tools-life/taskwiki',
+        dependencies = {
+            'powerman/vim-plugin-AnsiEsc',
+            'majutsushi/tagbar',
+            'farseer90718/vim-taskwarrior',
+        },
     },
     {
         'nvim-tree/nvim-tree.lua',
@@ -152,6 +188,32 @@ require("lazy").setup({
         end
     },
     {
+        "elentok/format-on-save.nvim",
+        config = function()
+            local format_on_save = require("format-on-save")
+            local formatters = require("format-on-save.formatters")
+
+            format_on_save.setup({
+                formatter_by_ft = {
+                    css = formatters.lsp,
+                    html = formatters.lsp,
+                    java = formatters.lsp,
+                    javascript = formatters.lsp,
+                    json = formatters.lsp,
+                    lua = formatters.lsp,
+                    markdown = formatters.prettierd,
+                    openscad = formatters.lsp,
+                    python = formatters.black,
+                },
+                python = {
+                    formatters.remove_trailing_whitespace,
+                    formatters.black,
+                    formatters.ruff,
+                },
+            })
+        end,
+    },
+    {
         'nvim-treesitter/nvim-treesitter',
         cmd = 'TSUpdate',
         dependencies = {
@@ -217,26 +279,45 @@ require("lazy").setup({
         },
         --builtin.grep_string
         keys = {
-            { '<leader>fg', "<cmd>Telescope live_grep<CR>",    desc = "Live grep" },
-            { '<leader>ff', "<cmd>Telescope find_files<CR>",   desc = "Find file" },
-            { '<leader>fF', "<cmd>Telescope git_files<CR>",    desc = "Find file git" },
-            { '<C-p>',      "<cmd>Telescope find_files<CR>",   desc = "Find file" },
-            { '<C-f>',      "<cmd>Telescope grep_string<CR>",  desc = "Find Word",     mode = { "v", "n" } },
+            { '<leader>fg', "<cmd>Telescope live_grep<CR>",  desc = "Live grep" },
+            { '<leader>ff', "<cmd>Telescope find_files<CR>", desc = "Find file" },
+            { '<leader>fF', "<cmd>Telescope git_files<CR>",  desc = "Find file git" },
+            { '<C-p>',      "<cmd>Telescope find_files<CR>", desc = "Find file" },
+            {
+                '<C-f>',
+                "<cmd>Telescope grep_string<CR>",
+                desc = "Find Word",
+                mode = {
+                    "v", "n" }
+            },
             { '<leader>fb', "<cmd>Telescope buffers<CR>",      desc = "Buffers list" },
             { '<leader>fe', "<cmd>Telescope file_browser<CR>", desc = "Files Explorer" },
             { '<leader>fh', "<cmd>Telescope help_tags<CR>",    desc = "Help Tags" },
         },
-    },
-    {
-        'lervag/wiki.vim',
-        init = function()
-            vim.g.wiki_root = '~/wiki'
-        end,
-        --keys = {
-        --{ '<leader>wt', "<cmd>WikiTagList<CR>",    desc = "Open Tags List" },
-        --},
 
+        init = function()
+            require('telescope').setup {
+                mappings = {
+                    n = {
+                        ['<c-e>'] = require('telescope.actions').delete_buffer
+                    }, -- n
+                    i = {
+                        ['<c-e>'] = require('telescope.actions').delete_buffer
+                    } -- i
+                }     -- mappings
+            }
+        end
     },
+    --{
+    --'lervag/wiki.vim',
+    --init = function()
+    --vim.g.wiki_root = '~/wiki'
+    --end,
+    ----keys = {
+    ----{ '<leader>wt', "<cmd>WikiTagList<CR>",    desc = "Open Tags List" },
+    ----},
+
+    --},
     {
         'will133/vim-dirdiff',
     },
@@ -263,7 +344,24 @@ require("lazy").setup({
             --{ "<c-s>", mode = { "c" }, function() require("flash").toggle() end, desc = "Toggle Flash Search" },
         },
     },
-
+    {
+        "folke/todo-comments.nvim",
+        dependencies = { "nvim-lua/plenary.nvim" },
+        opts = {
+            -- your configuration comes here
+            -- or leave it empty to use the default settings
+            -- refer to the configuration section below
+        }
+    },
+    { "averms/black-nvim" },
+    {
+        "vimwiki/vimwiki",
+        init = function()
+            vim.cmd [[set nocompatible ]]
+            --vim.cmd [[filetype plugin on ]]
+            vim.cmd [[ syntax on]]
+        end,
+    },
     {
         'VonHeikemen/lsp-zero.nvim',
         branch = 'v2.x',
@@ -378,6 +476,8 @@ require("lazy").setup({
                     ['lua_ls'] = { 'lua' },
                     ['rust_analyzer'] = { 'rust' },
                     ['shfmt'] = { 'sh' },
+                    ['autopep8'] = { 'python' },
+                    ['black'] = { 'python' },
                 }
             })
 
@@ -385,8 +485,9 @@ require("lazy").setup({
                 servers = {
                     ['lua_ls'] = { 'lua' },
                     ['rust_analyzer'] = { 'rust' },
-                    ['black'] = { 'python' },
+                    ['autopep8'] = { 'python' },
                     ['gopls'] = { 'go' },
+                    ['black'] = { 'python' },
                 }
             })
 
@@ -417,11 +518,11 @@ require("lazy").setup({
     {
         'tpope/vim-fugitive',
         keys = {
-            { "<leader>gs", "<cmd>Git status<CR>",   mode = "n" },
-            { "<leader>gd", "<cmd>Git difftool<CR>", mode = "n" },
-            { "<leader>gc", "<cmd>Git commit<CR>",   mode = "n" },
-            { "<leader>gl", "<cmd>Git log<CR>",      mode = "n" },
-            { "<leader>gb", "<cmd>Git blame<CR>",    mode = "n" },
+            { "<leader>gs", "<cmd>Git status<CR>",  mode = "n" },
+            { "<leader>gd", "<cmd>Gvdiffsplit<CR>", mode = "n" },
+            { "<leader>gc", "<cmd>Git commit<CR>",  mode = "n" },
+            { "<leader>gl", "<cmd>Gclog<CR>",       mode = "n" },
+            { "<leader>gb", "<cmd>Git blame<CR>",   mode = "n" },
         },
     },
     {
@@ -470,3 +571,7 @@ require("lazy").setup({
     },
 }
 )
+
+
+--local builtin = require('telescope.builtin')
+--builtin.git_commits

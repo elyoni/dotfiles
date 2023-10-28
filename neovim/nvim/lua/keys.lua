@@ -60,7 +60,12 @@ vim.api.nvim_set_keymap("t", "<C-j>", "<C-\\><C-n><C-W><Down>", {})
 --" Disable mark CAPS
 --"vmap u <nop>
 --"vmap U <nop>
-
+--
+-- Folding
+vim.api.nvim_set_keymap("n", "<leader>zf", "<cmd>foldclose<CR>", {})
+vim.api.nvim_set_keymap("n", "<leader>zF", "zM", {})
+vim.api.nvim_set_keymap("n", "<leader>zt", "za", {})
+vim.cmd("set foldmethod=marker")
 
 --" Spelling
 vim.api.nvim_set_keymap("n", "zt", "<cmd>set spell!<CR>", {})
@@ -85,6 +90,9 @@ vim.api.nvim_set_keymap("s", "p", "\"_dp", {})
 --vnore P "_dp
 --xnoremap p "_dP
 --xnoremap P "_dp
+
+vim.api.nvim_set_keymap("n", "<F5>", "<cmd>r! date<CR>", {})
+vim.api.nvim_set_keymap("i", "<F5>", "<cmd>r! date<CR>", {})
 
 -- Python autocmd
 vim.cmd [[
