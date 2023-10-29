@@ -4,8 +4,6 @@ alias mini0="sudo minicom -D /dev/ttyUSB0 -C ~/projects/minicom0.log"
 alias mini1="sudo minicom -D /dev/ttyUSB1 -C ~/projects/minicom1.log"
 alias svi="sudo -E nvim"
 alias ssh='env TERM=xterm-256color ssh'
-alias box2='tusk -f /home/yehonatan/projects/private/my_projects/box2/tusk.yml'
-alias b2='tusk -f /home/yehonatan/projects/private/my_projects/box2/tusk.yml'
 
 alias clp='xclip -sel clip'
 alias pwdcp='pwd | xclip -sel clip'
