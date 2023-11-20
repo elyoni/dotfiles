@@ -193,7 +193,15 @@ require("lazy").setup({
             local format_on_save = require("format-on-save")
             local formatters = require("format-on-save.formatters")
 
+            --local message_buffer = require("format-on-save.error-notifiers.message-buffer")
+
+
             format_on_save.setup({
+                experiments = {
+                    partial_update = 'diff', -- or 'line-by-line'
+                },
+
+                --error_notifier = message_buffer,
                 formatter_by_ft = {
                     css = formatters.lsp,
                     html = formatters.lsp,
@@ -208,8 +216,12 @@ require("lazy").setup({
                 python = {
                     formatters.remove_trailing_whitespace,
                     formatters.black,
-                    formatters.ruff,
                 },
+                fallback_formatter = {
+                    formatters.remove_trailing_whitespace,
+                    formatters.remove_trailing_newlines,
+                },
+
             })
         end,
     },
@@ -555,7 +567,8 @@ require("lazy").setup({
             require("wf").setup()
         end
     },
-    { 'preservim/nerdcommenter' },
+    { 'preservim/nerdcommenter',
+    },
     {
         'habamax/vim-asciidoctor',
         keys = {

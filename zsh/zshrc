@@ -1,4 +1,5 @@
 start=`date +%s`
+export TERM=xterm-256color
 autoload -U +X bashcompinit && bashcompinit
 autoload -U +X compinit && compinit
 
@@ -80,10 +81,11 @@ eval "$(register-python-argcomplete gitlab)"
 #eval "$(zoxide init zsh)"
 export PATH=$PATH:/usr/local/bin
 export PATH="$HOME/.jenv/bin:$PATH"
-time (eval "$(jenv init -)")
+eval "$(jenv init -)"
 export NVM_DIR="$HOME/.config/nvm"
 #[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 #[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 export PATH=/home/yehonatan/.nimble/bin:$PATH
+
 end=`date +%s`
 echo Execution time was `expr $end - $start` seconds.

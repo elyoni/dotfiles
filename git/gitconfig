@@ -14,7 +14,7 @@
     lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
     delete = !"f() { git fetch --prune origin; git push --delete origin \"$1\" ; git branch -d \"$1\"; git fetch --prune origin; }; f"
     mustdelete = !"f() { git fetch --prune origin; git push --delete origin \"$1\"; git branch -D \"$1\" ; }; f"
-    ph = push 
+    ph = push
     phf = push -f
     pl = pull
     dt = difftool --dir-diff
@@ -38,3 +38,5 @@
     path =  ~/.dotfiles_work/git/work_gitconfig #~/projects/tools/env/gitlab/se_gitconfig
 [submodule]
     recurse = true
+[credential]
+	helper = store

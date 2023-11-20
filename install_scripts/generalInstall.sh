@@ -38,12 +38,6 @@ sudo apt install workrave -y
 #== Curl ==
 sudo apt-get install libcurl3 php5-curl -y
 
-echo "Install zsh"
-bash $HOME/.dotfiles/zsh/install.sh install
-
-# === FZF ===
-git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-yes | ~/.fzf/install
 
 echo "Install i3"
 bash $HOME/.dotfiles/i3/install.sh install

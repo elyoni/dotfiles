@@ -1,13 +1,13 @@
-bind main Bb !git rebase -i %(commit)
-bind main Bf !git rebase -i --autosquash %(commit)
+bind main RIS !git rebase -i %(commit)
+bind main RIA !git rebase -i --autosquash %(commit)
 bind status P !git phf
 bind status p !git ph
 
 
 
-bind main r none
-bind main rs !git reset --soft %(commit)
-bind main rh !git reset --hard %(commit)
+bind main R none
+bind main RS !git reset --soft %(commit)
+bind main RH !git reset --hard %(commit)
 
 
 bind generic     c   none

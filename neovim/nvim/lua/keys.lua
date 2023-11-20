@@ -111,6 +111,6 @@ vim.cmd [[
 
 -- Go autocmd
 vim.cmd [[
-  autocmd FileType go map <buffer> <leader>rr :w<CR>:exec '!go run .'<CR>
+  autocmd FileType go map <buffer> <leader>rr :w<CR>:exec '!go run %'<CR>
   autocmd FileType go map <buffer> <leader>rb :w<CR>:exec '!go mod tidy'<CR>
 ]]
