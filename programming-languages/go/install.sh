@@ -20,6 +20,8 @@ function _install_go()
     fi
 
     sudo tar -C $INSTALL_DIR_BASE -xzf go${GOVERSION}.linux-amd64.tar.gz
+
+    rm go${GOVERSION}.linux-amd64.tar.gz
 }
 
 function install()
