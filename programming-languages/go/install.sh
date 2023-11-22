@@ -24,9 +24,15 @@ function _install_go()
     rm go${GOVERSION}.linux-amd64.tar.gz
 }
 
+function _install_lsp_go()
+{
+    curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b "$(go env GOPATH)"/bin v1.55.2
+}
+
 function install()
 {
     _install_go
+    _install_lsp_go
 }
 
 function help() # Show a list of functions
