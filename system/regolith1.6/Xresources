@@ -7,4 +7,4 @@ gnome.terminal.background-transparency-percent 50
 rofi.ssh-client:                     ssh
 rofi.ssh-command:          {terminal} -e "{ssh-client} {host}"
 gnome.terminal.font:	JetBrains Mono 14
-
+wm.binding.launcher.app: Ctrl+d

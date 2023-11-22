@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+function main(){
+    if ! tmux has-session -t "${session_name}"; then
+        build_session
+    fi
+    tmux attach-session -t "${session_name}"
+}

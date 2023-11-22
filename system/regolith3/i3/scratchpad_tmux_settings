@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+source ./scratchpad_tmux_common  # main function
+
+export session_name=settings
+export DOTFILES="${DOTFILES:-${HOME}/.dotfiles}"
+
+function build_session() {
+    tmux new-session -d -s "${session_name}" -c "${DOTFILES}" -n dotfiles
+    tmux send-keys -t "${session_name}":dotfiles 'nvim -c "Telescope find_files"' C-m
+}
+
+main
