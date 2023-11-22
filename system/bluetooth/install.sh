@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+#
+# Origin manual https://gist.github.com/the-spyke/2de98b22ff4f978ebf0650c90e82027e?permalink_comment_id=3976215
+
+function _install_wire_plumber()
+{
+    # .Install WirePlumber as the session manager:
+
+    sudo apt install pipewire-media-session- wireplumber
+
+    #    Notice '-' at the end of 'pipewire-media-session'. This is to remove it in the same command, because 'wireplumber' will be used instead.
+    # .Start WirePlumber for your user:
+
+    systemctl --user --now enable wireplumber.service
+}
+
+function _install_conf_alsa()
+{
+    # Install the ALSA plug-in:
+    sudo apt install pipewire-audio-client-libraries
+
+    # And copy the config file from PipeWire docs (provided by the plug-in) into the ALSA configuration directory:
+    sudo cp /usr/share/doc/pipewire/examples/alsa.conf.d/99-pipewire-default.conf /etc/alsa/conf.d/
+
+    # Check if you have other (like Pulse) configs in the /etc/alsa/conf.d/ installed by something else. You might want to remove them.
+}
+
+
+function _install_bluetooth()
+{
+    # Install the codecs and remove Bluetooth from PulseAudio, so it would be handled directly by PipeWire:
+    sudo apt install libldacbt-{abr,enc}2 libspa-0.2-bluetooth pulseaudio-module-bluetooth-
+
+    # The supported codecs are SBC and LDAC.
+    # Unfortunately, aptX and AAC are not supported because of patents and other technical reasons. aptX is available starting from 22.10 via libfreeaptx0 installed by default there (22.10 uses PipeWire by default as well). If you really need these codecs in 22.04 you may use this PPA from @aglasgall which is based on universe, but rebuilds pipewire with additional packages for aptX and AAC from multiverse. Read the discussion here.
+}
+
+function install()
+{
+    _install_wire_plumber
+    _install_conf_alsa
+    _install_bluetooth
+
+}
+
+function help # Show a list of functions
+{
+    awk '/^function / && ! /^function _/' "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi
