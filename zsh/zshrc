@@ -7,11 +7,15 @@ export ZSH_COMPDUMP=$ZSH/cache/.zcompdump-$HOST
 # fpath=(~/.zsh/completion $fpath)
 fpath=(~/.zsh/completion $fpath ~/.zfunc)
 zstyle ":completion:*:descriptions" format "%B%d%b"
+
+export PATH=/home/yehonatan/.nimble/bin:$PATH
 #
 # export RECORDING=${RECORDING:-"false"}
 # export RECORDING="true"
 #
-eval "$(direnv hook zsh)"
+if which direnv 2>&1 > /dev/null; then
+    eval "$(direnv hook zsh)"
+fi
 
 # Path to your oh-my-zsh installation.
 USER=$(whoami)
@@ -40,7 +44,7 @@ plugins=(
   command-time
   notification-time
   git
-  zsh-syntax-highlighting 
+  zsh-syntax-highlighting
   zsh-autosuggestions
   docker
   taskwarrior
@@ -74,18 +78,20 @@ if [ -e /home/yehonatan/.nix-profile/etc/profile.d/nix.sh ]; then . /home/yehona
 
 [ -f ${HOME}/.config/broot/launcher/bash/br ] && source ${HOME}/.config/broot/launcher/bash/br
 [ -f ${HOME}/.config/zsh/invoke-completion.sh ] && source ~/.config/zsh/invoke-completion.sh
-eval "$(register-python-argcomplete gitlab)"
+if which register-python-argcomplete 2>&1 > /dev/null; then
+    eval "$(register-python-argcomplete gitlab)"
+fi
 
 # Generated for envman. Do not edit.
 [ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
 #eval "$(zoxide init zsh)"
 export PATH=$PATH:/usr/local/bin
-export PATH="$HOME/.jenv/bin:$PATH"
-eval "$(jenv init -)"
+#export PATH="$HOME/.jenv/bin:$PATH"
+#eval "$(jenv init -)"
+
 export NVM_DIR="$HOME/.config/nvm"
-#[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-#[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-export PATH=/home/yehonatan/.nimble/bin:$PATH
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 end=`date +%s`
 echo Execution time was `expr $end - $start` seconds.
