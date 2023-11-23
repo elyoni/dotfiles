@@ -24,3 +24,6 @@ sed '/happily ever after/a\The end.'
 
 # To replace the version if a file:
 sed -i 's/^\(Version:\).*/\1 2.2.6/' <file>
+
+# Get number from string
+echo "hello_world_132_done" | sed 's/[^0-9]*//g'

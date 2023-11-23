@@ -1,0 +1,2 @@
+# Publish message to localhost
+mosquitto_pub -h localhost -t test -m "{\"value1\":20,\"value2\":40}"

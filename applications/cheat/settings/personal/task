@@ -1,0 +1,8 @@
+# Add task
+task add Task description
+
+# Add task assign to project
+task add Task description project:'my project name'
+task add project:PROJECT Task description 
+task add Task description project:PROJECT +my_tag
+

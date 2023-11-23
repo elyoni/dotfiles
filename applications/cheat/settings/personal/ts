@@ -1,0 +1,6 @@
+
+# Package can be install VIA
+sudo apt install -y moreutils
+
+# Add time timestemps
+command | ts '[%Y-%m-%d %H:%M:%S]'

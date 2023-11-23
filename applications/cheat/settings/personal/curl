@@ -39,3 +39,8 @@ curl httpbin.org/ip
 
 # To get only the HTTP status code:
 curl -o /dev/null -w '%{http_code}\n' -s -I URL
+
+# To post a request with a body
+curl -X POST https://reqbin.com/echo/post/json 
+   --header "Content-Type: application/json"
+   --data '{"productId": 123456, "quantity": 100}'

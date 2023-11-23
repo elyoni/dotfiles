@@ -1,0 +1,10 @@
+
+# Search string
+rg "String with spaces"
+
+# Search hidden files
+rg --hidden "String with spaces"
+
+# Search files with a specific name (Regex included)
+rg -g ".gitlab-ci.yml" "only:"
+rg -g ".gitlab-ci*" "only:"
