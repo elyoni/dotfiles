@@ -22,6 +22,18 @@ function __uninstall_docker()
     sudo apt-get install -f
 }
 
+function _install_buildx()
+{
+
+    if docker buildx ls | grep multi-arch-buildx; then
+        docker buildx rm multi-arch-buildx
+    fi
+
+    docker buildx create --name multi-arch-buildx \
+        --platform "linux/arm64,linux/amd64,linux/arm/v7,linux/amd64,linux/amd64/v2,linux/amd64/v3,linux/amd64/v4,linux/386" \
+        --driver "docker-container" --use
+}
+
 function _install_docker_engine()
 {
     local download_path=/tmp/apps/docker
@@ -104,6 +116,7 @@ function install()
 {
     _install_docker_engine
     _fix_docker_permissions
+    _install_buildx
 }
 
 function verify()
