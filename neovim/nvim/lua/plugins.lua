@@ -95,14 +95,14 @@ require("lazy").setup({
             vim.api.nvim_create_user_command("PeekClose", require("peek").close, {})
         end,
     },
-    {
-        'tools-life/taskwiki',
-        dependencies = {
-            'powerman/vim-plugin-AnsiEsc',
-            'majutsushi/tagbar',
-            'farseer90718/vim-taskwarrior',
-        },
-    },
+    --{
+    --'tools-life/taskwiki',
+    --dependencies = {
+    --'powerman/vim-plugin-AnsiEsc',
+    --'majutsushi/tagbar',
+    --'farseer90718/vim-taskwarrior',
+    --},
+    --},
     {
         'nvim-tree/nvim-tree.lua',
         dependencies = {
@@ -469,6 +469,9 @@ require("lazy").setup({
                 vim.keymap.set({ 'n', 'i' }, '<F7>',
                     '<cmd>lua vim.lsp.buf.signature_help()<cr>', opts
                 )
+                vim.keymap.set({ 'i' }, '<C-h>',
+                    '<cmd>lua vim.lsp.buf.signature_help()<cr>', opts
+                )
 
                 vim.keymap.set({ 'n', 'x' }, '<F8>', function()
                     vim.lsp.buf.format({ async = false, timeout_ms = 10000,
@@ -529,6 +532,7 @@ require("lazy").setup({
 
     {
         'tpope/vim-fugitive',
+        --lazy = false,
         keys = {
             { "<leader>gs", "<cmd>Git status<CR>",  mode = "n" },
             { "<leader>gd", "<cmd>Gvdiffsplit<CR>", mode = "n" },
@@ -582,9 +586,48 @@ require("lazy").setup({
             { "<leader>p",  "<cmd>asciidoctorpasteimage<CR>", mode = "n" },
         },
     },
+    {
+        'github/copilot.vim',
+        --keys = {
+        --{ "<C-l>", "<cmd>copilot#Accept()<CR>", mode = "i" },
+        --},
+        init = function()
+            vim.g.copilot_assume_mapped = true
+            vim.g.copilot_no_tab_map = true
+        end
+    },
+    {
+        "utilyre/barbecue.nvim",
+        name = "barbecue",
+        version = "*",
+        dependencies = {
+            "SmiteshP/nvim-navic",
+            "nvim-tree/nvim-web-devicons", -- optional dependency
+        },
+        opts = {
+            -- configurations go here
+        },
+    },
+    { "lepture/vim-jinja" },
+    --{
+    --"zbirenbaum/copilot.lua",
+    --cmd = "Copilot",
+    --event = "InsertEnter",
+    --config = function()
+    --require("copilot").setup({
+    --suggestion = { enabled = false },
+    --panel = { enabled = false },
+    --})
+    --end,
+    --},
+    --{
+    --"zbirenbaum/copilot-cmp",
+    --config = function()
+    --require("copilot_cmp").setup()
+    --end,
+    --},
 }
 )
-
 
 --local builtin = require('telescope.builtin')
 --builtin.git_commits

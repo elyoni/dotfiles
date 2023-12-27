@@ -46,10 +46,10 @@ vim.api.nvim_set_keymap("n", "<C-h>", "<C-W><Left>", {})
 vim.api.nvim_set_keymap("n", "<C-k>", "<C-W><Up>", {})
 vim.api.nvim_set_keymap("n", "<C-j>", "<C-W><Down>", {})
 
-vim.api.nvim_set_keymap("i", "<C-l>", "<Esc><C-W><Right>", {})
-vim.api.nvim_set_keymap("i", "<C-h>", "<Esc><C-W><Left>", {})
-vim.api.nvim_set_keymap("i", "<C-k>", "<Esc><C-W><Up>", {})
-vim.api.nvim_set_keymap("i", "<C-j>", "<Esc><C-W><Down>", {})
+--vim.api.nvim_set_keymap("i", "<C-l>", "<Esc><C-W><Right>", {})
+--vim.api.nvim_set_keymap("i", "<C-h>", "<Esc><C-W><Left>", {})
+--vim.api.nvim_set_keymap("i", "<C-k>", "<Esc><C-W><Up>", {})
+--vim.api.nvim_set_keymap("i", "<C-j>", "<Esc><C-W><Down>", {})
 
 vim.api.nvim_set_keymap("t", "<C-l>", "<C-\\><C-n><C-W><Right>", {})
 vim.api.nvim_set_keymap("t", "<C-h>", "<C-\\><C-n><C-W><Left>", {})
@@ -94,6 +94,7 @@ vim.api.nvim_set_keymap("s", "p", "\"_dp", {})
 vim.api.nvim_set_keymap("n", "<F5>", "<cmd>r! date<CR>", {})
 vim.api.nvim_set_keymap("i", "<F5>", "<cmd>r! date<CR>", {})
 
+
 -- Python autocmd
 vim.cmd [[
   autocmd FileType python map <buffer> <leader>rr :w<CR>:exec '!python3' shellescape(@%, 2)<CR>
@@ -114,3 +115,5 @@ vim.cmd [[
   autocmd FileType go map <buffer> <leader>rr :w<CR>:exec '!go run %'<CR>
   autocmd FileType go map <buffer> <leader>rb :w<CR>:exec '!go mod tidy'<CR>
 ]]
+
+vim.api.nvim_set_keymap("i", "<C-l>", 'copilot#Accept("<CR>")', { silent = true, expr = true })

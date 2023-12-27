@@ -1,6 +1,8 @@
 [user]
     email = yehonatan.e@solaredge.com
     name = Yehonatan Elentok
+[pull]
+    rebase = true
 [push]
     default = current
 [alias]

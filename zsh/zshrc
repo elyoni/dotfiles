@@ -95,3 +95,4 @@ export NVM_DIR="$HOME/.config/nvm"
 
 end=`date +%s`
 echo Execution time was `expr $end - $start` seconds.
+#tusk -f /home/yoni/.config/box2/tusk.yml

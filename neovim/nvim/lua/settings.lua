@@ -68,3 +68,4 @@ vim.opt.inccommand = split
 
 -- Go to file support for bash environment variable with {}
 --vim.opt.isfname:append({,})
+--
