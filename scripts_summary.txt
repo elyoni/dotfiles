@@ -1,0 +1,374 @@
+= # application/cheat/install =
+-- Download from github, and unzip into a folder. Also link the settings into a folder
+
+#!/usr/bin/env bash
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P $DIR && pwd)
+
+function _image_packages_dependecies()
+{
+    sudo apt-get install wget git -y
+
+}
+
+function _download_and_install()
+{
+    echo ====== START: Downloading and installing cheat =====
+    cd /tmp \
+        && wget https://github.com/cheat/cheat/releases/download/4.3.1/cheat-linux-amd64.gz \
+        && gunzip cheat-linux-amd64.gz \
+        && chmod +x cheat-linux-amd64 \
+        && sudo mv cheat-linux-amd64 /usr/local/bin/cheat
+    echo ====== END: Downloading and installing cheat =====
+}
+
+function _link_personal_cheats()
+{
+    echo ====== START: Cheat install - link personal directory =====
+    local config_path="$HOME/.config/cheat/cheatsheets/"
+    mkdir -p "${config_path}"
+    ln -sf $DIR/settings/personal ${config_path}
+    echo ====== START: Downloading and installing cheat =====
+}
+
+function install()
+{
+    _image_packages_dependecies
+    _download_and_install
+    _link_personal_cheats
+}
+
+function verify()
+{
+    :
+}
+
+function help() # Show a list of functions
+{
+    awk '/^function / && ! /^function _/' "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi
+
+
+= # application/direnv/install.sh =
+-- Download a script and execute it in bash, Add new user
+
+#!/usr/bin/env bash
+
+function _install_direnv(){
+    curl -sfL https://direnv.net/install.sh | bash
+}
+
+function install(){
+    _install_direnv
+}
+
+function help() # Show a list of functions
+{
+    awk '/^function / && ! /^function _/' "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi
+
+
+= # application/docker/install =
+-- Execute a command after install the docker, add new key
+
+#!/usr/bin/env bash
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P "$DIR" && pwd)
+
+function __verify_docker_permissions()
+{
+    # NOTE: utile function, not for the verification stage
+    # If the permissions is correct I can remove the `sudo` from the verify commands
+    # return 1 if the permission is only for sudo
+    # return 0 if the permission are for the users
+    :
+}
+
+function __uninstall_docker()
+{
+    # uninstall when using get-docker.sh install
+    sudo dpkg -P \
+        docker-ce \
+        docker-ce-cli \
+        docker-compose-plugin \
+        docker-scan-plugin
+    sudo apt-get install -f
+}
+
+function _install_buildx()
+{
+
+    if docker buildx ls | grep multi-arch-buildx; then
+        docker buildx rm multi-arch-buildx
+    fi
+
+    docker buildx create --name multi-arch-buildx \
+        --platform "linux/arm64,linux/amd64,linux/arm/v7,linux/amd64,linux/amd64/v2,linux/amd64/v3,linux/amd64/v4,linux/386" \
+        --driver "docker-container" --use
+}
+
+function _install_docker_engine()
+{
+    local download_path=/tmp/apps/docker
+    # OrigInal tutorial: https://github.com/docker/docker-install
+    echo ====== START: Install docker engine =====
+
+    echo "== Install packages =="
+    sudo apt-get update
+    sudo apt-get install \
+        ca-certificates \
+        curl \
+        gnupg \
+        lsb-release -y
+
+    echo "== Install docker with get-docker.sh =="
+    # Add Docker's official GPG key:
+    sudo apt-get update
+    sudo apt-get install ca-certificates curl gnupg
+    sudo sh -c install -m 0755 -d /etc/apt/keyrings
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    sudo chmod a+r /etc/apt/keyrings/docker.gpg
+
+    # Add the repository to Apt sources:
+    echo \
+        "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+        sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+            sudo apt-get update    #rm "${download_path}"/get-docker.sh
+    sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+    echo ====== END: Install docker engine =====
+}
+
+function _fix_docker_permissions()
+{
+    # Original tutorial: https://docs.docker.com/engine/install/linux-postinstall/
+    echo ====== START: Fix docker permissions =====
+    echo "== Create the docker group =="
+    sudo groupadd docker
+
+    echo "== Add your user to the docker group =="
+    sudo usermod -aG docker "$USER"
+
+    newgrp docker  # Remove the needs of logout and login
+    echo "====== END: Fix docker permissions ====="
+}
+
+function _verify_fix_docker_permissions()
+{
+    # Run docker command without sudo
+    local test-image="hello-world"
+    if ! docker run "${test-image}"; then
+        echo "INSTALL_FAILED: Docker permission fix WASN'T install successfully"
+        return 1
+    else
+        docker rmi "${test-image}"
+        echo "INSTALL_SUCCESS: Docker permission fix install successfully"
+        return 0
+    fi
+}
+
+function _verify_docker_engine()
+{
+    local test-image="hello-world"
+    if ! sudo docker run "${test-image}"; then
+        echo "INSTALL_FAILED: Docker permission fix WASN'T install successfully"
+        return 1
+    else
+        sudo docker rmi "${test-image}"
+        echo "INSTALL_SUCCESS: Docker permission fix install successfully"
+        return 0
+    fi
+}
+
+function _verify_buildx()
+{
+    echo "NOTE: WIP verify buildx installation not support yet"
+    echo "Continue"
+}
+
+function install()
+{
+    _install_docker_engine
+    _fix_docker_permissions
+    _install_buildx
+}
+
+function verify()
+{
+    _verify_docker_engine
+    _verify_buildx
+    _verify_fix_docker_permissions
+}
+
+function help() # Show a list of functions
+{
+    awk '/^function / && ! /^function _/' "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi
+
+
+= # application/fzf/install =
+-- Run git clone and then run the installation script
+
+#!/usr/bin/env bash
+
+function install_fzf() {
+    echo 'Installing FZF... '
+    if [ -e ~/.fzf ]; then
+        echo 'already installed.'
+    else
+        git clone https://github.com/junegunn/fzf.git ~/.fzf --depth 1
+        ~/.fzf/install --completion --key-bindings --no-update-rc
+    fi
+}
+
+function install_packages() # Install additional package for neovim
+{
+    ## To connect the clipboard of the neovim and the linux
+    echo ====== Install additional packages =====
+    sudo apt-get update
+    sudo apt-get install -y git fd-find
+    echo ======== End ========
+}
+
+function verify()
+{
+    if [[ -f $(which fzf) ]]; then
+        return 0
+    else
+        return 1
+    fi
+
+
+}
+
+function install
+{
+    install_packages
+    install_fzf
+}
+
+
+function help # Show a list of functions
+{
+    awk '/^function / && ! /^function _/' "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi
+
+
+= # application/ripgrep/install =
+#!/usr/bin/env bash
+#
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P "$DIR" && pwd)
+
+source ${DIR}/../../utils/package/github
+
+function install()
+{
+    local extruct_dir
+    extruct_dir=$(download_latest_release '64.*linux.*tar.gz' "BurntSushi/ripgrep")
+    cp "${extruct_dir}"/rg "${HOME}"/.local/bin/
+    rm -rf "${extruct_dir}"
+}
+
+function verify()
+{
+    if [[ -f $(which rg) ]];then
+        return 0
+    else
+        return 1
+    fi
+}
+
+function help() # Show a list of functions
+{
+    awk '/^function / && ! /^function _/' "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi
+
+
+= # system/bluetooth/install =
+-- exedcute systemctl command to enable a service, copy a file from one place to another
+
+#!/usr/bin/env bash
+#
+# Origin manual https://gist.github.com/the-spyke/2de98b22ff4f978ebf0650c90e82027e?permalink_comment_id=3976215
+
+function _install_wire_plumber()
+{
+    # .Install WirePlumber as the session manager:
+
+    sudo apt install pipewire-media-session- wireplumber
+
+    #    Notice '-' at the end of 'pipewire-media-session'. This is to remove it in the same command, because 'wireplumber' will be used instead.
+    # .Start WirePlumber for your user:
+
+    systemctl --user --now enable wireplumber.service
+}
+
+function _install_conf_alsa()
+{
+    # Install the ALSA plug-in:
+    sudo apt install pipewire-audio-client-libraries
+
+    # And copy the config file from PipeWire docs (provided by the plug-in) into the ALSA configuration directory:
+    sudo cp /usr/share/doc/pipewire/examples/alsa.conf.d/99-pipewire-default.conf /etc/alsa/conf.d/
+
+    # Check if you have other (like Pulse) configs in the /etc/alsa/conf.d/ installed by something else. You might want to remove them.
+}
+
+
+function _install_bluetooth()
+{
+    # Install the codecs and remove Bluetooth from PulseAudio, so it would be handled directly by PipeWire:
+    sudo apt install libldacbt-{abr,enc}2 libspa-0.2-bluetooth pulseaudio-module-bluetooth-
+
+    # The supported codecs are SBC and LDAC.
+    # Unfortunately, aptX and AAC are not supported because of patents and other technical reasons. aptX is available starting from 22.10 via libfreeaptx0 installed by default there (22.10 uses PipeWire by default as well). If you really need these codecs in 22.04 you may use this PPA from @aglasgall which is based on universe, but rebuilds pipewire with additional packages for aptX and AAC from multiverse. Read the discussion here.
+}
+
+function install()
+{
+    _install_wire_plumber
+    _install_conf_alsa
+    _install_bluetooth
+
+}
+
+function help # Show a list of functions
+{
+    awk '/^function / && ! /^function _/' "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi

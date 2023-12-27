@@ -1,0 +1,35 @@
+#!/bin/bash
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P "${DIR}" && pwd)
+
+function _copy_fonts() # Link regolith folder to ~/.config/regolith3
+{
+    mkdir -p "${HOME}"/.fonts
+    cp ./fonts/* "${HOME}"/.fonts/
+}
+
+function verify() # Verify the installation
+{
+    :
+}
+
+
+function install()
+{
+    _copy_fonts
+}
+
+function help # Show a list of functions
+{
+    awk '/^function / && ! /^function _/' "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi
+
+
+mkdir -p $HOME/.fonts
+cp $dotfile_dir/fonts/* $HOME/.fonts/

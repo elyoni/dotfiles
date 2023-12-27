@@ -1,0 +1,44 @@
+[user]
+    email = yehonatan.e@solaredge.com
+    name = Yehonatan Elentok
+[pull]
+    rebase = true
+[push]
+    default = current
+[alias]
+    co = checkout
+    br = branch
+    ci = commit
+    cia = commit --amend
+    cif = commit --amend --no-edit
+    st = status
+    visual = !gitg
+    lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+    delete = !"f() { git fetch --prune origin; git push --delete origin \"$1\" ; git branch -d \"$1\"; git fetch --prune origin; }; f"
+    mustdelete = !"f() { git fetch --prune origin; git push --delete origin \"$1\"; git branch -D \"$1\" ; }; f"
+    ph = push
+    phf = push -f
+    pl = pull
+    dt = difftool --dir-diff
+    dtv = difftool -v vimdiff
+    site = !"current_branch=$(git branch --show-current) && git config --get remote.origin.url | sed 's|git@\\(.*\\):\\(.*\\).git|https://\\1\\/\\2/tree/'${current_branch}'|' | xargs nohup xdg-open 2>/dev/null"
+    root = rev-parse --show-toplevel
+[diff]
+    tool = meld
+    merge = meld
+[merge]
+    tool = meld
+[rerere]
+    enabled = true
+[icdiff]
+    options = --highlight --line-numbers
+[mergetool "nvimdiff"]
+    cmd = "nvim -d \"$LOCAL\" \"$REMOTE\""
+[difftool "nvimdiff"]
+    cmd = "nvim -d \"$LOCAL\" \"$REMOTE\""
+[include]
+    path =  ~/.dotfiles_work/git/work_gitconfig #~/projects/tools/env/gitlab/se_gitconfig
+[submodule]
+    recurse = true
+[credential]
+	helper = store

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+function install_package(){
+    local package_name="${1}"
+    local package_path="${2}"
+    local package_install_file="${package_path}"/install
+
+    echo "===== Start: Install ${package_name} ====="
+    bash "${package_install_file}" install
+    if ! bash "${package_install_file}" verify; then
+        summary+="${package_name} verification failed\n"
+    fi
+    echo "===== End: Install ${package_name} ====="
+}
