@@ -5,7 +5,7 @@ function _install_python3_8(){
     sudo add-apt-repository --yes ppa:deadsnakes/ppa
     sudo apt-get update
     sudo apt-get install -y python3.8
-    sudo apt-get install python3.8-venv
+    sudo apt-get install -y python3.8-venv
 }
 
 function _install_python3_10(){
@@ -13,7 +13,7 @@ function _install_python3_10(){
     sudo add-apt-repository --yes ppa:deadsnakes/ppa
     sudo apt-get update
     sudo apt-get install -y python3.10
-    sudo apt-get install python3.10-venv
+    sudo apt-get install -y python3.10-venv
 }
 
 #Install pip from the official site.

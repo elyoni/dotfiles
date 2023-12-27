@@ -16,7 +16,12 @@ function install_meld()
 {
     VERSION="meld-3.22.0"
     echo ======= install meld version $VERSION =======
-    sudo apt-get install intltool itstool gir1.2-gtksource-3.0 libxml2-utils libgirepository1.0-dev
+    sudo apt-get install -y \
+        intltool \
+        itstool \
+        gir1.2-gtksource-3.0 \
+        libxml2-utils \
+        libgirepository1.0-dev
 
 
     LIB_VERSION=$(echo $VERSION | sed 's/meld-\([0-9]\+.[0-9]\+\).*/\1/')
