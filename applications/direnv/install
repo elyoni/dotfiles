@@ -13,6 +13,15 @@ function help() # Show a list of functions
     awk '/^function / && ! /^function _/' "$0"
 }
 
+function verify()
+{
+    if [[ -f ~/.local/bin/direnv ]];then
+        return 0
+    else
+        return 1
+    fi
+}
+
 if [ $# -eq 0 ]; then
     help
 else

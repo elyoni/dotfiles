@@ -51,6 +51,15 @@ function install_tmux_last()
     popd || return
 }
 
+function verify()
+{
+    if [[ -f /usr/local/bin/tmux ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
 function install()
 {
     prepare_installation
@@ -59,4 +68,4 @@ function install()
     install_tmux_packages
 }
 
-"$@" 
+"$@"

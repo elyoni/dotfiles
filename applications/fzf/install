@@ -21,7 +21,8 @@ function install_packages() # Install additional package for neovim
 
 function verify()
 {
-    if [[ -f $(which fzf) ]]; then
+    if [[ -f ~/.fzf/bin/fzf ]]; then
+
         return 0
     else
         return 1
@@ -47,4 +48,3 @@ if [ $# -eq 0 ]; then
 else
     "$@"
 fi
-

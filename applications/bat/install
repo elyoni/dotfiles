@@ -5,7 +5,7 @@ DIR=$(cd -P "${DIR}" && pwd)
 
 function _install_bat()
 {
-    sudo apt install bat
+    sudo apt-get install -y bat
 }
 
 function install()

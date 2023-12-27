@@ -17,7 +17,7 @@ function _install_tusk_autocomplition()
     case ${current_shell} in
         bash|fish) tusk --install-completion "${current_shell}" ;;
         zsh)
-            sudo chown $(id -u):$(id -g) /usr/local/share/zsh/site-functions/
+            sudo chown "$(id -u)":"$(id -g)" /usr/local/share/zsh/site-functions/
             tusk --install-completion "${current_shell}" ;;
         *) echo "Cannot install auto completion the shell: ${current_shell} isn't support"
     esac
@@ -31,7 +31,7 @@ function install()
 
 function verify()
 {
-    if [[ -f $(which task) ]];then
+    if [[ -f /usr/local/bin/tusk ]];then
         return 0
     else
         return 1

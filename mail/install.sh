@@ -5,12 +5,12 @@ DIR=$(cd -P $DIR && pwd)
 function install_davmail()
 {
     sudo apt-get install default-jre -y
-    sudo apt install $DIR/davmail_5.4.0-3135-1_all.deb 
+    sudo apt install $DIR/davmail_5.4.0-3135-1_all.deb
 }
 
 function install_evolution()
 {
-    sudo add-apt-repository ppa:gnome3-team/gnome3-staging -y
+    sudo add-apt-repository --yes ppa:gnome3-team/gnome3-staging -y
     sudo apt-get update
     sudo apt-get install evolution -y
 }

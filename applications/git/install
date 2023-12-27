@@ -1,41 +1,45 @@
 #!/bin/bash
 
 DIR=$(dirname "${BASH_SOURCE[0]}")
-DIR=$(cd -P $DIR && pwd)
+DIR=$(cd -P "$DIR" && pwd)
+
+source "${DIR}"/../../utils/package/github
 
 function link_files()
 {
     echo ======= Link Files =======
-    ln -sf $DIR/gitconfig $HOME/.gitconfig
+    ln -sf "$DIR"/gitconfig "$HOME"/.gitconfig
     echo =======   End   =======
 }
 
 function install_meld()
 {
-    VERSION="meld-3.20.2" 
+    VERSION="meld-3.22.0"
     echo ======= install meld version $VERSION =======
-    LIB_VERSION=$(echo $VERSION | sed 's/meld-\([0-9]\+.[0-9]\+\).*/\1/')
     sudo apt-get install intltool itstool gir1.2-gtksource-3.0 libxml2-utils libgirepository1.0-dev
-    mkdir -p $HOME/Downloads/apps/meld
-    wget -P $HOME/Downloads/apps/meld https://download.gnome.org/sources/meld/$LIB_VERSION/${VERSION}.tar.xz
-    tar -C $HOME/Downloads/apps/meld -xvf $HOME/Downloads/apps/meld/${VERSION}.tar.xz
 
-    cd $HOME/Downloads/apps/meld/${VERSION}/  # Must install from the library
+
+    LIB_VERSION=$(echo $VERSION | sed 's/meld-\([0-9]\+.[0-9]\+\).*/\1/')
+    mkdir -p "$HOME"/Downloads/apps/meld
+    wget -P "$HOME"/Downloads/apps/meld https://download.gnome.org/sources/meld/"$LIB_VERSION"/${VERSION}.tar.xz
+    tar -C "$HOME"/Downloads/apps/meld -xvf "$HOME"/Downloads/apps/meld/${VERSION}.tar.xz
+
+    pushd "$HOME"/Downloads/apps/meld/${VERSION}/ || exit  # Must install from the library
     sudo ./setup.py install --prefix=/usr
-    cd -
+    popd - || exit
     echo ======= End  =======
 }
 
 function install_cdiff()
 {
-    sudo pip install --upgrade cdiff
+    pipx install cdiff
 }
 
 function install()
 {
-    [ ! -z ${DISPLAY} ] && install_meld
+    [ -n "${DISPLAY}" ] && install_meld
     install_cdiff
     link_files
 }
 
-"$@" 
+"$@"

@@ -9,6 +9,8 @@ function link() # Link regolith config files
     ln -sf "${DIR}/i3" "${HOME}/.config/regolith "
 }
 
+f
+
 function verify() # Verify the installation
 {
     :

@@ -1,5 +1,5 @@
 # syntax = docker/dockerfile:1.3
-FROM ubuntu:20.04 AS base_box
+FROM ubuntu:22.04 AS base_box
 # === User Settings===
 ENV USER yoni
 ENV HOME "/home/$USER"

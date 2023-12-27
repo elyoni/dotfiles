@@ -1,12 +1,28 @@
 #!/usr/bin/env bash
 
+function _install_python3_8(){
+    sudo apt-get install -y software-properties-common
+    sudo add-apt-repository --yes ppa:deadsnakes/ppa
+    sudo apt-get update
+    sudo apt-get install -y python3.8
+    sudo apt-get install python3.8-venv
+}
+
+function _install_python3_10(){
+    sudo apt-get install -y software-properties-common
+    sudo add-apt-repository --yes ppa:deadsnakes/ppa
+    sudo apt-get update
+    sudo apt-get install -y python3.10
+    sudo apt-get install python3.10-venv
+}
 
 #Install pip from the official site.
 #  Download the file get-pip.py from the official site.
 #  Install it with python3 get-pip.py.
 #  And install python venv, the version is the installed python version.
-function install_pip()
+function _install_pip()
 {
+    sudo apt-get install -y wget
     wget https://bootstrap.pypa.io/get-pip.py
     python3 get-pip.py
     python3 -m pip install --user virtualenv
@@ -15,10 +31,7 @@ function install_pip()
 
 #Install pipx from an
 
-
-
-
-function install_pipx()
+function _install_pipx()
 {
     python3 -m pip install --user pipx
     python3 -m pipx ensurepath
@@ -26,8 +39,10 @@ function install_pipx()
 
 function install()
 {
-    install_pip
-    install_pipx
+    _install_python3_10
+    _install_python3_8
+    _install_pip
+    _install_pipx
 }
 
 

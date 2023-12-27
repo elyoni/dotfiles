@@ -10,6 +10,11 @@ function install()
     install_dns_resolvconf
 }
 
+function verify()
+{
+    :
+}
+
 function help # Show a list of functions
 {
     grep "^function" $0

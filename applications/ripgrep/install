@@ -3,12 +3,12 @@
 DIR=$(dirname "${BASH_SOURCE[0]}")
 DIR=$(cd -P "$DIR" && pwd)
 
-source ${DIR}/../../utils/package/github
+source "${DIR}"/../../utils/package/github
 
 function install()
 {
-    local extruct_dir 
-    extruct_dir=$(download_latest_release '64.*linux.*tar.gz' "BurntSushi/ripgrep")
+    local extruct_dir
+    extruct_dir=$(download_latest_release 'x86_64.*linux.*tar.gz$' "BurntSushi/ripgrep")
     cp "${extruct_dir}"/rg "${HOME}"/.local/bin/
     rm -rf "${extruct_dir}"
 }

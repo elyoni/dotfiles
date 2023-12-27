@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 DIR=$(dirname "${BASH_SOURCE[0]}")
-DIR=$(cd -P $DIR && pwd)
+DIR=$(cd -P "$DIR" && pwd)
 
-source ${DIR}/apt
+source "${DIR}"/apt
 
 DOWNLOAD_PATH=/tmp/dotfile/packages
 
@@ -28,7 +28,7 @@ function download_latest_release()
     if [[ ! -d ${DOWNLOAD_PATH} ]]; then
         mkdir --parents ${DOWNLOAD_PATH}
     fi
-     
+
     file_uri=$(curl -s https://api.github.com/repos/"${repository_path}"/releases/latest \
         | jq -r --arg file_structure "${file_structure}" \
         '.assets[] | select (.name|test($file_structure)) | .browser_download_url')
@@ -44,7 +44,7 @@ function download_latest_release()
     tar --directory="${DOWNLOAD_PATH}" --extract --file="${file_downloaded_path}"
 
     filename_without_extension="${file_downloaded_path%.tar.gz}"
-    
+
     rm "${file_downloaded_path}"
 
     # Return extract file path

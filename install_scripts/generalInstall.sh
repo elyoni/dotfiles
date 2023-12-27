@@ -63,7 +63,7 @@ bash $HOME/.dotfiles/mail/install.sh install
 echo "Install ranger"
 bash $HOME/.dotfiles/ranger/install.sh install
 
-# === bluetooth === 
+# === bluetooth ===
 sudo apt-get install bluetooth bluez bluez-tools rfkill -y
 # TO check if the bluetooth is blocked we can run
 ## code: sudo rfkill list
@@ -94,7 +94,7 @@ sudo apt-get install flameshot -y
 sudo apt-get install keepassx -y
 
 #=== Torrent ===
-sudo add-apt-repository ppa:qbittorrent-team/qbittorrent-stable -y
+sudo add-apt-repository --yes ppa:qbittorrent-team/qbittorrent-stable -y
 sudo apt-get update
 sudo apt-get install qbittorrent -y
 
