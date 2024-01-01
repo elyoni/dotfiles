@@ -19,6 +19,11 @@ if [ -d ${ZSH_CUSTOM} ]; then
      for f in ${ZSH_CUSTOM}/*.zsh; do source $f; done
 fi
 
+export ZSH_WORK_CONFIGS="${HOME}/.work_dotfiles/zsh"
+if [ -d ${ZSH_WORK_CONFIGS} ]; then
+     for f in ${ZSH_WORK_CONFIGS}/*.zsh; do source $f; done
+fi
+
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 source ~/.powerlevel10k/powerlevel10k.zsh-theme

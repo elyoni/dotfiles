@@ -37,7 +37,7 @@
 [difftool "nvimdiff"]
     cmd = "nvim -d \"$LOCAL\" \"$REMOTE\""
 [include]
-    path =  ~/.dotfiles_work/git/work_gitconfig #~/projects/tools/env/gitlab/se_gitconfig
+    path =  ~/.work_dotfiles/git/work_gitconfig #~/projects/tools/env/gitlab/se_gitconfig
 [submodule]
     recurse = true
 [credential]
