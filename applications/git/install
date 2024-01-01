@@ -1,14 +1,15 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 DIR=$(dirname "${BASH_SOURCE[0]}")
-DIR=$(cd -P "$DIR" && pwd)
+DIR=$(cd -P "${DIR}" && pwd)
 
 source "${DIR}"/../../utils/package/github
 
 function link_files()
 {
     echo ======= Link Files =======
-    ln -sf "$DIR"/gitconfig "$HOME"/.gitconfig
+    echo ln -sf "${DIR}"/gitconfig "${HOME}"/.gitconfig
+    ln -sf "${DIR}"/gitconfig "${HOME}"/.gitconfig
     echo =======   End   =======
 }
 
@@ -42,9 +43,25 @@ function install_cdiff()
 
 function install()
 {
-    [ -n "${DISPLAY}" ] && install_meld
-    install_cdiff
     link_files
+    install_cdiff
+    #[ -n "${DISPLAY}" ] && install_meld
 }
 
-"$@"
+function verify() # Verify the installation
+{
+    if [ ! -f "$HOME"/.gitconfig ]; then
+        return 1
+    fi
+}
+
+function help # Show a list of functions
+{
+    awk '/^function / && ! /^function _/' "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi
