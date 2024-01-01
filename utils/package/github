@@ -1,14 +1,13 @@
 #!/usr/bin/env bash
-DIR=$(dirname "${BASH_SOURCE[0]}")
-DIR=$(cd -P "$DIR" && pwd)
+DIR_GITHUB=$(dirname "${BASH_SOURCE[0]}")
+DIR_GITHUB=$(cd -P "$DIR_GITHUB" && pwd)
 
-source "${DIR}"/apt
+source "${DIR_GITHUB}"/apt
 
 DOWNLOAD_PATH=/tmp/dotfile/packages
 
 function install_dependenices {
     fast_apt_install wget
-    fast_apt_install tar
     fast_apt_install curl
     fast_apt_install jq
 }
@@ -37,11 +36,21 @@ function download_latest_release()
     file_downloaded_path="${DOWNLOAD_PATH}"/"${filename}"
 
     if [[ -f ${file_downloaded_path} ]]; then
-        rm "${file_downloaded_path}"
+        rm -rf "${file_downloaded_path}"
     fi
 
     wget --quiet --directory-prefix="${DOWNLOAD_PATH}" "${file_uri}"
-    tar --directory="${DOWNLOAD_PATH}" --extract --file="${file_downloaded_path}"
+
+
+    if [[ $filename =~ ".tar.gz" ]]; then
+        fast_apt_install tar
+        tar --directory="${DOWNLOAD_PATH}" --extract --file="${file_downloaded_path}"
+    elif [[ $filename =~ ".zip" ]]; then
+        fast_apt_install unzip
+        unzip "${file_downloaded_path}" -d "${DOWNLOAD_PATH}"
+    else
+        echo "Unknow file type"
+    fi
 
     filename_without_extension="${file_downloaded_path%.tar.gz}"
 
