@@ -16,7 +16,6 @@ install_dependenices
 
 function download_latest_release()
 {
-
     local file_structure=${1}
     local repository_path=${2}
     local file_uri
@@ -59,4 +58,55 @@ function download_latest_release()
     # Return extract file path
     echo "${filename_without_extension}"
 
+}
+
+function download_fix_release()
+{
+
+    local file_structure=${1}
+    local repository_path=${2}
+    local version=${3}
+    local file_uri
+    local filename
+    local filename_without_extension
+    local file_downloaded_path
+
+    if [[ ! -d ${DOWNLOAD_PATH} ]]; then
+        mkdir --parents ${DOWNLOAD_PATH}
+    fi
+
+
+    file_uri=$(curl -s https://api.github.com/repos/"${repository_path}"/releases/tags/${version} \
+        | jq -r --arg file_structure "${file_structure}" \
+        '.assets[] | select (.name|test($file_structure)) | .browser_download_url')
+
+    echo $file_uri
+    exit
+
+    filename=$(basename "$file_uri")
+    file_downloaded_path="${DOWNLOAD_PATH}"/"${filename}"
+
+    if [[ -f ${file_downloaded_path} ]]; then
+        rm -rf "${file_downloaded_path}"
+    fi
+
+    wget --quiet --directory-prefix="${DOWNLOAD_PATH}" "${file_uri}"
+
+
+    if [[ $filename =~ ".tar.gz" ]]; then
+        fast_apt_install tar
+        tar --directory="${DOWNLOAD_PATH}" --extract --file="${file_downloaded_path}"
+    elif [[ $filename =~ ".zip" ]]; then
+        fast_apt_install unzip
+        unzip "${file_downloaded_path}" -d "${DOWNLOAD_PATH}"
+    else
+        echo "Unknow file type"
+    fi
+
+    filename_without_extension="${file_downloaded_path%.tar.gz}"
+
+    rm "${file_downloaded_path}"
+
+    # Return extract file path
+    echo "${filename_without_extension}"
 }
