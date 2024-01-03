@@ -571,20 +571,19 @@ require("lazy").setup({
             require("wf").setup()
         end
     },
-    { 'preservim/nerdcommenter',
+    { 
+        'preservim/nerdcommenter',
     },
     {
-        'habamax/vim-asciidoctor',
+        'tigion/nvim-asciidoc-preview',
+        ft = { 'asciidoc' },
         keys = {
-            { "<leader>oo", "<cmd>AsciidoctorOpenRAW<CR>",    mode = "n" },
-            { "<leader>op", "<cmd>AsciidoctorOpenPDF<CR>",    mode = "n" },
-            { "<leader>oh", "<cmd>AsciidoctorOpenHTML<CR>",   mode = "n" },
-            { "<leader>ox", "<cmd>AsciidoctorOpenDOCX<CR>",   mode = "n" },
-            { "<leader>ch", "<cmd>Asciidoctor2HTML<CR>",      mode = "n" },
-            { "<leader>cp", "<cmd>Asciidoctor2PDF<CR>",       mode = "n" },
-            { "<leader>cx", "<cmd>Asciidoctor2PDF<CR>",       mode = "n" },
-            { "<leader>p",  "<cmd>asciidoctorpasteimage<CR>", mode = "n" },
+            { "<leader>ap", "<cmd>AsciiDocPreview<CR>",    mode = "n" },
+            { "<leader>as", "<cmd>AsciiDocPreviewStop<CR>",    mode = "n" },
+            { "<leader>ao", "<cmd>AsciiDocPreviewOpen<CR>",   mode = "n" },
+            { "<leader>an", "<cmd>AsciiDocPreviewNotify<CR>",   mode = "n" },
         },
+        -- opts = {},
     },
     {
         'github/copilot.vim',
