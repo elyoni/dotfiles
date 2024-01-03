@@ -7,6 +7,7 @@ function install_rustup(){
 function zsh_autocompletion(){
     local zfunc_path=$HOME/.zfunc
     [ ! -d "${zfunc_path}" ] && mkdir -p "${zfunc_path}"
+    source "$HOME/.cargo/env"
     rustup completions zsh > "${zfunc_path}"/_rustup
     rustup completions zsh cargo > "${zfunc_path}"/_cargo
 }
