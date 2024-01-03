@@ -27,6 +27,16 @@ function _regolith3_install()
 
 }
 
+function _i3xrocks(){
+    sudo apt-get install -y \
+        i3xrocks-battery \
+        i3xrocks-volume \
+        i3xrocks-bluetooth \
+        i3xrocks-key-indicator \
+        i3xrocks-keyboard-layout \
+        i3xrocks-nm-vpn
+}
+
 function verify() # Verify the installation
 {
     :

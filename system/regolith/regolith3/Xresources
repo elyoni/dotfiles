@@ -1,7 +1,5 @@
 #define WORKSPACE_NAME(INDEX, NAME, FONT) INDEX<span font_desc=FONT> INDEX: NAME </span>
-!regolith.look.path: /usr/share/regolith-look/default
 wm.workspace.Files.name: 4:AAAA
-regolith.look.path: /usr/share/regolith-look/lascaille
 
 wm.binding.browser: none
 wm.workspace.2.name: "2:Yoni"
@@ -9,3 +7,5 @@ wm.workspace.1.name: WORKSPACE_NAME(1, BR0WSER, glyph_font)
 
 wm.binding.display: none
 wm.binding.launcher.app: d
+!regolith.look.path: /usr/share/regolith-look/nord
+regolith.look.path: /usr/share/regolith-look/lascaille
