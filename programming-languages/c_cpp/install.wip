@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P "${DIR}" && pwd)
+
+CONAN_VERSION=1.62.0
+source ${DIR}/../../utils/package/github
+
+
+# TODO need to support deb installtion
+function install_conan()
+{
+    local extruct_dir
+    extruct_dir=$(download_fix_release 'ubuntu-64.deb' "conan-io/conan" "1.62.0")
+    echo ${extruct_dir}
+    #cp "${extruct_dir}"/rg "${HOME}"/.local/bin/
+    #rm -rf "${extruct_dir}"
+}
+    #wget https://github.com/conan-io/conan/releases/download/"${CONAN_VERSION}"/conan-linux-64.tar.gz tar -xvf conan-linux-64.tar.gz
+
+function verify() # Verify the installation
+{
+    :
+}
+
+
+function install()
+{
+    install_conan
+}
+
+function help # Show a list of functions
+{
+    awk '/^function / && ! /^function _/' "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi
