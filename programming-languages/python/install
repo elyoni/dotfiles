@@ -16,6 +16,10 @@ function _install_python3_10(){
     sudo apt-get install -y python3.10-venv
 }
 
+function _install_poetry(){
+    pipx install poetry
+}
+
 #Install pip from the official site.
 #  Download the file get-pip.py from the official site.
 #  Install it with python3 get-pip.py.
@@ -43,6 +47,7 @@ function install()
     _install_python3_8
     _install_pip
     _install_pipx
+    _install_poetry
 }
 
 
