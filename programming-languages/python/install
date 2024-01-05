@@ -18,6 +18,8 @@ function _install_python3_10(){
 
 function _install_poetry(){
     pipx install poetry
+    poetry completions zsh > $HOME/.zsh/completion/_poetry
+
 }
 
 #Install pip from the official site.
