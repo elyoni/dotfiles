@@ -15,6 +15,11 @@ function link_files()
 
 function install_meld()
 {
+    sudo apt-get install -y meld
+}
+
+function _install_meld_git()
+{
     VERSION="meld-3.22.0"
     echo ======= install meld version $VERSION =======
     sudo apt-get install -y \
@@ -45,7 +50,7 @@ function install()
 {
     link_files
     install_cdiff
-    #[ -n "${DISPLAY}" ] && install_meld
+    [ -n "${DISPLAY}" ] && install_meld
 }
 
 function verify() # Verify the installation
