@@ -1,6 +1,8 @@
 [user]
-    email = yehonatan.e@solaredge.com
+    email = elyoni@gmail.com
     name = Yehonatan Elentok
+[includeIf "gitdir:~/projects/"]
+    path =  ~/.work_dotfiles/git/gitconfig_user
 [pull]
     rebase = true
 [push]
@@ -37,7 +39,7 @@
 [difftool "nvimdiff"]
     cmd = "nvim -d \"$LOCAL\" \"$REMOTE\""
 [include]
-    path =  ~/.work_dotfiles/git/work_gitconfig #~/projects/tools/env/gitlab/se_gitconfig
+    path =  ~/.work_dotfiles/git/gitconfig_alias
 [submodule]
     recurse = true
 [credential]
