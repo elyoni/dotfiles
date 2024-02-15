@@ -12,8 +12,18 @@ function _install_python3_10(){
     sudo apt-get install -y software-properties-common
     sudo add-apt-repository --yes ppa:deadsnakes/ppa
     sudo apt-get update
-    sudo apt-get install -y python3.10
-    sudo apt-get install -y python3.10-venv
+    sudo apt-get install -y \
+        python3.10\
+        python3.10-venv
+    sudo apt-get install -y
+    apt install libpython3.11-dev
+}
+
+function _install_python3_11(){
+    sudo apt-get install -y \
+        python3.11\
+        python3.11-venv \
+        libpython3.11-dev
 }
 
 function _install_poetry(){
@@ -45,6 +55,7 @@ function _install_pipx()
 
 function install()
 {
+    _install_python3_11
     _install_python3_10
     _install_python3_8
     _install_pip
