@@ -3,10 +3,10 @@
 DIR=$(dirname "${BASH_SOURCE[0]}")
 DIR=$(cd -P $DIR && pwd)
 
-ZSH="$HOME/.oh-my-zsh" 
+ZSH="$HOME/.oh-my-zsh"
 
 # ZSH_CUSTOM the path of the user settings
-export ZSH_CUSTOM="$HOME/.config/zsh" 
+export ZSH_CUSTOM="$HOME/.config/zsh"
 
 function install_dependenices {
     sudo apt update -y
@@ -51,20 +51,46 @@ function link_files
 function set_zsh_as_default_shell() {
     zsh_bin="$(which zsh)"
     echo "Changing user's shell to $zsh_bin... "
-    #if [[ "$SHELL" =~ /zsh ]]; then
-        #echo 'already set'
-    #else
-        #chsh -s "$zsh_bin"
-    #fi
+    if [[ "$SHELL" =~ /zsh ]]; then
+        echo 'already set'
+    else
+        chsh -s "$zsh_bin"
+    fi
 }
 
-function verify()
-{
+function verify_default_shell(){
+    if grep -E "$USER.*zsh" /etc/passwd; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+function verify_zsh_install(){
     if [[ -f $(which zsh) ]];then
         return 0
     else
         return 1
     fi
+}
+
+function verify()
+{
+    if verify_zsh_install; then
+        echo "Zsh is installed"
+    else
+        echo "Zsh is not installed"
+        return 1
+    fi
+
+    if verify_default_shell; then
+        echo "Default shell is zsh"
+    else
+        echo "Default shell is not zsh"
+        return 1
+    fi
+
+    return 0
 }
 
 function install
@@ -87,4 +113,3 @@ if [ $# -eq 0 ]; then
 else
     "$@"
 fi
-
