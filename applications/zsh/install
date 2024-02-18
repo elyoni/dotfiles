@@ -11,7 +11,8 @@ export ZSH_CUSTOM="$HOME/.config/zsh"
 function install_dependenices {
     sudo apt update -y
     sudo apt-get install -y \
-        git
+        git \
+        tree
 }
 
 function install_zsh {
