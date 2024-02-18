@@ -27,7 +27,8 @@ function download_latest_release()
         mkdir --parents ${DOWNLOAD_PATH}
     fi
 
-    file_uri=$(curl -s https://api.github.com/repos/"${repository_path}"/releases/latest \
+    echo "[GitHub] Downloading latest release from ${repository_path}" >&2
+    file_uri=$(curl https://api.github.com/repos/"${repository_path}"/releases/latest \
         | jq -r --arg file_structure "${file_structure}" \
         '.assets[] | select (.name|test($file_structure)) | .browser_download_url')
 
