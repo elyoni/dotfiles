@@ -3,6 +3,19 @@ task add Task description
 
 # Add task assign to project
 task add Task description project:'my project name'
-task add project:PROJECT Task description 
+task add project:PROJECT Task description
+task add pro:Work Task description
 task add Task description project:PROJECT +my_tag
 
+# Start/Stop/End task
+task start <task_id>
+task stop <task_id>
+task end <task_id>
+
+# Context, create, change
+# Create
+Schema: task context define <context_name> "<filter>"
+task context define work "project:Work"
+
+# # Change
+task context work
