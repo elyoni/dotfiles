@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P "${DIR}" && pwd)
+
+function _install_telegram(){
+     #flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+     sudo snap install telegram-desktop
+}
+
+function verify() # Verify the installation
+{
+    if [ -x "$(command -v telegram-desktop)" ]; then
+        echo "Telegram is installed"
+        return 0
+    else
+        echo "Telegram is not installed"
+        return 1
+    fi
+}
+
+
+function install()
+{
+    _install_telegram
+}
+
+function help # Show a list of functions
+{
+    awk '/^function / && ! /^function _/' "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi

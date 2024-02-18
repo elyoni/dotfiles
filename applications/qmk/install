@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+#
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P "${DIR}" && pwd)
+
+function install_dependecies()
+{
+    sudo apt install -y git pipx
+}
+
+function install_qmk()
+{
+    python3 -m pipx install qmk
+}
+
+function install()
+{
+    install_dependecies
+    install_qmk
+}
+
+function verify()
+{
+    :
+}
+
+function help # Show a list of functions
+{
+    awk '/^function / && ! /^function _/' "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi

@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+#
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P "$DIR" && pwd)
+
+source "${DIR}"/../../utils/package/github
+
+function taskwarrior()
+{
+    local extruct_dir
+    #https://github.com/GothenburgBitFactory/taskwarrior/releases/download/v2.6.2/task-2.6.2.tar.gz
+    extruct_dir=$(download_latest_release 'task.*tar.gz$' "GothenburgBitFactory/taskwarrior")
+    #cp "${extruct_dir}"/task "${HOME}"/.local/bin/
+    #rm -rf "${extruct_dir}"
+}
+
+function install()
+{
+    taskwarrior
+}
+
+function verify()
+{
+    if [[ -f $(which task) ]];then
+        return 0
+    else
+        return 1
+    fi
+}
+
+function help() # Show a list of functions
+{
+    awk '/^function / && ! /^function _/' "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi

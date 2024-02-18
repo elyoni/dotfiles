@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P "${DIR}" && pwd)
+
+source "${DIR}"/../../utils/package/apt
+
+function verify() # Verify the installation
+{
+    fast_apt_verify flatpak
+}
+
+
+function install()
+{
+    fast_apt_install flatpak
+}
+
+function help # Show a list of functions
+{
+    awk '/^function / && ! /^function _/' "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi

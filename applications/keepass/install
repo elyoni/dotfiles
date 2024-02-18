@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P "${DIR}" && pwd)
+
+function inst_keepassxc() # Install KeePassXC
+{
+    sudo snap install keepassxc
+    #sudo apt-add-repository -y ppa:phoerious/keepassxc
+    #sudo apt-get update
+    #sudo apt-get install -y keepassxc
+}
+
+function verify_keepassxc() # Verify the installation
+{
+    if [ -f $(which keepassxc) ]
+    then
+        echo "KeePassXC is installed"
+        return 0
+    else
+        echo "KeePassXC is not installed"
+        return 1
+    fi
+}
+
+function verify() # Verify the installation
+{
+    verify_keepassxc
+}
+
+
+function install()
+{
+    inst_keepassxc
+}
+
+function help # Show a list of functions
+{
+    awk '/^function / && ! /^function _/' "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi
