@@ -28,7 +28,10 @@ vim.api.nvim_set_keymap("n", "ss", "i<Space><Esc>", {})
 --" TAB in general mode will move to text buffer
 vim.api.nvim_set_keymap("n", "<TAB>", "<cmd>bnext<CR>", {})
 vim.api.nvim_set_keymap("n", "<S-TAB>", "<cmd>bprevious<CR>", {})
-vim.api.nvim_set_keymap("n", "bd", "<cmd>bdelete<CR>", {})
+--vim.api.nvim_set_keymap("n", "bd", "<cmd>bdelete<CR>", {})
+--
+vim.api.nvim_set_keymap("n", "<C-DEL>", "<cmd>tabnew<CR>", {})
+
 
 --" Easy save
 vim.api.nvim_set_keymap("n", "<C-s>", "<cmd>w<CR>", {})

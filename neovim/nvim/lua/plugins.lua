@@ -49,6 +49,11 @@ require("lazy").setup({
             require("catppuccin").setup({
                 flavour = "mocha", -- latte, frappe, macchiato, mocha
                 transparent_background = false,
+                dim_inactive = {
+                    enabled = true, -- dims the background color of inactive window
+                    shade = "dark",
+                    percentage = 0.15, -- percentage of the shade to apply to the inactive window
+                },
             })
             require('lualine').setup {
                 options = {
@@ -235,7 +240,7 @@ require("lazy").setup({
         config = function()
             require 'nvim-treesitter.configs'.setup {
                 ensure_installed = { "yaml", "rust", "c", "lua", "python", "bash", "go" },
-                highlight = { enable = false },
+                highlight = { enable = true},
                 autopairs = { enable = true },
                 incremental_selection = {
                     enable = true,
@@ -302,21 +307,34 @@ require("lazy").setup({
                 mode = {
                     "v", "n" }
             },
-            { '<leader>fb', "<cmd>Telescope buffers<CR>",      desc = "Buffers list" },
-            { '<leader>fe', "<cmd>Telescope file_browser<CR>", desc = "Files Explorer" },
+            --{ '<leader>fb', "<cmd>Telescope buffers<CR>",      desc = "Buffers list" },
+            { '<leader>fn', "<cmd>Telescope buffers<CR>",      desc = "Buffers list" },
             { '<leader>fh', "<cmd>Telescope help_tags<CR>",    desc = "Help Tags" },
+            { '<leader>gs', "<cmd>Telescope git_status<CR>",  desc = "Live grep" },
         },
 
         init = function()
             require('telescope').setup {
                 mappings = {
                     n = {
-                        ['<c-e>'] = require('telescope.actions').delete_buffer
+                        ['<x>'] = require('telescope/actions').delete_buffer
                     }, -- n
                     i = {
-                        ['<c-e>'] = require('telescope.actions').delete_buffer
+                        ['<c-e>'] = require('telescope/actions').delete_buffer
                     } -- i
-                }     -- mappings
+                },
+                pickers = {
+                    live_grep = {
+                        additional_args = function(opts)
+                            return {"--hidden"}
+                        end
+                    },
+                    find_files = {
+                        additional_args = function(opts)
+                            return {"--hidden"}
+                        end
+                    },
+                },
             }
         end
     },
@@ -394,11 +412,11 @@ require("lazy").setup({
 
             lsp.preset('recommended')
 
-            lsp.configure('pyright', {
-                flags = {
-                    debounce_text_changes = 150,
-                }
-            })
+            --lsp.configure('pyright', {
+                --flags = {
+                    --debounce_text_changes = 150,
+                --}
+            --})
 
             lsp.configure('grammarly', {
                 filetypes = { 'asciidoctor' },
@@ -532,9 +550,9 @@ require("lazy").setup({
 
     {
         'tpope/vim-fugitive',
-        --lazy = false,
+        lazy = false,
         keys = {
-            { "<leader>gs", "<cmd>Git status<CR>",  mode = "n" },
+            --{ "<leader>gs", "<cmd>Git status<CR>",  mode = "n" },
             { "<leader>gd", "<cmd>Gvdiffsplit<CR>", mode = "n" },
             { "<leader>gc", "<cmd>Git commit<CR>",  mode = "n" },
             { "<leader>gl", "<cmd>Gclog<CR>",       mode = "n" },
@@ -585,16 +603,16 @@ require("lazy").setup({
         },
         -- opts = {},
     },
-    {
-        'github/copilot.vim',
-        --keys = {
-        --{ "<C-l>", "<cmd>copilot#Accept()<CR>", mode = "i" },
-        --},
-        init = function()
-            vim.g.copilot_assume_mapped = true
-            vim.g.copilot_no_tab_map = true
-        end
-    },
+    --{
+        --'github/copilot.vim',
+        ----keys = {
+        ----{ "<C-l>", "<cmd>copilot#Accept()<CR>", mode = "i" },
+        ----},
+        --init = function()
+            --vim.g.copilot_assume_mapped = true
+            --vim.g.copilot_no_tab_map = true
+        --end
+    --},
     {
         "utilyre/barbecue.nvim",
         name = "barbecue",
@@ -608,23 +626,62 @@ require("lazy").setup({
         },
     },
     { "lepture/vim-jinja" },
-    --{
-    --"zbirenbaum/copilot.lua",
-    --cmd = "Copilot",
-    --event = "InsertEnter",
-    --config = function()
-    --require("copilot").setup({
-    --suggestion = { enabled = false },
-    --panel = { enabled = false },
-    --})
-    --end,
-    --},
-    --{
-    --"zbirenbaum/copilot-cmp",
-    --config = function()
-    --require("copilot_cmp").setup()
-    --end,
-    --},
+    {
+        "zbirenbaum/copilot.lua",
+        cmd = "Copilot",
+        event = "InsertEnter",
+        config = function()
+            require("copilot").setup({
+                suggestion = {
+                    enabled = true,
+                    auto_trigger = true,
+                    debounce = 5,
+                    keymap = {
+                        accept = "<C-l>",
+                        accept_word = "<M-l>",
+                        accept_line = false,
+                        next = "<C-j>",
+                        prev = "<C-k>",
+                        dismiss = "<C-]>",
+                    },
+                },
+                filetypes = {
+                    yaml = true,
+                },
+            })
+        end,
+
+    },
+    {
+        "jellydn/CopilotChat.nvim",
+        opts = {
+            show_help = "yes", -- Show help text for CopilotChatInPlace, default: yes
+            debug = false, -- Enable or disable debug mode, the log file will be in ~/.local/state/nvim/CopilotChat.nvim.log
+        },
+        build = function()
+            vim.notify("Please update the remote plugins by running ':UpdateRemotePlugins', then restart Neovim.")
+        end,
+        event = "VeryLazy",
+        keys = {
+            { "<leader>cce", "<cmd>CopilotChatExplain<cr>", desc = "CopilotChat - Explain code" },
+            { "<leader>cct", "<cmd>CopilotChatTests<cr>", desc = "CopilotChat - Generate tests" },
+            {
+                "<leader>ccv",
+                ":CopilotChatVisual",
+                mode = "x",
+                desc = "CopilotChat - Open in vertical split",
+            },
+            {
+                "<leader>ccx",
+                ":CopilotChatInPlace<cr>",
+                mode = "x",
+                desc = "CopilotChat - Run in-place code",
+            },
+        },
+    },
+
+
+
 }
 )
 
