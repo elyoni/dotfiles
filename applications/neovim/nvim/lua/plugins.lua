@@ -50,7 +50,7 @@ require("lazy").setup({
                 flavour = "mocha", -- latte, frappe, macchiato, mocha
                 transparent_background = false,
                 dim_inactive = {
-                    enabled = true, -- dims the background color of inactive window
+                    enabled = true,    -- dims the background color of inactive window
                     shade = "dark",
                     percentage = 0.15, -- percentage of the shade to apply to the inactive window
                 },
@@ -240,7 +240,7 @@ require("lazy").setup({
         config = function()
             require 'nvim-treesitter.configs'.setup {
                 ensure_installed = { "yaml", "rust", "c", "lua", "python", "bash", "go" },
-                highlight = { enable = true},
+                highlight = { enable = true },
                 autopairs = { enable = true },
                 incremental_selection = {
                     enable = true,
@@ -298,8 +298,7 @@ require("lazy").setup({
         keys = {
             { '<leader>fg', "<cmd>Telescope live_grep<CR>",  desc = "Live grep" },
             { '<leader>ff', "<cmd>Telescope find_files<CR>", desc = "Find file" },
-            { '<leader>fF', "<cmd>Telescope git_files<CR>",  desc = "Find file git" },
-            { '<C-p>',      "<cmd>Telescope find_files<CR>", desc = "Find file" },
+            { '<C-p>',      "<cmd>Telescope git_files<CR>",  desc = "Find file git" },
             {
                 '<C-f>',
                 "<cmd>Telescope grep_string<CR>",
@@ -308,9 +307,9 @@ require("lazy").setup({
                     "v", "n" }
             },
             --{ '<leader>fb', "<cmd>Telescope buffers<CR>",      desc = "Buffers list" },
-            { '<leader>fn', "<cmd>Telescope buffers<CR>",      desc = "Buffers list" },
-            { '<leader>fh', "<cmd>Telescope help_tags<CR>",    desc = "Help Tags" },
-            { '<leader>gs', "<cmd>Telescope git_status<CR>",  desc = "Live grep" },
+            { '<leader>fn', "<cmd>Telescope buffers<CR>",    desc = "Buffers list" },
+            { '<leader>fh', "<cmd>Telescope help_tags<CR>",  desc = "Help Tags" },
+            { '<leader>gs', "<cmd>Telescope git_status<CR>", desc = "Live grep" },
         },
 
         init = function()
@@ -325,14 +324,14 @@ require("lazy").setup({
                 },
                 pickers = {
                     live_grep = {
-                        additional_args = function(opts)
-                            return {"--hidden"}
+                        file_ignore_patterns = { 'node_modules', '.git', '.venv' },
+                        additional_args = function(_)
+                            return { "--hidden" }
                         end
                     },
                     find_files = {
-                        additional_args = function(opts)
-                            return {"--hidden"}
-                        end
+                        file_ignore_patterns = { 'node_modules', '.git', '.venv' },
+                        hidden = true
                     },
                 },
             }
@@ -413,9 +412,9 @@ require("lazy").setup({
             lsp.preset('recommended')
 
             --lsp.configure('pyright', {
-                --flags = {
-                    --debounce_text_changes = 150,
-                --}
+            --flags = {
+            --debounce_text_changes = 150,
+            --}
             --})
 
             lsp.configure('grammarly', {
@@ -589,29 +588,29 @@ require("lazy").setup({
             require("wf").setup()
         end
     },
-    { 
+    {
         'preservim/nerdcommenter',
     },
     {
         'tigion/nvim-asciidoc-preview',
         ft = { 'asciidoc' },
         keys = {
-            { "<leader>ap", "<cmd>AsciiDocPreview<CR>",    mode = "n" },
-            { "<leader>as", "<cmd>AsciiDocPreviewStop<CR>",    mode = "n" },
+            { "<leader>ap", "<cmd>AsciiDocPreview<CR>",       mode = "n" },
+            { "<leader>as", "<cmd>AsciiDocPreviewStop<CR>",   mode = "n" },
             { "<leader>ao", "<cmd>AsciiDocPreviewOpen<CR>",   mode = "n" },
-            { "<leader>an", "<cmd>AsciiDocPreviewNotify<CR>",   mode = "n" },
+            { "<leader>an", "<cmd>AsciiDocPreviewNotify<CR>", mode = "n" },
         },
         -- opts = {},
     },
     --{
-        --'github/copilot.vim',
-        ----keys = {
-        ----{ "<C-l>", "<cmd>copilot#Accept()<CR>", mode = "i" },
-        ----},
-        --init = function()
-            --vim.g.copilot_assume_mapped = true
-            --vim.g.copilot_no_tab_map = true
-        --end
+    --'github/copilot.vim',
+    ----keys = {
+    ----{ "<C-l>", "<cmd>copilot#Accept()<CR>", mode = "i" },
+    ----},
+    --init = function()
+    --vim.g.copilot_assume_mapped = true
+    --vim.g.copilot_no_tab_map = true
+    --end
     --},
     {
         "utilyre/barbecue.nvim",
@@ -656,7 +655,7 @@ require("lazy").setup({
         "jellydn/CopilotChat.nvim",
         opts = {
             show_help = "yes", -- Show help text for CopilotChatInPlace, default: yes
-            debug = false, -- Enable or disable debug mode, the log file will be in ~/.local/state/nvim/CopilotChat.nvim.log
+            debug = false,     -- Enable or disable debug mode, the log file will be in ~/.local/state/nvim/CopilotChat.nvim.log
         },
         build = function()
             vim.notify("Please update the remote plugins by running ':UpdateRemotePlugins', then restart Neovim.")
@@ -664,7 +663,7 @@ require("lazy").setup({
         event = "VeryLazy",
         keys = {
             { "<leader>cce", "<cmd>CopilotChatExplain<cr>", desc = "CopilotChat - Explain code" },
-            { "<leader>cct", "<cmd>CopilotChatTests<cr>", desc = "CopilotChat - Generate tests" },
+            { "<leader>cct", "<cmd>CopilotChatTests<cr>",   desc = "CopilotChat - Generate tests" },
             {
                 "<leader>ccv",
                 ":CopilotChatVisual",
