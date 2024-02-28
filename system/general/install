@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P "${DIR}" && pwd)
+
+source "${DIR}"/../../utils/package/apt
+
+
+function install_cifs() # Install cifs-utils
+{
+    fast_apt_install cifs-utils
+}
+
+function verify_cifs() # Verify the installation
+{
+    fast_apt_verify cifs-utils
+}
+
+function verify() # Verify the installation
+{
+    verify_cifs
+}
+
+
+function install()
+{
+    install_cifs
+}
+
+function inst_verify()
+{
+    install
+    verify
+}
+
+function help # Show a list of functions
+{
+    awk '/^function / && ! /^function _/' "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi
