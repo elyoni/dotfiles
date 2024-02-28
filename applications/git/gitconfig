@@ -5,6 +5,7 @@
     path =  ~/.work_dotfiles/git/gitconfig_user
 [pull]
     rebase = true
+    default = current
 [push]
     default = current
 [alias]
