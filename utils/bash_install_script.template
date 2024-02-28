@@ -3,6 +3,10 @@
 DIR=$(dirname "${BASH_SOURCE[0]}")
 DIR=$(cd -P "${DIR}" && pwd)
 
+source "${DIR}"/../../utils/package/apt
+source ${DIR}/../../utils/package/github
+source ${DIR}/../../utils/smart_link
+
 function verify() # Verify the installation
 {
     :
