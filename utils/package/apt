@@ -1,9 +1,22 @@
 #!/usr/bin/env bash
 
+function _apt_get_version()
+{
+    local package_name=${1}
+    dpkg -l | awk -v pkg="$package_name" '$2 == pkg {print $3}'
+}
+
+
 function fast_apt_verify()
 {
     local package_name=${1}
-    dpkg --list "${package_name}" 2>/dev/null 1>/dev/null
+    if dpkg --audit "${package_name}" 2>/dev/null; then
+        echo "Package ${package_name}, version:" $(_apt_get_version "${package_name}")
+        return 0
+    else
+        echo "Package ${package_name} is not installed\n"
+        return 1
+    fi
 }
 
 # Support Only one package
