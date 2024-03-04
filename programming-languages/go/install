@@ -3,7 +3,7 @@
 DIR=$(dirname "${BASH_SOURCE[0]}")
 DIR=$(cd -P "$DIR" && pwd)
 
-GOVERSION=1.21.4
+GOVERSION=1.21.7
 INSTALL_DIR_BASE=/usr/local
 INSTALL_DIR=${INSTALL_DIR_BASE}/go
 
