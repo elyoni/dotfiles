@@ -307,9 +307,8 @@ require("lazy").setup({
                     "v", "n" }
             },
             --{ '<leader>fb', "<cmd>Telescope buffers<CR>",      desc = "Buffers list" },
-            { '<leader>fn', "<cmd>Telescope buffers<CR>",    desc = "Buffers list" },
-            { '<leader>fh', "<cmd>Telescope help_tags<CR>",  desc = "Help Tags" },
-            { '<leader>gs', "<cmd>Telescope git_status<CR>", desc = "Live grep" },
+            { '<leader>fn', "<cmd>Telescope buffers<CR>",   desc = "Buffers list" },
+            { '<leader>fh', "<cmd>Telescope help_tags<CR>", desc = "Help Tags" },
         },
 
         init = function()
@@ -546,7 +545,21 @@ require("lazy").setup({
         'fei6409/log-highlight.nvim',
         config = true,
     },
+    {
+        "NeogitOrg/neogit",
+        dependencies = {
+            "nvim-lua/plenary.nvim",  -- required
+            "sindrets/diffview.nvim", -- optional - Diff integration
 
+            -- Only one of these is needed, not both.
+            "nvim-telescope/telescope.nvim", -- optional
+            "ibhagwan/fzf-lua",              -- optional
+        },
+        keys = {
+            { '<leader>gs', "<cmd>Neogit<CR>", desc = "Neogit" },
+        },
+        config = true
+    },
     {
         'tpope/vim-fugitive',
         lazy = false,
