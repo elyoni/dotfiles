@@ -5,3 +5,7 @@ vim.cmd("command Wq wq")
 vim.cmd("command Q q")
 vim.cmd("command Qa qa")
 vim.cmd("command DelFile call delete(expand('%')) | bdelete!")
+
+-- Tab commands
+vim.cmd("command Tn tabnew")
+vim.cmd("command TN tabnew")

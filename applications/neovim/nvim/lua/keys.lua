@@ -16,6 +16,13 @@ vim.api.nvim_set_keymap("n", "<A-l>", "<cmd>vertical resize +2<CR>", {})
 vim.api.nvim_set_keymap("n", "<leader>vf", "<C-w><bar>", {})
 vim.api.nvim_set_keymap("n", "<leader>ve", "<C-w>=", {})
 
+-- tabs
+vim.api.nvim_set_keymap("n", "<leader>tn", "<cmd>tabnew<CR>", {})
+vim.api.nvim_set_keymap("n", "<leader>tc", "<cmd>tabclose<CR>", {})
+vim.api.nvim_set_keymap("n", "<leader>tl", "<cmd>tabnext<CR>", {})
+vim.api.nvim_set_keymap("n", "<leader>th", "<cmd>tabprevious<CR>", {})
+vim.api.nvim_set_keymap("n", "<leader>tm", "<cmd>tabmove ", {})
+
 
 --" I hate escape more than anything else
 vim.api.nvim_set_keymap("i", "kj", "<Esc>", {})
