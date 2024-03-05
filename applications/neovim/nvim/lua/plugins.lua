@@ -558,7 +558,20 @@ require("lazy").setup({
         keys = {
             { '<leader>gs', "<cmd>Neogit<CR>", desc = "Neogit" },
         },
-        config = true
+        config = function()
+            local neogit = require("neogit")
+
+            neogit.setup {
+                neogit.setup {
+                    mappings = {
+                        status = {
+                            ["<enter>"] = "Toggle",
+                            ["o"] = "GoToFile",
+                        },
+                    },
+                },
+            }
+        end
     },
     {
         'tpope/vim-fugitive',
