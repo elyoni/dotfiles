@@ -567,6 +567,7 @@ require("lazy").setup({
                         status = {
                             ["<enter>"] = "Toggle",
                             ["o"] = "GoToFile",
+                            ["y"] = "YankSelected", --Copy the commit sha
                         },
                     },
                 },
