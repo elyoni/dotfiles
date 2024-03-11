@@ -24,7 +24,15 @@
     pl = pull
     dt = difftool --dir-diff
     dtv = difftool -v vimdiff
-    site = !"current_branch=$(git branch --show-current) && git config --get remote.origin.url | sed 's|git@\\(.*\\):\\(.*\\).git|https://\\1\\/\\2/tree/'${current_branch}'|' | xargs nohup xdg-open 2>/dev/null"
+    site = !"current_branch=$(git branch --show-current) && \
+             if git rev-parse --quiet --verify \"refs/remotes/origin/${current_branch}\" > /dev/null; \
+             then \
+               url=$(git config --get remote.origin.url | sed 's|git@\\(.*\\):\\(.*\\).git|https://\\1/\\2/tree/'${current_branch}'|'); \
+             else \
+               current_branch=\"master\"; \
+               url=$(git config --get remote.origin.url | sed 's|git@\\(.*\\):\\(.*\\).git|https://\\1/\\2/tree/'${current_branch}'|'); \
+             fi; \
+             xdg-open $url 2>/dev/null"
     root = rev-parse --show-toplevel
 [diff]
     tool = meld
