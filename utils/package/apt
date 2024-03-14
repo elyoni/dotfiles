@@ -6,6 +6,12 @@ function _apt_get_version()
     dpkg -l | awk -v pkg="$package_name" '$2 == pkg {print $3}'
 }
 
+function add_repository()
+{
+    local repository=${1}
+    sudo add-apt-repository "${repository}" --yes
+}
+
 
 function fast_apt_verify()
 {

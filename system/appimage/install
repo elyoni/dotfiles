@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P "${DIR}" && pwd)
+
+source "${DIR}"/../../utils/package/apt
+source ${DIR}/../../utils/package/github
+source ${DIR}/../../utils/smart_link
+
+function verify() # Verify the installation
+{
+    fast_apt_verify appimagelauncher
+}
+
+function add_appimagelauncher_repository()
+{
+    fast_apt_install software-properties-common
+    add_repository ppa:appimagelauncher-team/stable
+}
+
+function install_appimagelauncher()
+{
+    fast_apt_install appimagelauncher
+}
+
+
+function install()
+{
+    add_appimagelauncher_repository
+    install_appimagelauncher
+
+}
+
+function help # Show a list of functions
+{
+    awk '/^function / && ! /^function _/' "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi
