@@ -25,6 +25,7 @@ function main(){
     set_path "${HOME}/.local/bin"
     set_path "${PYENV_ROOT}/bin"
     set_path "${HOME}/.cargo/bin"
+    set_path "${HOME}/.platformio/penv/bin"
 }
 
 set_other_path
