@@ -21,14 +21,26 @@ WIMP_PROJECTS_PATH=( "${HOME}"/Private/my_projects/ "${HOME}"/projects)
 WIMP_HISTORY_DIR=${WIMP_HISTORY_DIR:-"${HOME}"/.config/wimp}
 
 export ZSH_CONFIGS="${HOME}/.config/zsh"
+export ZSH_CUSTOM_PLUGIN="${ZSH_CONFIGS}/plugins"
+
+if [[ -n "$ZSH_CUSTOM_PLUGIN" && -d "$ZSH_CUSTOM_PLUGIN" ]]; then
+    # Iterate over all directories under ZSH_CUSTOM_PLUGIN
+    for dir in "$ZSH_CUSTOM_PLUGIN"/*/; do
+        for file in "$dir"*.zsh; do
+            if [ -f "$file" ] && [[ "$file" != *".plugin.zsh" ]]; then  # Check if it's a regular file
+                source "$file" || echo "Error sourcing $file"
+            fi
+        done
+    done
+else
+fi
+
+
+
 if [ -d ${ZSH_CONFIGS} ]; then
      for f in ${ZSH_CONFIGS}/*.zsh; do source $f; done
 fi
 
-export ZSH_CUSTOM="${HOME}/.config/zsh/zsh_config"
-if [ -d ${ZSH_CUSTOM} ]; then
-     for f in ${ZSH_CUSTOM}/*.zsh; do source $f; done
-fi
 
 export ZSH_WORK_CONFIGS="${HOME}/.work_dotfiles/zsh"
 if [ -d ${ZSH_WORK_CONFIGS} ]; then
