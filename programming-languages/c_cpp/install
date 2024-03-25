@@ -4,7 +4,8 @@ DIR=$(dirname "${BASH_SOURCE[0]}")
 DIR=$(cd -P "${DIR}" && pwd)
 
 CONAN_VERSION=1.62.0
-source ${DIR}/../../utils/package/github
+#source "${DIR}"/../../utils/package/github
+source "${DIR}"/../../utils/package/apt
 
 
 # TODO need to support deb installtion
@@ -18,6 +19,11 @@ function install_conan()
 }
     #wget https://github.com/conan-io/conan/releases/download/"${CONAN_VERSION}"/conan-linux-64.tar.gz tar -xvf conan-linux-64.tar.gz
 
+function _install_build_utils() # <Add information about this package>
+{
+    fast_apt_install "cmake"
+}
+
 function verify() # Verify the installation
 {
     :
@@ -26,7 +32,8 @@ function verify() # Verify the installation
 
 function install()
 {
-    install_conan
+    _install_build_utils
+    #install_conan
 }
 
 function help # Show a list of functions

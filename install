@@ -1,14 +1,17 @@
 #!/bin/bash
 #options=( 'Install Apps vi apt-get' 'Copy Dotfile To The System' 'Backup dotfile From The System' 'Create Favorite Directory' 'Quit')
 #yoni=(1 2 3)
+#
 DIR=$(dirname "${BASH_SOURCE[0]}")
 DIR=$(cd -P $DIR && pwd)
 
-DIR=$(dirname "${BASH_SOURCE[0]}")
-DIR=$(cd -P $DIR && pwd)
 
-
-options=('Intall at MainPC/Laptop' 'Install at Work' 'Install on RPi ' 'Quit')
+options=(
+    'Install System Application(Main PC, Not for VM)'
+    'Install Programming Languages enviroment'
+    'Install Terminal Based Application'
+    'Install Gui Based Application'
+    'Quit')
 
 print_menu(){
 	NORMAL=`echo "\033[m"`
@@ -19,7 +22,7 @@ print_menu(){
 	ENTER_LINE=`echo "\033[33m"`
 	echo -e "${MENU}*********************************************${NORMAL}"
 	for ((i=1;i<${#options[@]}+1;i++))
-	do	
+	do
 		echo -e "${MENU}${NUMBER} ${i})${MENU} ${options[$i-1]}"
 	done
 	echo -e "${MENU}*********************************************${NORMAL}"
@@ -27,22 +30,27 @@ print_menu(){
 	read opt
 }
 print_menu
-bash $DIR/install_scripts/generalInstall.sh
 
 if [ ${opt} -eq ${#options[@]} ]
 then
     echo "exit"
 else
-    echo "Run general installation"
 	case $opt in
 	1)
-	bash $DIR/install_scripts/mainPCInstall.sh
+        echo "Installing System Application"
+        bash "${DIR}"/install_scripts/01system_install.sh
 	;;
     2)
-	bash $DIR/install_scripts/workInstall.sh
+        echo "Installing Programming Languages"
+        bash "${DIR}"/install_scripts/02programming-lang-install.sh
 	;;
     3)
-	bash $DIR/install_scripts/RPiInstall.sh
+        echo "Installing Terminal Based Application"
+        base "${DIR}"/install_scripts/03terminal_apps_install.sh
 	;;
+    4)
+        echo "Installing Gui Based Application"
+        bash "${DIR}"/install_scripts/04gui_apps_install.sh
+    ;;
 	esac
 fi
