@@ -135,12 +135,14 @@ bindsym $mod+Ctrl+u move container to workspace $workspaceCode6
 ###############################################################################
 
 ## Launch // Terminal // <> Enter ##
+set_from_resource $wm.binding.terminal_app wm.binding.terminal_app $HOME/.cargo/bin/alacritty
+
 set_from_resource $wm.binding.terminal wm.binding.terminal Return
-bindsym $mod+$wm.binding.terminal exec /usr/bin/x-terminal-emulator
+bindsym $mod+$wm.binding.terminal exec $wm.binding.terminal_app
 
 ## Launch // Terminal - ssh yoni-vm // <><Shift> Enter ##
 set_from_resource $wm.binding.ssh-yoni wm.binding.terminal Shift+Return
-bindsym $mod+$wm.binding.ssh-yoni exec "sensible-terminal -e env TERM=xterm-256color ssh -X -R 8888:localhost:22 -R 9999:localhost:9999 yoni-vm -y"
+bindsym $mod+$wm.binding.ssh-yoni exec "$wm.binding.terminal_app -e env TERM=xterm-256color ssh -X -R 8888:localhost:22 -R 9999:localhost:9999 yoni@seil-sdk-ye -y"
 
 set_from_resource $rofiTheme rofi.theme /etc/regolith/styles/lascaille/rofi.rasi
 
