@@ -22,5 +22,9 @@ install_package "Neovim" "${DIR}"/../neovim
 install_package "Fzf" "${DIR}"/../applications/fzf
 install_package "Zsh" "${DIR}"/../applications/zsh
 install_package "tig" "${DIR}"/../applications/tig
+install_package "Ranger" "${DIR}"/../applications/ranger
+install_package "Direnv" "${DIR}"/../applications/direnv
+install_package "Tusk" "${DIR}"/../applications/tusk
+install_package "Tmux" "${DIR}"/../applications/tmux
 
 echo "${summary}"
