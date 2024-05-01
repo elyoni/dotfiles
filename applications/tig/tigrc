@@ -9,6 +9,12 @@ bind main r none
 bind main rs !git reset --soft %(commit)
 bind main rh !git reset --hard %(commit)
 
+# Yank
+bind main y none
+## Yank - Copy commit name
+bind main ycn !@sh -c "git show -s --format=%s %(commit) | xclip -selection c"
+## Yank - Copy commit short sha
+bind main ycs !@sh -c "git rev-parse --short %(commit) | xclip  -selection c"
 
 bind status  c    none
 bind status  cc   !?@git commit
