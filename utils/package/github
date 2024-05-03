@@ -7,9 +7,9 @@ source "${DIR_GITHUB}"/apt
 DOWNLOAD_PATH=/tmp/dotfile/packages
 
 function install_dependenices {
-    fast_apt_install wget
-    fast_apt_install curl
-    fast_apt_install jq
+    QUIET=y fast_apt_install wget
+    QUIET=y fast_apt_install curl
+    QUIET=y fast_apt_install jq
 }
 
 install_dependenices
@@ -43,10 +43,10 @@ function download_latest_release()
 
 
     if [[ $filename =~ ".tar.gz" ]]; then
-        fast_apt_install tar
+        QUIET=y fast_apt_install tar
         tar --directory="${DOWNLOAD_PATH}" --extract --file="${file_downloaded_path}"
     elif [[ $filename =~ ".zip" ]]; then
-        fast_apt_install unzip
+        QUIET=y fast_apt_install unzip
         unzip "${file_downloaded_path}" -d "${DOWNLOAD_PATH}"
     else
         echo "Unknow file type"
