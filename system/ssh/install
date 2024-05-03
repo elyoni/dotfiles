@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P "${DIR}" && pwd)
+
+source "${DIR}"/../../utils/package/apt
+source "${DIR}"/../../utils/package/github
+source "${DIR}"/../../utils/smart_link
+
+
+function _sshd() # Install ssh server
+{
+    function install() {
+        fast_apt_install "openssh-server"
+    }
+    function verify() {
+        fast_apt_verify "openssh-server"
+    }
+
+    $@
+}
+
+function _sshfs() # Install SSH File System Share
+{
+    function install() {
+        fast_apt_install "sshfs"
+    }
+
+    function verify() {
+        fast_apt_verify "sshfs"
+    }
+
+    $@
+}
+
+function _ssh_utils() # Install SSH utilities
+{
+    function install() {
+        fast_apt_install "sshpass"
+    }
+
+    function verify() {
+        fast_apt_verify "sshpass"
+    }
+
+    $@
+}
+
+function verify() # Verify the installation
+{
+    _sshd verify
+    _sshfs verify
+    _ssh_utils verify
+}
+
+
+function install()
+{
+    _sshd install
+    _sshfs install
+    _ssh_utils install
+}
+
+function help # Show a list of functions
+{
+    awk '/^function / && ! /^function _/' "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi
