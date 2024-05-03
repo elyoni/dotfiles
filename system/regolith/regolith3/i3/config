@@ -135,7 +135,7 @@ bindsym $mod+Ctrl+u move container to workspace $workspaceCode6
 ###############################################################################
 
 ## Launch // Terminal // <> Enter ##
-set_from_resource $wm.binding.terminal_app wm.binding.terminal_app $HOME/.cargo/bin/alacritty
+set_from_resource $wm.binding.terminal_app wm.binding.terminal_app wezterm
 
 set_from_resource $wm.binding.terminal wm.binding.terminal Return
 bindsym $mod+$wm.binding.terminal exec $wm.binding.terminal_app
