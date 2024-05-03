@@ -40,7 +40,7 @@
 [merge]
     tool = meld
 [rerere]
-    enabled = true
+	enabled = true
 [icdiff]
     options = --highlight --line-numbers
 [mergetool "nvimdiff"]
