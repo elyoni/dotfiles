@@ -1,7 +1,7 @@
 bind main b none
 bind main bb view-blame
-bind main bi !git rebase -i %(commit)
-bind main bs !git rebase -i --autosquash %(commit)
+#bind main bi !git rebase -i %(commit)
+bind main bi !git rebase -i --autosquash %(commit)
 bind status pf !git phf
 bind status pc !git ph
 
@@ -10,8 +10,10 @@ bind main rs !git reset --soft %(commit)
 bind main rh !git reset --hard %(commit)
 
 
-bind status  c   none
-bind status  cc  !?@git commit
+bind status  c    none
+bind status  cc   !?@git commit
+bind main  c    none
+bind main    cf   !git commit --fixup=%(commit)
 bind status  caa  !?@git commit --amend
 bind status  can  !?@git commit --amend --no-edit
 bind status  cap  !?@git commit --amend --no-edit && git !git phf
