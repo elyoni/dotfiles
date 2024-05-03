@@ -16,11 +16,15 @@ function add_repository()
 function fast_apt_verify()
 {
     local package_name=${1}
-    if dpkg --audit "${package_name}" 2>/dev/null; then
-        echo "Package ${package_name}, version:" $(_apt_get_version "${package_name}")
+    if dpkg -l | grep -q "^ii.*${package_name}\s"; then
+        if [ -z "${QUIET+x}" ]; then
+            echo "Package ${package_name}, version:" $(_apt_get_version "${package_name}")
+        fi
         return 0
     else
-        echo "Package ${package_name} is not installed\n"
+        if [ -z "${QUIET+x}" ]; then
+            echo "Package ${package_name} is not installed"
+        fi
         return 1
     fi
 }
@@ -29,13 +33,15 @@ function fast_apt_verify()
 function fast_apt_install()
 {
     local package_name=${1}
-    function _verify_apt_package_install()
-    {
-        local package_name=${1}
-        fast_apt_verify "${package_name}"
-    }
 
-    if ! _verify_apt_package_install "${package_name}"; then
+    if ! fast_apt_verify "${package_name}"; then
         sudo apt-get install "${package_name}" -y
+        if [ $? -eq 0 ]; then
+            echo "Package ${package_name} installed successfully"
+            return 0
+        else
+            echo "Package ${package_name} failed to install"
+            return 1
+        fi
     fi
 }
