@@ -28,7 +28,7 @@ vim.opt.scrolloff = 10         -- Good auto indent
 vim.opt.number = true         -- Line numbers relative with current line
 vim.opt.relativenumber = true -- Line numbers relative with current line
 vim.opt.cursorline = true     -- Enable highlighting of the current line
---vim.opt.background = "dark"                 -- tell vim what the background color looks like
+vim.opt.background = "dark"   -- tell vim what the background color looks like
 vim.opt.showtabline = 2       -- Always show tabs
 
 -- Set nvim backup folder
@@ -68,4 +68,4 @@ vim.opt.inccommand = split
 
 -- Go to file support for bash environment variable with {}
 --vim.opt.isfname:append({,})
---
+--vim.cmd.colorscheme "catppuccin"

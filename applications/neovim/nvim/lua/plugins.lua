@@ -13,15 +13,20 @@ vim.opt.rtp:prepend(lazypath)
 
 -- Example using a list of specs with the default options
 
-local function my_on_attach(bufnr)
-    -- local api = require "nvim-tree.api"
+--local function my_on_attach(bufnr)
+-- local api = require "nvim-tree.api"
 
-    -- default mappings
-    --api.config.mappings.default_on_attach(bufnr)
+-- default mappings
+--api.config.mappings.default_on_attach(bufnr)
 
-    -- custom mappings
-    -- vim.keymap.set('n', '<C-t>', api.tree.change_root_to_parent,        opts('Up'))
-    -- vim.keymap.set('n', '?',     api.tree.toggle_help,                  opts('Help'))
+-- custom mappings
+-- vim.keymap.set('n', '<C-t>', api.tree.change_root_to_parent,        opts('Up'))
+-- vim.keymap.set('n', '?',     api.tree.toggle_help,                  opts('Help'))
+--end
+
+function custom_gvdiffsplit()
+    local num_commits = vim.fn.input("Enter the number of commits to diff (default is 1): ", "1")
+    vim.cmd("Gvdiffsplit HEAD~" .. num_commits)
 end
 
 require("lazy").setup({
@@ -44,17 +49,21 @@ require("lazy").setup({
         dependencies = {
             'nvim-lualine/lualine.nvim',
         },
-        init = function()
-            vim.cmd.colorscheme "catppuccin"
+        config = function()
             require("catppuccin").setup({
-                flavour = "mocha", -- latte, frappe, macchiato, mocha
-                transparent_background = false,
+                flavour = "frappe", -- latte, frappe, macchiato, mocha
+                transparent_background = true,
                 dim_inactive = {
-                    enabled = true,    -- dims the background color of inactive window
+                    enabled = true,   -- dims the background color of inactive window
                     shade = "dark",
-                    percentage = 0.15, -- percentage of the shade to apply to the inactive window
+                    percentage = 0.1, -- percentage of the shade to apply to the inactive window
                 },
+                --background = {         -- :h background
+                --    light = "latte",
+                --    dark = "mocha",
+                --},
             })
+            vim.cmd.colorscheme "catppuccin"
             require('lualine').setup {
                 options = {
                     theme = "catppuccin"
@@ -413,6 +422,7 @@ require("lazy").setup({
         init = function()
             require("mason").setup()
             local lsp = require('lsp-zero')
+            local lspconfig = require('lspconfig')
 
             lsp.preset('recommended')
 
@@ -421,7 +431,6 @@ require("lazy").setup({
             --debounce_text_changes = 150,
             --}
             --})
-
             lsp.configure('grammarly', {
                 filetypes = { 'asciidoctor' },
                 cmd = { "grammarly-languageserver", "--stdio" },
@@ -585,10 +594,12 @@ require("lazy").setup({
         lazy = false,
         keys = {
             --{ "<leader>gs", "<cmd>Git status<CR>",  mode = "n" },
-            { "<leader>gd", "<cmd>Gvdiffsplit<CR>", mode = "n" },
-            { "<leader>gc", "<cmd>Git commit<CR>",  mode = "n" },
-            { "<leader>gl", "<cmd>Gclog<CR>",       mode = "n" },
-            { "<leader>gb", "<cmd>Git blame<CR>",   mode = "n" },
+            { "<leader>gdc", "<cmd>Gvdiffsplit<CR>",              mode = "n" },
+            { "<leader>gdl", "<cmd>Gvdiffsplit HEAD~1<CR>",       mode = "n" },
+            { "<leader>gdn", "<cmd>lua custom_gvdiffsplit()<CR>", mode = "n" },
+            { "<leader>gc",  "<cmd>Git commit<CR>",               mode = "n" },
+            --{ "<leader>gl",  "<cmd>Gclog<CR>",                    mode = "n" },
+            { "<leader>gb",  "<cmd>Git blame<CR>",                mode = "n" },
         },
     },
     {
@@ -733,9 +744,97 @@ require("lazy").setup({
             vim.api.nvim_create_autocmd("TextYankPost", { callback = copy })
         end,
     },
+    {
+        "ThePrimeagen/harpoon",
+        branch = "harpoon2",
+        dependencies = { "nvim-lua/plenary.nvim" },
+        config = function()
+            local harpoon = require("harpoon")
+
+            -- REQUIRED
+            harpoon:setup()
+            -- REQUIRED
+
+            vim.keymap.set("n", "<leader>a", function() harpoon:list():add() end)
+            vim.keymap.set("n", "<C-e>", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end)
+        end,
+    },
 
 }
 )
+
+local function extract_tasks(yaml_content)
+    local tasks = {}
+    local in_tasks_section = false
+
+    for line in yaml_content:gmatch("[^\n]+") do
+        if not in_tasks_section then
+            -- Check if the line contains "tasks:"
+            if line:match("^%s*tasks:%s*$") then
+                in_tasks_section = true
+            end
+        else
+            local indent, key = line:match("(%s*)(%S+)%s*:%s*(.*)")
+            vim.notify("Indent: " .. vim.inspect(indent) .. " Key: " .. vim.inspect(key))
+
+            if indent == nil then
+                -- Not a key-value pair, ignore
+                vim.notify("Ignoring line: " .. line)
+            elseif #indent == 2 then
+                -- Top-level key-value pair after "tasks:"
+                if key ~= nil and not key:find("^#") then
+                    table.insert(tasks, key)
+                    vim.notify("Adding task: " .. key)
+                end
+                vim.notify("Ignoring line2: " .. line)
+                --else
+                --    -- End of "tasks" section
+                --    break
+            end
+        end
+    end
+
+    return tasks
+end
+
+local conf         = require("telescope.config").values
+local actions      = require "telescope.actions"
+local action_state = require "telescope.actions.state"
+local function tusk_telescope()
+    --local commands_list = tasks
+    local file = io.open('tusk.yml', 'r')
+    if file == nil then
+        vim.notify("No tusk.yml file found")
+        return
+    end
+    local yaml_content = file:read('*all')
+    file:close()
+
+    local tasks = extract_tasks(yaml_content)
+    table.insert(tasks, "test --type lint")
+
+    require("telescope.pickers").new({}, {
+        prompt_title = "Tusk",
+        finder = require("telescope.finders").new_table({
+            results = tasks
+        }),
+        previewer = conf.file_previewer({}),
+        sorter = conf.generic_sorter({}),
+        attach_mappings = function(prompt_bufnr, map)
+            actions.select_default:replace(function()
+                actions.close(prompt_bufnr)
+                local selection = action_state.get_selected_entry()
+                vim.cmd("tabnew term://tusk " .. selection[1] .. " | startinsert")
+            end)
+            return true
+        end,
+    }):find()
+end
+
+vim.keymap.set("n", "<C-t>", function() tusk_telescope() end,
+    { desc = "Open tusk window" })
+-- basic telescope configuration
+--
 
 --local builtin = require('telescope.builtin')
 --builtin.git_commits

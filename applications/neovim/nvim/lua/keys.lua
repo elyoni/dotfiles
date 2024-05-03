@@ -56,6 +56,12 @@ vim.api.nvim_set_keymap("n", "<C-h>", "<C-W><Left>", {})
 vim.api.nvim_set_keymap("n", "<C-k>", "<C-W><Up>", {})
 vim.api.nvim_set_keymap("n", "<C-j>", "<C-W><Down>", {})
 
+vim.api.nvim_set_keymap("n", "<C-k>", "<C-W><Up>", {})
+vim.api.nvim_set_keymap("n", "<C-j>", "<C-W><Down>", {})
+
+vim.api.nvim_set_keymap("n", "j", "v:count ? 'j' : 'gj'", { noremap = true, expr = true })
+vim.api.nvim_set_keymap("n", "k", "v:count ? 'k' : 'gk'", { noremap = true, expr = true })
+
 --vim.api.nvim_set_keymap("i", "<C-l>", "<Esc><C-W><Right>", {})
 --vim.api.nvim_set_keymap("i", "<C-h>", "<Esc><C-W><Left>", {})
 --vim.api.nvim_set_keymap("i", "<C-k>", "<Esc><C-W><Up>", {})
