@@ -26,6 +26,7 @@ function main(){
     set_path "${PYENV_ROOT}/bin"
     set_path "${HOME}/.cargo/bin"
     set_path "${HOME}/.platformio/penv/bin"
+    set_path "${HOME}/Apps/zig"
 }
 
 set_other_path
