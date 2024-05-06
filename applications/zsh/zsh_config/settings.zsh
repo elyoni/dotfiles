@@ -33,6 +33,7 @@ unsetopt CLOBBER            # Do not overwrite existing files with > and >>.
                             # Use >! and >>! to bypass.
 
 # Misc {{{1
+setopt interactive_comments  # Allow comments in interactive shells.
 
 # don't log to history commands starting with a space
 setopt HIST_IGNORE_SPACE
