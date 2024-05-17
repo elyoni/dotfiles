@@ -423,14 +423,21 @@ require("lazy").setup({
             require("mason").setup()
             local lsp = require('lsp-zero')
             local lspconfig = require('lspconfig')
+            lspconfig.pylsp.setup({
+                settings = {
+                    pylsp = {
+                        plugins = {
+                            pycodestyle = {
+                                ignore = { 'E501,W503,W504' },
+                                maxLineLength = 100
+                            }
+                        }
+                    }
+                }
+            })
 
             lsp.preset('recommended')
 
-            --lsp.configure('pyright', {
-            --flags = {
-            --debounce_text_changes = 150,
-            --}
-            --})
             lsp.configure('grammarly', {
                 filetypes = { 'asciidoctor' },
                 cmd = { "grammarly-languageserver", "--stdio" },
