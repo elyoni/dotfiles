@@ -4,6 +4,18 @@
 -- Better nav for omnicomplete
 --inoremap <expr> <c-j> ("\<C-n>")
 --inoremap <expr> <c-k> ("\<C-p>")
+-- Function to toggle wrap mode
+function toggle_wrap()
+    if vim.wo.wrap then
+        vim.wo.wrap = false
+        print("Wrap mode off")
+    else
+        vim.wo.wrap = true
+        print("Wrap mode on")
+    end
+end
+
+-- Key binding to toggle wrap mode
 
 --" View
 --" " Use alt + hjkl to resize windows
@@ -15,6 +27,7 @@ vim.api.nvim_set_keymap("n", "<A-l>", "<cmd>vertical resize +2<CR>", {})
 --
 vim.api.nvim_set_keymap("n", "<leader>vf", "<C-w><bar>", {})
 vim.api.nvim_set_keymap("n", "<leader>ve", "<C-w>=", {})
+vim.api.nvim_set_keymap('n', '<leader>vw', ':lua toggle_wrap()<CR>', { noremap = true, silent = true })
 
 -- tabs
 vim.api.nvim_set_keymap("n", "<leader>tn", "<cmd>tabnew<CR>", {})
