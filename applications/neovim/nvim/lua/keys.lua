@@ -145,4 +145,14 @@ vim.cmd [[
   autocmd FileType go map <buffer> <leader>rb :w<CR>:exec '!go mod tidy'<CR>
 ]]
 
+vim.api.nvim_create_autocmd('FileType', {
+    pattern = 'plantuml',
+    callback = function()
+        -- Map <leader>rr to run the Go command
+        vim.api.nvim_buf_set_keymap(0, 'n', '<leader>po', '<cmd>:PlantumlOpen<CR>', { noremap = true, silent = true })
+        vim.api.nvim_buf_set_keymap(0, 'n', '<leader>pt', '<cmd>:PlantumlToggle<CR>', { noremap = true, silent = true })
+        vim.api.nvim_buf_set_keymap(0, 'n', '<leader>ps', '<cmd>:PlantumlStart<CR>', { noremap = true, silent = true })
+    end
+})
+
 vim.api.nvim_set_keymap("i", "<C-l>", 'copilot#Accept("<CR>")', { silent = true, expr = true })
