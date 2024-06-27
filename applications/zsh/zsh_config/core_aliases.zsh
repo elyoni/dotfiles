@@ -7,8 +7,8 @@ alias l='ls -lah --color=auto'
 alias ls='ls --color=auto'
 alias ll='ls --color=auto'
 
-[ -f $(which ranger) ] && alias rr="ranger"
-[ -f $(which gitui) ] && alias gi="gitui"
+command -v ranger > /dev/null && alias gi="ranger"
+command -v gitui > /dev/null && alias gi="gitui"
 
 alias clp='xclip -sel clip'
 alias pwdcp='pwd | xclip -sel clip'
