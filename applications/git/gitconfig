@@ -24,6 +24,7 @@
     pl = pull
     dt = difftool --dir-diff
     dtv = difftool -v vimdiff
+    cnv = !"version=$(cat version); git commit --include version --message \"[Version] $version\""
     site = !"current_branch=$(git branch --show-current) && \
              if git rev-parse --quiet --verify \"refs/remotes/origin/${current_branch}\" > /dev/null; \
              then \
