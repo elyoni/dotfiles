@@ -1,7 +1,7 @@
 bind main b none
 bind main bb view-blame
 #bind main bi !git rebase -i %(commit)
-bind main bi !git rebase -i --autosquash %(commit)
+bind main bi !git rebase -i --autosquash %(commit)^1
 bind status pf !git phf
 bind status pc !git ph
 
