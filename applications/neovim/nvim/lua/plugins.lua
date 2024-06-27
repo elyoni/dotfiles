@@ -29,46 +29,120 @@ function custom_gvdiffsplit()
     vim.cmd("Gvdiffsplit HEAD~" .. num_commits)
 end
 
+local colors = {
+    black        = '#000000',
+    white        = '#FFFFFF',
+    brightyellow = '#FFFF00',
+    mediumcyan   = '#70C0F0',
+    darkestblue  = '#002070',
+    brightred    = '#F00000',
+    darkred      = '#600000',
+    brightorange = '#FF9000',
+    darkorange   = '#301000',
+    gray1        = '#101010',
+    gray4        = '#404040',
+    gray8        = '#808080',
+}
+
+local theme = {
+    normal = {
+        a = { fg = colors.black, bg = colors.brightyellow, gui = 'bold' },
+        b = { fg = colors.white, bg = colors.gray4 },
+        c = { fg = colors.white, bg = colors.gray1 },
+    },
+    insert = {
+        a = { fg = colors.black, bg = colors.white, gui = 'bold' },
+        b = { fg = colors.black, bg = colors.mediumcyan },
+        c = { fg = colors.white, bg = colors.darkestblue },
+    },
+    visual = {
+        a = { fg = colors.black, bg = colors.brightorange, gui = 'bold' },
+        c = { fg = colors.white, bg = colors.darkorange },
+    },
+    replace = {
+        a = { fg = colors.white, bg = colors.brightred, gui = 'bold' },
+        c = { fg = colors.white, bg = colors.darkred },
+    },
+    inactive = {
+        a = { fg = colors.gray1, bg = colors.gray8, gui = 'bold' },
+        b = { fg = colors.gray1, bg = colors.gray4 },
+        c = { fg = colors.gray8, bg = colors.gray1 },
+    },
+}
+
+theme.terminal = theme.insert
+
+local sections = {
+    lualine_a = { 'mode' },
+    lualine_b = { 'branch', 'diff', 'diagnostics' },
+    lualine_c = { { 'filename', path = 3 }, '%S' },
+    lualine_x = { 'encoding', 'fileformat', 'filetype' },
+    lualine_y = { 'progress' },
+    lualine_z = { 'location' }
+}
+
+--return {
+--}
+
+
+
+
+local colorsOneDark = {
+    black       = '#000000',
+    fg          = '#F0F0F0',
+    purple      = '#D070F0',
+    green       = "#20E040",
+    yellow      = '#F0D020',
+    yellow_soft = '#C0E080',
+    cyan        = '#50E0F9',
+    cyan2       = '#a8f1e6', --  # --  #
+    grey        = '#708090',
+    light_grey  = '#A0C0C0',
+    dark_cyan   = '#008090',
+    dark_orange = '#B09000',
+    diff_add    = '#003010',
+    diff_delete = '#700000',
+    diff_change = '#000060',
+    diff_text   = '#500060',
+}
+
+
 require("lazy").setup({
-    --{
-    --"folke/tokyonight.nvim",
-    --dependencies = {
-    --'nvim-lualine/lualine.nvim',
-    --'nvim-tree/nvim-web-devicons',
-    --},
-    --init = function()
-    --vim.cmd [[colorscheme tokyonight-night]]
-    --require('lualine').setup()
-    --end,
-    --},
-    --
     {
-        "catppuccin/nvim",
-        name = "catppuccin",
+        'nvim-lualine/lualine.nvim',
+        opts = {
+            options = { theme = theme },
+            sections = sections,
+            inactive_sections = sections,
+        }
+    },
+    {
+        'navarasu/onedark.nvim',
         priority = 1000,
-        dependencies = {
-            'nvim-lualine/lualine.nvim',
+        opts = {
+            style = 'deep',
+            transparent = true,
+            term_colors = false,
+            colors = colorsOneDark,
+            highlights = {
+                DiffDelete = { fg = colorsOneDark.gray, bg = colorsOneDark.diff_delete },
+                IncSearch = { fg = colorsOneDark.black, bg = colorsOneDark.cyan, bold = true },
+                CurSearch = { fg = colorsOneDark.black, bg = colorsOneDark.cyan, bold = true },
+                Search = { fg = colorsOneDark.black, bg = colorsOneDark.yellow, bold = false },
+                LineNr = { fg = colorsOneDark.dark_cyan },
+                MatchParen = { fg = colorsOneDark.black, bg = colorsOneDark.purple },
+                String = { fg = colorsOneDark.yellow_soft, fmt = 'bold' },
+                ['@string'] = { fg = colorsOneDark.yellow_soft, fmt = 'bold' },
+                --TSString = { fg = colorsOneDark.cyan2, fmt = 'bold' },
+            },
+            diagnostics = {
+                darker = false,
+                undercurl = false,
+                background = true,
+            },
         },
-        config = function()
-            require("catppuccin").setup({
-                flavour = "frappe", -- latte, frappe, macchiato, mocha
-                transparent_background = true,
-                dim_inactive = {
-                    enabled = true,   -- dims the background color of inactive window
-                    shade = "dark",
-                    percentage = 0.1, -- percentage of the shade to apply to the inactive window
-                },
-                --background = {         -- :h background
-                --    light = "latte",
-                --    dark = "mocha",
-                --},
-            })
-            vim.cmd.colorscheme "catppuccin"
-            require('lualine').setup {
-                options = {
-                    theme = "catppuccin"
-                }
-            }
+        init = function()
+            vim.cmd [[colorscheme onedark]]
         end,
     },
     {
@@ -109,15 +183,6 @@ require("lazy").setup({
             vim.api.nvim_create_user_command("PeekClose", require("peek").close, {})
         end,
     },
-    --{
-    --'tools-life/taskwiki',
-    --dependencies = {
-    --'powerman/vim-plugin-AnsiEsc',
-    --'majutsushi/tagbar',
-    --'farseer90718/vim-taskwarrior',
-    --},
-    --},
-    --
     {
         'nvim-pack/nvim-spectre',
         dependencies = {
@@ -249,7 +314,7 @@ require("lazy").setup({
     },
     {
         'nvim-treesitter/nvim-treesitter',
-        cmd = 'TSUpdate',
+        lazy = false,
         dependencies = {
             'nvim-treesitter/nvim-treesitter',
             'nvim-treesitter/playground',
@@ -327,16 +392,17 @@ require("lazy").setup({
             { '<leader>fn', "<cmd>Telescope buffers<CR>",   desc = "Buffers list" },
             { '<leader>fh', "<cmd>Telescope help_tags<CR>", desc = "Help Tags" },
         },
-
         init = function()
             require('telescope').setup {
-                mappings = {
-                    n = {
-                        ['<x>'] = require('telescope/actions').delete_buffer
-                    }, -- n
-                    i = {
-                        ['<c-e>'] = require('telescope/actions').delete_buffer
-                    } -- i
+                defaults = {
+                    mappings = {
+                        n = {
+                            ['<C-d>'] = require('telescope/actions').delete_buffer + require('telescope/actions').move_to_top
+                        },
+                        i = {
+                            ['<del>'] = require('telescope/actions').delete_buffer + require('telescope/actions').move_to_top
+                        }
+                    },
                 },
                 pickers = {
                     live_grep = {
@@ -347,27 +413,22 @@ require("lazy").setup({
                         file_ignore_patterns = { 'node_modules', '.git', '.venv' },
                         hidden = true
                     },
+                    git_files = {
+                        show_untracked = true,
+                        --recurse_submodules = true,
+                    },
+
                 },
             }
         end
     },
-    --{
-    --'lervag/wiki.vim',
-    --init = function()
-    --vim.g.wiki_root = '~/wiki'
-    --end,
-    ----keys = {
-    ----{ '<leader>wt', "<cmd>WikiTagList<CR>",    desc = "Open Tags List" },
-    ----},
-
-    --},
     {
         'will133/vim-dirdiff',
     },
     {
         "folke/flash.nvim",
         event = "VeryLazy",
-        ---@type Flash.Config
+        --@type Flash.Config
         opts = {
             search = {
                 multi_window = false,
@@ -402,8 +463,13 @@ require("lazy").setup({
         init = function()
             vim.cmd [[set nocompatible ]]
             --vim.cmd [[filetype plugin on ]]
-            vim.cmd [[ syntax on]]
+            vim.cmd [[ syntax on ]]
+            vim.g.vimwiki_auto_chdir = 1 -- Change directory to root Vimwiki folder on opening page
         end,
+        --keys = {
+        --    --{ "<leader>wgt", "<cmd>VimwikiGenerateTagLink<CR>", desc = "Update vimwiki tags" },
+        --    --{ "<leader>aa", "<cmd>VimwikiSearchTags<CR>", desc = "Search vimwiki tags" },
+        --},
     },
     {
         'VonHeikemen/lsp-zero.nvim',
@@ -444,18 +510,14 @@ require("lazy").setup({
                 init_options = { clientId = 'client_BaDkMgx4X19X9UxxYRCXZo', },
             })
 
+            lsp.configure('golangci_lint_ls', {
+                root_dir = lspconfig.util.root_pattern('.git', 'go.mod'),
+            })
+
             lsp.configure('ltex', {
                 filetypes = { 'asciidoctor', 'vimwiki', 'markdown' },
             })
 
-            --lsp.configure('black', { filetypes = { 'python' }, })
-
-            --lsp.configure('shfmt', {
-            --cmd = { "shfmt" },
-            --filetypes = { 'sh' },
-            --})
-
-            local lua_runtime_path = vim.split(package.path, ";")
             lsp.configure("lua_ls", {
                 settings = {
                     Lua = {
@@ -569,6 +631,7 @@ require("lazy").setup({
     },
     {
         "NeogitOrg/neogit",
+        version = "v0.0.1",
         dependencies = {
             "nvim-lua/plenary.nvim",  -- required
             "sindrets/diffview.nvim", -- optional - Diff integration
@@ -582,17 +645,16 @@ require("lazy").setup({
         },
         config = function()
             local neogit = require("neogit")
-
+            --neogit.setup {
             neogit.setup {
-                neogit.setup {
-                    mappings = {
-                        status = {
-                            ["<enter>"] = "Toggle",
-                            ["o"] = "GoToFile",
-                            ["y"] = "YankSelected", --Copy the commit sha
-                        },
+                mappings = {
+                    status = {
+                        ["<enter>"] = "Toggle",
+                        ["o"] = "GoToFile",
+                        ["y"] = "YankSelected", --Copy the commit sha
                     },
                 },
+                --},
             }
         end
     },
@@ -661,16 +723,6 @@ require("lazy").setup({
         },
         -- opts = {},
     },
-    --{
-    --'github/copilot.vim',
-    ----keys = {
-    ----{ "<C-l>", "<cmd>copilot#Accept()<CR>", mode = "i" },
-    ----},
-    --init = function()
-    --vim.g.copilot_assume_mapped = true
-    --vim.g.copilot_no_tab_map = true
-    --end
-    --},
     {
         "utilyre/barbecue.nvim",
         name = "barbecue",
@@ -686,7 +738,7 @@ require("lazy").setup({
     {
         "epwalsh/obsidian.nvim",
         version = "*", -- recommended, use latest release instead of latest commit
-        lazy = true,
+        --lazy = true,
         ft = "markdown",
         -- Replace the above line with this if you only want to load obsidian.nvim for markdown files in your vault:
         -- event = {
@@ -700,18 +752,34 @@ require("lazy").setup({
             "nvim-lua/plenary.nvim",
             -- see below for full list of optional dependencies 👇
         },
+        mappings = {
+            -- overrides the 'gf' mapping to work on markdown/wiki links within your vault
+            ["gf"] = {
+                action = function()
+                    return require("obsidian").util.gf_passthrough()
+                end,
+                opts = { noremap = false, expr = true, buffer = true },
+            },
+            -- toggle check-boxes
+            -- ["<leader>ch"] = {
+            --   action = function()
+            --     return require("obsidian").util.toggle_checkbox()
+            --   end,
+            --   opts = { buffer = true },
+            -- },
+        },
+        keys = {
+            { "<leader>oo", "<cmd>cd $HOME/.obsidian/work | e main.md<CR>", desc = "New Note" },
+            { "<leader>on", "<cmd>ObsidianNew<CR>",                         desc = "New Note" },
+            { "<leader>od", "<cmd>ObsidianToday<CR>",                       desc = "Todays Note" },
+        },
         opts = {
             workspaces = {
                 {
                     name = "work",
-                    path = "~/.obsidian/Notes",
-                },
-                {
-                    name = "private",
-                    path = "~/Private/PriObsidian",
+                    path = "~/.obsidian/work",
                 },
             },
-            -- see below for full list of options 👇
         },
     },
     { "lepture/vim-jinja" },
@@ -773,9 +841,36 @@ require("lazy").setup({
             vim.keymap.set("n", "<C-e>", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end)
         end,
     },
+    {
+        "akinsho/toggleterm.nvim",
+        version = "*",
+        opts = {
+            open_mapping = [[<F4>]], -- or { [[<c-\>]], [[<c-¥>]] } if you also use a Japanese keyboard.
+            on_close = function()
+                vim.cmd("startinsert!")
+            end,
 
+        }
+
+    }
 }
 )
+
+function _G.set_terminal_keymaps()
+    local opts = { buffer = 0 }
+    vim.keymap.set('t', '<esc>', [[<C-\><C-n>]], opts)
+    vim.keymap.set('t', 'jk', [[<C-\><C-n>]], opts)
+    vim.keymap.set('t', 'JK', [[<Cmd>q<CR>]], opts)
+    vim.keymap.set('t', '<C-h>', [[<Cmd>wincmd h<CR>]], opts)
+    vim.keymap.set('t', '<C-j>', [[<Cmd>wincmd j<CR>]], opts)
+    vim.keymap.set('t', '<C-k>', [[<Cmd>wincmd k<CR>]], opts)
+    vim.keymap.set('t', '<C-l>', [[<Cmd>wincmd l<CR>]], opts)
+    vim.keymap.set('t', '<C-w>', [[<C-\><C-n><C-w>]], opts)
+    --vim.cmd.startinsert
+end
+
+-- if you only want these mappings for toggle term use term://*toggleterm#* instead
+vim.cmd('autocmd! TermOpen term://* lua set_terminal_keymaps()')
 
 local function extract_tasks(yaml_content)
     local tasks = {}
@@ -824,6 +919,8 @@ local function tusk_telescope()
     local yaml_content = file:read('*all')
     file:close()
 
+    vim.cmd("wall")
+
     local tasks = extract_tasks(yaml_content)
     table.insert(tasks, "test --type lint")
 
@@ -849,6 +946,3 @@ vim.keymap.set("n", "<C-t>", function() tusk_telescope() end,
     { desc = "Open tusk window" })
 -- basic telescope configuration
 --
-
---local builtin = require('telescope.builtin')
---builtin.git_commits

@@ -140,10 +140,38 @@ vim.cmd [[
 ]]
 
 -- Go autocmd
+--autocmd FileType go nnoremap <buffer> <leader>rr :w<CR>:call RunGo()<CR>
 vim.cmd [[
-  autocmd FileType go map <buffer> <leader>rr :w<CR>:exec '!go run %'<CR>
   autocmd FileType go map <buffer> <leader>rb :w<CR>:exec '!go mod tidy'<CR>
 ]]
+
+-- Define a Lua function to run the appropriate Go command
+function run_go_command()
+    -- Get the current file name
+    local filename = vim.fn.expand('%:t')
+    -- Get the full path to the current file
+    local filepath = vim.fn.expand('%:p')
+
+    vim.cmd.normal("wa")
+    -- Check if the file name ends with _test.go
+    if filename:match('_test%.go$') then
+        -- Run go test for test files
+        -- TermExec cmd="echo
+        vim.cmd('TermExec cmd="go test -v ' .. filepath .. '"')
+    else
+        -- Run go run for other Go files
+        vim.cmd('TermExec cmd="go run ' .. filepath .. '"')
+    end
+end
+
+-- Create an autocmd for Go file types
+vim.api.nvim_create_autocmd('FileType', {
+    pattern = 'go',
+    callback = function()
+        -- Map <leader>rr to run the Go command
+        vim.api.nvim_buf_set_keymap(0, 'n', '<leader>rr', ':lua run_go_command()<CR>', { noremap = true, silent = true })
+    end
+})
 
 vim.api.nvim_create_autocmd('FileType', {
     pattern = 'plantuml',
@@ -156,3 +184,14 @@ vim.api.nvim_create_autocmd('FileType', {
 })
 
 vim.api.nvim_set_keymap("i", "<C-l>", 'copilot#Accept("<CR>")', { silent = true, expr = true })
+
+
+
+--vim.api.nvim_set_keymap("n", "<leader>oo",
+--    ":cd $HOME/.obsidian/work | :e main.md<cr>",
+--    { silent = true, expr = true })
+
+--vim.keymap.set("n", "<leader>oo", ":cd $HOME/.obsidian/work | :e main.md<cr>")
+vim.keymap.set("n", "<leader>aa", ":VimwikiSearchTags ")
+-- Map <Leader>r to run a command in a new terminal split
+vim.api.nvim_set_keymap('n', '<Leader>t', ':split<CR>:terminal ', { noremap = true, silent = false })
