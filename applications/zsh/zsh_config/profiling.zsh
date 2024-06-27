@@ -21,12 +21,18 @@ iecho() {
     echo "${INDENT}$*"
 }
 
+# Source a file and on debug print the time it took
 source() {
     if [[ ${DEBUG} == "true" ]]; then
         iecho "● $blue$*$reset"
         increment_indent
         local before=$SECONDS
-        . $*
+    fi
+
+    # Source the file
+    . $*
+
+    if [[ ${DEBUG} == "true" ]]; then
         local duration=$((($SECONDS - $before) * 1000))
         decrement_indent
         if [[ $duration -gt 40.0 ]]; then
