@@ -611,9 +611,17 @@ require("lazy").setup({
     },
     {
         'iberianpig/tig-explorer.vim',
+        dependencies = {
+            'rbgrouleff/bclose.vim',
+        },
+        init = function()
+            vim.g.tig_explorer_enable_mappings = 0
+            vim.g.tig_explorer_keymap_edit = 'o'
+        end,
         keys = {
             { "<leader>tT", "<cmd>TigOpenCurrentFile<CR>",    mode = "n" },
             { "<leader>tt", "<cmd>TigOpenProjectRootDir<CR>", mode = "n" },
+            { "<leader>tb", "<cmd>TigBlame<CR>",              mode = "n" },
         },
     },
     {
