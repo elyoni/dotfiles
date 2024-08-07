@@ -9,21 +9,20 @@ label_color=xresource:i3xrocks.label.color
 interval=5
 
 [keyboard-layout]
-interval=1
+interval=60
 
 [info]
 full_text=xresource:i3xrocks.label.help
 command=i3-msg -q "exec --no-startup-id ilia -p keybindings"
 
 [ip]
-command=hostname -i | awk '{ print "IP:" $1 }'
-interval=once
+command=~/.config/regolith3/i3xrocks/scripts/ip.sh
+interval=60  # Update every 60 seconds
 color=#91E78B
 
-# Update time every 30 seconds
 [time]
 command=date +"%d.%m.%Y %H:%M"
-interval=30
+interval=30 # Update time every 30 seconds
 
 # [calc-button]
 # full_text=Calculator
@@ -31,4 +30,4 @@ interval=30
 # Battery indicator
 
 [battery]
-interval=30
+interval=60
