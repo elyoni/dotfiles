@@ -372,6 +372,7 @@ require("lazy").setup({
     {
         'nvim-telescope/telescope.nvim',
         version = '0.1.2',
+        priority = 1000,
         lazy = false,
         dependencies = {
             'nvim-lua/plenary.nvim',
