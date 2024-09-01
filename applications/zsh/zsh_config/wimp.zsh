@@ -39,9 +39,15 @@ enter_to_project_path() {
     VALID_PATHS=()
     for dir in "${WIMP_PROJECTS_PATH[@]}"; do
         if [ -d "$dir" ]; then
+            echo WIMP add $dir to the valid paths
             VALID_PATHS+=("$dir")
         fi
     done
+
+    if [ ${#VALID_PATHS[@]} -eq 0 ]; then
+        echo "There is no valid path in the variable WIMP_PROJECTS_PATH. Please check in your .zshrc file"
+        return 0
+    fi
     # Update WIMP_PROJECTS_PATH with only valid paths
     WIMP_PROJECTS_PATH=("${VALID_PATHS[@]}")
 
