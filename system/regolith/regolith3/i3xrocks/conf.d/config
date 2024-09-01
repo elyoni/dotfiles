@@ -1,9 +1,14 @@
 # Each block command defaults to the script name to avoid boilerplate.
-command=/usr/share/i3xrocks/scripts/$BLOCK_NAME
+command=~/.config/regolith3/i3xrocks/scripts/$BLOCK_NAME
 separator_block_width=30
 markup=pango
 color=xresource:i3xrocks.value.color
 label_color=xresource:i3xrocks.label.color
+
+[keyboard_toggle]
+full_text=kt
+command=~/.config/regolith3/i3xrocks/scripts/disable_laptop_keyboard.sh
+color=#F79494
 
 [volume]
 interval=5
@@ -16,18 +21,12 @@ full_text=xresource:i3xrocks.label.help
 command=i3-msg -q "exec --no-startup-id ilia -p keybindings"
 
 [ip]
-command=~/.config/regolith3/i3xrocks/scripts/ip.sh
 interval=60  # Update every 60 seconds
 color=#91E78B
 
 [time]
 command=date +"%d.%m.%Y %H:%M"
 interval=30 # Update time every 30 seconds
-
-# [calc-button]
-# full_text=Calculator
-# command=gnome-calculator >/dev/null
-# Battery indicator
 
 [battery]
 interval=60
