@@ -13,6 +13,11 @@ function install_qmk()
     python3 -m pipx install qmk
 }
 
+function clone_qmk()
+{
+    qmk setup -H /home/yoni/Private/qmk_firmware elyoni/qmk_firmware.git
+}
+
 function install()
 {
     install_dependecies
