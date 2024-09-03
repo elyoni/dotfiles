@@ -20,6 +20,10 @@
     delete = !"f() { git fetch --prune origin; git push --delete origin \"$1\" ; git branch -d \"$1\"; git fetch --prune origin; }; f"
     mustdelete = !"f() { git fetch --prune origin; git push --delete origin \"$1\"; git branch -D \"$1\" ; }; f"
     ph = push
+    cb = !"f() { git branch | grep -e '^*' |  sed 's/^* //' | tr -d '\n' | xclip -sel clip ; }; f"
+    copyb = cb
+    cs = !"f() { git rev-parse --short HEAD | tr -d '\n' | xclip -sel clip ; }; f"
+    copys
     phf = push -f
     pl = pull
     dt = difftool --dir-diff

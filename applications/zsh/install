@@ -41,11 +41,17 @@ function link_files
     # export -f _smart_link
 
     # Link zshrc
-    echo ln -sf "$DIR/zshrc" "$HOME/.zshrc"
-    ln -sf "$DIR/zshrc" "$HOME/.zshrc"
-
+    if [ ! -L "$HOME/.zshrc" ]; then
+        echo "Creating a link for .zshrc"
+        echo -e "\t"ln -sf "$DIR/zshrc" "$HOME/.zshrc"
+        ln -sf "$DIR/zshrc" "$HOME/.zshrc"
+    fi
     # Link configs
-    ln -sf "$DIR/zsh_config" "$HOME/.config/zsh"
+    if [ ! -L "$HOME/.config/zsh" ]; then
+        echo "Creating a link for the configuration file of zsh ~/.config/zsh"
+        echo -e "\t"ln -sf "$DIR/zsh_config" "$HOME/.config/zsh"
+        ln -sf "$DIR/zsh_config" "$HOME/.config/zsh"
+    fi
     echo ======= End Link Files =======
 }
 
