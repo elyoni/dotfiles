@@ -93,8 +93,8 @@ return {
     keys = {
         { key = 'v',     mods = 'SUPER',      action = act.Nop },
         { key = 'Y',     mods = 'SHIFT|CTRL', action = act.CopyTo 'Clipboard' },
-        { key = 'P',     mods = 'SHIFT|CTRL', action = act.Nop },
-        { key = 'V',     mods = 'SHIFT|CTRL', action = act.Nop },
+        --{ key = 'V',     mods = 'SHIFT|CTRL', action = act.Nop },  -- I don't remember what I configure it
+        { key = 'V',     mods = 'SHIFT|CTRL', action = wezterm.action.ActivateCopyMode },
         { key = 'P',     mods = 'SHIFT|CTRL', action = act.PasteFrom 'Clipboard' },
         { key = "Copy",  mods = "NONE",       action = act.CopyTo("Clipboard") },
         { key = "Paste", mods = "NONE",       action = act.PasteFrom("Clipboard") },
