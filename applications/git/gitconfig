@@ -16,6 +16,7 @@
     cif = commit --amend --no-edit
     st = status
     visual = !gitg
+    fa = fetch --all
     lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
     delete = !"f() { git fetch --prune origin; git push --delete origin \"$1\" ; git branch -d \"$1\"; git fetch --prune origin; }; f"
     mustdelete = !"f() { git fetch --prune origin; git push --delete origin \"$1\"; git branch -D \"$1\" ; }; f"
