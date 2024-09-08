@@ -142,6 +142,14 @@ vim.cmd [[
   autocmd FileType rust map <buffer> <leader>rt :w<CR>:exec '!cargo test -- --nocapture'<CR>
 ]]
 
+vim.cmd [[
+  autocmd FileType cpp map <buffer> <leader>rr :w<CR>:split term://g++ -O2 -std=c++17 -Wall -fsanitize=address -pedantic % -o a && ./a && sleep 0.1 && rm a<CR>
+]]
+
+vim.cmd [[
+  autocmd FileType sh map <buffer> <leader>rr :w<CR>:split term://./%<CR>
+]]
+
 -- Go autocmd
 --autocmd FileType go nnoremap <buffer> <leader>rr :w<CR>:call RunGo()<CR>
 vim.cmd [[

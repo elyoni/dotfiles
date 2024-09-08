@@ -515,6 +515,10 @@ require("lazy").setup({
                 root_dir = lspconfig.util.root_pattern('.git', 'go.mod'),
             })
 
+            lsp.configure('clangd', {
+                init_options = { fallbackFlags = "-I .. -std=c++17 " },
+            })
+
             lsp.configure('ltex', {
                 filetypes = { 'asciidoctor', 'vimwiki', 'markdown' },
             })
