@@ -25,9 +25,12 @@ vim.api.nvim_set_keymap("n", "<A-h>", "<cmd>vertical resize -2<CR>", {})
 vim.api.nvim_set_keymap("n", "<A-l>", "<cmd>vertical resize +2<CR>", {})
 --" " window options
 --
-vim.api.nvim_set_keymap("n", "<leader>vf", "<C-w><bar>", {})
-vim.api.nvim_set_keymap("n", "<leader>ve", "<C-w>=", {})
-vim.api.nvim_set_keymap('n', '<leader>vw', ':lua toggle_wrap()<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "<leader>vf", "<C-w><bar>", {})                                            -- Split window vertically
+vim.api.nvim_set_keymap("n", "<leader>ve", "<C-w>=", {})                                                -- Equalize all windows
+vim.api.nvim_set_keymap('n', '<leader>vw', ':lua toggle_wrap()<CR>', { noremap = true, silent = true }) -- Toggle wrap mode
+vim.api.nvim_set_keymap("n", "<leader>vsh", "<C-w>s", {})                                               -- Split window horizontally
+vim.api.nvim_set_keymap("n", "<leader>vsv", "<C-w>v", {})                                               -- Split window vertically
+vim.api.nvim_set_keymap("n", "<leader>vn", ":set relativenumber!<CR>", {})                              -- Toggle relative line numbers
 
 -- tabs
 vim.api.nvim_set_keymap("n", "<leader>tn", "<cmd>tabnew<CR>", {})
