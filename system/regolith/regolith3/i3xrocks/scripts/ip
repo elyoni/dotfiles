@@ -5,19 +5,21 @@ INTERFACE=$(ip route | grep '^default' | awk '{print $5}' | head -n 1)
 
 # Get the IP address of the interface
 IP=$(ip addr show "$INTERFACE" | grep 'inet ' | awk '{print $2}' | cut -d/ -f1)
+STATE=$(ip link show "$INTERFACE" | grep 'state' | awk '{print $9}')
 
-# Check if the interface is wireless or wired
-if [[ "$INTERFACE" == *"wlan"* || "$INTERFACE" == *"wifi"* || "$INTERFACE" == *"wlp"* ]]; then
-    ICON="📶"  # Wireless icon
-elif [[ "$INTERFACE" == *"eth"* || "$INTERFACE" == *"enp"* ]]; then
-    ICON="🔌"  # Wired icon
+if [[ "$STATE" == "DOWN" ]]; then
+    ICON="❌"
 else
-    ICON="❌"  # Not connected
+    if [ -d "/sys/class/net/$INTERFACE/wireless" ]; then
+        ICON="📶"  # Wireless icon
+    else
+        ICON="🔌"  # Wired icon
+    fi
 fi
 
 # Print the icon and IP address
 if [[ -z "$IP" ]]; then
-    echo "$ICON No IP Address (Not connected)"
+    echo "${ICON}No IP Address (Not connected)"
 else
-    echo "$ICON $IP"
+    echo "${ICON}${IP}"
 fi
