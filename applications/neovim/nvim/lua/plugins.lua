@@ -792,6 +792,9 @@ require("lazy").setup({
         "zbirenbaum/copilot.lua",
         cmd = "Copilot",
         event = "InsertEnter",
+        enabled = function()
+          return not vim.env.DISABLE_COPILOT  -- Enable if DISABLE_COPILOT is set
+        end,
         config = function()
             require("copilot").setup({
                 suggestion = {
