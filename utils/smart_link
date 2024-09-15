@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+# Example usage:
+# create_symbolic_link "/path/to/source" "$HOME/.config/target"
+smart_sym_link() {
+    source_path="$1"
+    target_path="$2"
+
+    # Check if the target exists and is a directory
+    if [ -e "$target_path" ]; then
+        if [ -d "$target_path" ]; then
+            echo "Target is a directory. Removing existing target..."
+            rm -rf "$target_path"
+        else
+            echo "Removing existing target..."
+            rm "$target_path"
+        fi
+    fi
+
+    # Create the symbolic link
+    ln -sf "$source_path" "$target_path"
+
+    echo "Symbolic link created successfully."
+}
