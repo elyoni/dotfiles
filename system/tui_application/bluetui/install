@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P "${DIR}" && pwd)
+
+source "${DIR}"/../../../utils/smart_link
+
+
+function _install_blutui() # <Add information about this package>
+{
+    if ! command -v cargo &> /dev/null; then
+        echo "cargo could not be found"
+        echo "Please install cargo and try again"
+        exit
+    fi
+
+    cargo install bluetui
+}
+
+
+function _create_shortcut() # Create shortcut, px instead of pulesmixer
+{
+    if ! command -v bluetui &> /dev/null; then
+        echo "bluetui could not be found"
+        echo "Please install bluetui and try again"
+        exit
+    fi
+    smart_sym_link "${HOME}/.cargo/bin/bluetui" "${HOME}/.local/bin/bt"
+}
+
+
+function _verify_bluetui() # Verify the installation
+{
+    if command -v bluetui &> /dev/null; then
+        echo "bluetui is installed"
+        if command -v bt &> /dev/null; then
+            echo "Shortcut bt is created"
+        else
+            echo "Shortcut bt is not created"
+            reutrn 2
+        fi
+    else
+        echo "bluetui is not installed"
+        return 1
+    fi
+}
+
+function verify() # Verify the installation
+{
+    _verify_bluetui
+}
+
+function install()
+{
+    _install_blutui
+    _create_shortcut
+}
+
+function help # Show a list of functions
+{
+    awk '/^function / && ! /^function _/' "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi

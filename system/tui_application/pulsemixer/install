@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P "${DIR}" && pwd)
+
+source "${DIR}"/../../../utils/smart_link
+
+
+function _install_pulsemixer() # <Add information about this package>
+{
+    if ! command -v pipx &> /dev/null
+    then
+        echo "pipx could not be found"
+        echo "Please install pipx and try again"
+        exit
+    fi
+    pipx install pulsemixer
+
+}
+
+
+function _create_shortcut() # Create shortcut, px instead of pulesmixer
+{
+    if ! command -v pulsemixer &> /dev/null
+    then
+        echo "pulsemixer could not be found"
+        echo "Please install pulsemixer and try again"
+        exit
+    fi
+
+    smart_sym_link "${HOME}/.local/bin/pulsemixer" "${HOME}/.local/bin/px"
+}
+
+
+function _verify_pulsemixer() # Verify the installation
+{
+    if command -v pulsemixer &> /dev/null
+    then
+        echo "pulsemixer is installed"
+    else
+        echo "pulsemixer is not installed"
+    fi
+}
+
+function verify() # Verify the installation
+{
+    _verify_pulsemixer
+}
+
+
+function install()
+{
+    _install_pulsemixer
+    _create_shortcut
+}
+
+function help # Show a list of functions
+{
+    awk '/^function / && ! /^function _/' "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi
