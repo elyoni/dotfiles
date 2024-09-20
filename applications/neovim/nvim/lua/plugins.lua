@@ -488,6 +488,16 @@ require("lazy").setup({
         },
         init = function()
             require("mason").setup()
+            require('mason-lspconfig').setup({
+              ensure_installed = {
+                    'lua_ls',
+                    'ltex',
+                    'ruff', 
+                    'ruff_lsp',
+                    'rust_analyzer'
+                },
+            })
+
             local lsp = require('lsp-zero')
             local lspconfig = require('lspconfig')
             lspconfig.pylsp.setup({
