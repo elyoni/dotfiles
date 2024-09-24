@@ -98,6 +98,13 @@ return {
         { key = 'P',     mods = 'SHIFT|CTRL', action = act.PasteFrom 'Clipboard' },
         { key = "Copy",  mods = "NONE",       action = act.CopyTo("Clipboard") },
         { key = "Paste", mods = "NONE",       action = act.PasteFrom("Clipboard") },
+        {
+            key = 'H',
+            mods = 'SHIFT|CTRL',
+            action = act.Search {
+                Regex = '[a-f0-9]{6,}',
+            },
+        },
         --{ key = 'PageUp',   mods = 'NONE',       action = act.ScrollByPage(-0.5) },
         --{ key = 'PageDown', mods = 'NONE',       action = act.ScrollByPage(0.5) },
     },
