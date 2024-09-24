@@ -2,7 +2,7 @@
 DIR=$(dirname "${BASH_SOURCE[0]}")
 DIR=$(cd -P $DIR && pwd)
 
-NEOVIM_VERSION="0.9.4"
+NEOVIM_VERSION="0.10.1"
 INSTALLION_DIR="${HOME}/.local"
 
 function install_packages() # Install additional package for neovim
