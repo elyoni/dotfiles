@@ -13,7 +13,7 @@ vim.opt.iskeyword:append("-")  -- treat dash separated words as a word text obje
 vim.opt.mouse = "a"            -- Enable your mouse
 vim.opt.splitbelow = true      -- Horizontal splits will automatically be below
 vim.opt.splitright = true      -- Vertical splits will automatically be to the right
-vim.opt.conceallevel = 0       -- So that I can see `` in markdown files
+vim.opt.conceallevel = 1       -- To hide `` in markdown files
 vim.opt.tabstop = 4            -- Insert 4 spaces for a tab
 vim.opt.shiftwidth = 4         -- Change the number of space characters inserted for indentation
 vim.opt.smarttab = true        -- Makes tabbing smarter will realize you have 2 vs 4
