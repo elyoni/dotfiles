@@ -54,12 +54,14 @@ if [ -d ${ZSH_WORK_CONFIGS} ]; then
      for f in ${ZSH_WORK_CONFIGS}/*.zsh; do source $f; done
 fi
 
-
+[[ "${PWD}" == "${HOME}" ]] && export DIRENV_LOG_FORMAT=""
 eval "$(direnv hook zsh)"
+unset DIRENV_LOG_FORMAT
 
 export NVM_DIR="$HOME/.config/nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
 
 # To customize prompt, run `p10k configure` or edit ~/.config/zsh/p10k.zsh.
 [[ ! -f ~/.config/zsh/p10k.zsh ]] || source ~/.config/zsh/p10k.zsh
