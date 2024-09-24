@@ -3,9 +3,13 @@
 # Get the main interface
 INTERFACE=$(ip route | grep '^default' | awk '{print $5}' | head -n 1)
 
+if [[ -z "$INTERFACE" ]]; then
+    STATE="DOWN"
+else
+    IP=$(ip addr show "$INTERFACE" | grep 'inet ' | awk '{print $2}' | cut -d/ -f1)
+    STATE=$(ip link show "$INTERFACE" | grep 'state' | awk '{print $9}')
+fi
 # Get the IP address of the interface
-IP=$(ip addr show "$INTERFACE" | grep 'inet ' | awk '{print $2}' | cut -d/ -f1)
-STATE=$(ip link show "$INTERFACE" | grep 'state' | awk '{print $9}')
 
 if [[ "$STATE" == "DOWN" ]]; then
     ICON="❌"
@@ -19,7 +23,7 @@ fi
 
 # Print the icon and IP address
 if [[ -z "$IP" ]]; then
-    echo "${ICON}No IP Address (Not connected)"
+    echo "${ICON}(Not connected)"
 else
     echo "${ICON}${IP}"
 fi
