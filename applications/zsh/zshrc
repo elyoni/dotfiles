@@ -20,6 +20,9 @@ VISUAL=nvim; export VISUAL EDITOR=nvim; export EDITOR
 
 HIST_STAMPS="dd.mm.yyyy"
 
+export ZSH_USER_SETTINGS_FILE="${HOME}/.zshrc_user"
+[[ -f "${ZSH_USER_CUSTOM_FILES}" ]] &&  source "${ZSH_USER_CUSTOM_FILES}"
+
 
 WIMP_EXCLUDE_PATH=('**/yocto-setup/**/*' '**/buildroot/dl/' '**private/rust_book/' '**/buildroot/support')
 WIMP_PROJECTS_PATH=( "${HOME}"/Private/my_projects/ "${HOME}"/projects "${HOME}"/my_projects)
