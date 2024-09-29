@@ -22,11 +22,13 @@ function install_conan()
 function _install_build_utils() # <Add information about this package>
 {
     fast_apt_install "cmake"
+    fast_apt_install "libstdc++-12-dev"
 }
 
 function verify() # Verify the installation
 {
-    :
+    fast_apt_verify "cmake"
+    fast_apt_verify "libstdc++-12-dev"
 }
 
 
