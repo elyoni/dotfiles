@@ -3,7 +3,7 @@
 function _apt_get_version()
 {
     local package_name=${1}
-    dpkg -l | awk -v pkg="$package_name" '$2 == pkg {print $3}'
+    dpkg -l | grep "^ii.*${package_name}" | head -n 1 | awk '{print $3}'
 }
 
 function add_repository()
@@ -16,7 +16,7 @@ function add_repository()
 function fast_apt_verify()
 {
     local package_name=${1}
-    if dpkg -l | grep -q "^ii.*${package_name}\s"; then
+    if dpkg -l | grep -q "^ii.*${package_name}"; then
         if [ -z "${QUIET+x}" ]; then
             echo "Package ${package_name}, version:" $(_apt_get_version "${package_name}")
         fi
