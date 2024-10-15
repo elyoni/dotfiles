@@ -46,7 +46,7 @@ else
 	;;
     3)
         echo "Installing Terminal Based Application"
-        base "${DIR}"/install_scripts/03terminal_apps_install.sh
+        bash "${DIR}"/install_scripts/03terminal_apps_install.sh
 	;;
     4)
         echo "Installing Gui Based Application"
