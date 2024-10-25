@@ -313,6 +313,12 @@ require("lazy").setup({
         end,
     },
     {
+        "iamcco/markdown-preview.nvim",
+        cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
+        ft = { "markdown" },
+        build = function() vim.fn["mkdp#util#install"]() end,
+    },
+    {
         'nvim-treesitter/nvim-treesitter',
         lazy = false,
         dependencies = {
@@ -793,7 +799,7 @@ require("lazy").setup({
         cmd = "Copilot",
         event = "InsertEnter",
         enabled = function()
-          return not vim.env.DISABLE_COPILOT  -- Enable if DISABLE_COPILOT is set
+            return not vim.env.DISABLE_COPILOT -- Enable if DISABLE_COPILOT is set
         end,
         config = function()
             require("copilot").setup({
