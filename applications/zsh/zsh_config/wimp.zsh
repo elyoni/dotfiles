@@ -39,7 +39,7 @@ enter_to_project_path() {
     VALID_PATHS=()
     for dir in "${WIMP_PROJECTS_PATH[@]}"; do
         if [ -d "$dir" ]; then
-            echo WIMP add $dir to the valid paths
+            #echo WIMP add $dir to the valid paths
             VALID_PATHS+=("$dir")
         fi
     done
