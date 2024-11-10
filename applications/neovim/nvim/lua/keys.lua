@@ -16,7 +16,6 @@ function toggle_wrap()
 end
 
 -- Key binding to toggle wrap mode
-
 --" View
 --" " Use alt + hjkl to resize windows
 vim.api.nvim_set_keymap("n", "<A-j>", "<cmd>resize -2<CR>", {})
@@ -31,6 +30,11 @@ vim.api.nvim_set_keymap('n', '<leader>vw', ':lua toggle_wrap()<CR>', { noremap =
 vim.api.nvim_set_keymap("n", "<leader>vsh", "<C-w>s", {})                                               -- Split window horizontally
 vim.api.nvim_set_keymap("n", "<leader>vsv", "<C-w>v", {})                                               -- Split window vertically
 vim.api.nvim_set_keymap("n", "<leader>vn", ":set relativenumber!<CR>", {})                              -- Toggle relative line numbers
+
+
+-- " Folding
+vim.api.nvim_set_keymap("n", "zC", "zM", {})
+vim.api.nvim_set_keymap("n", "zO", "zR", {})
 
 -- tabs
 vim.api.nvim_set_keymap("n", "<leader>tn", "<cmd>tabnew<CR>", {})

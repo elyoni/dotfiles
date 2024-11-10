@@ -604,6 +604,13 @@ require("lazy").setup({
 
             lsp.configure('clangd', {
                 init_options = { fallbackFlags = "-I .. -std=c++17 " },
+                cmd = { 'clangd' },
+                root_dir = require('lspconfig').util.root_pattern('compile_commands.json', 'compile_flags.txt', '.git'),
+                settings = {
+                    clangd = {
+                        arguments = { "--background-index", "--clang-tidy" },
+                    }
+                }
             })
 
             lsp.configure('ltex', {
@@ -861,15 +868,15 @@ require("lazy").setup({
             -- },
         },
         keys = {
-            { "<leader>oo", "<cmd>cd $HOME/.obsidian/work | e main.md<CR>", desc = "New Note" },
-            { "<leader>on", "<cmd>ObsidianNew<CR>",                         desc = "New Note" },
-            { "<leader>od", "<cmd>ObsidianToday<CR>",                       desc = "Todays Note" },
+            { "<leader>oo", "<cmd>cd $HOME/.obsidian/notes| e main/Main.md<CR>", desc = "New Note" },
+            { "<leader>on", "<cmd>ObsidianNew<CR>",                              desc = "New Note" },
+            { "<leader>od", "<cmd>ObsidianToday<CR>",                            desc = "Todays Note" },
         },
         opts = {
             workspaces = {
                 {
-                    name = "work",
-                    path = "~/.obsidian/work",
+                    name = "main",
+                    path = "~/.obsidian/notes",
                 },
             },
         },
@@ -923,6 +930,46 @@ require("lazy").setup({
 
     },
     {
+        "CopilotC-Nvim/CopilotChat.nvim",
+        branch = "canary",
+        enabled = func_work_pc,
+        dependencies = {
+            { "nvim-lua/plenary.nvim" }, -- for curl, log wrapper
+        },
+        build = "make tiktoken",         -- Only on MacOS or Linux
+        opts = {
+            debug = true,                -- Enable debugging
+            -- See Configuration section for rest
+        },
+        keys = {
+            {
+                "<leader>hm",
+                function()
+                    local input = vim.fn.input("Quick Chat: ")
+                    if input ~= "" then
+                        require("CopilotChat").ask(input, { selection = require("CopilotChat.select").buffer })
+                    end
+                end,
+                mode = "n", -- Normal mode
+                desc = "CopilotChat - Quick chat",
+            },
+            -- Visual mode keybind
+            {
+                "<leader>hm",
+                function()
+                    local input = vim.fn.input("Quick Chat: ")
+                    if input ~= "" then
+                        require("CopilotChat").ask(input, { selection = require("CopilotChat.select").visual })
+                    end
+                end,
+                mode = "v", -- Visual mode
+                desc = "CopilotChat - Quick chat (visual)",
+            }, },
+
+
+        -- See Commands section for default commands if you want to lazy load on them
+    },
+    {
         "ojroques/nvim-osc52",
         config = function()
             require("osc52").setup {
@@ -965,7 +1012,31 @@ require("lazy").setup({
 
         }
 
-    }
+    },
+    {
+        "m00qek/baleia.nvim",
+        version = "*",
+        config = function()
+            vim.g.baleia = require("baleia").setup({})
+
+            -- Command to colorize the current buffer
+            vim.api.nvim_create_user_command("BaleiaColorize", function()
+                vim.g.baleia.once(vim.api.nvim_get_current_buf())
+            end, { bang = true })
+
+            -- Command to show logs
+            vim.api.nvim_create_user_command("BaleiaLogs", vim.g.baleia.logger.show, { bang = true })
+        end,
+    },
+    {
+        "iamcco/markdown-preview.nvim",
+        cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
+        build = "cd app && yarn install",
+        init = function()
+            vim.g.mkdp_filetypes = { "markdown" }
+        end,
+        ft = { "markdown" },
+    },
 }
 )
 
