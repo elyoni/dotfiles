@@ -1,2 +1,3 @@
 tmp/
 applications/neovim/nvim/lazy-lock.json
+applications/neovim/nvim/spell/en.utf-8.add*
