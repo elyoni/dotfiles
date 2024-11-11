@@ -135,14 +135,18 @@ bindsym $mod+Ctrl+u move container to workspace $workspaceCode6
 ###############################################################################
 
 ## Launch // Terminal // <> Enter ##
-set_from_resource $wm.binding.terminal_app wm.binding.terminal_app wezterm
+set_from_resource $wm.binding.terminal_app wm.binding.terminal_app kitty
+# wezterm
+# gnome-terminal
 
 set_from_resource $wm.binding.terminal wm.binding.terminal Return
 bindsym $mod+$wm.binding.terminal exec $wm.binding.terminal_app
 
 ## Launch // Terminal - ssh yoni-vm // <><Shift> Enter ##
 set_from_resource $wm.binding.ssh-yoni wm.binding.terminal Shift+Return
-bindsym $mod+$wm.binding.ssh-yoni exec "$wm.binding.terminal_app -e env TERM=xterm-256color ssh -X -R 8888:localhost:22 -R 9999:localhost:9999 yoni@seil-sdk-ye -y"
+#bindsym $mod+$wm.binding.ssh-yoni exec "TERM=xterm-256color $wm.binding.terminal_app ssh -X -R 8888:localhost:22 -R 9999:localhost:9999 yoni@seil-sdk-ye -y"
+#bindsym $mod+$wm.binding.ssh-yoni exec "TERM=xterm-256color $wm.binding.terminal_app --execute ssh -X -R 8888:localhost:22 -R 9999:localhost:9999 yoni@seil-sdk-ye -y"
+bindsym $mod+$wm.binding.ssh-yoni exec "TERM=xterm-256color $wm.binding.terminal_app -e env TERM=xterm-256color ssh -X -R 8888:localhost:22 -R 9999:localhost:9999 yoni@seil-sdk-ye -y"
 
 set_from_resource $rofiTheme rofi.theme /etc/regolith/styles/lascaille/rofi.rasi
 
