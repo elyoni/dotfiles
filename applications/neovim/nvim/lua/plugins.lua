@@ -29,6 +29,88 @@ function custom_gvdiffsplit()
     vim.cmd("Gvdiffsplit HEAD~" .. num_commits)
 end
 
+-- Define the enum
+PluginEnvEnum = { Work = "Work", Private = "Private", Other = "Other" }
+
+local function func_work_pc()
+    return PluginEnv == PluginEnvEnum.Work
+end
+
+local function func_private_pc()
+    return PluginEnv == PluginEnvEnum.Private
+end
+
+-- Function to set the computer environment
+local function set_plugin_env(env)
+    local plugin_choice_file = vim.fn.expand("~/.nvim_plugin_choice")
+    local valid_envs = { "Work", "Private", "Other" }
+
+    -- Check if the provided env is valid
+    if not vim.tbl_contains(valid_envs, env) then
+        print("Invalid environment. Choose from: Work, Private, Other")
+        return
+    end
+
+    -- Write the environment to the file
+    local file = io.open(plugin_choice_file, "w")
+    file:write(env)
+    file:close()
+
+    print("Environment set to " .. env)
+end
+
+-- Create a command to set the environment
+vim.api.nvim_create_user_command("SetEnv", function(opts)
+    set_plugin_env(opts.args)
+end, {
+    nargs = 1,
+    complete = function()
+        return { "Work", "Private", "Other" }
+    end,
+})
+
+-- Function to determine the environment
+local function determine_plugin_env()
+    local plugin_choice_file = vim.fn.expand("~/.nvim_plugin_choice")
+    local file = io.open(plugin_choice_file, "r")
+    if file then
+        local content = file:read("*all"):gsub("%s+", "") -- Trim whitespace
+        file:close()
+        if content == "Work" then
+            return PluginEnvEnum.Work
+        elseif content == "Private" then
+            return PluginEnvEnum.Private
+        end
+    end
+    return PluginEnvEnum.Other -- Default if file not found or unexpected content
+end
+
+local function set_plugin_env(env)
+    local plugin_choice_file = vim.fn.expand("~/.nvim_plugin_choice")
+    local valid_envs = { "Work", "Private", "Other" }
+
+    -- Check if the provided env is valid
+    if not vim.tbl_contains(valid_envs, env) then
+        print("Invalid environment. Choose from: Work, Private, Other")
+        return
+    end
+
+    -- Try to open the file for writing
+    local file, err = io.open(plugin_choice_file, "w")
+    if not file then
+        print("Error opening file: " .. (err or "unknown error"))
+        return
+    end
+
+    file:write(env)
+    file:close()
+
+    print("Environment set to " .. env)
+end
+
+-- Set the global variable
+PluginEnv = determine_plugin_env()
+
 local colors = {
     black        = '#000000',
     white        = '#FFFFFF',
@@ -377,7 +459,6 @@ require("lazy").setup({
     },
     {
         'nvim-telescope/telescope.nvim',
-        version = '0.1.2',
         priority = 1000,
         lazy = false,
         dependencies = {
@@ -795,12 +876,30 @@ require("lazy").setup({
     },
     { "lepture/vim-jinja" },
     {
+        "monkoose/neocodeium",
+        event = "VeryLazy",
+        enable = func_private_pc,
+        config = function()
+            local neocodeium = require("neocodeium")
+            neocodeium.setup()
+            vim.keymap.set("i", "<C-l>", neocodeium.accept)
+            vim.keymap.set("i", "<M-l>", neocodeium.accept_word)
+            vim.keymap.set("i", "<C-j>", function()
+                neocodeium.cycle_or_complete()
+            end)
+            vim.keymap.set("i", "<C-k>", function()
+                neocodeium.cycle_or_complete(-1)
+            end)
+        end,
+        keys = {
+            { "<leader>hm", "<cmd>lua require('neocodeium.commands').chat()<CR>", mode = { "i", "s" } },
+        },
+    },
+    {
         "zbirenbaum/copilot.lua",
         cmd = "Copilot",
         event = "InsertEnter",
-        enabled = function()
-            return not vim.env.DISABLE_COPILOT -- Enable if DISABLE_COPILOT is set
-        end,
+        enabled = func_work_pc,
         config = function()
             require("copilot").setup({
                 suggestion = {
