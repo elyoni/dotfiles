@@ -17,7 +17,7 @@ local act = wezterm.action
 --}
 
 return {
-    --font = wezterm.font_with_fallback({ 'Hack Nerd Font', 'Liberation Sans', 'Noto Color Emoji' }),
+    font = wezterm.font_with_fallback({ 'Hack Nerd Font', 'Liberation Sans', 'Noto Color Emoji' }),
     font_size = 11,
     --leader = { key = 'a', mods = 'CTRL', timeout_milliseconds = 1000 },
     front_end = 'WebGpu',
