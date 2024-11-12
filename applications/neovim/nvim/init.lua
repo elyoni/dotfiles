@@ -1,4 +1,4 @@
 require('settings') -- Needs to be in the top
-require('plugins')
+require("config.lazy")
 require('commands')
 require('keys')

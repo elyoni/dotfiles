@@ -44,11 +44,24 @@ vim.opt.formatoptions:remove { "c", "r", "o" } -- Stop newline continution of co
 
 --vim.opt.clipboard="unnamedplus"               -- Copy paste between vim and everything else
 vim.opt.clipboard = { "unnamed", "unnamedplus" }
+if os.getenv('SSH_TTY') then
+    vim.g.clipboard = {
+        name = 'OSC 52',
+        copy = {
+            ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
+            ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
+        },
+        paste = {
+            ['+'] = function() return 0 end,
+            ['*'] = function() return 0 end,
+        },
+    }
+end
 
 vim.opt.hlsearch = true   -- Highlight the word when search
 vim.opt.incsearch = true  -- Start search in realtime
 
-vim.opt.ignorecase = true -- Cancel the case sensative
+vim.opt.ignorecase = true -- Cancel the case sensitive
 vim.opt.smartcase = true
 
 --hi Normal ctermbg=none guibg=none
