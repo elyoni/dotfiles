@@ -4,7 +4,6 @@ return {
         dependencies = {
             'nvim-tree/nvim-web-devicons', -- optional
         },
-        cmd = "NvimTreeToggle",
         init = function()
             require("nvim-tree").setup({
                 auto_reload_on_write = true,
@@ -28,8 +27,20 @@ return {
             })
         end,
         keys = {
-            { "<C-n>",      "<cmd>NvimTreeToggle<CR>",   mode = "n" },
-            { "<leader>nf", "<cmd>NvimTreeFindFile<CR>", mode = "n" },
+            {
+                "<C-n>",
+                mode = "n",
+                function()
+                    require("nvim-tree.api").tree.toggle({ focus = false })
+                end
+            },
+            {
+                "<leader>nn",
+                mode = "n",
+                function()
+                    require("nvim-tree.api").tree.toggle({ focus = true })
+                end
+            },
         },
     },
 }
