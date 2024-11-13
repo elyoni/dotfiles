@@ -57,7 +57,6 @@ end
 return {
     {
         "monkoose/neocodeium",
-        event = "VeryLazy",
         enable = func_private_pc,
         config = function()
             local neocodeium = require("neocodeium")
