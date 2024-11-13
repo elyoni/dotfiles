@@ -102,4 +102,41 @@ return {
         end,
 
     },
+    {
+        "CopilotC-Nvim/CopilotChat.nvim",
+        branch = "canary",
+        enabled = func_work_pc,
+        dependencies = {
+            { "nvim-lua/plenary.nvim" }, -- for curl, log wrapper
+        },
+        build = "make tiktoken",         -- Only on MacOS or Linux
+        opts = {
+            debug = true,                -- Enable debugging
+            -- See Configuration section for rest
+        },
+        keys = {
+            {
+                "<leader>hm",
+                function()
+                    local input = vim.fn.input("Quick Chat: ")
+                    if input ~= "" then
+                        require("CopilotChat").ask(input, { selection = require("CopilotChat.select").buffer })
+                    end
+                end,
+                mode = "n", -- Normal mode
+                desc = "CopilotChat - Quick chat",
+            },
+            -- Visual mode keybind
+            {
+                "<leader>hm",
+                function()
+                    local input = vim.fn.input("Quick Chat: ")
+                    if input ~= "" then
+                        require("CopilotChat").ask(input, { selection = require("CopilotChat.select").visual })
+                    end
+                end,
+                mode = "v", -- Visual mode
+                desc = "CopilotChat - Quick chat (visual)",
+            }, },
+    },
 }
