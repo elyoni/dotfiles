@@ -19,7 +19,11 @@ return {
         },
         --{ '<leader>fb', "<cmd>Telescope buffers<CR>",      desc = "Buffers list" },
         { '<leader>fn', "<cmd>Telescope buffers<CR>",   desc = "Buffers list" },
-        { '<leader>fh', "<cmd>Telescope help_tags<CR>", desc = "Help Tags" },
+        { '<leader>fh', "<cmd>Telescope search_history<CR>", desc = "Search History" },
+        { '<leader>gs', "<cmd>Telescope git_status<CR>", desc = "Git Status" },
+        { '<leader>gl', "<cmd>Telescope git_commits<CR>", desc = "Git Log" },
+        { '<leader>gm', "<cmd>Telescope git_branches<CR>", desc = "Git Branchs" },
+        
     },
     init = function()
         require('telescope').setup {
