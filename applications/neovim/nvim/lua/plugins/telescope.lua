@@ -1,3 +1,13 @@
+local function git_or_files()
+    local is_git = vim.fn.system("git rev-parse --is-inside-work-tree"):match("^true")
+    if is_git then
+        require('telescope.builtin').git_files()
+    else
+        require('telescope.builtin').find_files()
+    end
+end
+
+
 return {
     'nvim-telescope/telescope.nvim',
     priority = 1000,
@@ -9,7 +19,11 @@ return {
     keys = {
         { '<leader>fg', "<cmd>Telescope live_grep<CR>",  desc = "Live grep" },
         { '<leader>ff', "<cmd>Telescope find_files<CR>", desc = "Find file" },
-        { '<C-p>',      "<cmd>Telescope git_files<CR>",  desc = "Find file git" },
+        {
+            '<C-p>',
+            git_or_files,
+            desc = "Find file (Git fallback to regular files)"
+        },
         {
             '<C-f>',
             "<cmd>Telescope grep_string<CR>",
