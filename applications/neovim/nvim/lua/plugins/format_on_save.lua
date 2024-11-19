@@ -18,6 +18,7 @@ return {
                 html = formatters.lsp,
                 java = formatters.lsp,
                 javascript = formatters.lsp,
+                go = formatters.lsp,
                 json = formatters.lsp,
                 lua = formatters.lsp,
                 markdown = formatters.prettierd,
