@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
-
 if [[ -f "$(which wezterm)" ]]; then
-    which wezterm
+    wezterm
+elif [[ -f "$(which kitty)" ]]; then
+    kitty
 elif [[ -f "$(which gnome-terminal)" ]]; then
-    which gnome-terminal
+    gnome-terminal
 fi

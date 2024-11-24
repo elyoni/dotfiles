@@ -135,7 +135,8 @@ bindsym $mod+Ctrl+u move container to workspace $workspaceCode6
 ###############################################################################
 
 ## Launch // Terminal // <> Enter ##
-set_from_resource $wm.binding.terminal_app wm.binding.terminal_app kitty
+set_from_resource $wm.binding.terminal_app wm.binding.terminal_app ${HOME}/.config/regolith3/i3/terminal.sh
+#kitty
 # wezterm
 # gnome-terminal
 
