@@ -483,8 +483,8 @@ bindsym $mod+r mode "Resize Mode"
 set $mode_launcher Scratchpad: [w]iki [s]ettings
 
 mode "$mode_launcher" {
-    bindsym w exec ${HOME}/.config/regolith/i3/scratchpad.sh -s wiki; mode "default"
-    bindsym s exec ${HOME}/.config/regolith/i3/scratchpad.sh -s settings; mode "default"
+    bindsym w exec ${HOME}/.config/regolith3/i3/scratchpad.sh -s wiki; mode "default"
+    bindsym s exec ${HOME}/.config/regolith3/i3/scratchpad.sh -s settings; mode "default"
 
     #bindsym w exec kitty --detach /home/yehonatan/.config/regolith/i3/scratchpad -s 'wiki' -c 'nvim +WikiIndex'
     bindsym Escape mode "default"
