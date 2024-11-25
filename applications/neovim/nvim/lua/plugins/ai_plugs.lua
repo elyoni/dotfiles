@@ -1,14 +1,6 @@
 -- Define the enum
 PluginEnvEnum = { Work = "Work", Private = "Private", Other = "Other" }
 
-vim.api.nvim_create_user_command("SetEnv", function(opts)
-    set_plugin_env(opts.args)
-end, {
-    nargs = 1,
-    complete = function()
-        return { "Work", "Private", "Other" }
-    end,
-})
 
 local function set_plugin_env(env)
     local plugin_choice_file = vim.fn.expand("~/.nvim_plugin_choice")
@@ -28,6 +20,17 @@ local function set_plugin_env(env)
     print("Environment set to " .. env)
 end
 
+local function read_env_file()
+    local env_file = vim.fn.expand("~/.nvim_plugin_choice")
+    local env_content = vim.fn.readfile(env_file)
+    if #env_content > 0 then
+        return vim.trim(env_content[1]) -- Read the first line and trim whitespace
+    else
+        return nil
+    end
+end
+
+
 local function determine_plugin_env()
     local plugin_choice_file = vim.fn.expand("~/.nvim_plugin_choice")
     local file = io.open(plugin_choice_file, "r")
@@ -43,21 +46,34 @@ local function determine_plugin_env()
     return PluginEnvEnum.Other -- Default if file not found or unexpected content
 end
 
+vim.api.nvim_create_user_command("GetEnv", function(opts)
+    print(determine_plugin_env())
+end, {})
+
+vim.api.nvim_create_user_command("SetEnv", function(opts)
+    set_plugin_env(opts.args)
+end, {
+    nargs = 1,
+    complete = function()
+        return { "Work", "Private", "Other" }
+    end,
+})
+
+
 PluginEnv = determine_plugin_env()
 
-local function func_work_pc()
+function FuncWorkPC()
     return PluginEnv == PluginEnvEnum.Work
 end
 
-local function func_private_pc()
+function FuncPrivatePC()
     return PluginEnv == PluginEnvEnum.Private
 end
-
 
 return {
     {
         "monkoose/neocodeium",
-        enable = func_private_pc,
+        enable = FuncPrivatePC,
         config = function()
             local neocodeium = require("neocodeium")
             neocodeium.setup()
@@ -79,7 +95,7 @@ return {
         "zbirenbaum/copilot.lua",
         cmd = "Copilot",
         event = "InsertEnter",
-        enabled = func_work_pc,
+        enabled = FuncWorkPC,
         config = function()
             require("copilot").setup({
                 suggestion = {
@@ -105,7 +121,7 @@ return {
     {
         "CopilotC-Nvim/CopilotChat.nvim",
         branch = "canary",
-        enabled = func_work_pc,
+        enabled = FuncWorkPC,
         dependencies = {
             { "nvim-lua/plenary.nvim" }, -- for curl, log wrapper
         },
