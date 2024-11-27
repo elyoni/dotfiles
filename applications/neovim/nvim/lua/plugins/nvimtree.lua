@@ -31,14 +31,14 @@ return {
                 "<C-n>",
                 mode = "n",
                 function()
-                    require("nvim-tree.api").tree.toggle({ focus = false })
+                    require("nvim-tree.api").tree.toggle({ focus = true })
                 end
             },
             {
                 "<leader>nn",
                 mode = "n",
                 function()
-                    require("nvim-tree.api").tree.toggle({ focus = true })
+                    require("nvim-tree.api").tree.toggle({ focus = false })
                 end
             },
         },
