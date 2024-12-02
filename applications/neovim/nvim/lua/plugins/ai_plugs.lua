@@ -88,6 +88,7 @@ return {
         end,
         keys = {
             { "<leader>hm", "<cmd>lua require('neocodeium.commands').chat()<CR>", mode = { "i", "n" } },
+            { "<leader>ho", "<cmd>lua require('neocodeium.commands')<CR>",        mode = { "n" } },
         },
     },
 
