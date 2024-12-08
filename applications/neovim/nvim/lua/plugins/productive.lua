@@ -27,20 +27,6 @@ return {
             -- refer to the configuration section below
         }
     },
-
-    {
-        "vimwiki/vimwiki",
-        init = function()
-            vim.cmd [[set nocompatible ]]
-            --vim.cmd [[filetype plugin on ]]
-            vim.cmd [[ syntax on ]]
-            vim.g.vimwiki_auto_chdir = 1 -- Change directory to root Vimwiki folder on opening page
-        end,
-        --keys = {
-        --    --{ "<leader>wgt", "<cmd>VimwikiGenerateTagLink<CR>", desc = "Update vimwiki tags" },
-        --    --{ "<leader>aa", "<cmd>VimwikiSearchTags<CR>", desc = "Search vimwiki tags" },
-        --},
-    },
     {
         "epwalsh/obsidian.nvim",
         version = "*", -- recommended, use latest release instead of latest commit
