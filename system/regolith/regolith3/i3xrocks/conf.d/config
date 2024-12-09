@@ -30,3 +30,10 @@ interval=30 # Update time every 30 seconds
 
 [battery]
 interval=60
+
+[Microphone]
+label=🎤
+interval=1
+#instance=PCM
+command=amixer get Capture | grep -E -o '\[[a-zA-Z]+\]' | sed 's/\[//;s/\]//' | head -1
+#command=amixer get Master | grep -E -o '[0-9]{1,3}?%' | head -1
