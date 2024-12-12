@@ -80,6 +80,7 @@ return {
             { "<leader>on", "<cmd>ObsidianNew<CR>",   desc = "New Note" },
             { "<leader>od", "<cmd>ObsidianToday<CR>", desc = "Todays Note" },
             { "<leader>ow", "<cmd>ObsidianToday<CR>", desc = "Todays Note" },
+            { "<leader>ot", "<cmd>ObsidianTags<CR>",  desc = "Open obsidian tags" },
         },
         opts = {
             workspaces = {
