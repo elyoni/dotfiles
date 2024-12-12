@@ -19,7 +19,33 @@
     fa = fetch --all
     fb = "!f() { git fetch $(git remote | head -n 1) $1; }; f"
     lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
-    delete = !"f() { git fetch --prune origin; git push --delete origin \"$1\" ; git branch -d \"$1\"; git fetch --prune origin; }; f"
+    ;delete = !"f() { git fetch --prune origin; git push --delete origin \"$1\" ; git branch -d \"$1\"; git fetch --prune origin; }; f"
+    delete = "!f() { \
+      branch=\"$1\"; \
+      git fetch --prune origin >/dev/null 2>&1; \
+      if git show-ref --quiet --verify \"refs/remotes/origin/$branch\"; then \
+        git push --delete origin \"$branch\" >/dev/null 2>&1 && echo \"Remote branch '$branch' deleted successfully.\" || echo \"Failed to delete remote branch '$branch'.\"; \
+      else \
+        echo \"Remote branch '$branch' does not exist.\"; \
+      fi; \
+      if git show-ref --quiet --verify \"refs/heads/$branch\"; then \
+        if git branch -d \"$branch\" >/dev/null 2>&1; then \
+          echo \"Local branch '$branch' deleted successfully.\"; \
+        else \
+          printf '\\033[5m\\033[31mLocal branch \"$branch\" is not fully merged.\\033[0m\\n'; \
+          printf '\\033[33mDo you want to force-delete the branch \"$branch\"? [y/N]\\033[0m\\n'; \
+          read -p \"\" confirm; \
+          if [ \"$confirm\" = \"y\" ] || [ \"$confirm\" = \"Y\" ]; then \
+            git branch -D \"$branch\" >/dev/null 2>&1 && echo \"Local branch '$branch' force-deleted successfully.\" || echo \"Failed to force-delete local branch '$branch'.\"; \
+          else \
+            echo \"Local branch '$branch' was not deleted.\"; \
+          fi; \
+        fi; \
+      else \
+        echo \"Local branch '$branch' does not exist.\"; \
+      fi; \
+      git fetch --prune origin >/dev/null 2>&1; \
+    }; f"
     mustdelete = !"f() { git fetch --prune origin; git push --delete origin \"$1\"; git branch -D \"$1\" ; }; f"
     ph = push
     cb = !"f() { git branch | grep -e '^*' |  sed 's/^* //' | tr -d '\n' | xclip -sel clip ; }; f"
