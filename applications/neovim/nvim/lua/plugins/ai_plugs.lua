@@ -73,7 +73,7 @@ end
 return {
     {
         "monkoose/neocodeium",
-        enable = FuncPrivatePC,
+        cond = FuncPrivatePC,
         config = function()
             local neocodeium = require("neocodeium")
             neocodeium.setup()
@@ -96,7 +96,7 @@ return {
         "zbirenbaum/copilot.lua",
         cmd = "Copilot",
         event = "InsertEnter",
-        enabled = FuncWorkPC,
+        cond = FuncWorkPC,
         config = function()
             require("copilot").setup({
                 suggestion = {
