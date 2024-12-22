@@ -56,6 +56,7 @@ return {
                     if client then
                         client:switch_workspace("work") -- Replace "work" with your workspace name
                         print("Switched to workspace: work")
+                        client:open_note("main.md")
                     else
                         print("Error: Obsidian client not initialized.")
                     end
@@ -70,6 +71,7 @@ return {
                     if client then
                         client:switch_workspace("private")
                         print("Switched to workspace: private")
+                        client:open_note("main.md")
                     else
                         print("Error: Obsidian client not initialized.")
                     end

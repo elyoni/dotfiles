@@ -7,7 +7,7 @@ return {
     },
     config = function()
         require 'nvim-treesitter.configs'.setup {
-            ensure_installed = { "yaml", "rust", "c", "lua", "python", "bash", "go" },
+            ensure_installed = { "yaml", "rust", "c", "lua", "python", "bash", "go", "markdown" },
             highlight = { enable = true },
             autopairs = { enable = true },
             incremental_selection = {
