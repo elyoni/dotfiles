@@ -31,6 +31,9 @@ interval=30 # Update time every 30 seconds
 [battery]
 interval=60
 
+[countdown]
+interval=1
+
 [Microphone]
 label=🎤
 interval=1

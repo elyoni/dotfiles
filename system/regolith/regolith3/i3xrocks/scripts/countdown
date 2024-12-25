@@ -1,0 +1,94 @@
+#!/bin/bash
+# File to store the target time
+TARGET_FILE="/tmp/countdown_target_time"
+COUNTDOWN_NOTIFIED="/tmp/countdown_notified"
+
+# Load the saved countdown target or use a default value
+if [ -f "$TARGET_FILE" ]; then
+    TARGET_TIME=$(date -d $(cat "$TARGET_FILE") +%s)
+else
+    TARGET_TIME=$(date -d 0 +"%T")
+fi
+
+function display_time() {
+    local DAYS
+    local HOURS
+    local MINUTES
+    local SECONDS
+
+    CURRENT_TIME=$(date +%s)
+
+    REMAINING_TIME=$((TARGET_TIME - CURRENT_TIME))
+
+    # Format and display the remaining time
+    DAYS=$((REMAINING_TIME / 86400))
+    HOURS=$(( (REMAINING_TIME % 86400) / 3600 ))
+    MINUTES=$(( (REMAINING_TIME % 3600) / 60 ))
+    SECONDS=$((REMAINING_TIME % 60))
+
+    if [ $DAYS -gt 0 ]; then
+        echo "CD: $DAYS days, $(printf '%02d:%02d:%02d' $HOURS $MINUTES $SECONDS)"
+    elif [ $HOURS -gt 0 ]; then
+        echo "CD: $(printf '%02d:%02d:%02d' $HOURS $MINUTES $SECONDS)"
+    elif [ $MINUTES -gt 0 ]; then
+        echo "CD: $(printf '%02d:%02d' $MINUTES $SECONDS)"
+    else
+        echo "CD: $(printf '%02d' $SECONDS)"
+    fi
+
+}
+
+function click() {
+    local NEW_TIME
+    END_TIME=$(date -d "+10 min" +"%T")
+    if NEW_TIME=$(zenity --entry --title "Update Countdown" --text "Enter new target time (HH:MM:SS):" --entry-text "$END_TIME"); then
+        if [[ "$NEW_TIME" =~ ^[0-2]?[0-9]:[0-5][0-9]:[0-5][0-9]$ ]]; then
+            if date -d "$NEW_TIME" >/dev/null 2>&1; then
+                local CURRENT_TIME=$(date +%s)
+                local TARGET_TIME=$(date -d "$NEW_TIME" +%s)
+
+                if [ $TARGET_TIME -gt $CURRENT_TIME ]; then
+                    echo "$NEW_TIME" > "$TARGET_FILE"
+                    rm -f "$COUNTDOWN_NOTIFIED"
+                    display_time
+                    exit 0
+                else
+                    zenity --error --text "The entered time is in the past. Please enter a future time."
+                fi
+            else
+                zenity --error --text "Invalid time format. Please use HH:MM:SS."
+            fi
+        else
+            zenity --error --text "Invalid time format. Please use HH:MM:SS."
+        fi
+    fi
+}
+
+
+# Handle click event
+if [ "$BLOCK_BUTTON" = "1" ]; then
+    click
+fi
+
+# Validate END_TIME
+#if ! TARGET_TIME=$(date -d "$END_TIME" +%s 2>/dev/null); then
+#    echo "Invalid target time in $TARGET_FILE."
+#    rm "$TARGET_FILE"
+#    exit 1
+#fi
+
+# Calculate remaining time
+CURRENT_TIME=$(date +%s)
+
+if [ $TARGET_TIME -gt $CURRENT_TIME ]; then
+    display_time
+else
+    echo "Countdown: Time's up!"
+    # Trigger notification only once
+    if [ ! -f "$COUNTDOWN_NOTIFIED" ]; then
+        notify-send "Countdown Timer" "Time's up!"
+        rm -f "$TARGET_FILE"
+        touch "$COUNTDOWN_NOTIFIED"
+    fi
+    exit 0
+fi
