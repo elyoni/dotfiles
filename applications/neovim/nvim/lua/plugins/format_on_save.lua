@@ -21,9 +21,10 @@ return {
                 go = formatters.lsp,
                 json = formatters.lsp,
                 lua = formatters.lsp,
+                nix = formatters.nixfmt,
                 markdown = formatters.prettierd,
                 openscad = formatters.lsp,
-                python = formatters.black,
+                python = formatters.ruff,
             },
             python = {
                 formatters.remove_trailing_whitespace,
