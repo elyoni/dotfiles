@@ -24,7 +24,7 @@ return {
                 nix = formatters.nixfmt,
                 markdown = formatters.prettierd,
                 openscad = formatters.lsp,
-                python = formatters.ruff,
+                python = formatters.black,
             },
             python = {
                 formatters.remove_trailing_whitespace,
