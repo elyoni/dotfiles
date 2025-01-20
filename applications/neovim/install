@@ -74,6 +74,18 @@ function link_neovim_files  # Link neovim files(color + init.vim)
     ln -sf ${HOME}/.local/bin/nvim ${HOME}/.local/bin/vi
 }
 
+function add_neovim_to_visudo # Add neovim to visudo
+{
+
+    if [[ ! -f $( which nvim ) ]]; then
+        echo "Neovim is not installed"
+        return
+    fi
+
+    sudo update-alternatives --install /usr/bin/editor editor $(which nvim) 100
+}
+
+
 function install_plugins
 {
     nvim +Lazy +qall
@@ -84,6 +96,7 @@ function install  # Main function, this function install everything
     install_packages
     install_neovim
     link_neovim_files
+    add_neovim_to_visudo
     install_plugins
     install_planuml
 }
