@@ -11,13 +11,14 @@
 [alias]
     co = checkout
     br = branch
-    ci = commit
-    cia = commit --amend
-    cif = commit --amend --no-edit
+    c = commit
+    ci = c
+    ca = commit --amend
+    can = commit --amend --no-edit
     st = status
     visual = !gitg
     fa = fetch --all
-    fb = "!f() { git fetch $(git remote | head -n 1) $1; }; f"
+    fb = "!f() { git fetch $(git remote | head -n 1) $1; }; f"  # Fetch branch
     lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
     ;delete = !"f() { git fetch --prune origin; git push --delete origin \"$1\" ; git branch -d \"$1\"; git fetch --prune origin; }; f"
     delete = "!f() { \
@@ -48,10 +49,12 @@
     }; f"
     mustdelete = !"f() { git fetch --prune origin; git push --delete origin \"$1\"; git branch -D \"$1\" ; }; f"
     ph = push
-    cb = !"f() { git branch | grep -e '^*' |  sed 's/^* //' | tr -d '\n' | xclip -sel clip ; }; f"
-    copyb = cb
-    cs = !"f() { git rev-parse --short HEAD | tr -d '\n' | xclip -sel clip ; }; f"
-    copys
+    cpb = !"f() { git branch | grep -e '^*' |  sed 's/^* //' | tr -d '\n' | xclip -sel clip ; }; f"
+    copybranch = cpb
+    cps = !"f() { git rev-parse --short HEAD | tr -d '\n' | xclip -sel clip ; }; f"
+    copysha = cps
+    cpr = !"f() { git remote -v | awk '{print $2}' | head -1 | xclip -sel clip ; }; f"
+    copyremote = cpr
     phf = push -f
     pl = pull
     dt = difftool --dir-diff
