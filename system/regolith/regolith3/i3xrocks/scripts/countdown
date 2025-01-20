@@ -86,7 +86,10 @@ else
     echo "Countdown: Time's up!"
     # Trigger notification only once
     if [ ! -f "$COUNTDOWN_NOTIFIED" ]; then
-        notify-send "Countdown Timer" "Time's up!"
+        local title="Countdown Timer"
+        local message="Time's up!"
+        notify-send "${title}" "${message}"
+        zenity --info --text="<span font='32' foreground='red'>${message}</span>" --title="${title}"
         rm -f "$TARGET_FILE"
         touch "$COUNTDOWN_NOTIFIED"
     fi
