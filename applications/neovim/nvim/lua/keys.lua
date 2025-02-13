@@ -110,7 +110,9 @@ vim.api.nvim_set_keymap("n", "zh", "[s", {})
 
 --" Easy Diff
 --" " Set diff this
-vim.api.nvim_set_keymap("n", "dt", "<Cmd>diffthis<CR>", {})
+vim.api.nvim_set_keymap("n", "<leader>dt", "<Cmd>diffthis<CR>", {})
+vim.api.nvim_set_keymap("n", "<leader>do", "<Cmd>diffoff<CR>", {})
+vim.api.nvim_set_keymap("n", "<leader>ds", "<Cmd>diffoff<CR>", {})
 --nnoremap dt :diffthis<CR>
 
 --" " Diff jump
