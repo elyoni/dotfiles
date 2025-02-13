@@ -16,16 +16,23 @@ vim.api.nvim_create_user_command(
     "FormatAutoSaveOn",
     function()
         vim.g.editorconfig = true
+        if is_plugin_loaded("format-on-save.nvim") then
+            vim.cmd("FormatOn")
+        end
+        vim.b.autoformat = true
         print("Format Auto-Save enabled")
     end,
     { desc = "Enable Format Auto-Save" }
 )
-
 -- Command to disable Format Auto-Save
 vim.api.nvim_create_user_command(
     "FormatAutoSaveOff",
     function()
+        if is_plugin_loaded("format-on-save.nvim") then
+            vim.cmd("FormatOff")
+        end
         vim.g.editorconfig = false
+        vim.b.autoformat = false
         print("Format Auto-Save disabled")
     end,
     { desc = "Disable Format Auto-Save" }
@@ -36,6 +43,7 @@ vim.api.nvim_create_user_command(
     "FormatAutoSaveToggle",
     function()
         vim.g.editorconfig = not vim.g.editorconfig
+        vim.b.autoformat = not vim.b.autoformat
         if vim.g.editorconfig then
             print("Format Auto-Save enabled")
         else

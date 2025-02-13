@@ -33,3 +33,20 @@ require("lazy").setup({
     -- automatically check for plugin updates
     checker = { enabled = false },
 })
+
+function is_plugin_loaded(plugin_name)
+    -- example: format-on-save.nvim
+    if vim.tbl_get(require("lazy.core.config"), "plugins", plugin_name, "_", "loaded") ~= nil then
+        return true
+    else
+        return false
+    end
+end
+
+function get_plugins_list()
+    local lazy = require("lazy")
+    local plugins = lazy.plugins()
+    for _, plugin in pairs(plugins) do
+        print(plugin.name)
+    end
+end
