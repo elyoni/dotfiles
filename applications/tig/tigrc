@@ -15,6 +15,7 @@ bind main y none
 bind main ycn !@sh -c "git show -s --format=%s %(commit) | xclip -selection c"
 ## Yank - Copy commit short sha
 bind main ycs !@sh -c "git rev-parse --short %(commit) | xclip  -selection c"
+bind main ycS !@sh -c "git rev-parse %(commit) | xclip  -selection c"
 
 bind status  c    none
 bind status  cc   !?@git commit
