@@ -27,6 +27,6 @@ return {
 
     },
     { "lepture/vim-jinja" },
-    { 'preservim/nerdcommenter' },
-    { "averms/black-nvim" }, -- black formatter, python
+    { "preservim/nerdcommenter" }, -- Comment functions so powerful—no comment necessary.
+    { "averms/black-nvim" },       -- black formatter, python
 }
