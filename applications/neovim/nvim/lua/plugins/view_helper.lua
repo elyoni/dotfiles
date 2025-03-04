@@ -28,24 +28,12 @@ return {
         }
     },
     {
-        "utilyre/barbecue.nvim",
-        name = "barbecue",
-        version = "*",
-        dependencies = {
-            "SmiteshP/nvim-navic",
-            "nvim-tree/nvim-web-devicons", -- optional dependency
-        },
-        opts = {
-            -- configurations go here
-        },
-    },
-    {
         'fei6409/log-highlight.nvim',
         config = true,
     },
 
     -- Which key like
-    -- { 
+    -- {
     --     "Cassin01/wf.nvim",
     --     version = "*",
     --     config = function()
