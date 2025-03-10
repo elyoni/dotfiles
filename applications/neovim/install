@@ -2,7 +2,7 @@
 DIR=$(dirname "${BASH_SOURCE[0]}")
 DIR=$(cd -P $DIR && pwd)
 
-NEOVIM_VERSION="0.10.1"
+NEOVIM_VERSION="0.10.4"
 INSTALLION_DIR="${HOME}/.local"
 
 function install_packages() # Install additional package for neovim
@@ -39,7 +39,7 @@ function verify()
 function install_neovim()
 {
     local download_path="/tmp/download/neovim"
-    local file_name="nvim-linux64.tar.gz"
+    local file_name="nvim-linux-x86_64.tar.gz"
     local neovim_version="${NEOVIM_VERSION}"
     local download_url="https://github.com/neovim/neovim/releases/download/v${neovim_version}/${file_name}"
 
