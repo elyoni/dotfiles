@@ -6,11 +6,19 @@ return {
         },
         init = function()
             require("nvim-tree").setup({
+                git = {
+                    enable = false
+                },
+                filesystem_watchers = {
+                    enable = false
+                },
                 auto_reload_on_write = true,
                 update_focused_file = {
-                    enable = true,
-                    update_root = false,
-                    ignore_list = {},
+                    enable = false,
+                    update_root = {
+                        enable = false,
+                        ignore_list = {},
+                    },
                 },
                 view = {
                     number = true,
