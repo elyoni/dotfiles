@@ -11,6 +11,9 @@ alias dotfiles='cd ${HOME}/.dotfiles'
 
 command -v ranger > /dev/null && alias rr="ranger"
 command -v gitui > /dev/null && alias gi="gitui"
+[ -f $(which batcat) ] && alias bat="batcat"
+[ -f $(which fdfind) ] && alias fd="fdfind"
+
 
 alias clp='xclip -sel clip'
 alias pwdcp='pwd | xclip -sel clip'
