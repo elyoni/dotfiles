@@ -101,6 +101,7 @@ vim.api.nvim_set_keymap("t", "<C-j>", "<C-\\><C-n><C-W><Down>", {})
 vim.api.nvim_set_keymap("n", "<leader>zf", "<cmd>foldclose<CR>", {})
 vim.api.nvim_set_keymap("n", "<leader>zF", "zM", {})
 vim.api.nvim_set_keymap("n", "<leader>zt", "za", {})
+vim.api.nvim_set_keymap("n", "<leader>zO", "zR", {})
 vim.cmd("set foldmethod=marker")
 
 --" Spelling
