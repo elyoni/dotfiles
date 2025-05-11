@@ -107,7 +107,7 @@ function install
     set_zsh_as_default_shell
     link_files
     install_powerlevel10k
-
+    plugin
 }
 
 function help # Show a list of functions
