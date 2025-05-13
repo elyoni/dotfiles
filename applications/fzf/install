@@ -16,6 +16,7 @@ function install_packages() # Install additional package for neovim
     echo ====== Install additional packages =====
     sudo apt-get update
     sudo apt-get install -y git fd-find
+    sudo ln -s "$(command -v fdfind)" /usr/local/bin/fd
     echo ======== End ========
 }
 
