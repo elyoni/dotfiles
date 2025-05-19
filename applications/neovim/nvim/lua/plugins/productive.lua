@@ -1,3 +1,27 @@
+vim.api.nvim_create_user_command("ObsidianSwitchWork", function()
+    local obsidian = require("obsidian")
+    local client = obsidian.get_client()
+    if client then
+        client:switch_workspace("work")
+        --vim.notify("Switched to workspace: work")
+        client:open_note("main.md")
+    else
+        vim.notify("Error: Obsidian client not initialized.", vim.log.levels.ERROR)
+    end
+end, {})
+
+vim.api.nvim_create_user_command("ObsidianSwitchPrivate", function()
+    local obsidian = require("obsidian")
+    local client = obsidian.get_client()
+    if client then
+        client:switch_workspace("private")
+        --vim.notify("Switched to workspace: private")
+        client:open_note("main.md")
+    else
+        vim.notify("Error: Obsidian client not initialized.", vim.log.levels.ERROR)
+    end
+end, {})
+
 return {
 
     {
@@ -50,35 +74,14 @@ return {
         keys = {
             {
                 "<leader>oow",
-                function()
-                    local obsidian = require("obsidian")
-                    local client = obsidian.get_client()
-                    if client then
-                        client:switch_workspace("work") -- Replace "work" with your workspace name
-                        print("Switched to workspace: work")
-                        client:open_note("main.md")
-                    else
-                        print("Error: Obsidian client not initialized.")
-                    end
-                end,
-                desc = "Switch to Work Workspace"
+                "<cmd>ObsidianSwitchWork<CR>",
+                desc = "Switch to Work Workspace",
             },
             {
                 "<leader>oop",
-                function()
-                    local obsidian = require("obsidian")
-                    local client = obsidian.get_client()
-                    if client then
-                        client:switch_workspace("private")
-                        print("Switched to workspace: private")
-                        client:open_note("main.md")
-                    else
-                        print("Error: Obsidian client not initialized.")
-                    end
-                end,
-                desc = "Switch to Work Workspace"
-            },
-            --{ "<leader>oow", "<cmd>lua require('obsidian').set_workspace('work')<CR>", desc = "Switch to Work Workspace" },
+                "<cmd>ObsidianSwitchPrivate<CR>",
+                desc = "Switch to Private Workspace",
+            }, --{ "<leader>oow", "<cmd>lua require('obsidian').set_workspace('work')<CR>", desc = "Switch to Work Workspace" },
             { "<leader>on", "<cmd>ObsidianNew<CR>",   desc = "New Note" },
             { "<leader>od", "<cmd>ObsidianToday<CR>", desc = "Todays Note" },
             { "<leader>ow", "<cmd>ObsidianToday<CR>", desc = "Todays Note" },
@@ -104,7 +107,11 @@ return {
                     if new_cwd then
                         -- Change the working directory to the new workspace path
                         vim.cmd("cd " .. new_cwd)
-                        print("Changed working directory to: " .. new_cwd)
+                        vim.notify("Switched to workspace: work", vim.log.levels.INFO, {
+                            timeout = 1000, -- auto-dismiss after 1s
+                        })
+
+                        --print("Changed working directory to: " .. new_cwd)
                     else
                         print("Error: Workspace path is invalid or nil.")
                     end
