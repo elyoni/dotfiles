@@ -36,17 +36,28 @@ return {
         end,
         keys = {
             {
-                "<C-n>",
+                "<leader>nn",
                 mode = "n",
                 function()
                     require("nvim-tree.api").tree.toggle({ focus = true })
                 end
             },
             {
-                "<leader>nn",
+                "<C-n>",
                 mode = "n",
                 function()
-                    require("nvim-tree.api").tree.toggle({ focus = false })
+                    -- Place this in your init.lua or nvim-tree config
+                    local nvimtree_view = require("nvim-tree.view")
+                    if nvimtree_view.is_visible() then
+                        if vim.fn.win_getid() == nvimtree_view.get_winnr() then
+                            vim.cmd("wincmd p") -- go to previous window
+                        else
+                            require("nvim-tree.api").tree.focus()
+                        end
+                    else
+                        require("nvim-tree.api").tree.open()
+                        require("nvim-tree.api").tree.focus()
+                    end
                 end
             },
         },
