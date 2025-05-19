@@ -7,12 +7,12 @@ export WIKI_GLOBAL_PATH=${WIKI_GLOBAL_PATH:-$HOME/projects/private/wiki}
 
 function build_session() {
     tmux new-session -d -s "${session_name}" -n WikiPri
-    tmux send-keys -t "${session_name}" "nvim +WikiIndex" C-m
+    tmux send-keys -t "${session_name}" "nvim +ObsidianSwitchPrivate" C-m
 
-    tmux new-window -t "${session_name}" -c "${WIKI_GLOBAL_PATH}" -n WikiGlobal
-    tmux send-keys -t "${session_name}" 'nvim -c "Telescope find_files"' C-m
+    tmux new-window -t "${session_name}" -c "${WIKI_GLOBAL_PATH}" -n WikiWork
+    tmux send-keys -t "${session_name}" "nvim +ObsidianSwitchWork" C-m
 
     tmux select-window -t "${session_name}":WikiPri
 }
 
-main  # From file scratchpad_tmux_common  
+main  # From file scratchpad_tmux_common
