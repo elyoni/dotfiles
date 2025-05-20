@@ -17,6 +17,7 @@ function install_packages() # Install additional package for neovim
     sudo apt-get update
     sudo apt-get install -y git fd-find
     sudo ln -s "$(command -v fdfind)" /usr/local/bin/fd
+    mkdir "${HOME}/.zfunc"; fd --gen-completions=zsh > ~/.zfunc/_fdfind
     echo ======== End ========
 }
 
