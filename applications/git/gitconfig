@@ -61,17 +61,20 @@
     dtv = difftool -v vimdiff
     cnv = !"version=$(cat version); git commit --include version --message \"[Version] $version\""
     site = "!f() { \
-      git fetch --prune origin >/dev/null 2>&1; \
-      current_branch=$(git branch --show-current); \
-      if ! git rev-parse --quiet --verify \"refs/remotes/origin/$current_branch\" >/dev/null; then \
-        current_branch=\"master\"; \
+      if [ \"$1\" = \"--update\" ]; then \
+        git fetch --prune origin >/dev/null 2>&1; \
       fi; \
-      url=$(git config --get remote.origin.url | sed -E 's|^(ssh://)?git@([^:/]+)(:[0-9]+)?[:/]([^/]+/.+)\\.git$|https://\\2/\\4/tree/'\"$current_branch\"'|'); \
-      if [ \"$SSH_CONNECTION\" ]; then \
+      current_branch=$(git symbolic-ref --quiet --short HEAD 2>/dev/null || echo master); \
+      if ! git show-ref --quiet \"refs/remotes/origin/$current_branch\"; then \
+        current_branch=master; \
+      fi; \
+      url=$(git config --get remote.origin.url | \
+        sed -E 's#^(ssh://)?git@([^:/]+)(:[0-9]+)?[:/]([^/]+/.+)\\.git$#https://\\2/\\4/tree/'\"$current_branch\"'#'); \
+      if [ -n \"$SSH_CONNECTION\" ]; then \
         echo \"You are on a remote device. The project URL is: $url\"; \
-        echo \"$url\" | xclip -selection clipboard >/dev/null 2>&1 && echo \"   URL copied to clipboard.\"; \
+        command -v xclip >/dev/null && echo \"$url\" | xclip -selection clipboard && echo \"   URL copied to clipboard.\"; \
       else \
-        xdg-open \"$url\" >/dev/null 2>&1 || echo \"Failed to open browser. The project URL is: $url\"; \
+        command -v xdg-open >/dev/null && xdg-open \"$url\" >/dev/null 2>&1 || echo \"Failed to open browser. The project URL is: $url\"; \
       fi; \
     }; f"
     root = rev-parse --show-toplevel
