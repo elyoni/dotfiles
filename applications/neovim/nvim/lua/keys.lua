@@ -5,134 +5,106 @@
 --inoremap <expr> <c-j> ("\<C-n>")
 --inoremap <expr> <c-k> ("\<C-p>")
 -- Function to toggle wrap mode
-function toggle_wrap()
-    if vim.wo.wrap then
-        vim.wo.wrap = false
-        print("Wrap mode off")
-    else
-        vim.wo.wrap = true
-        print("Wrap mode on")
-    end
-end
 
+vim.keymap.set('n', '<leader>gs', GitSite, { desc = "Open GitHub link for current line or selection" })
+vim.keymap.set('v', '<leader>gs', GitSite, { desc = "Open GitHub link for current line or selection" })
 -- Key binding to toggle wrap mode
 --" View
 --" " Use alt + hjkl to resize windows
-vim.api.nvim_set_keymap("n", "<A-j>", "<cmd>resize -2<CR>", {})
-vim.api.nvim_set_keymap("n", "<A-k>", "<cmd>resize +2<CR>", {})
-vim.api.nvim_set_keymap("n", "<A-h>", "<cmd>vertical resize -2<CR>", {})
-vim.api.nvim_set_keymap("n", "<A-l>", "<cmd>vertical resize +2<CR>", {})
+vim.keymap.set("n", "<A-j>", "<cmd>resize -2<CR>", { desc = "Resize window down" })
+vim.keymap.set("n", "<A-k>", "<cmd>resize +2<CR>", { desc = "Resize window up" })
+vim.keymap.set("n", "<A-h>", "<cmd>vertical resize -2<CR>", { desc = "Resize window left" })
+vim.keymap.set("n", "<A-l>", "<cmd>vertical resize +2<CR>", { desc = "Resize window right" })
 --" " window options
---
-vim.api.nvim_set_keymap("n", "<leader>vf", "<C-w><bar>", {})                                            -- Split window vertically
-vim.api.nvim_set_keymap("n", "<leader>ve", "<C-w>=", {})                                                -- Equalize all windows
-vim.api.nvim_set_keymap('n', '<leader>vw', ':lua toggle_wrap()<CR>', { noremap = true, silent = true }) -- Toggle wrap mode
-vim.api.nvim_set_keymap("n", "<leader>vsh", "<C-w>s", {})                                               -- Split window horizontally
-vim.api.nvim_set_keymap("n", "<leader>vsv", "<C-w>v", {})                                               -- Split window vertically
-vim.api.nvim_set_keymap("n", "<leader>vn", ":set relativenumber!<CR>", {})                              -- Toggle relative line numbers
+
+local opts = { noremap = true, silent = true }
+-- Window splits and resize
+vim.keymap.set("n", "<leader>vf", "<C-w><bar>", opts)               -- Split window vertically (maximize current)
+vim.keymap.set("n", "<leader>ve", "<C-w>=", opts)                   -- Equalize all windows
+vim.keymap.set("n", "<leader>vsh", "<C-w>s", opts)                  -- Split window horizontally
+vim.keymap.set("n", "<leader>vsv", "<C-w>v", opts)                  -- Split window vertically
+vim.keymap.set("n", "<leader>vn", ":set relativenumber!<CR>", opts) -- Toggle relative line numbers
+
+-- Toggle wrap mode (assuming ToggleWrap function defined)
+vim.keymap.set('n', '<leader>vw', ToggleWrap, { noremap = true, silent = true, desc = "Toggle wrap mode" })
 
 
--- " Folding
-vim.api.nvim_set_keymap("n", "zC", "zM", {})
-vim.api.nvim_set_keymap("n", "zO", "zR", {})
-
--- tabs
-vim.api.nvim_set_keymap("n", "<leader>tn", "<cmd>tabnew<CR>", {})
-vim.api.nvim_set_keymap("n", "<leader>tc", "<cmd>tabclose<CR>", {})
-vim.api.nvim_set_keymap("n", "<leader>tl", "<cmd>tabnext<CR>", {})
-vim.api.nvim_set_keymap("n", "<leader>th", "<cmd>tabprevious<CR>", {})
-vim.api.nvim_set_keymap("n", "<leader>tm", "<cmd>tabmove ", {})
-
-
---" I hate escape more than anything else
-vim.api.nvim_set_keymap("i", "kj", "<Esc>", {})
-vim.api.nvim_set_keymap("t", "<C-k><C-j>", "<C-\\><C-n>", {})
-vim.api.nvim_set_keymap("t", "<Esc>", "<C-\\><C-n>", {})
-
---" Add a space in normal mode
-vim.api.nvim_set_keymap("n", "ss", "i<Space><Esc>", {})
-
---" TAB in general mode will move to text buffer
-vim.api.nvim_set_keymap("n", "<TAB>", "<cmd>bnext<CR>", {})
-vim.api.nvim_set_keymap("n", "<S-TAB>", "<cmd>bprevious<CR>", {})
---vim.api.nvim_set_keymap("n", "bd", "<cmd>bdelete<CR>", {})
---
-vim.api.nvim_set_keymap("n", "<C-DEL>", "<cmd>tabnew<CR>", {})
-
-
---" Easy save
-vim.api.nvim_set_keymap("n", "<C-s>", "<cmd>w<CR>", {})
-
---" <TAB>: completion.
---inoremap <expr><TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
-
---" Better tabbing
-vim.api.nvim_set_keymap("v", "<", "<gv", {})
-vim.api.nvim_set_keymap("v", ">", ">gv", {})
-
---" Better window navigation
-vim.api.nvim_set_keymap("n", "<C-l>", "<C-W><Right>", {})
-vim.api.nvim_set_keymap("n", "<C-h>", "<C-W><Left>", {})
-vim.api.nvim_set_keymap("n", "<C-k>", "<C-W><Up>", {})
-vim.api.nvim_set_keymap("n", "<C-j>", "<C-W><Down>", {})
-
-vim.api.nvim_set_keymap("n", "<C-k>", "<C-W><Up>", {})
-vim.api.nvim_set_keymap("n", "<C-j>", "<C-W><Down>", {})
-
-vim.api.nvim_set_keymap("n", "j", "v:count ? 'j' : 'gj'", { noremap = true, expr = true })
-vim.api.nvim_set_keymap("n", "k", "v:count ? 'k' : 'gk'", { noremap = true, expr = true })
-
---vim.api.nvim_set_keymap("i", "<C-l>", "<Esc><C-W><Right>", {})
---vim.api.nvim_set_keymap("i", "<C-h>", "<Esc><C-W><Left>", {})
---vim.api.nvim_set_keymap("i", "<C-k>", "<Esc><C-W><Up>", {})
---vim.api.nvim_set_keymap("i", "<C-j>", "<Esc><C-W><Down>", {})
-
-vim.api.nvim_set_keymap("t", "<C-l>", "<C-\\><C-n><C-W><Right>", {})
-vim.api.nvim_set_keymap("t", "<C-h>", "<C-\\><C-n><C-W><Left>", {})
-vim.api.nvim_set_keymap("t", "<C-k>", "<C-\\><C-n><C-W><Up>", {})
-vim.api.nvim_set_keymap("t", "<C-j>", "<C-\\><C-n><C-W><Down>", {})
-
-
---" Disable mark CAPS
---"vmap u <nop>
---"vmap U <nop>
---
 -- Folding
-vim.api.nvim_set_keymap("n", "<leader>zf", "<cmd>foldclose<CR>", {})
-vim.api.nvim_set_keymap("n", "<leader>zF", "zM", {})
-vim.api.nvim_set_keymap("n", "<leader>zt", "za", {})
-vim.api.nvim_set_keymap("n", "<leader>zO", "zR", {})
+vim.keymap.set("n", "zC", "zM", opts) -- Close all folds
+vim.keymap.set("n", "zO", "zR", opts) -- Open all folds
+vim.keymap.set("n", "<leader>zf", "<cmd>foldclose<CR>", opts)
+vim.keymap.set("n", "<leader>zF", "zM", opts)
+vim.keymap.set("n", "<leader>zt", "za", opts)
+vim.keymap.set("n", "<leader>zO", "zR", opts)
 vim.cmd("set foldmethod=marker")
 
---" Spelling
-vim.api.nvim_set_keymap("n", "zt", "<cmd>set spell!<CR>", {})
-vim.api.nvim_set_keymap("n", "zl", "]s", {})
-vim.api.nvim_set_keymap("n", "zh", "[s", {})
+-- Tabs
+vim.keymap.set("n", "<leader>tn", "<cmd>tabnew<CR>", opts)
+vim.keymap.set("n", "<leader>tc", "<cmd>tabclose<CR>", opts)
+vim.keymap.set("n", "<leader>tl", "<cmd>tabnext<CR>", opts)
+vim.keymap.set("n", "<leader>th", "<cmd>tabprevious<CR>", opts)
+vim.keymap.set("n", "<leader>tm", "<cmd>tabmove ", opts)
 
---" Easy Diff
---" " Set diff this
-vim.api.nvim_set_keymap("n", "<leader>dt", "<Cmd>diffthis<CR>", {})
-vim.api.nvim_set_keymap("n", "<leader>do", "<Cmd>diffoff<CR>", {})
-vim.api.nvim_set_keymap("n", "<leader>ds", "<Cmd>diffoff<CR>", {})
---nnoremap dt :diffthis<CR>
+-- Navigation between windows
+vim.keymap.set("n", "<C-l>", "<C-W><Right>", opts)
+vim.keymap.set("n", "<C-h>", "<C-W><Left>", opts)
+vim.keymap.set("n", "<C-k>", "<C-W><Up>", opts)
+vim.keymap.set("n", "<C-j>", "<C-W><Down>", opts)
 
---" " Diff jump
-vim.api.nvim_set_keymap("n", "dj", "]c", {})
-vim.api.nvim_set_keymap("n", "dk", "[c", {})
+vim.keymap.set("t", "<C-l>", "<C-\\><C-n><C-W><Right>", opts)
+vim.keymap.set("t", "<C-h>", "<C-\\><C-n><C-W><Left>", opts)
+vim.keymap.set("t", "<C-k>", "<C-\\><C-n><C-W><Up>", opts)
+vim.keymap.set("t", "<C-j>", "<C-\\><C-n><C-W><Down>", opts)
 
---" Cancel the insasaly annoying copy paste
-vim.api.nvim_set_keymap("v", "p", "\"_dP", {})
-vim.api.nvim_set_keymap("v", "P", "\"_dp", {})
-vim.api.nvim_set_keymap("s", "P", "\"_dP", {})
-vim.api.nvim_set_keymap("s", "p", "\"_dp", {})
---vnore p "_dP
---vnore P "_dp
---xnoremap p "_dP
---xnoremap P "_dp
+-- Insert and terminal mode escape alternatives
+vim.keymap.set("i", "kj", "<Esc>", opts)
+vim.keymap.set("t", "<C-k><C-j>", "<C-\\><C-n>", opts)
+vim.keymap.set("t", "<Esc>", "<C-\\><C-n>", opts)
 
-vim.api.nvim_set_keymap("n", "<F5>", "<cmd>r! date<CR>", {})
-vim.api.nvim_set_keymap("i", "<F5>", "<cmd>r! date<CR>", {})
+-- Navigation improvements (gj/gk for wrapped lines)
+vim.keymap.set("n", "j", "v:count ? 'j' : 'gj'", { noremap = true, expr = true })
+vim.keymap.set("n", "k", "v:count ? 'k' : 'gk'", { noremap = true, expr = true })
 
+-- Add a space in normal mode
+vim.keymap.set("n", "ss", "i<Space><Esc>", opts)
+
+-- Buffer navigation
+vim.keymap.set("n", "<TAB>", "<cmd>bnext<CR>", opts)
+vim.keymap.set("n", "<S-TAB>", "<cmd>bprevious<CR>", opts)
+vim.keymap.set("n", "<C-DEL>", "<cmd>tabnew<CR>", opts)
+
+-- Easy save
+vim.keymap.set("n", "<C-s>", "<cmd>w<CR>", opts)
+
+-- Visual mode indenting stays in visual mode
+vim.keymap.set("v", "<", "<gv", opts)
+vim.keymap.set("v", ">", ">gv", opts)
+
+-- Disable annoying copy-paste overwrite of default register
+vim.keymap.set("v", "p", "\"_dP", opts)
+vim.keymap.set("v", "P", "\"_dp", opts)
+vim.keymap.set("s", "P", "\"_dP", opts)
+vim.keymap.set("s", "p", "\"_dp", opts)
+
+-- Spelling
+vim.keymap.set("n", "zt", "<cmd>set spell!<CR>", opts)
+vim.keymap.set("n", "zl", "]s", opts)
+vim.keymap.set("n", "zh", "[s", opts)
+
+-- Diff
+vim.keymap.set("n", "<leader>dt", "<cmd>diffthis<CR>", opts)
+vim.keymap.set("n", "<leader>do", "<cmd>diffoff<CR>", opts)
+vim.keymap.set("n", "<leader>ds", "<cmd>diffoff<CR>", opts)
+
+-- Diff navigation
+vim.keymap.set("n", "dj", "]c", opts)
+vim.keymap.set("n", "dk", "[c", opts)
+
+
+vim.keymap.set("n", "<F5>", "<cmd>r! date<CR>",
+    vim.tbl_extend("force", opts, { desc = "Insert current date (normal mode)" }))
+vim.keymap.set("i", "<F5>", "<cmd>r! date<CR>",
+    vim.tbl_extend("force", opts, { desc = "Insert current date (insert mode)" }))
 
 -- Python autocmd
 vim.cmd [[

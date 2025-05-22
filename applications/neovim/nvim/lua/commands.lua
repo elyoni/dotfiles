@@ -1,15 +1,17 @@
-vim.cmd("command W w")
-vim.cmd("command Wqa wqa")
-vim.cmd("command Vsp vsp")
-vim.cmd("command Wq wq")
-vim.cmd("command Q q")
-vim.cmd("command Qa qa")
-vim.cmd("command DelFile call delete(expand('%')) | bdelete!")
+vim.api.nvim_create_user_command("GitSite", GitSite, { range = true })
+
+vim.api.nvim_create_user_command("W", "w", { desc = "Save file" })
+vim.api.nvim_create_user_command("Wqa", "wqa", { desc = "Save all and quit" })
+vim.api.nvim_create_user_command("Vsp", "vsp", { desc = "Vertical split" })
+vim.api.nvim_create_user_command("Wq", "wq", { desc = "Save and quit" })
+vim.api.nvim_create_user_command("Q", "q", { desc = "Quit" })
+vim.api.nvim_create_user_command("Qa", "qa", { desc = "Quit all" })
+vim.api.nvim_create_user_command("DelFile", DeleteCurrentFile, { desc = "Delete current file and buffer" })
+
 
 -- Tab commands
-vim.cmd("command Tn tabnew")
-vim.cmd("command TN tabnew")
-
+vim.api.nvim_create_user_command("Tn", "tabnew", { desc = "Open new tab" })
+vim.api.nvim_create_user_command("TN", "tabnew", { desc = "Open new tab (caps)" })
 
 -- Command to enable Format Auto-Save
 vim.api.nvim_create_user_command(
