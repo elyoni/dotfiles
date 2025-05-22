@@ -60,24 +60,8 @@
     dt = difftool --dir-diff
     dtv = difftool -v vimdiff
     cnv = !"version=$(cat version); git commit --include version --message \"[Version] $version\""
-    site = "!f() { \
-      if [ \"$1\" = \"--update\" ]; then \
-        git fetch --prune origin >/dev/null 2>&1; \
-      fi; \
-      current_branch=$(git symbolic-ref --quiet --short HEAD 2>/dev/null || echo master); \
-      if ! git show-ref --quiet \"refs/remotes/origin/$current_branch\"; then \
-        current_branch=master; \
-      fi; \
-      url=$(git config --get remote.origin.url | \
-        sed -E 's#^(ssh://)?git@([^:/]+)(:[0-9]+)?[:/]([^/]+/.+)\\.git$#https://\\2/\\4/tree/'\"$current_branch\"'#'); \
-      if [ -n \"$SSH_CONNECTION\" ]; then \
-        echo \"You are on a remote device. The project URL is: $url\"; \
-        command -v xclip >/dev/null && echo \"$url\" | xclip -selection clipboard && echo \"   URL copied to clipboard.\"; \
-      else \
-        command -v xdg-open >/dev/null && xdg-open \"$url\" >/dev/null 2>&1 || echo \"Failed to open browser. The project URL is: $url\"; \
-      fi; \
-    }; f"
     root = rev-parse --show-toplevel
+	site = "!f() { \\\n  UPDATE=0; FILE_LINE=\"\"; FILE=\"\"; LINE=\"\"; \\\n  while [ $# -gt 0 ]; do \\\n    case \"$1\" in \\\n      --update) UPDATE=1 ;; \\\n      --file) shift; FILE_LINE=\"$1\" ;; \\\n    esac; shift; \\\n  done; \\\n  [ $UPDATE -eq 1 ] && git fetch --prune origin >/dev/null 2>&1; \\\n  current_branch=$(git symbolic-ref --quiet --short HEAD 2>/dev/null || echo master); \\\n  if ! git show-ref --quiet \"refs/remotes/origin/$current_branch\"; then \\\n    current_branch=master; \\\n  fi; \\\n  if echo \"$FILE_LINE\" | grep -q \":\"; then \\\n    FILE=\"${FILE_LINE%:*}\"; \\\n    LINE=\"${FILE_LINE##*:}\"; \\\n    if echo \"$LINE\" | grep -q \":\"; then \\\n      start=\"${LINE%:*}\"; \\\n      end=\"${LINE#*:}\"; \\\n      line_anchor=\"#L${start}-L${end}\"; \\\n    else \\\n      line_anchor=\"#L$LINE\"; \\\n    fi; \\\n  else \\\n    FILE=\"$FILE_LINE\"; \\\n    line_anchor=\"\"; \\\n  fi; \\\n  repo_root=$(git rev-parse --show-toplevel); \\\n  if [ -n \"$FILE\" ]; then \\\n    rel_path=$(realpath --relative-to=\"$repo_root\" \"$FILE\"); \\\n    file_part=\"/$rel_path\"; \\\n  else \\\n    file_part=\"\"; \\\n  fi; \\\n  remote_url=$(git config --get remote.origin.url); \\\n  host_path=$(echo \"$remote_url\" | \\\n    sed -E \"s#^(ssh://)?git@([^:/]+)(:[0-9]+)?[:/]([^/]+/.+)\\.git\\$#https://\\2/\\4#\"); \\\n  url=\"${host_path}/blob/${current_branch}${file_part}${line_anchor}\"; \\\n  if [ -n \"$SSH_CONNECTION\" ]; then \\\n    echo \"You are on a remote device. The project URL is: $url\"; \\\n    command -v xclip >/dev/null && echo \"$url\" | xclip -selection clipboard && echo \"   URL copied to clipboard.\"; \\\n  else \\\n    command -v xdg-open >/dev/null && xdg-open \"$url\" >/dev/null 2>&1 || echo \"Failed to open browser. The project URL is: $url\"; \\\n  fi; \\\n}; f"
 [diff]
     tool = meld
     merge = meld
