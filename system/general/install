@@ -5,6 +5,15 @@ DIR=$(cd -P "${DIR}" && pwd)
 
 source "${DIR}"/../../utils/package/apt
 
+function install_7zip() # Install cifs-utils
+{
+    fast_apt_install 7zip
+}
+
+function verify_7zip() # Verify the installation
+{
+    fast_apt_verify 7zip
+}
 
 function install_cifs() # Install cifs-utils
 {
@@ -19,12 +28,14 @@ function verify_cifs() # Verify the installation
 function verify() # Verify the installation
 {
     verify_cifs
+    verify_7zip
 }
 
 
 function install()
 {
     install_cifs
+    install_7zip
 }
 
 function inst_verify()
