@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P "${DIR}" && pwd)
+
+source "${DIR}"/../../utils/package/apt
+source "${DIR}"/../../utils/package/github
+source "${DIR}"/../../utils/smart_link
+
+
+function _install_wireshark() # <Add information about this package>
+{
+    fast_apt_install "wireshark"
+}
+
+function _fix_user_permission()
+{
+    # [Original document](https://askubuntu.com/questions/74059/how-do-i-run-wireshark-with-root-privileges)
+    local dumpcap_bin="/usr/bin/dumpcap"
+    sudo groupadd wireshark
+    sudo usermod -a -G wireshark "${USER}"
+    sudo chgrp wireshark "${dumpcap_bin}"
+    sudo chmod o-rx "${dumpcap_bin}"
+    sudo setcap 'CAP_NET_RAW+eip CAP_NET_ADMIN+eip' "${dumpcap_bin}"
+    sudo getcap "${dumpcap_bin}"
+    echo "[Notify] Reboot is needed"
+}
+
+function verify() # Verify the installation
+{
+    :
+}
+
+
+function install()
+{
+    _install_wireshark
+    _fix_user_permission
+}
+
+function help # Show a list of functions
+{
+    awk '/^function / && ! /^function _/' "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi
