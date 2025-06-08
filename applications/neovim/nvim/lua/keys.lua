@@ -67,6 +67,7 @@ vim.keymap.set("n", "k", "v:count ? 'k' : 'gk'", { noremap = true, expr = true }
 
 -- Add a space in normal mode
 vim.keymap.set("n", "ss", "i<Space><Esc>", opts)
+vim.keymap.set("n", "sn", "i<Space>\\<Enter><Esc>==", opts)
 
 -- Buffer navigation
 vim.keymap.set("n", "<TAB>", "<cmd>bnext<CR>", opts)
