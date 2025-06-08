@@ -1,3 +1,24 @@
+function git_diff_last_change()
+    local file = vim.fn.expand("%")
+    local cmd = "git log -n 2 --pretty=format:%H -- " .. file .. " | sed -n 2p"
+    local handle = io.popen(cmd)
+
+    if handle == nil then
+        vim.notify("Failed to get Git commit for file: " .. file, vim.log.levels.ERROR)
+        return
+    end
+
+    local commit = handle:read("*a")
+    handle:close()
+
+    if commit and commit ~= "" then
+        vim.notify("Gvdiffsplit " .. commit)
+        vim.cmd("Gvdiffsplit " .. commit)
+    else
+        vim.notify("No previous commit found for file: " .. file, vim.log.levels.WARN)
+    end
+end
+
 function custom_gvdiffsplit()
     local num_commits = vim.fn.input("Enter the number of commits to diff (default is 1): ", "1")
     vim.cmd("Gvdiffsplit HEAD~" .. num_commits)
@@ -41,12 +62,12 @@ return {
         lazy = false,
         keys = {
             --{ "<leader>gs", "<cmd>Git status<CR>",  mode = "n" },
-            { "<leader>gdc", "<cmd>Gvdiffsplit<CR>",              mode = "n" },
-            { "<leader>gdl", "<cmd>Gvdiffsplit HEAD~1<CR>",       mode = "n" },
-            { "<leader>gdn", "<cmd>lua custom_gvdiffsplit()<CR>", mode = "n" },
-            { "<leader>gc",  "<cmd>Git commit<CR>",               mode = "n" },
+            { "<leader>gdc", "<cmd>Gvdiffsplit<CR>",                mode = "n" },
+            { "<leader>gdl", "<cmd>lua git_diff_last_change()<CR>", mode = "n" },
+            { "<leader>gdn", "<cmd>lua custom_gvdiffsplit()<CR>",   mode = "n" },
+            { "<leader>gc",  "<cmd>Git commit<CR>",                 mode = "n" },
             --{ "<leader>gl",  "<cmd>Gclog<CR>",                    mode = "n" },
-            { "<leader>gb",  "<cmd>Git blame<CR>",                mode = "n" },
+            { "<leader>gb",  "<cmd>Git blame<CR>",                  mode = "n" },
         },
     },
     {
