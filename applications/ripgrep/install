@@ -11,6 +11,8 @@ function install()
     extruct_dir=$(download_latest_release 'x86_64.*linux.*tar.gz$' "BurntSushi/ripgrep")
     cp "${extruct_dir}"/rg "${HOME}"/.local/bin/
     rm -rf "${extruct_dir}"
+
+    "${HOME}"/.local/bin/rg --generate=complete-zsh  > ~/.zfunc/_rg
 }
 
 function verify()
