@@ -27,6 +27,7 @@ function main(){
     set_path "${HOME}/.cargo/bin"
     set_path "${HOME}/.platformio/penv/bin"
     set_path "${HOME}/Apps/zig"
+    set_path "${HOME}/.local/share/flatpak/exports/share"
 }
 
 set_other_path

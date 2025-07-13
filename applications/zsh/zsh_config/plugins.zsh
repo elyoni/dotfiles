@@ -1,2 +1,5 @@
 source "${ZSH_CUSTOM_PLUGIN}"/zsh-autosuggestions/zsh-autosuggestions.zsh
-source ~/.powerlevel10k/powerlevel10k.zsh-theme
+
+if [[ "$TERM_PROGRAM" != "vscode" ]]; then
+    source ~/.powerlevel10k/powerlevel10k.zsh-theme
+fi
