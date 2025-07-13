@@ -15,9 +15,16 @@ local act = wezterm.action
 --        action = wezterm.action.SendKey { key = 'a', mods = 'CTRL' },
 --    },
 --}
+--
+--wezterm.on('format-window-title', function()
+--local title = os.getenv("SCRATCHPAD_TITLE") or nil
+--wezterm.log_info("SCRATCHPAD_TITLE is: " .. title)
+--return title
+--end)
 
 return {
     --font = wezterm.font_with_fallback({ 'Hack Nerd Font', 'Liberation Sans', 'Noto Color Emoji' }),
+    default_prog = { "/usr/bin/zsh" },
     font_size = 11,
     --leader = { key = 'a', mods = 'CTRL', timeout_milliseconds = 1000 },
     front_end = 'WebGpu',
@@ -46,6 +53,7 @@ return {
             '#ffffff',
         },
     },
+    window_decorations = "RESIZE",
     check_for_updates = false,
     hide_tab_bar_if_only_one_tab = true,
     enable_scroll_bar = true,
