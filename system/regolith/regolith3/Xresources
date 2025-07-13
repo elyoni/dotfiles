@@ -7,5 +7,5 @@ wm.workspace.1.name: WORKSPACE_NAME(1, BR0WSER, glyph_font)
 
 wm.binding.display: none
 wm.binding.launcher.app: d
-!regolith.look.path: /usr/share/regolith-look/nord
+!regolith.look.path: /usr/share/regolith-look/solarized-dark
 regolith.look.path: /usr/share/regolith-look/lascaille

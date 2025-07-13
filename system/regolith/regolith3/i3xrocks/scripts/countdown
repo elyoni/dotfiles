@@ -78,9 +78,9 @@ fi
 #fi
 
 # Calculate remaining time
-CURRENT_TIME=$(date +%s)
+CURRENT_TIME=$(date -d "12:30:00" +%s)
 
-if [ $TARGET_TIME -gt $CURRENT_TIME ]; then
+if [ "${TARGET_TIME}" -gt "${CURRENT_TIME}" ]; then
     display_time
 else
     echo "Countdown: Time's up!"
