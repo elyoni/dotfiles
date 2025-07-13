@@ -9,20 +9,32 @@ function _link() # Link regolith folder to ~/.config/regolith3
 
 function _regolith3_install()
 {
-
+    # Detect Ubuntu codename
+    UBUNTU_CODENAME=$(lsb_release -cs)
+    
+    # Validate supported Ubuntu versions for Regolith 3.0
+    case "$UBUNTU_CODENAME" in
+        jammy|focal|noble)
+            echo "Installing Regolith for Ubuntu $UBUNTU_CODENAME"
+            ;;
+        *)
+            echo "Warning: Ubuntu $UBUNTU_CODENAME may not be officially supported by Regolith 3.0"
+            echo "Falling back to jammy repository"
+            UBUNTU_CODENAME="jammy"
+            ;;
+    esac
 
     wget -qO - https://regolith-desktop.org/regolith.key | \
     gpg --dearmor | sudo tee /usr/share/keyrings/regolith-archive-keyring.gpg > /dev/null
 
     echo deb "[arch=amd64 signed-by=/usr/share/keyrings/regolith-archive-keyring.gpg] \
-        https://regolith-desktop.org/release-3_0-ubuntu-jammy-amd64 jammy main" | \
+        https://regolith-desktop.org/release-3_0-ubuntu-${UBUNTU_CODENAME}-amd64 ${UBUNTU_CODENAME} main" | \
         sudo tee /etc/apt/sources.list.d/regolith.list
 
     sudo apt update
 
     sudo apt install -y \
         regolith-desktop \
-        regolith-session-flashback \
         regolith-look-lascaille
 
 }
