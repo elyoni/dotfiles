@@ -227,7 +227,7 @@ bindsym $mod+$wm.binding.ws_prev_on_output workspace prev_on_output
 
 ## Navigate // Scratchpad // <><Ctrl> Enter ##
 set_from_resource $wm.binding.scratchpad wm.binding.scratchpad Ctrl+Return
-bindsym $mod+$wm.binding.scratchpad scratchpad show
+bindsym $mod+$wm.binding.scratchpad exec ${HOME}/.config/regolith3/i3/scratchpad.sh -s wiki
 
 ###############################################################################
 # Window and Workspace Configuration
