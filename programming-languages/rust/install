@@ -1,16 +1,33 @@
 #!/usr/bin/env bash
 
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P "$DIR" && pwd)
+
 function install_rustup(){
-    # Use -y flag for non-interactive installation (default options)
+    # Source the apt utility functions
+    source "${DIR}/../../utils/package/apt"
+
+    # Check if curl is available and install if needed
+    if ! command -v curl &> /dev/null; then
+        echo "curl is not installed. Installing curl..."
+        fast_apt_install curl
+    fi
+
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 }
 
 function zsh_autocompletion(){
     local zfunc_path=$HOME/.zfunc
     [ ! -d "${zfunc_path}" ] && mkdir -p "${zfunc_path}"
-    source "$HOME/.cargo/env"
-    rustup completions zsh > "${zfunc_path}"/_rustup
-    rustup completions zsh cargo > "${zfunc_path}"/_cargo
+
+    # Check if cargo env file exists before sourcing
+    if [ -f "$HOME/.cargo/env" ]; then
+        source "$HOME/.cargo/env"
+        rustup completions zsh > "${zfunc_path}"/_rustup
+        rustup completions zsh cargo > "${zfunc_path}"/_cargo
+    else
+        echo "Warning: Rust environment not found. Skipping autocompletion setup."
+    fi
 }
 
 function install()

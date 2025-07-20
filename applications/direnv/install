@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 
 function _install_direnv(){
+    # Set bin_path to a writable location before installing
+    export bin_path="${HOME}/.local/bin"
+    # Ensure .local/bin directory exists
+    mkdir -p "${bin_path}"
+
     curl -sfL https://direnv.net/install.sh | bash
 }
 

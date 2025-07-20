@@ -24,25 +24,15 @@ function __uninstall_docker()
 
 function _install_buildx()
 {
-    echo "Installing Docker buildx multi-arch builder..."
-    
-    # Use sudo for docker commands since user may not have logged out yet
-    # Check if buildx already exists
-    if sudo docker buildx ls 2>/dev/null | grep -q "multi-arch-buildx"; then
-        echo "Removing existing multi-arch-buildx builder..."
-        sudo docker buildx rm multi-arch-buildx 2>/dev/null || true
+    echo "== Installing Docker Buildx =="
+    # Use sg to run docker commands with docker group permissions
+    if sg docker -c "docker buildx ls" | grep multi-arch-buildx; then
+        sg docker -c "docker buildx rm multi-arch-buildx"
     fi
 
-    # Create new buildx builder
-    if sudo docker buildx create --name multi-arch-buildx \
-        --platform "linux/arm64,linux/amd64,linux/arm/v7,linux/amd64,linux/amd64/v2,linux/amd64/v3,linux/amd64/v4,linux/386" \
-        --driver "docker-container" --use >/dev/null 2>&1; then
-        echo "Docker buildx multi-arch builder created successfully"
-    else
-        echo "WARNING: Failed to create buildx builder"
-        echo "You may need to logout/login first, then run: docker buildx create --name multi-arch-buildx --use"
-        return 1
-    fi
+    sg docker -c "docker buildx create --name multi-arch-buildx \
+        --platform 'linux/arm64,linux/amd64,linux/arm/v7,linux/amd64,linux/amd64/v2,linux/amd64/v3,linux/amd64/v4,linux/386' \
+        --driver 'docker-container' --use"
 }
 
 
@@ -102,32 +92,21 @@ function _fix_docker_permissions()
         echo "User $USER is already in docker group"
     fi
 
-    # Don't use newgrp here - it creates a sub-shell that breaks script execution
-    # Instead, inform the user they need to logout/login
+    echo "== Group membership updated successfully =="
     echo "====== END: Fix docker permissions ====="
 }
 
 function _verify_fix_docker_permissions()
 {
-    # Run docker command without sudo
-    # Note: This will only work if user has logged out and back in after being added to docker group
+    # Run docker command with new group membership using sg
     local test_image="hello-world"
-    
-    # Check if user is in docker group
-    if ! groups "$USER" | grep -q "\bdocker\b"; then
-        echo "WARNING: User $USER is not in docker group yet"
-        echo "This verification will be skipped - user needs to logout/login after group addition"
-        return 0  # Don't fail, just warn
-    fi
-    
-    # Try to run docker without sudo
-    if ! docker run --rm "${test_image}" >/dev/null 2>&1; then
-        echo "WARNING: Docker permission fix verification failed"
-        echo "This is normal if you haven't logged out and back in yet"
-        echo "After logout/login, run: docker run --rm hello-world"
-        return 0  # Don't fail the installation
+    echo "== Testing docker permissions with new group membership =="
+    if ! sg docker -c "docker run ${test_image}"; then
+        echo "INSTALL_FAILED: Docker permission fix WASN'T install successfully"
+        return 1
     else
-        echo "INSTALL_SUCCESS: Docker permission fix verified successfully"
+        sg docker -c "docker rmi ${test_image}"
+        echo "INSTALL_SUCCESS: Docker permission fix install successfully"
         return 0
     fi
 }
@@ -136,7 +115,7 @@ function _verify_docker_engine()
 {
     local test_image="hello-world"
     echo "Verifying Docker engine installation..."
-    
+
     # Check if Docker daemon is running
     if ! sudo docker info >/dev/null 2>&1; then
         echo "WARNING: Docker daemon is not running"
@@ -144,7 +123,7 @@ function _verify_docker_engine()
         echo "Enable it with: sudo systemctl enable docker"
         return 1
     fi
-    
+
     # Try to run a test container
     if ! sudo docker run --rm "${test_image}" >/dev/null 2>&1; then
         echo "INSTALL_FAILED: Docker engine verification failed"

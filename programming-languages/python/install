@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P "$DIR" && pwd)
+
 function _install_python3_8(){
     sudo apt-get install -y software-properties-common
     sudo add-apt-repository --yes ppa:deadsnakes/ppa

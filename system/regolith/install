@@ -11,7 +11,10 @@ fi
 
 function _link() # Link regolith folder to ~/.config/regolith3
 {
-    ln -s "${DIR}/regolith3" "${HOME}/.config/regolith3"
+    # Source the smart link utility
+    source "${DIR}/../../utils/smart_link"
+    
+    smart_sym_link "${DIR}/regolith3" "${HOME}/.config/regolith3"
 }
 
 function _ensure_ubuntu_repos_configured()
@@ -63,18 +66,6 @@ function _regolith3_install()
             ;;
     esac
 
-    # Step 1: Ensure Ubuntu repositories are properly configured
-    _ensure_ubuntu_repos_configured
-
-    # Step 2: Remove existing regolith repository if it exists
-    if [ -f /etc/apt/sources.list.d/regolith.list ]; then
-        echo "Removing existing Regolith repository configuration..."
-        sudo rm -f /etc/apt/sources.list.d/regolith.list
-    fi
-
-    # Step 3: Register the Regolith public key
-    # Using the correct URL from official docs: https://archive.regolith-desktop.com/regolith.key
-    echo "Registering Regolith public key..."
     wget -qO - https://archive.regolith-desktop.com/regolith.key | \
     gpg --dearmor | sudo tee /usr/share/keyrings/regolith-archive-keyring.gpg > /dev/null
 
@@ -82,7 +73,7 @@ function _regolith3_install()
     # Format: https://archive.regolith-desktop.com/ubuntu/stable <codename> v3.3
     echo "Adding Regolith repository..."
     echo deb "[arch=amd64 signed-by=/usr/share/keyrings/regolith-archive-keyring.gpg] \
-https://archive.regolith-desktop.com/ubuntu/stable ${UBUNTU_CODENAME} v3.3" | \
+        https://archive.regolith-desktop.com/ubuntu/stable ${UBUNTU_CODENAME} v3.3" | \
         sudo tee /etc/apt/sources.list.d/regolith.list
 
     # Step 5: Update package lists
@@ -106,13 +97,10 @@ https://archive.regolith-desktop.com/ubuntu/stable ${UBUNTU_CODENAME} v3.3" | \
         fi
     fi
 
-    # Step 6: Install Regolith packages
-    # According to official docs, install: regolith-desktop regolith-session-flashback regolith-look-lascaille
-    echo "Installing Regolith desktop and components..."
-    if ! sudo apt install -y regolith-desktop regolith-session-flashback regolith-look-lascaille; then
-        echo "Error: Regolith packages installation failed"
-        return 1
-    fi
+    sudo apt install -y \
+        regolith-desktop \
+        regolith-session-flashback \
+        regolith-look-lascaille
 
     # Step 7: Install essential GNOME components for system management
     echo "Installing essential GNOME components..."

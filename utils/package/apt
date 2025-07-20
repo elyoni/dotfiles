@@ -17,8 +17,8 @@ function add_repository()
 function fast_apt_verify()
 {
     local package_name=${1}
-    # Use exact package name matching instead of partial matching
-    if dpkg -l | awk -v pkg="$package_name" '$1=="ii" && $2==pkg {found=1; exit} END {exit !found}'; then
+    # Use more precise pattern to match exact package name
+    if dpkg -l | grep -q "^ii  ${package_name} \|^ii  ${package_name}:"; then
         if [ -z "${QUIET+x}" ]; then
             echo "Package ${package_name}, version:" $(_apt_get_version "${package_name}")
         fi
@@ -31,19 +31,40 @@ function fast_apt_verify()
     fi
 }
 
-# Support Only one package
+# Install package and ensure command is available
 function fast_apt_install()
 {
     local package_name=${1}
+    local command_name=${2:-$package_name}  # Use package name as command name if not specified
 
+    # Check if command is already available
+    if command -v "${command_name}" &> /dev/null; then
+        if [ -z "${QUIET+x}" ]; then
+            echo "Command ${command_name} is already available"
+        fi
+        return 0
+    fi
+
+    # Check if package is installed
     if ! fast_apt_verify "${package_name}"; then
         sudo apt-get install "${package_name}" -y
         if [ $? -eq 0 ]; then
             echo "Package ${package_name} installed successfully"
-            return 0
         else
             echo "Package ${package_name} failed to install"
             return 1
         fi
+    fi
+    
+    # Refresh command hash table so newly installed commands are immediately available
+    hash -r
+    
+    # Verify command is now available
+    if command -v "${command_name}" &> /dev/null; then
+        echo "Command ${command_name} is now available"
+        return 0
+    else
+        echo "Warning: Package ${package_name} installed but command ${command_name} not found"
+        return 1
     fi
 }

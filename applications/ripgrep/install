@@ -23,17 +23,23 @@ function install()
 {
     local extruct_dir
     extruct_dir=$(download_latest_release 'x86_64.*linux.*tar.gz$' "BurntSushi/ripgrep")
-    cp "${extruct_dir}"/rg "${HOME}"/.local/bin/
+    
+    # Ensure the .local/bin directory exists
+    mkdir -p "${HOME}"/.local/bin
+    
+    # Copy the binary with proper filename
+    cp "${extruct_dir}"/rg "${HOME}"/.local/bin/rg
     rm -rf "${extruct_dir}"
 
-    "${HOME}"/.local/bin/rg --generate=complete-zsh  > ~/.zfunc/_rg
-
-    _create_config
+    # Ensure .zfunc directory exists
+    mkdir -p "${HOME}"/.zfunc
+    "${HOME}"/.local/bin/rg --generate=complete-zsh > "${HOME}"/.zfunc/_rg
 }
 
 function verify()
 {
-    if [[ -f $(which rg) ]];then
+    # Check if rg exists in .local/bin (where we installed it)
+    if [[ -f "${HOME}/.local/bin/rg" ]]; then
         return 0
     else
         return 1

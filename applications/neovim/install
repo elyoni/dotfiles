@@ -29,12 +29,15 @@ function verify()
 {
     local neovim_installed_version="${NEOVIM_VERSION}"
     local neovim_current_version
-    neovim_current_version=$(nvim --version | grep -e "v[0-9]" |  sed -e 's/^.*v\(.*\)/\1/g')
-    if [[ ! -f $( which nvim ) ]]; then
+    local nvim_path="${INSTALLION_DIR}/bin/nvim"
+    
+    # Check if nvim exists in the installation directory
+    if [[ ! -f "${nvim_path}" ]]; then
+        echo "Neovim is not installed"
         return 1
     fi
-
-
+    
+    neovim_current_version=$("${nvim_path}" --version | grep -e "v[0-9]" |  sed -e 's/^.*v\(.*\)/\1/g')
 
     if [[ "${neovim_current_version}"  == "${neovim_installed_version}" ]]; then
         return 0
@@ -95,7 +98,12 @@ function add_neovim_to_visudo # Add neovim to visudo
 
 function install_plugins
 {
-    nvim +Lazy +qall
+    local nvim_path="${INSTALLION_DIR}/bin/nvim"
+    if [[ -f "${nvim_path}" ]]; then
+        "${nvim_path}" +Lazy +qall
+    else
+        echo "Warning: nvim not found at ${nvim_path}. Skipping plugin installation."
+    fi
 }
 
 function install  # Main function, this function install everything

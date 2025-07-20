@@ -1,25 +1,57 @@
 #!/usr/bin/env bash
 
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P "$DIR" && pwd)
+
 NVM_VERSION=0.39.5
 NVM_DIR="$HOME/.config/nvm"
 function _install_package_dependencies()
 {
-    sudo apt-get install curl -y
+    # Source the apt utility functions
+    source "${DIR}/../../utils/package/apt"
+    
+    fast_apt_install curl
+    fast_apt_install zsh
 }
 
 
 function _install_nvm()
 {
-    mkdir -p "${NVM_DIR}"
+    # Ensure dependencies are installed
+    _install_package_dependencies
+    
+    # Install nvm using bash instead of zsh for better compatibility
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v"${NVM_VERSION}"/install.sh | bash
 }
 
 function _install_node()
 {
-
+    # Try both default nvm directories
+    export NVM_DIR="$HOME/.nvm"
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-    nvm install --lts
+    
+    # Check if nvm is available, if not try alternative directory
+    if ! command -v nvm &> /dev/null; then
+        export NVM_DIR="$HOME/.config/nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+        [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+    fi
+    
+    # Install LTS version if nvm is available
+    if command -v nvm &> /dev/null; then
+        nvm install --lts
+        nvm use --lts
+        
+        # Setup npm completion for zsh
+        if command -v npm &> /dev/null; then
+            local zfunc_path=$HOME/.zfunc
+            [ ! -d "${zfunc_path}" ] && mkdir -p "${zfunc_path}"
+            npm completion > "${zfunc_path}/_npm"
+        fi
+    else
+        echo "Warning: nvm not found. Please restart your shell and run the installation again."
+    fi
 }
 
 function install()

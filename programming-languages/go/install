@@ -28,11 +28,24 @@ function _setup_go_env()
 {
     local bin_dir="${HOME}/.local/go/bin/"
     mkdir -p "${bin_dir}"
+    # Add Go binary to PATH for current session
+    export PATH="${INSTALL_DIR}/bin:${PATH}"
     go env -w GOBIN="${bin_dir}"
 }
 
 function _install_lsp_go()
 {
+    # Source the apt utility functions
+    source "${DIR}/../../utils/package/apt"
+
+    # Check if curl is available and install if needed
+    if ! command -v curl &> /dev/null; then
+        echo "curl is not installed. Installing curl..."
+        fast_apt_install curl
+    fi
+
+    # Ensure Go is in PATH
+    export PATH="${INSTALL_DIR}/bin:${PATH}"
     curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b "$(${INSTALL_DIR}/bin/go env GOPATH)"/bin v1.55.2
 }
 

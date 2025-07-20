@@ -75,18 +75,29 @@ return {
                 "<C-n>",
                 mode = "n",
                 function()
-                    -- Place this in your init.lua or nvim-tree config
+                    -- Modern nvim-tree API (compatible with latest versions)
                     local api = require("nvim-tree.api")
-                    if api.tree.is_visible() then
-                        local nvim_tree_winid = api.tree.winid()
-                        if vim.fn.win_getid() == nvim_tree_winid then
+                    
+                    -- Check if nvim-tree is open by looking for the buffer
+                    local nvim_tree_buf = nil
+                    for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+                        if vim.api.nvim_buf_get_option(buf, 'filetype') == 'NvimTree' then
+                            nvim_tree_buf = buf
+                            break
+                        end
+                    end
+                    
+                    if nvim_tree_buf and vim.fn.bufwinnr(nvim_tree_buf) ~= -1 then
+                        -- NvimTree is visible
+                        if vim.api.nvim_get_current_buf() == nvim_tree_buf then
                             vim.cmd("wincmd p") -- go to previous window
                         else
-                            require("nvim-tree.api").tree.focus()
+                            api.tree.focus()
                         end
                     else
-                        require("nvim-tree.api").tree.open()
-                        require("nvim-tree.api").tree.focus()
+                        -- NvimTree is not visible
+                        api.tree.open()
+                        api.tree.focus()
                     end
                 end
             },

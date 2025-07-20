@@ -54,6 +54,30 @@ function _install_meld_git()
 
 function install_cdiff()
 {
+    # Check if pipx is available, if not install it first
+    if ! command -v pipx &> /dev/null; then
+        echo "pipx not found, installing it first..."
+        
+        # Source the apt utility functions
+        source "${DIR}/../../utils/package/apt"
+        sudo apt update
+        
+        # Install pipx using system package manager (recommended for Ubuntu 24.04+)
+        fast_apt_install pipx
+        
+        # Ensure pipx path is available
+        pipx ensurepath
+        
+        # Refresh command hash table
+        hash -r
+        
+        # Check if pipx is now available
+        if ! command -v pipx &> /dev/null; then
+            echo "Warning: Could not install pipx. Skipping cdiff installation."
+            return 1
+        fi
+    fi
+    
     pipx install cdiff
 }
 
