@@ -68,6 +68,6 @@ local function tusk_telescope()
     }):find()
 end
 
-vim.keymap.set("n", "<C-t>", function() tusk_telescope() end,
-    { desc = "Open tusk window" })
+-- vim.keymap.set("n", "<C-t>", function() tusk_telescope() end,
+--     { desc = "Open tusk window" })
 return {}
