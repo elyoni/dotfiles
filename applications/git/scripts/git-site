@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+
+# Usage:
+#   ./git-site [--update] [--remote remote_name] [--file path[:line] or path:start:end]
+
+UPDATE=0
+REMOTE="origin"
+FILE_LINE=""
+FILE=""
+LINE=""
+
+# --- Parse args ---
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -h|--help)
+      cat << EOF
+Usage: git-site [options]
+
+Opens the current git repository in the browser at the hosting service (GitHub, GitLab, etc.)
+
+Options:
+  -h, --help               Show this help message
+  --update                 Update remote refs before opening
+  --remote REMOTE_NAME     Use specified remote name (default: origin)
+  --file PATH[:LINE]       Open specific file, optionally at line number
+                          Format: path/to/file.txt:42 or path/to/file.txt:10:20
+
+Examples:
+  git-site                           # Open current branch
+  git-site --file src/main.js:25     # Open file at line 25
+  git-site --remote upstream         # Use 'upstream' remote instead of 'origin'
+  git-site --update --file README.md # Update refs and open README
+EOF
+      exit 0
+      ;;
+    --update) UPDATE=1 ;;
+    --remote) shift; REMOTE="$1" ;;
+    --file) shift; FILE_LINE="$1" ;;
+  esac
+  shift
+done
+
+# --- Optional: Update remote refs ---
+[ "$UPDATE" -eq 1 ] && git fetch --prune "$REMOTE" >/dev/null 2>&1
+
+# --- Get current branch ---
+current_branch=$(git symbolic-ref --quiet --short HEAD 2>/dev/null || echo master)
+
+# --- Fallback to master if remote branch missing ---
+if ! git show-ref --quiet "refs/remotes/$REMOTE/$current_branch"; then
+  current_branch=master
+fi
+
+# --- Extract file and line range ---
+if echo "$FILE_LINE" | grep -q ":"; then
+  FILE="${FILE_LINE%:*}"
+  LINE="${FILE_LINE##*:}"
+  if echo "$LINE" | grep -q ":"; then
+    start="${LINE%:*}"
+    end="${LINE#*:}"
+    line_anchor="#L${start}-L${end}"
+  else
+    line_anchor="#L$LINE"
+  fi
+else
+  FILE="$FILE_LINE"
+  line_anchor=""
+fi
+
+# --- Resolve file path relative to repo root ---
+repo_root=$(git rev-parse --show-toplevel)
+if [ -n "$FILE" ]; then
+  rel_path=$(realpath --relative-to="$repo_root" "$FILE")
+  file_part="/$rel_path"
+else
+  file_part=""
+fi
+
+# --- Normalize GitHub/GitLab remote URL to web format ---
+remote_url=$(git config --get "remote.$REMOTE.url")
+host_path=$(echo "$remote_url" | sed -E 's#^(ssh://)?git@([^:/]+)(:[0-9]+)?[:/]([^/]+/.+)\.git$#https://\2/\4#')
+
+# --- Build final URL ---
+url="${host_path}/blob/${current_branch}${file_part}${line_anchor}"
+
+# --- Output or open URL ---
+if [ -n "$SSH_CONNECTION" ]; then
+  echo "You are on a remote device. The project URL is: $url"
+  if command -v xclip >/dev/null; then
+    echo "$url" | xclip -selection clipboard
+    echo "   URL copied to clipboard."
+  fi
+else
+  if command -v xdg-open >/dev/null; then
+    xdg-open "$url" >/dev/null 2>&1
+  else
+    echo "Failed to open browser. The project URL is: $url"
+  fi
+fi

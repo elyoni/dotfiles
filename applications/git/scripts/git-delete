@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+# Usage: ./git-delete.sh <branch-name>
+
+branch="$1"
+
+if [ -z "$branch" ]; then
+    echo "❌ Please provide a branch name."
+    echo "Usage: $0 <branch-name>"
+    exit 1
+fi
+
+echo "🔨 Deleting branch '$branch'..."
+
+# Refresh remote tracking
+git fetch --prune origin >/dev/null 2>&1
+
+# Delete remote branch if it exists
+if git show-ref --quiet --verify "refs/remotes/origin/$branch"; then
+    if git push --delete origin "$branch" >/dev/null 2>&1; then
+        echo "✅ Remote branch '$branch' deleted successfully."
+    else
+        echo "❌ Failed to delete remote branch '$branch'."
+    fi
+else
+    echo "ℹ️  Remote branch '$branch' does not exist."
+fi
+
+# Delete local branch if it exists
+if git show-ref --quiet --verify "refs/heads/$branch"; then
+    if git branch -d "$branch" >/dev/null 2>&1; then
+        echo "✅ Local branch '$branch' deleted successfully."
+    else
+        echo -e "\033[5m\033[31m⚠️  Local branch '$branch' is not fully merged.\033[0m"
+        echo -e "\033[33m❓ Do you want to force-delete the branch '$branch'? [y/N]\033[0m"
+        read -r confirm
+        if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
+            if git branch -D "$branch" >/dev/null 2>&1; then
+                echo "✅ Local branch '$branch' force-deleted successfully."
+            else
+                echo "❌ Failed to force-delete local branch '$branch'."
+            fi
+        else
+            echo "❌ Local branch '$branch' was not deleted."
+        fi
+    fi
+else
+    echo "ℹ️  Local branch '$branch' does not exist."
+fi
+
+# Final cleanup
+git fetch --prune origin >/dev/null 2>&1
