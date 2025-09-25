@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+GIT_SERVER_HOSTNAME="gitlab-rnd-ci.liveu-rnd.com"
+GIT_SSH_BASE_URI="git@${GIT_SERVER_HOSTNAME}"
+GIT_HTTPS_BASE_URI="https://${GIT_SERVER_HOSTNAME}"
+PROJECTS_DIR=${PROJECTS_DIR:-$PWD}
+
+RED='\033[0;31m'
+YELLOW='\033[0;33m'       # Yellow
+NC='\033[0m'       # Text Reset
+CYAN='\033[0;36m'         # Cyan
+
+function _get_clone_path(){
+    local input_string="$1"
+
+    clean_repo_path=$(echo "$input_string" | sed -E 's#(ssh|https?)://([^@]+@)?[^:/]+(:[0-9]+)?/##; s#([^@]+@)?[^:/]+:##; s/\.git$//')
+    echo "${PROJECTS_DIR}/${clean_repo_path}"
+}
+
+function clone(){
+    local uri=${1}
+    local branch=${2:-""}
+    local args=${3:-""}
+
+    local clone_path
+    local branch_command
+
+
+    if ! clone_path=$(_get_clone_path "${uri}"); then
+        echo "The uri doesn't match the structure make sure the server is ${GIT_HTTPS_BASE_URI}"
+        exit 2
+    fi
+
+    if [[ -d "${clone_path}" ]]; then
+        echo -e "------------ No need to clone ------------"
+        echo -e "${uri} it already cloned"
+        echo -e "------------ ---------------- ------------"
+        exit 0
+    fi
+
+    if [[ "${branch}" != "" ]];then
+        branch_command="-b ${branch}"
+    fi
+    ssh -T git@${GIT_SERVER_HOSTNAME}
+    echo echo git clone "${uri}" "${clone_path}" "${branch_command}"
+
+    echo git clone "${uri}" "${clone_path}" "${branch_command}"
+    echo -e "${CYAN}"
+    echo "===== Project Cloning Start ====="
+    echo -e "\tClone the project ${uri}"
+    echo -e "\tInto the folder ${clone_path}"
+    echo -e "${YELLOW}"
+
+    # Without eval the clone has failed on `The namespace you were looking for could not be found.`
+    if ! eval git clone "${uri}  ${clone_path} ${branch_command}"; then
+        echo -e "${RED}ERROR: Failed to clone the project${NC}"
+    fi
+    echo -e "${NC}"
+    echo "===== Project Cloning End ====="
+}
+
+clone "$@"
