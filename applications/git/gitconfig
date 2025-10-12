@@ -72,8 +72,9 @@
 	enabled = true
 [icdff]
     options = --highlight --line-numbers
-[mergetool "nvimdiff"]
-    cmd = "nvim -d \"$LOCAL\" \"$REMOTE\""
+[mergetool "meld"]
+    cmd = meld "$LOCAL" "$MERGED" "$REMOTE" --output="$MERGED"
+    trustExitCode = true
 [difftool "nvimdiff"]
     cmd = "nvim -d \"$LOCAL\" \"$REMOTE\""
 [include]
