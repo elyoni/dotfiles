@@ -66,7 +66,9 @@ shell-integration = zsh
 
 # Keybindings (Ghostty equivalents to Kitty bindings)
 keybind = ctrl+shift+y=copy_to_clipboard
+keybind = ctrl+shift+c=copy_to_clipboard
 keybind = ctrl+shift+p=paste_from_clipboard
+keybind = ctrl+shift+v=paste_from_clipboard
 keybind = ctrl+shift+plus=increase_font_size:2
 keybind = ctrl+minus=decrease_font_size:2
 
@@ -75,6 +77,11 @@ keybind = ctrl+minus=decrease_font_size:2
 # This writes scrollback to temp file and opens it with default editor
 #unbind write_scrollback_file
 keybind = ctrl+shift+f=write_scrollback_file:open
+
+keybind = ctrl+shift+up=scroll_page_up
+keybind = ctrl+shift+down=scroll_page_down
+keybind = ctrl+shift+k=scroll_page_up
+keybind = ctrl+shift+j=scroll_page_down
 
 # Quick terminal toggle (similar to overlay functionality)
 keybind = ctrl+shift+s=toggle_quick_terminal
