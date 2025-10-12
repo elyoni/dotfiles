@@ -149,6 +149,9 @@ set_from_resource $wm.binding.ssh-yoni wm.binding.terminal Shift+Return
 #bindsym $mod+$wm.binding.ssh-yoni exec "TERM=xterm-256color $wm.binding.terminal_app --execute ssh -X -R 8888:localhost:22 -R 9999:localhost:9999 yoni@seil-sdk-ye -y"
 bindsym $mod+$wm.binding.ssh-yoni exec "TERM=xterm-256color $wm.binding.terminal_app -e env TERM=xterm-256color ssh -X -R 8888:localhost:22 -R 9999:localhost:9999 yoni@seil-sdk-ye -y"
 
+set_from_resource $wm.binding.project_run wm.binding.terminal Return
+bindsym $mod+$alt+$wm.binding.project_run exec "TERM=xterm-256color $wm.binding.terminal_app -e zsh -ic 'enter_to_project_path'"
+
 set_from_resource $rofiTheme rofi.theme /etc/regolith/styles/lascaille/rofi.rasi
 
 ## Launch // Application // <> d ##
@@ -404,6 +407,7 @@ bindsym $mod+$wm.binding.bar_toggle bar mode toggle
 floating_maximum_size -1 x -1
 for_window [class="floating_window"] floating enable
 for_window [instance="gnome-calculator"] floating enable
+for_window [class="com.mitchellh.ghostty"] border pixel $wm.window.border.size
 
 set_from_resource $wm.workspace.auto_back_and_forth i3-wm.workspace.auto_back_and_forth no
 workspace_auto_back_and_forth $wm.workspace.auto_back_and_forth
@@ -493,14 +497,14 @@ bindsym $mod+Shift+p mode "$mode_launcher"
 ###############################################################################
 
 # Disable titlebar
-set_from_resource $wm.window.border.size wm.window.border.size 1
+set_from_resource $wm.window.border.size wm.window.border.size 15
 # set_from_resource $wm.floatingwindow.border.size i3-wm.floatingwindow.border.size 1
 default_border pixel $wm.window.border.size
 # default_floating_border pixel $wm.floatingwindow.border.size
 
 # Specify the distance between windows in pixels
-set_from_resource $wm.gaps.inner.size wm.gaps.inner.size 5
-set_from_resource $wm.gaps.outer.size wm.gaps.outer.size 0
+set_from_resource $wm.gaps.inner.size wm.gaps.inner.size 15
+set_from_resource $wm.gaps.outer.size wm.gaps.outer.size 15
 gaps inner $wm.gaps.inner.size
 gaps outer $wm.gaps.outer.size
 
@@ -548,7 +552,7 @@ set_from_resource $urgent.color.child_border wm.client.urgent.color.child_border
 
 # Window Border color
 # class                 border                             background                         text                               indicator                          child_border
-client.focused          $focused.color.border              $focused.color.background          $focused.color.text                $focused.color.indicator           $focused.color.child_border
+client.focused          #ff6600                            $focused.color.background          $focused.color.text                $focused.color.indicator           #ff6600
 client.focused_inactive $focused_inactive.color.border     $focused_inactive.color.background $focused_inactive.color.text       $focused_inactive.color.indicator  $focused_inactive.color.child_border
 client.unfocused        $unfocused.color.border            $unfocused.color.background        $unfocused.color.text              $unfocused.color.indicator         $unfocused.color.child_border
 client.urgent           $urgent.color.border               $urgent.color.background           $urgent.color.text                 $urgent.color.indicator            $urgent.color.child_border
@@ -675,3 +679,4 @@ exec --no-startup-id $wm.program.3
 
 # Start Workrave for timing my work time
 exec --no-startup-id workrave
+exec --no-startup-id uv run python /home/yonie@liveu.tv/projects/private/code_testing/javascript/task_viewer/i3status-taskwarrior.py
