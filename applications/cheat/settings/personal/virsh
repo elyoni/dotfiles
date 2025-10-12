@@ -1,0 +1,7 @@
+# List all the devices
+virsh list # Only the running devices
+virsh list --all
+
+# Clone VM
+virt-clone --original [VM-Name] --auto-clone
+virt-clone --original [VM-Name] --name [New VM-Name]
