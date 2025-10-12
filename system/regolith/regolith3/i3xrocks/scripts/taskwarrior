@@ -1,0 +1,143 @@
+#!/bin/bash
+# i3xrocks script for TaskWarrior status
+# Shows current active tasks in the status bar
+# Click to refresh activity time
+
+API_URL="http://localhost:5000/api/tasks"
+ACTIVITY_FILE="/tmp/taskwarrior-last-activity"
+MAX_TASK_LENGTH=35
+
+# Handle mouse clicks
+case $BLOCK_BUTTON in
+    1) # Left click - refresh activity and show notification
+        curl -s -X POST http://localhost:5000/api/activity/update > /dev/null 2>&1
+        if command -v notify-send >/dev/null 2>&1; then
+            notify-send "TaskWarrior" "✅ Marked as still working" -t 2000
+        fi
+        ;;
+    2) # Middle click - open TaskWarrior web interface
+        if command -v xdg-open >/dev/null 2>&1; then
+            xdg-open "http://localhost:5000" >/dev/null 2>&1 &
+        fi
+        ;;
+    3) # Right click - show quick info
+        if command -v notify-send >/dev/null 2>&1; then
+            notify-send "TaskWarrior Status" "Left click: Mark active\nMiddle click: Open web interface\nRight click: Show this info" -t 4000
+        fi
+        ;;
+esac
+
+# Function to format duration from TaskWarrior timestamp
+format_duration() {
+    local start_time="$1"
+    
+    # Parse TaskWarrior date: 20250908T120000Z
+    if [[ ${#start_time} -ge 15 ]]; then
+        local year="${start_time:0:4}"
+        local month="${start_time:4:2}"
+        local day="${start_time:6:2}"
+        local hour="${start_time:9:2}"
+        local minute="${start_time:11:2}"
+        local second="${start_time:13:2}"
+        
+        # Convert to Unix timestamp
+        local start_unix=$(date -d "${year}-${month}-${day} ${hour}:${minute}:${second} UTC" +%s 2>/dev/null)
+        local now_unix=$(date +%s)
+        
+        if [[ -n "$start_unix" && "$start_unix" -gt 0 ]]; then
+            local duration=$((now_unix - start_unix))
+            local hours=$((duration / 3600))
+            local minutes=$(((duration % 3600) / 60))
+            
+            if [[ $hours -gt 0 ]]; then
+                printf "%dh%02dm" "$hours" "$minutes"
+            else
+                printf "%dm" "$minutes"
+            fi
+        else
+            echo "???"
+        fi
+    else
+        echo "???"
+    fi
+}
+
+# Function to truncate task description
+truncate_task() {
+    local desc="$1"
+    if [[ ${#desc} -le $MAX_TASK_LENGTH ]]; then
+        echo "$desc"
+    else
+        echo "${desc:0:$((MAX_TASK_LENGTH-3))}..."
+    fi
+}
+
+# Function to check if user is active
+is_user_active() {
+    if [[ -f "$ACTIVITY_FILE" ]]; then
+        local activity_time=$(stat -c %Y "$ACTIVITY_FILE" 2>/dev/null)
+        local now=$(date +%s)
+        local idle_time=$((now - activity_time))
+        
+        # Active if less than 5 minutes (300 seconds)
+        [[ $idle_time -lt 300 ]]
+    else
+        false
+    fi
+}
+
+# Get active tasks from API
+TASKS_JSON=$(curl -s "$API_URL" 2>/dev/null)
+
+if [[ $? -eq 0 && -n "$TASKS_JSON" ]]; then
+    # Filter for active tasks (have 'start' but no 'end')
+    ACTIVE_TASKS=$(echo "$TASKS_JSON" | jq -r '.[] | select(.start != null and .end == null) | @base64' 2>/dev/null)
+    
+    if [[ -n "$ACTIVE_TASKS" ]]; then
+        TASK_COUNT=$(echo "$ACTIVE_TASKS" | wc -l)
+        
+        # Check user activity status
+        if is_user_active; then
+            ACTIVITY_INDICATOR="🟢"
+            COLOR="#00ff00"
+        else
+            ACTIVITY_INDICATOR="🟡" 
+            COLOR="#ffaa00"
+        fi
+        
+        if [[ $TASK_COUNT -eq 1 ]]; then
+            # Single task - show description and duration
+            TASK_DATA=$(echo "$ACTIVE_TASKS" | base64 -d 2>/dev/null)
+            DESCRIPTION=$(echo "$TASK_DATA" | jq -r '.description' 2>/dev/null)
+            START_TIME=$(echo "$TASK_DATA" | jq -r '.start' 2>/dev/null)
+            
+            if [[ -n "$DESCRIPTION" && "$DESCRIPTION" != "null" ]]; then
+                TRUNCATED_DESC=$(truncate_task "$DESCRIPTION")
+                DURATION=$(format_duration "$START_TIME")
+                STATUS="$ACTIVITY_INDICATOR $TRUNCATED_DESC ($DURATION)"
+            else
+                STATUS="$ACTIVITY_INDICATOR 1 task active"
+            fi
+        else
+            # Multiple tasks - show count and duration of first task
+            FIRST_TASK=$(echo "$ACTIVE_TASKS" | head -1 | base64 -d 2>/dev/null)
+            START_TIME=$(echo "$FIRST_TASK" | jq -r '.start' 2>/dev/null)
+            DURATION=$(format_duration "$START_TIME")
+            STATUS="$ACTIVITY_INDICATOR $TASK_COUNT tasks active ($DURATION)"
+        fi
+        
+        echo "$STATUS"
+        echo "$STATUS"
+        echo "$COLOR"
+    else
+        # No active tasks
+        echo "⭘ No active tasks"
+        echo "⭘ No tasks"
+        echo "#888888"
+    fi
+else
+    # API error
+    echo "❌ TW API error"
+    echo "❌ TW API"
+    echo "#ff0000"
+fi

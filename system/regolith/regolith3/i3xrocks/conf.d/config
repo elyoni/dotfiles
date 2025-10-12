@@ -20,6 +20,10 @@ interval=60
 full_text=xresource:i3xrocks.label.help
 command=i3-msg -q "exec --no-startup-id ilia -p keybindings"
 
+[taskwarrior]
+interval=10
+command=~/.dotfiles/system/regolith/regolith3/i3xrocks/scripts/taskwarrior
+
 [ip]
 interval=60  # Update every 60 seconds
 color=#91E78B
