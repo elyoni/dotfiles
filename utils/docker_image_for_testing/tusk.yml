@@ -1,30 +1,117 @@
 tasks:
   attach:
-    options: 
+    options:
       no-remove:
         usage: Disable - Automatically remove the container when it exits
         short: "n"
         type: bool
         default: false
- 
+
       _rm-string:
         usage: add --rm to docker command
         private: true
         default:
-          - when: 
+          - when:
               equal: {no-remove: false}
             value: "--rm"
-          - when: 
+          - when:
               equal: {no-remove: true}
             value: ""
-    run: 
+    run:
       - when:
           not-exists: /tmp/dotfiles-test
         command: mkdir -p /tmp/dotfiles-test
       - command: docker compose run ${_rm-string} dotfile-test bash
 
+  test:
+    usage: Run full dotfiles installation test
+    options:
+      no-remove:
+        usage: Disable - Automatically remove the container when it exits
+        short: "n"
+        type: bool
+        default: false
+
+      _rm-string:
+        usage: add --rm to docker command
+        private: true
+        default:
+          - when:
+              equal: {no-remove: false}
+            value: "--rm"
+          - when:
+              equal: {no-remove: true}
+            value: ""
+    run:
+      - when:
+          not-exists: /tmp/dotfiles-test
+        command: mkdir -p /tmp/dotfiles-test
+      - command: docker compose run ${_rm-string} dotfile-test test_dotfiles_full_installation.sh
+
+  test-install-only:
+    usage: Run only the installation part of the test
+    run:
+      - when:
+          not-exists: /tmp/dotfiles-test
+        command: mkdir -p /tmp/dotfiles-test
+      - command: docker compose run --rm dotfile-test test_dotfiles_full_installation.sh run_main_install
+
+  test-verify-only:
+    usage: Run only the verification part of the test
+    run:
+      - when:
+          not-exists: /tmp/dotfiles-test
+        command: mkdir -p /tmp/dotfiles-test
+      - command: docker compose run --rm dotfile-test test_dotfiles_full_installation.sh run_individual_verifications
+
   build:
     run: docker compose build
+
+  clean:
+    usage: Clean up test results and containers
+    run:
+      - command: docker compose down
+      - command: chmod -R 755 /tmp/dotfiles-test 2>/dev/null || true
+      - command: rm -rf /tmp/dotfiles-test
+      - command: docker system prune -f
+
+  logs:
+    usage: Show test logs from last run
+    options:
+      file:
+        usage: Show specific log file
+        type: string
+    run:
+      - when:
+          exists: /tmp/dotfiles-test
+        command: ls -la /tmp/dotfiles-test/
+      - when:
+          exists: /tmp/dotfiles-test/final_test_report.md
+        command: cat /tmp/dotfiles-test/final_test_report.md
+      - when:
+          not-equal: {file: ""}
+        command: |
+          if [ -f "/tmp/dotfiles-test/${file}" ]; then
+            cat /tmp/dotfiles-test/${file}
+          else
+            echo "Log file not found: ${file}"
+          fi
+
+  log-summary:
+    usage: Show tail of all installation logs
+    run:
+      - command: echo "=== System Installation Log (last 20 lines) ==="
+      - when:
+          exists: /tmp/dotfiles-test/01_system_install.log
+        command: tail -20 /tmp/dotfiles-test/01_system_install.log
+      - command: echo "=== Programming Languages Log (last 20 lines) ==="
+      - when:
+          exists: /tmp/dotfiles-test/02_programming_install.log
+        command: tail -20 /tmp/dotfiles-test/02_programming_install.log
+      - command: echo "=== Terminal Applications Log (last 20 lines) ==="
+      - when:
+          exists: /tmp/dotfiles-test/03_terminal_install.log
+        command: tail -20 /tmp/dotfiles-test/03_terminal_install.log
 
   down:
     run: docker compose down

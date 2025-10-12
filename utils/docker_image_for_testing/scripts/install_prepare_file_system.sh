@@ -9,7 +9,12 @@ sudo_install()
 {
     echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
     apt-get update
-    apt-get install sudo -y
+    # Install only essential base system tools
+    apt-get install -y \
+        sudo \
+        ca-certificates \
+        gnupg \
+        lsb-release
 }
 
 user_config()
@@ -27,6 +32,7 @@ create_directories()
     echo "Start - Creating directories"
     mkdir "$HOME"
     mkdir "$HOME"/.config
+    mkdir -p "$HOME"/.local/bin
     touch "$HOME"/.profile.path
     touch "$HOME"/.profile.env
     echo "Done - Creating directories"

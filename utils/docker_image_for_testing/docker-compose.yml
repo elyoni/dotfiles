@@ -6,5 +6,6 @@ services:
     volumes:
       - ../../:/tmp/dotfiles
       - /tmp/dotfiles-test:/tmp/dotfiles-test
+      - ./scripts/test_dotfiles_full_installation.sh:/usr/local/bin/test_dotfiles_full_installation.sh:ro
     working_dir: /tmp/dotfiles
     #runtime: sysbox-runc
