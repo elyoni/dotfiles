@@ -28,19 +28,24 @@ function download_latest_release()
     fi
 
     echo "[GitHub] Downloading latest release from ${repository_path}" >&2
+
     file_uri=$(curl https://api.github.com/repos/"${repository_path}"/releases/latest \
         | jq -r --arg file_structure "${file_structure}" \
         '.assets[] | select (.name|test($file_structure)) | .browser_download_url')
 
+    echo "Downloading ${file_uri}" >&2
+
     filename=$(basename "$file_uri")
     file_downloaded_path="${DOWNLOAD_PATH}"/"${filename}"
 
+    # Remove the old file
     if [[ -f ${file_downloaded_path} ]]; then
         rm -rf "${file_downloaded_path}"
     fi
 
     wget --quiet --directory-prefix="${DOWNLOAD_PATH}" "${file_uri}"
 
+    ls ${DOWNLOAD_PATH} >&2
 
     if [[ $filename =~ ".tar.gz" ]]; then
         QUIET=y fast_apt_install tar
@@ -49,7 +54,7 @@ function download_latest_release()
         QUIET=y fast_apt_install unzip
         unzip "${file_downloaded_path}" -d "${DOWNLOAD_PATH}"
     else
-        echo "Unknow file type"
+        echo "Unknow file type" >&2
     fi
 
     filename_without_extension="${file_downloaded_path%.tar.gz}"
@@ -57,6 +62,7 @@ function download_latest_release()
     rm "${file_downloaded_path}"
 
     # Return extract file path
+    echo "File location: ${filename_without_extension}" >&2
     echo "${filename_without_extension}"
 
 }
@@ -92,7 +98,6 @@ function download_fix_release()
     fi
 
     wget --quiet --directory-prefix="${DOWNLOAD_PATH}" "${file_uri}"
-
 
     if [[ $filename =~ ".tar.gz" ]]; then
         fast_apt_install tar
