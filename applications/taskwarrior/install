@@ -3,15 +3,35 @@
 DIR=$(dirname "${BASH_SOURCE[0]}")
 DIR=$(cd -P "$DIR" && pwd)
 
+# Source generic software installation script
+if [ -f "${DIR}/../../utils/install_generic_software.sh" ]; then
+    source "${DIR}/../../utils/install_generic_software.sh"
+    # Ensure generic software is installed before proceeding
+    ensure_generic_software
+fi
+
 source "${DIR}"/../../utils/package/github
 
 function taskwarrior()
 {
-    local extruct_dir
+    local extract_dir
     #https://github.com/GothenburgBitFactory/taskwarrior/releases/download/v2.6.2/task-2.6.2.tar.gz
-    extruct_dir=$(download_latest_release 'task.*tar.gz$' "GothenburgBitFactory/taskwarrior")
-    #cp "${extruct_dir}"/task "${HOME}"/.local/bin/
-    #rm -rf "${extruct_dir}"
+    extract_dir=$(download_latest_release 'task.*tar.gz$' "GothenburgBitFactory/taskwarrior")
+    pushd "${extract_dir}" || exit 3
+    echo "Building Taskwarrior..."
+    cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="${HOME}/.local"
+    cmake --build build -j$(nproc)
+    cmake --install build
+    
+    # Copy to tw binary name
+    cp "${HOME}/.local/bin/task" "${HOME}/.local/bin/tw"
+    
+    # Install zsh completion
+    mkdir -p "${HOME}/.local/share/zsh/site-functions"
+    cp scripts/zsh/_task "${HOME}/.local/share/zsh/site-functions/_tw"
+    
+    popd || exit 3
+    rm -rf "${extract_dir}"
 }
 
 function install()
@@ -21,7 +41,7 @@ function install()
 
 function verify()
 {
-    if [[ -f $(which task) ]];then
+    if [[ -f $(which tw) ]];then
         return 0
     else
         return 1
