@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P "${DIR}" && pwd)
+
+source "${DIR}"/../../utils/package/apt
+source "${DIR}"/../../utils/package/github
+source "${DIR}"/../../utils/smart_link
+
+# Set directories
+INSTALL_DIR="${HOME}/.apps"
+BIN_DIR="${HOME}/.local/bin"
+FIREFOX_DIR="${INSTALL_DIR}/firefox"
+FIREFOX_BIN="${BIN_DIR}/firefox"
+
+function verify() # Verify the installation
+{
+    if [ -x "${FIREFOX_BIN}" ]; then
+        echo "Firefox is installed at ${FIREFOX_BIN}"
+        "${FIREFOX_BIN}" --version
+        return 0
+    else
+        echo "Firefox is not installed"
+        return 1
+    fi
+}
+
+function install() # Install latest Firefox
+{
+    # Ensure required directories exist
+    mkdir -p "$INSTALL_DIR" "$BIN_DIR"
+
+    # Temporary download directory
+    TMP_DIR=$(mktemp -d)
+
+    echo "Downloading latest Firefox for Linux..."
+    cd "$TMP_DIR"
+
+    # Download the latest Firefox tarball (en-US by default)
+    FIREFOX_URL="https://download.mozilla.org/?product=firefox-latest&os=linux64&lang=en-US"
+    wget -O firefox.tar.bz2 "$FIREFOX_URL"
+
+    echo "Extracting Firefox..."
+    # Remove old installation if it exists
+    rm -rf "$FIREFOX_DIR"
+    tar -xf firefox.tar.bz2 -C "$INSTALL_DIR"
+
+    # Link the binary
+    echo "Creating symbolic link in ${BIN_DIR}..."
+    ln -sf "${FIREFOX_DIR}/firefox" "$FIREFOX_BIN"
+
+    # Clean up
+    rm -rf "$TMP_DIR"
+
+    echo "Firefox has been installed to ${FIREFOX_DIR} and linked to ${FIREFOX_BIN}"
+}
+
+function help() # Show a list of functions
+{
+    awk '/^function / && ! /^function _/' "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi

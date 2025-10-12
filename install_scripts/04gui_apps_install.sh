@@ -6,6 +6,7 @@ source "${DIR}"/09common
 
 summary=""
 
+install_package "firefox" "${DIR}"/../applications/firefox
 install_package "keepass" "${DIR}"/../applications/keepass
 
 echo "${summary}"
