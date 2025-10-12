@@ -2,6 +2,13 @@
 DIR=$(dirname "${BASH_SOURCE[0]}")
 DIR=$(cd -P "${DIR}" && pwd)
 
+# Source generic software installation script
+if [ -f "${DIR}/../../utils/install_generic_software.sh" ]; then
+    source "${DIR}/../../utils/install_generic_software.sh"
+    # Ensure generic software is installed before proceeding
+    ensure_generic_software
+fi
+
 export XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
 export TMUX_CONFIG=${XDG_CONFIG_HOME}/tmux
 
