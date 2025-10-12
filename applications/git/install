@@ -46,10 +46,45 @@ function install_cdiff()
     pipx install cdiff
 }
 
+function install_glab()
+{
+    echo ======= Install GitLab CLI (glab) =======
+    if ! command -v glab >/dev/null 2>&1; then
+        curl -fsSL https://gitlab.com/gitlab-org/cli/-/raw/main/scripts/install.sh | sudo bash
+    else
+        echo "glab is already installed"
+    fi
+    echo ======= End =======
+}
+
+function setup_glab_completion()
+{
+    echo ======= Setup glab completion =======
+    local completion_dir="$HOME/.local/share/bash-completion/completions"
+    mkdir -p "$completion_dir"
+
+    if command -v glab >/dev/null 2>&1; then
+        glab completion -s bash > "$completion_dir/glab"
+        echo "glab bash completion installed to $completion_dir/glab"
+    else
+        echo "glab not found, skipping completion setup"
+    fi
+
+    # Install git mr completion
+    if [[ -f ~/.work_dotfiles/git/mr_completion.bash ]]; then
+        cp ~/.work_dotfiles/git/mr_completion.bash "$completion_dir/git-mr"
+        echo "git mr bash completion installed to $completion_dir/git-mr"
+    fi
+
+    echo ======= End =======
+}
+
 function install()
 {
     link_files
     install_cdiff
+    install_glab
+    setup_glab_completion
     [ -n "${DISPLAY}" ] && install_meld
 }
 
