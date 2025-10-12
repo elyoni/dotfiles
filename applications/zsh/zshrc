@@ -17,12 +17,8 @@ export LANG=en_IL.UTF-8
 
 #typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
 
+fpath=($fpath ~/.zfunc)
 autoload -U +X bashcompinit && bashcompinit
-#autoload -U +X compinit && compinit
-#autoload -Uz compinit
-zstyle ':completion:*' menu select
-
-fpath=(~/.zsh/completion $fpath ~/.zfunc)
 
 VISUAL=nvim; export VISUAL EDITOR=nvim; export EDITOR
 
@@ -38,36 +34,66 @@ WIMP_PROJECTS_PATH=( "${HOME}"/private/ "${HOME}"/projects)
 export ZSH_CONFIGS="${HOME}/.config/zsh"
 export ZSH_CUSTOM_PLUGIN="${ZSH_CONFIGS}/plugins"
 
+# Load custom plugins
 if [[ -n "$ZSH_CUSTOM_PLUGIN" && -d "$ZSH_CUSTOM_PLUGIN" ]]; then
-    # Iterate over all directories under ZSH_CUSTOM_PLUGIN
-    for dir in "$ZSH_CUSTOM_PLUGIN"/*/; do
-        for file in "$dir"*.zsh; do
-            if [ -f "$file" ] && [[ "$file" != *".plugin.zsh" ]]; then  # Check if it's a regular file
-                source "$file" || echo "Error sourcing $file"
+    for plugin_dir in "$ZSH_CUSTOM_PLUGIN"/*/; do
+        [[ -d "$plugin_dir" ]] || continue
+        for plugin_file in "$plugin_dir"*.zsh; do
+            if [[ -f "$plugin_file" && "$plugin_file" != *".plugin.zsh" ]]; then
+                source "$plugin_file" || echo "Error sourcing $plugin_file"
             fi
         done
     done
 fi
 
-
-
-if [ -d ${ZSH_CONFIGS} ]; then
-     for f in ${ZSH_CONFIGS}/*.zsh; do source $f; done
+# Load user configs (this will load functions.zsh first, making _load_zsh_configs available)
+if [[ -d "${ZSH_CONFIGS}" ]]; then
+    for config_file in "${ZSH_CONFIGS}"/*.zsh; do
+        [[ -f "$config_file" ]] && source "$config_file"
+    done
 fi
 
-
+# Load work configs using the function
 export ZSH_WORK_CONFIGS="${HOME}/.work_dotfiles/zsh"
-if [ -d ${ZSH_WORK_CONFIGS} ]; then
-     for f in ${ZSH_WORK_CONFIGS}/*.zsh; do source $f; done
+_load_zsh_configs "${ZSH_WORK_CONFIGS}"
+
+# Only load direnv if it exists and we're in a project directory
+if command -v direnv &> /dev/null; then
+    [[ "${PWD}" == "${HOME}" ]] && export DIRENV_LOG_FORMAT=""
+    eval "$(direnv hook zsh)"
+    unset DIRENV_LOG_FORMAT
 fi
 
-[[ "${PWD}" == "${HOME}" ]] && export DIRENV_LOG_FORMAT=""
-eval "$(direnv hook zsh)"
-unset DIRENV_LOG_FORMAT
-
+# Lazy load NVM to improve startup time
 export NVM_DIR="$HOME/.config/nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+nvm() {
+    unset -f nvm
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+    nvm "$@"
+}
+
+node() {
+    unset -f nvm node npm npx
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+    node "$@"
+}
+
+npm() {
+    unset -f nvm node npm npx
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+    npm "$@"
+}
+
+npx() {
+    unset -f nvm node npm npx
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+    npx "$@"
+}
 
 function y() {
 	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
@@ -78,11 +104,32 @@ function y() {
 }
 
 
-fpath+=~/.zfunc; autoload -Uz compinit; compinit
-
-
 function cur {
     ${HOME}/.local/bin/cursor --no-sandbox "$@" &
 }
+bindkey '^[[1;6u' undo             # Ctrl+Shift+U to restore
+
+# Initialize completion system after all fpath modifications
+# -C skips security check for faster startup
+autoload -Uz compinit
+compinit -C
+
+# Manually register custom completions from ~/.zfunc
+# Workaround for completions not being auto-loaded by compinit
+if [[ -d ~/.zfunc ]]; then
+    for completion_file in ~/.zfunc/_*; do
+        if [[ -f "$completion_file" ]]; then
+            # Extract completion name (remove path and leading underscore)
+            local comp_name=$(basename "$completion_file" | sed 's/^_//')
+            # Autoload the completion function
+            autoload -Uz "$(basename "$completion_file")"
+            # Register it with compdef if the command exists
+            if command -v "$comp_name" &>/dev/null; then
+                compdef "$(basename "$completion_file")" "$comp_name"
+            fi
+        fi
+    done
+fi
 
 [[ ! -f ~/.config/zsh/p10k.zsh ]] || source ~/.config/zsh/p10k.zsh
+export PATH="$HOME/.local/bin:$PATH"
