@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+# Source generic software installation script
+SCRIPT_DIR=$(dirname "${BASH_SOURCE[0]}")
+if [ -f "${SCRIPT_DIR}/../utils/install_generic_software.sh" ]; then
+    source "${SCRIPT_DIR}/../utils/install_generic_software.sh"
+    # Ensure generic software is installed before proceeding
+    ensure_generic_software
+fi
+
 function install_package(){
     local package_name="${1}"
     local package_path="${2}"
