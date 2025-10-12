@@ -1,5 +1,6 @@
 return {
     "elentok/format-on-save.nvim",
+    enabled = true,
     config = function()
         local format_on_save = require("format-on-save")
         local formatters = require("format-on-save.formatters")
@@ -16,15 +17,15 @@ return {
             formatter_by_ft = {
                 css = formatters.lsp,
                 html = formatters.lsp,
-                java = formatters.lsp,
+                --java = formatters.lsp,
                 javascript = formatters.lsp,
                 go = formatters.lsp,
-                json = formatters.lsp,
+                --json = formatters.lsp,
                 lua = formatters.lsp,
-                nix = formatters.nixfmt,
+                --nix = formatters.nixfmt,
                 markdown = formatters.prettierd,
-                openscad = formatters.lsp,
-                python = formatters.black,
+                --openscad = formatters.lsp,
+                --python = formatters.black,
             },
             python = {
                 formatters.remove_trailing_whitespace,

@@ -20,6 +20,20 @@ return {
         build = function() vim.fn["mkdp#util#install"]() end,
     },
     {
+        "davidgranstrom/nvim-markdown-preview",
+        ft = "markdown",
+        build = "cd app && npm install",
+    },
+    {
+        "barrett-ruth/live-server.nvim",
+        config = function()
+            require("live-server").setup({
+                port = 9090,
+                browser = "firefox", -- or your preferred browser
+            })
+        end,
+    },
+    {
         'tigion/nvim-asciidoc-preview',
         ft = { 'asciidoc' },
         keys = {

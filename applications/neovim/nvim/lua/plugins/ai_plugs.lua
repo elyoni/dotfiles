@@ -70,6 +70,23 @@ function FuncPrivatePC()
     return PluginEnv == PluginEnvEnum.Private
 end
 
+--vim.keymap.set('i', '<C-l>', function()
+--local suggestion = require('tabnine.status').status().message
+--if suggestion then
+--local word = suggestion:match("^(%S+)")
+--if word then
+--vim.api.nvim_put({ word }, 'c', true, true)
+--end
+--end
+--end, { desc = "Tabnine: Accept single word" })
+
+--vim.keymap.set('i', '<C-S-l>', function()
+--local suggestion = require('tabnine.status').status().message
+--if suggestion then
+--vim.api.nvim_put({ suggestion }, 'c', true, true)
+--end
+--end, { desc = "Tabnine: Accept full line" })
+
 return {
     {
         "monkoose/neocodeium",
@@ -91,70 +108,107 @@ return {
             { "<leader>ho", "<cmd>lua require('neocodeium.commands')<CR>",        mode = { "n" } },
         },
     },
-
     {
-        "zbirenbaum/copilot.lua",
-        cmd = "Copilot",
-        event = "InsertEnter",
-        cond = FuncWorkPC,
-        config = function()
-            require("copilot").setup({
-                suggestion = {
-                    enabled = true,
-                    auto_trigger = true,
-                    debounce = 5,
-                    keymap = {
-                        accept = "<C-l>",
-                        accept_word = "<M-l>",
-                        accept_line = false,
-                        next = "<C-j>",
-                        prev = "<C-k>",
-                        dismiss = "<C-]>",
-                    },
-                },
-                filetypes = {
-                    yaml = true,
-                },
-            })
-        end,
-
+        {
+            'codota/tabnine-nvim',
+            build = "./dl_binaries.sh",
+            cond = FuncWorkPC,
+            config = function()
+                require('tabnine').setup({
+                    disable_auto_comment = true,
+                    accept_keymap = "<Tab>",
+                    dismiss_keymap = "<C-]>",
+                    debounce_ms = 800,
+                    suggestion_color = { gui = "#808080", cterm = 244 },
+                    exclude_filetypes = { "TelescopePrompt", "NvimTree" },
+                    log_file_path = nil, -- absolute path to Tabnine log file
+                    ignore_certificate_errors = false,
+                    -- workspace_folders = {
+                    --   paths = { "/your/project" },
+                    --   get_paths = function()
+                    --       return { "/your/project" }
+                    --   end,
+                    -- },
+                })
+            end
+        },
     },
     {
-        "CopilotC-Nvim/CopilotChat.nvim",
-        branch = "canary",
-        enabled = FuncWorkPC,
+        "greggh/claude-code.nvim",
         dependencies = {
-            { "nvim-lua/plenary.nvim" }, -- for curl, log wrapper
+            "nvim-lua/plenary.nvim", -- Required for git operations
         },
-        build = "make tiktoken",         -- Only on MacOS or Linux
-        opts = {
-            debug = true,                -- Enable debugging
-            model = 'claude-3.7-sonnet',
-            -- See Configuration section for rest
-        },
+        config = function()
+            require("claude-code").setup()
+        end,
         keys = {
-            {
-                "<leader>hm",
-                function()
-                    local input = vim.fn.input("Quick Chat: ")
-                    if input ~= "" then
-                        require("CopilotChat").ask(input, { selection = require("CopilotChat.select").buffer })
-                    end
-                end,
-                mode = "n", -- Normal mode
-                desc = "CopilotChat - Quick chat",
-            },
-            -- Visual mode keybind
-            {
-                "<leader>hm",
-                function()
-                    local input = vim.fn.input("Quick Chat: ")
-                    if input ~= "" then
-                        require("CopilotChat").ask(input, { selection = require("CopilotChat.select").visual })
-                    end
-                end,
-                mode = "v", -- Visual mode
-                desc = "CopilotChat - Quick chat (visual)",
-            }, },
+            { "<leader>hm", "<cmd>ClaudeCode<CR>", mode = { "n" }, desc = "Open Claude Code" },
+        },
     },
+
+    --{
+    --"zbirenbaum/copilot.lua",
+    --cmd = "Copilot",
+    --event = "InsertEnter",
+    --cond = FuncWorkPC,
+    --config = function()
+    --require("copilot").setup({
+    --suggestion = {
+    --enabled = true,
+    --auto_trigger = true,
+    --debounce = 5,
+    --keymap = {
+    --accept = "<C-l>",
+    --accept_word = "<M-l>",
+    --accept_line = false,
+    --next = "<C-j>",
+    --prev = "<C-k>",
+    --dismiss = "<C-]>",
+    --},
+    --},
+    --filetypes = {
+    --yaml = true,
+    --},
+    --})
+    --end,
+
+    --},
+    --{
+    --"CopilotC-Nvim/CopilotChat.nvim",
+    --branch = "canary",
+    --enabled = FuncWorkPC,
+    --dependencies = {
+    --{ "nvim-lua/plenary.nvim" }, -- for curl, log wrapper
+    --},
+    --build = "make tiktoken",         -- Only on MacOS or Linux
+    --opts = {
+    --debug = true,                -- Enable debugging
+    --model = 'claude-3.7-sonnet',
+    ---- See Configuration section for rest
+    --},
+    --keys = {
+    --{
+    --"<leader>hm",
+    --function()
+    --local input = vim.fn.input("Quick Chat: ")
+    --if input ~= "" then
+    --require("CopilotChat").ask(input, { selection = require("CopilotChat.select").buffer })
+    --end
+    --end,
+    --mode = "n", -- Normal mode
+    --desc = "CopilotChat - Quick chat",
+    --},
+    ---- Visual mode keybind
+    --{
+    --"<leader>hm",
+    --function()
+    --local input = vim.fn.input("Quick Chat: ")
+    --if input ~= "" then
+    --require("CopilotChat").ask(input, { selection = require("CopilotChat.select").visual })
+    --end
+    --end,
+    --mode = "v", -- Visual mode
+    --desc = "CopilotChat - Quick chat (visual)",
+    --}, },
+    --},
 }

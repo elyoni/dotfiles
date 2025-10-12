@@ -1,5 +1,5 @@
 vim.g.mapleader = "," -- Make sure to set `mapleader` before lazy so your mappings are correct
-vim.g.editorconfig = false
+vim.g.editorconfig = true
 
 
 vim.opt.hidden = true          -- Required to keep multiple buffers open multiple buffers

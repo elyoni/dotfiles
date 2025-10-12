@@ -18,7 +18,7 @@ return {
         "akinsho/toggleterm.nvim",
         version = "*",
         opts = {
-            open_mapping = [[<F4>]], -- or { [[<c-\>]], [[<c-¥>]] } if you also use a Japanese keyboard.
+            open_mapping = [[F7]], -- or { [[<c-\>]], [[<c-¥>]] } if you also use a Japanese keyboard.
             on_close = function()
                 vim.cmd("startinsert!")
             end,

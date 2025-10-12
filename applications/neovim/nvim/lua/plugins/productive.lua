@@ -82,10 +82,11 @@ return {
                 "<cmd>ObsidianSwitchPrivate<CR>",
                 desc = "Switch to Private Workspace",
             }, --{ "<leader>oow", "<cmd>lua require('obsidian').set_workspace('work')<CR>", desc = "Switch to Work Workspace" },
-            { "<leader>on", "<cmd>ObsidianNew<CR>",   desc = "New Note" },
-            { "<leader>od", "<cmd>ObsidianToday<CR>", desc = "Todays Note" },
-            { "<leader>ow", "<cmd>ObsidianToday<CR>", desc = "Todays Note" },
-            { "<leader>ot", "<cmd>ObsidianTags<CR>",  desc = "Open obsidian tags" },
+            { "<leader>on", "<cmd>ObsidianNew<CR>",        desc = "New Note" },
+            { "<leader>od", "<cmd>ObsidianToday<CR>",      desc = "Todays Note" },
+            { "<leader>oy", "<cmd>ObsidianYesterday <CR>", desc = "Yesterday Note" },
+            { "<leader>oD", "<cmd>ObsidianDailies<CR>",    desc = "Daily Notes" },
+            { "<leader>ot", "<cmd>ObsidianTags<CR>",       desc = "Open obsidian tags" },
         },
         opts = {
             workspaces = {

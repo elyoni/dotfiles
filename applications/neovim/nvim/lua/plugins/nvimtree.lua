@@ -47,9 +47,10 @@ return {
                 mode = "n",
                 function()
                     -- Place this in your init.lua or nvim-tree config
-                    local nvimtree_view = require("nvim-tree.view")
-                    if nvimtree_view.is_visible() then
-                        if vim.fn.win_getid() == nvimtree_view.get_winnr() then
+                    local api = require("nvim-tree.api")
+                    if api.tree.is_visible() then
+                        local nvim_tree_winid = api.tree.winid()
+                        if vim.fn.win_getid() == nvim_tree_winid then
                             vim.cmd("wincmd p") -- go to previous window
                         else
                             require("nvim-tree.api").tree.focus()

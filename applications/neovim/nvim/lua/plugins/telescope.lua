@@ -48,18 +48,18 @@ return {
     },
     config = function()
         local telescope = require("telescope")
-        telescope.load_extension("live_grep_args")
-    end,
-    init = function()
-        require('telescope').setup {
+        local lga_actions = require("telescope-live-grep-args.actions")
+
+        telescope.setup {
             defaults = {
                 mappings = {
                     n = {
                         ['<C-d>'] = require('telescope/actions').delete_buffer + require('telescope/actions').move_to_top
                     },
-                    i = {
-                        ['<del>'] = require('telescope/actions').delete_buffer + require('telescope/actions').move_to_top
-                    }
+                    --i = {
+                    ---- Disable Delete key to prevent E5108 error when deleting in middle of search prompt
+                    --['<Del>'] = false,
+                    --}
                 },
             },
             pickers = {
@@ -79,9 +79,45 @@ return {
                     show_untracked = true,
                     --recurse_submodules = true,
                 },
-
             },
+            extensions = {
+                live_grep_args = {
+                    auto_quoting = true,
+                    mappings = {
+                        i = {
+                            ["<C-k>"] = function(prompt_bufnr)
+                                return lga_actions.quote_prompt()(prompt_bufnr)
+                            end,
+                            ["<C-g>"] = function(prompt_bufnr)
+                                return lga_actions.quote_prompt({ postfix = " --iglob " })(prompt_bufnr)
+                            end,
+                            ["<C-t>"] = function(prompt_bufnr)
+                                return lga_actions.quote_prompt({ postfix = " --type " })(prompt_bufnr)
+                            end,
+                            ["<C-h>"] = function()
+                                vim.notify([[
+Live Grep Args Help:
+
+<C-k>     : Quote the current prompt
+<C-g>     : Quote prompt with --iglob flag
+<C-space> : Switch to fuzzy matching
+
+Examples:
+  foo bar           → 'foo bar'
+  foo --type lua    → search only Lua files
+  'exact phrase'    → search exact phrase
+  foo -i            → case insensitive search
+  foo --iglob '*.py' → search only Python files
+  foo -g '!dir/'    → exclude directory
+]], vim.log.levels.INFO, { title = "Live Grep Args Help" })
+                                return true
+                            end,
+                        }
+                    }
+                }
+            }
         }
         require 'telescope'.load_extension('make')
+        telescope.load_extension("live_grep_args")
     end
 }
