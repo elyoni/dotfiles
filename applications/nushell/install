@@ -1,0 +1,268 @@
+#!/usr/bin/env bash
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+function install_rust() {
+    echo '====== Installing Rust (required for nushell) ======'
+    if command -v rustc &> /dev/null; then
+        echo "Rust already installed: $(rustc --version)"
+    else
+        echo "Installing Rust via rustup..."
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+        source "$HOME/.cargo/env"
+        echo "Rust installed: $(rustc --version)"
+    fi
+    echo '======== End ========'
+}
+
+function install_nushell() {
+    echo '====== Installing Nushell via cargo ======'
+
+    # Check if nushell is already installed
+    if command -v nu &> /dev/null; then
+        local current_version=$(nu --version | head -1)
+        echo "Nushell already installed: $current_version"
+        read -p "Do you want to reinstall/upgrade? (y/N) " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            return 0
+        fi
+    fi
+
+    # Ensure rust/cargo is available
+    if ! command -v cargo &> /dev/null; then
+        echo "ERROR: cargo not found. Installing rust first..."
+        install_rust
+        source "$HOME/.cargo/env"
+    fi
+
+    echo "Installing nushell (this may take 10-20 minutes)..."
+    echo "Building from source with cargo..."
+
+    cargo install nu --features=extra
+
+    if command -v nu &> /dev/null; then
+        echo "✅ Nushell installed successfully!"
+        nu --version
+    else
+        echo "❌ Nushell installation failed"
+        return 1
+    fi
+
+    echo '======== End ========'
+}
+
+function install_packages() {
+    echo '====== Installing optional dependencies ======'
+    echo "These improve nushell's functionality but aren't required"
+
+    # Check OS
+    if command -v apt-get &> /dev/null; then
+        sudo apt-get update
+        sudo apt-get install -y \
+            fd-find \
+            ripgrep \
+            bat \
+            tree \
+            xclip \
+            fzf
+
+        # Create fd symlink if fdfind exists
+        if command -v fdfind &> /dev/null && ! command -v fd &> /dev/null; then
+            sudo ln -sf "$(command -v fdfind)" /usr/local/bin/fd
+            echo "Created fd symlink"
+        fi
+    elif command -v pacman &> /dev/null; then
+        sudo pacman -S --noconfirm fd ripgrep bat tree xclip fzf
+    elif command -v brew &> /dev/null; then
+        brew install fd ripgrep bat tree fzf
+    else
+        echo "⚠ Unknown package manager. Please install manually:"
+        echo "  - fd (file finder)"
+        echo "  - ripgrep (fast grep)"
+        echo "  - bat (cat with syntax highlighting)"
+        echo "  - tree (directory tree)"
+        echo "  - xclip (clipboard)"
+        echo "  - fzf (fuzzy finder)"
+    fi
+
+    echo '======== End ========'
+}
+
+function setup_config() {
+    echo '====== Setting up nushell configuration ======'
+
+    local config_dir="$HOME/.config/nushell"
+
+    # Create config directory if it doesn't exist
+    mkdir -p "$config_dir"
+
+    # Backup existing config if present
+    if [ -f "$config_dir/config.nu" ]; then
+        echo "Backing up existing config.nu..."
+        cp "$config_dir/config.nu" "$config_dir/config.nu.backup.$(date +%Y%m%d_%H%M%S)"
+    fi
+
+    if [ -f "$config_dir/env.nu" ]; then
+        echo "Backing up existing env.nu..."
+        cp "$config_dir/env.nu" "$config_dir/env.nu.backup.$(date +%Y%m%d_%H%M%S)"
+    fi
+
+    # Copy config files
+    echo "Copying configuration files..."
+    cp "$SCRIPT_DIR/config.nu" "$config_dir/config.nu"
+    cp "$SCRIPT_DIR/env.nu" "$config_dir/env.nu"
+    cp "$SCRIPT_DIR/wimp.nu" "$config_dir/wimp.nu"
+
+    # Copy documentation
+    if [ -f "$SCRIPT_DIR/QUICKSTART.md" ]; then
+        cp "$SCRIPT_DIR/QUICKSTART.md" "$config_dir/QUICKSTART.md"
+    fi
+
+    if [ -f "$SCRIPT_DIR/WIMP_GUIDE.md" ]; then
+        cp "$SCRIPT_DIR/WIMP_GUIDE.md" "$config_dir/WIMP_GUIDE.md"
+    fi
+
+    echo "✅ Configuration installed to $config_dir"
+    echo '======== End ========'
+}
+
+function verify() {
+    echo '====== Verifying installation ======'
+
+    local all_good=true
+
+    # Check nushell
+    if command -v nu &> /dev/null; then
+        echo "✅ nushell: $(nu --version | head -1)"
+    else
+        echo "❌ nushell: not found"
+        all_good=false
+    fi
+
+    # Check config
+    if [ -f "$HOME/.config/nushell/config.nu" ]; then
+        echo "✅ config.nu: installed"
+    else
+        echo "❌ config.nu: not found"
+        all_good=false
+    fi
+
+    # Check optional tools
+    echo ""
+    echo "Optional tools:"
+    for tool in fd fdfind rg bat tree fzf xclip starship; do
+        if command -v "$tool" &> /dev/null; then
+            echo "  ✅ $tool"
+        else
+            echo "  ⚠  $tool (not installed, some features may be limited)"
+        fi
+    done
+
+    echo '======== End ========'
+
+    if [ "$all_good" = true ]; then
+        echo ""
+        echo "🎉 Nushell is ready to use!"
+        echo "   Run: nu"
+        echo "   Docs: ~/.config/nushell/QUICKSTART.md"
+        return 0
+    else
+        return 1
+    fi
+}
+
+function install() {
+    echo "========================================="
+    echo "  Nushell Installation Script"
+    echo "========================================="
+    echo ""
+
+    install_rust
+    install_nushell
+    install_packages
+    setup_config
+
+    echo ""
+    verify
+}
+
+function uninstall() {
+    echo '====== Uninstalling nushell ======'
+
+    read -p "This will remove nushell and its config. Continue? (y/N) " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "Cancelled"
+        return 0
+    fi
+
+    # Remove nushell binary
+    if command -v cargo &> /dev/null; then
+        cargo uninstall nu
+    fi
+
+    # Backup and remove config
+    if [ -d "$HOME/.config/nushell" ]; then
+        echo "Backing up config to ~/.config/nushell.backup..."
+        mv "$HOME/.config/nushell" "$HOME/.config/nushell.backup.$(date +%Y%m%d_%H%M%S)"
+    fi
+
+    echo "✅ Nushell uninstalled"
+    echo '======== End ========'
+}
+
+function update() {
+    echo '====== Updating nushell ======'
+
+    if ! command -v cargo &> /dev/null; then
+        echo "ERROR: cargo not found"
+        return 1
+    fi
+
+    echo "Updating nushell via cargo..."
+    cargo install nu --features=extra --force
+
+    if [ $? -eq 0 ]; then
+        echo "✅ Nushell updated"
+        nu --version
+    else
+        echo "❌ Update failed"
+        return 1
+    fi
+
+    echo '======== End ========'
+}
+
+function help() {
+    echo "Nushell Installation Script"
+    echo ""
+    echo "Usage: $0 [command]"
+    echo ""
+    echo "Commands:"
+    awk '/^function / && ! /^function _/ {
+        name = $2;
+        sub(/\(\).*/, "", name);
+        getline;
+        if ($0 ~ /^[[:space:]]*echo/) {
+            desc = $0;
+            gsub(/^[[:space:]]*echo[[:space:]]*/, "", desc);
+            gsub(/'\''/, "", desc);
+            gsub(/^[[:space:]]+|[[:space:]]+$/, "", desc);
+            printf "  %-20s %s\n", name, desc
+        }
+    }' "$0"
+    echo ""
+    echo "Example:"
+    echo "  $0 install           # Full installation"
+    echo "  $0 install_nushell   # Only install nushell (skip deps)"
+    echo "  $0 setup_config      # Only setup config files"
+    echo "  $0 verify            # Check installation"
+}
+
+# Main
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi
