@@ -1,0 +1,4 @@
+
+# Get list of all the groups in your gitlab
+group_path=liveu
+glab api "groups/${group_path}/descendant_groups?per_page=100" --paginate | jq -r '.[].full_path'

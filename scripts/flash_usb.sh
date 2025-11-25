@@ -117,7 +117,7 @@ flash_iso() {
 
     log "Flashing ISO to device... This may take several minutes."
 
-    if dd if="$iso_file" of="$selected_device" bs=4M status=progress conv=fsync; then
+    if sudo dd if="$iso_file" of="$selected_device" bs=4M status=progress conv=fsync; then
         log "ISO flashing completed successfully!"
         sync
         log "Syncing filesystem changes..."

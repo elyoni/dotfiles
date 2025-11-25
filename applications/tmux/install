@@ -49,6 +49,7 @@ function install_tmux_packages()
     git clone https://github.com/tmux-plugins/tpm "${TMUX_CONFIG}"/plugins/tpm
 
     # Install the plugins
+    export TMUX_PLUGIN_MANAGER_PATH="${TMUX_CONFIG}/plugins/"
     "${TMUX_CONFIG}"/plugins/tpm/bin/install_plugins
 }
 
@@ -61,7 +62,7 @@ function install_tmux_last()
     mkdir -p "${DOWNLOAD_PATH}"
     wget -P "${DOWNLOAD_PATH}" https://github.com/tmux/tmux/releases/download/${VERSION}/tmux-${VERSION}.tar.gz
     tar -C "${DOWNLOAD_PATH}" -zxf "${DOWNLOAD_PATH}"/tmux-"${VERSION}".tar.gz
-    cd "${DOWNLOAD_PATH}"/tmux-"${VERSION}" || exit
+    pushd "${DOWNLOAD_PATH}"/tmux-"${VERSION}" || exit
     ./configure
     make && sudo make install
     popd || return

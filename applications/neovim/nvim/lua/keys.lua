@@ -32,6 +32,9 @@ vim.keymap.set("n", "<leader>vn", ":set relativenumber!<CR>", with_desc("Toggle 
 -- Toggle wrap mode (assuming ToggleWrap function defined)
 vim.keymap.set('n', '<leader>vw', ToggleWrap, with_desc("Toggle wrap mode"))
 
+-- Trim shell prompt prefix (visual mode only)
+vim.keymap.set('v', '<leader>sp', TrimShellPrompt, with_desc("Trim shell prompt prefix"))
+
 
 -- Folding
 vim.keymap.set("n", "zC", "zM", with_desc("Close all folds"))

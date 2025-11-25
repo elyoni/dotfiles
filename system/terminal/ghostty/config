@@ -77,6 +77,7 @@ keybind = ctrl+minus=decrease_font_size:2
 # This writes scrollback to temp file and opens it with default editor
 #unbind write_scrollback_file
 keybind = ctrl+shift+f=write_scrollback_file:open
+keybind = ctrl+shift+g=write_screen_file:open
 
 keybind = ctrl+shift+up=scroll_page_up
 keybind = ctrl+shift+down=scroll_page_down

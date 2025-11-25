@@ -1,0 +1,6 @@
+# Get devices list
+aplay -l
+# Get PCM(Pulse Code Modulation)
+aplay -L
+# Get device params
+aplay -D hw:1,0 --dump-hw-params /dev/zero

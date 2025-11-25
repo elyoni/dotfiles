@@ -155,6 +155,31 @@ alias grep = rg  # Use ripgrep if available
 alias find = fd  # Use fd if available
 alias ps = procs  # Use procs if available
 
+# Job control commands (like bash/zsh)
+# Custom completer for background jobs
+def "nu-complete jobs" [] {
+    job list
+    | each { |j|
+        {
+            value: $j.id
+            description: $"($j.command)"
+        }
+    }
+}
+
+# Bring background job to foreground with tab completion
+def fg [
+    id?: int@"nu-complete jobs"  # Tab completion shows background jobs
+] {
+    if ($id | is-empty) {
+        job unfreeze
+    } else {
+        job unfreeze $id
+    }
+}
+
+alias jobs = job list    # List background jobs
+
 # Git aliases
 alias g = git
 alias gs = git status
@@ -199,7 +224,17 @@ $env.PROMPT_COMMAND_RIGHT = { starship prompt --right --cmd-duration $env.CMD_DU
 $env.PROMPT_INDICATOR = ""
 $env.PROMPT_INDICATOR_VI_INSERT = ": "
 $env.PROMPT_INDICATOR_VI_NORMAL = "〉"
-$env.PROMPT_MULTILINE_INDICATOR = "::: "
+$env.PROMPT_MULTILINE_INDICATOR = ": "
+
+# === Clipboard Commands ===
+
+# Copy stdin to clipboard (like zsh's clp)
+# Also outputs to stdout so you see what was copied
+def clp [] {
+    let input = $in
+    $input | xclip -selection clipboard -in
+    $input
+}
 
 # Custom commands
 # Example: Pretty print JSON
@@ -595,6 +630,14 @@ def --env cdd [] {
 
 # Load WIMP (Where Is My Project) - Project finder
 source ~/.config/nushell/wimp.nu
+
+# === Completions ===
+
+# Carapace - Universal completion engine for kubectl, helm, etc.
+# Install: https://github.com/carapace-sh/carapace-bin/releases
+# Or: go install github.com/carapace-sh/carapace-bin@latest
+# After installing, uncomment the line below:
+# source ~/.cache/carapace/init.nu
 
 # Source additional config (uncomment and create file if needed)
 # Note: In nushell, source is evaluated at parse time, so the file must exist

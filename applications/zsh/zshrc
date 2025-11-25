@@ -131,5 +131,10 @@ if [[ -d ~/.zfunc ]]; then
     done
 fi
 
+# AWS CLI completion (requires bashcompinit which is loaded earlier)
+if command -v aws_completer &>/dev/null; then
+    complete -C '/usr/local/bin/aws_completer' aws
+fi
+
 [[ ! -f ~/.config/zsh/p10k.zsh ]] || source ~/.config/zsh/p10k.zsh
 export PATH="$HOME/.local/bin:$PATH"

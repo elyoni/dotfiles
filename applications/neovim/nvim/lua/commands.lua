@@ -1,4 +1,5 @@
 vim.api.nvim_create_user_command("GitSite", GitSite, { range = true })
+vim.api.nvim_create_user_command("TrimShellPrompt", TrimShellPrompt, { range = true, desc = "Trim shell prompt prefix from selected lines" })
 
 vim.api.nvim_create_user_command("W", "w", { desc = "Save file" })
 vim.api.nvim_create_user_command("Wqa", "wqa", { desc = "Save all and quit" })

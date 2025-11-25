@@ -49,16 +49,12 @@ return
             vim.opt.signcolumn = 'yes'
         end,
         config = function()
-            local lspconfig = require('lspconfig')
-            local lsp_defaults = lspconfig.util.default_config
-            -- This should be executed before you configure any language server
-            lsp_defaults.capabilities = vim.tbl_deep_extend(
-                'force',
-                lsp_defaults.capabilities,
-                require('cmp_nvim_lsp').default_capabilities()
-            )
+            -- Get default capabilities from cmp_nvim_lsp
+            local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
-            lspconfig.lua_ls.setup {
+            -- Configure lua_ls
+            vim.lsp.config('lua_ls', {
+                capabilities = capabilities,
                 settings = {
                     Lua = {
                         diagnostics = {
@@ -72,10 +68,11 @@ return
                         },
                     },
                 },
-            }
+            })
 
-
-            lspconfig.ltex.setup({
+            -- Configure ltex
+            vim.lsp.config('ltex', {
+                capabilities = capabilities,
                 cmd = { "ltex-ls" },
                 on_attach = function(client, bufnr)
                     -- your other on_attach code
@@ -150,7 +147,9 @@ return
                     -- this first function is the "default handler"
                     -- it applies to every language server without a "custom handler"
                     function(server_name)
-                        require('lspconfig')[server_name].setup({})
+                        vim.lsp.config(server_name, {
+                            capabilities = require('cmp_nvim_lsp').default_capabilities()
+                        })
                     end,
                 }
             })

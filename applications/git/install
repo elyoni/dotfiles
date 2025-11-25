@@ -48,13 +48,13 @@ function install_cdiff()
 
 function install_glab()
 {
-    echo ======= Install GitLab CLI (glab) =======
+    echo "======= Install GitLab CLI (glab) ======="
     if ! command -v glab >/dev/null 2>&1; then
         curl -fsSL https://gitlab.com/gitlab-org/cli/-/raw/main/scripts/install.sh | sudo bash
     else
         echo "glab is already installed"
     fi
-    echo ======= End =======
+    echo "======= End ======="
 }
 
 function setup_glab_completion()
