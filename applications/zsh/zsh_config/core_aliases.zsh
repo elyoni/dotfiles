@@ -18,3 +18,6 @@ command -v fdfind > /dev/null && alias fd="fdfind"
 #alias clp='xclip -sel clip'
 alias clp='xclip -selection clipboard -in -f'
 alias pwdcp='pwd | xclip -sel clip'
+
+# AppImage desktop entry creator
+alias appimage-add="${HOME}/.dotfiles/scripts/appimage-desktop-entry.sh"
