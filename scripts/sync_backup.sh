@@ -6,9 +6,9 @@
 #==============================================================================
 
 SYNC_DIRS=(
-    "$HOME/.dotfiles"
+    #"$HOME/.dotfiles"
     "$HOME/.work_dotfiles"
-    "$HOME/.ssh"
+    #"$HOME/.ssh"
     "$HOME/.obsidian"
     "$HOME/Documents"
     "$HOME/Downloads"
@@ -18,8 +18,8 @@ SYNC_DIRS=(
     "$HOME/.config/Cursor"
     "$HOME/.config/Claude"
     "$HOME/.config/obsidian"
-    "$HOME/.local/share/applications"
-    "$HOME/.local/bin"
+    #"$HOME/.local/share/applications"
+    #"$HOME/.local/bin"
 )
 
 #==============================================================================
@@ -69,8 +69,8 @@ EXCLUDE_PATTERNS=(
 # SSH host from ~/.ssh/config (e.g., "backup-server")
 REMOTE_HOST="${REMOTE_HOST:-}"
 
-# Rsync options
-RSYNC_OPTS="-avz --progress --delete"
+# Rsync options (base options, --delete added conditionally)
+RSYNC_OPTS="-avz --progress"
 
 # Bandwidth limit in KB/s (0 = unlimited)
 BANDWIDTH_LIMIT="${BANDWIDTH_LIMIT:-0}"
@@ -116,7 +116,7 @@ ARGUMENTS:
 
 OPTIONS:
     -p, --pull          Pull from remote to local (restore)
-    -l, --list          List directories that will be synced
+    -l, --list          List directories that will be synced (shows remote sizes if REMOTE_HOST provided)
     -v, --verify        Verify remote backup (compare sizes)
     -d, --dir PATH      Sync only specific directory (must be in SYNC_DIRS)
     -h, --help          Show this help message
@@ -131,7 +131,8 @@ EXAMPLES:
     $(basename "$0") --dir ~/projects backup-server     # Sync only projects
     $(basename "$0") --verify backup-server             # Verify backup
     $(basename "$0") --dry-run backup-server            # Test sync
-    $(basename "$0") --list                             # Show directories
+    $(basename "$0") --list                             # Show directories (local only)
+    $(basename "$0") --list backup-server               # Show directories with remote comparison
 
 SETUP:
     1. Configure remote host in ~/.ssh/config:
@@ -148,12 +149,54 @@ EOF
 }
 
 list_dirs() {
+    local show_remote=false
+    if [ -n "$REMOTE_HOST" ]; then
+        # Test connection quickly
+        if ssh -o ConnectTimeout=3 "$REMOTE_HOST" "echo 'ok'" &>/dev/null; then
+            show_remote=true
+        fi
+    fi
+
     echo "Directories to sync:"
     echo "===================="
     for dir in "${SYNC_DIRS[@]}"; do
+        local local_exists=false
+        local local_size=""
+        local remote_exists=false
+        local remote_size=""
+        
         if [ -d "$dir" ]; then
-            local size=$(du -sh "$dir" 2>/dev/null | cut -f1)
-            echo -e "${GREEN}✓${NC} $dir (${size})"
+            local_exists=true
+            local_size=$(du -sh "$dir" 2>/dev/null | cut -f1)
+        fi
+        
+        if [ "$show_remote" = "true" ]; then
+            local relative_path="${dir#$HOME/}"
+            remote_size=$(ssh "$REMOTE_HOST" "if [ -d ~/$relative_path ]; then du -sh ~/$relative_path 2>/dev/null | cut -f1; fi" 2>/dev/null)
+            if [ -n "$remote_size" ]; then
+                remote_exists=true
+            fi
+        fi
+        
+        # Display status
+        if [ "$local_exists" = "true" ] && [ "$remote_exists" = "true" ]; then
+            if [ "$local_size" = "$remote_size" ]; then
+                echo -e "${GREEN}✓${NC} $dir"
+                echo -e "    Local:  ${GREEN}${local_size}${NC} | Remote: ${GREEN}${remote_size}${NC} ${GREEN}(match)${NC}"
+            else
+                echo -e "${GREEN}✓${NC} $dir"
+                echo -e "    Local:  ${BLUE}${local_size}${NC} | Remote: ${BLUE}${remote_size}${NC} ${YELLOW}(diff)${NC}"
+            fi
+        elif [ "$local_exists" = "true" ]; then
+            echo -e "${GREEN}✓${NC} $dir"
+            if [ "$show_remote" = "true" ]; then
+                echo -e "    Local:  ${GREEN}${local_size}${NC} | Remote: ${YELLOW}(not found)${NC}"
+            else
+                echo -e "    Local:  ${GREEN}${local_size}${NC}"
+            fi
+        elif [ "$remote_exists" = "true" ]; then
+            echo -e "${YELLOW}✗${NC} $dir"
+            echo -e "    Local:  ${YELLOW}(not found)${NC} | Remote: ${GREEN}${remote_size}${NC}"
         else
             echo -e "${YELLOW}✗${NC} $dir (not found)"
         fi
@@ -164,9 +207,43 @@ list_dirs() {
     echo "Files to sync:"
     echo "===================="
     for file in "${SYNC_FILES[@]}"; do
+        local local_exists=false
+        local local_size=""
+        local remote_exists=false
+        local remote_size=""
+        
         if [ -f "$file" ]; then
-            local size=$(du -sh "$file" 2>/dev/null | cut -f1)
-            echo -e "${GREEN}✓${NC} $file (${size})"
+            local_exists=true
+            local_size=$(du -sh "$file" 2>/dev/null | cut -f1)
+        fi
+        
+        if [ "$show_remote" = "true" ]; then
+            local relative_path="${file#$HOME/}"
+            remote_size=$(ssh "$REMOTE_HOST" "if [ -f ~/$relative_path ]; then du -sh ~/$relative_path 2>/dev/null | cut -f1; fi" 2>/dev/null)
+            if [ -n "$remote_size" ]; then
+                remote_exists=true
+            fi
+        fi
+        
+        # Display status
+        if [ "$local_exists" = "true" ] && [ "$remote_exists" = "true" ]; then
+            if [ "$local_size" = "$remote_size" ]; then
+                echo -e "${GREEN}✓${NC} $file"
+                echo -e "    Local:  ${GREEN}${local_size}${NC} | Remote: ${GREEN}${remote_size}${NC} ${GREEN}(match)${NC}"
+            else
+                echo -e "${GREEN}✓${NC} $file"
+                echo -e "    Local:  ${BLUE}${local_size}${NC} | Remote: ${BLUE}${remote_size}${NC} ${YELLOW}(diff)${NC}"
+            fi
+        elif [ "$local_exists" = "true" ]; then
+            echo -e "${GREEN}✓${NC} $file"
+            if [ "$show_remote" = "true" ]; then
+                echo -e "    Local:  ${GREEN}${local_size}${NC} | Remote: ${YELLOW}(not found)${NC}"
+            else
+                echo -e "    Local:  ${GREEN}${local_size}${NC}"
+            fi
+        elif [ "$remote_exists" = "true" ]; then
+            echo -e "${YELLOW}✗${NC} $file"
+            echo -e "    Local:  ${YELLOW}(not found)${NC} | Remote: ${GREEN}${remote_size}${NC}"
         else
             echo -e "${YELLOW}✗${NC} $file (not found)"
         fi
@@ -338,6 +415,12 @@ sync_directory() {
 
     local cmd="rsync $RSYNC_OPTS"
 
+    # Only use --delete when pushing (local -> remote)
+    # When pulling, we don't want to delete files on remote, and --delete would only affect local anyway
+    if [ "$direction" = "push" ]; then
+        cmd="$cmd --delete"
+    fi
+
     if [ "$dry_run" = "true" ]; then
         cmd="$cmd --dry-run"
     fi
@@ -356,6 +439,7 @@ sync_directory() {
         cmd="$cmd '$dir/' '$REMOTE_HOST:~/$relative_path/'"
     else
         info "Syncing: $REMOTE_HOST:~/$relative_path -> $dir"
+        warn "Note: Files on remote will NOT be deleted. Local files not on remote may be deleted."
         mkdir -p "$dir"
         cmd="$cmd '$REMOTE_HOST:~/$relative_path/' '$dir/'"
     fi
@@ -406,8 +490,10 @@ perform_sync() {
 
     if [ "$direction" = "push" ]; then
         info "Starting backup: Local -> $REMOTE_HOST"
+        warn "Note: --delete is enabled. Files on remote that don't exist locally will be deleted."
     else
         info "Starting restore: $REMOTE_HOST -> Local"
+        log "Note: Remote files are safe. Only local files will be modified/deleted."
     fi
 
     if [ "$dry_run" = "true" ]; then
@@ -505,6 +591,7 @@ main() {
     local dry_run="false"
     local verify_mode="false"
     local single_dir=""
+    local list_mode="false"
 
     while [ $# -gt 0 ]; do
         case "$1" in
@@ -513,8 +600,7 @@ main() {
                 exit 0
                 ;;
             -l|--list)
-                list_dirs
-                exit 0
+                list_mode="true"
                 ;;
             -v|--verify)
                 verify_mode="true"
@@ -548,6 +634,12 @@ main() {
         esac
         shift
     done
+
+    # Handle --list mode (can work with or without remote host)
+    if [ "$list_mode" = "true" ]; then
+        list_dirs
+        exit 0
+    fi
 
     if [ -z "$REMOTE_HOST" ]; then
         error "Remote host is required.\nUsage: $(basename "$0") [OPTIONS] REMOTE_HOST\nRun with --help for more information."
