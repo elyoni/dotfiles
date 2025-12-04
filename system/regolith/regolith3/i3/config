@@ -147,7 +147,7 @@ bindsym $mod+$wm.binding.terminal exec $wm.binding.terminal_app
 set_from_resource $wm.binding.ssh-yoni wm.binding.terminal Shift+Return
 #bindsym $mod+$wm.binding.ssh-yoni exec "TERM=xterm-256color $wm.binding.terminal_app ssh -X -R 8888:localhost:22 -R 9999:localhost:9999 yoni@seil-sdk-ye -y"
 #bindsym $mod+$wm.binding.ssh-yoni exec "TERM=xterm-256color $wm.binding.terminal_app --execute ssh -X -R 8888:localhost:22 -R 9999:localhost:9999 yoni@seil-sdk-ye -y"
-bindsym $mod+$wm.binding.ssh-yoni exec "TERM=xterm-256color $wm.binding.terminal_app -e env TERM=xterm-256color ssh -X -R 8888:localhost:22 -R 9999:localhost:9999 yoni@seil-sdk-ye -y"
+bindsym $mod+$wm.binding.ssh-yoni exec "TERM=xterm-256color $wm.binding.terminal_app -e env TERM=xterm-256color ssh -X -R 8888:localhost:22 -R 9999:localhost:9999 yonie-ub-pc.me -y"
 
 set_from_resource $wm.binding.project_run wm.binding.terminal Return
 bindsym $mod+$alt+$wm.binding.project_run exec "TERM=xterm-256color $wm.binding.terminal_app -e zsh -ic 'enter_to_project_path'"
