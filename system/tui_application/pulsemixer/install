@@ -6,16 +6,96 @@ DIR=$(cd -P "${DIR}" && pwd)
 source "${DIR}"/../../../utils/smart_link
 
 
+function _check_pipx_installed()
+{
+    if command -v pipx &> /dev/null; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+function _install_pipx_if_needed()
+{
+    if _check_pipx_installed; then
+        echo "pipx is already installed"
+        return 0
+    fi
+
+    echo "pipx is not installed. Installing pipx using your Python install script..."
+    
+    # Use the existing Python install script from programming-languages/python
+    # This script installs pipx via apt (which is the correct method for Ubuntu 24.04+)
+    local python_install_script="${DIR}/../../../programming-languages/python/install"
+    
+    if [ ! -f "$python_install_script" ]; then
+        echo "Error: Python install script not found at $python_install_script"
+        echo "Please install Python/pipx manually or run the programming languages installation first"
+        return 1
+    fi
+
+    # Run the Python install script which will install pipx
+    echo "Running Python installation script to install pipx..."
+    if bash "$python_install_script" install; then
+        # Ensure pipx is in PATH (pipx ensurepath should have been called by the script)
+        if [ -d "$HOME/.local/bin" ] && [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+            export PATH="$HOME/.local/bin:$PATH"
+        fi
+        
+        if _check_pipx_installed; then
+            echo "pipx installed successfully using your Python install script"
+            return 0
+        else
+            echo "Warning: Python installation completed but pipx is not available"
+            echo "Please ensure pipx is in your PATH or run: pipx ensurepath"
+            return 1
+        fi
+    else
+        echo "Error: Python/pipx installation failed"
+        return 1
+    fi
+}
+
 function _install_pulsemixer() # <Add information about this package>
 {
-    if ! command -v pipx &> /dev/null
-    then
-        echo "pipx could not be found"
-        echo "Please install pipx and try again"
-        exit
+    # Ensure pipx is installed
+    if ! _install_pipx_if_needed; then
+        echo "Error: Could not install pipx. Please install it manually and try again"
+        echo "Run: sudo apt-get install pipx"
+        return 1
     fi
-    pipx install pulsemixer
 
+    # Ensure pipx is in PATH
+    if [ -d "$HOME/.local/bin" ] && [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+        export PATH="$HOME/.local/bin:$PATH"
+    fi
+
+    if ! command -v pipx &> /dev/null; then
+        echo "Error: pipx is still not available after installation"
+        echo "Please ensure pipx is in your PATH"
+        return 1
+    fi
+
+    echo "Installing pulsemixer using pipx..."
+    
+    # Check if pulsemixer is already installed
+    if pipx list | grep -q "pulsemixer"; then
+        echo "pulsemixer is already installed via pipx"
+        # Ensure it's in PATH
+        pipx ensurepath >/dev/null 2>&1 || true
+        # Refresh PATH
+        if [ -d "$HOME/.local/bin" ] && [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+            export PATH="$HOME/.local/bin:$PATH"
+        fi
+    else
+        pipx install pulsemixer
+        # Ensure it's in PATH after installation
+        pipx ensurepath >/dev/null 2>&1 || true
+        # Refresh PATH
+        if [ -d "$HOME/.local/bin" ] && [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+            export PATH="$HOME/.local/bin:$PATH"
+        fi
+    fi
 }
 
 
@@ -34,11 +114,29 @@ function _create_shortcut() # Create shortcut, px instead of pulesmixer
 
 function _verify_pulsemixer() # Verify the installation
 {
-    if command -v pulsemixer &> /dev/null
-    then
+    # Ensure PATH includes pipx bin directory
+    if [ -d "$HOME/.local/bin" ] && [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+        export PATH="$HOME/.local/bin:$PATH"
+    fi
+    
+    # Check if pulsemixer is installed via pipx
+    if pipx list 2>/dev/null | grep -q "pulsemixer"; then
+        # Check if command is available
+        if command -v pulsemixer &> /dev/null; then
+            echo "pulsemixer is installed"
+            return 0
+        else
+            echo "Warning: pulsemixer is installed via pipx but not in PATH"
+            echo "Try running: pipx ensurepath"
+            echo "Or add $HOME/.local/bin to your PATH"
+            return 1
+        fi
+    elif command -v pulsemixer &> /dev/null; then
         echo "pulsemixer is installed"
+        return 0
     else
         echo "pulsemixer is not installed"
+        return 1
     fi
 }
 
