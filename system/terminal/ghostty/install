@@ -3,15 +3,13 @@
 DIR=$(dirname "${BASH_SOURCE[0]}")
 DIR=$(cd -P "${DIR}" && pwd)
 
-source "${DIR}"/../../utils/package/apt
-source "${DIR}"/../../utils/package/github
-source "${DIR}"/../../utils/smart_link
+source "${DIR}"/../../../utils/package/apt
+source "${DIR}"/../../../utils/package/github
+source "${DIR}"/../../../utils/smart_link
 
 
-function _install_ghostty() # Install Ghostty terminal emulator from GitHub releases
+function _install_ghostty() # Install Ghostty terminal emulator via snap
 {
-    # Ghostty is typically distributed as a binary or through package managers
-    # For Ubuntu/Debian, we'll use the latest GitHub release
     echo "Installing Ghostty..."
 
     # Check if already installed
@@ -20,12 +18,23 @@ function _install_ghostty() # Install Ghostty terminal emulator from GitHub rele
         return 0
     fi
 
-    # Install dependencies
-    fast_apt_install "libgtk-4-1" "libadwaita-1-0"
+    # Install snap if not available
+    if ! command -v snap &> /dev/null; then
+        echo "Installing snapd..."
+        fast_apt_install "snapd"
+    fi
 
-    # Install from GitHub releases
-    # Note: Adjust the repository and asset name based on actual Ghostty release structure
-    install_github_release "ghostty-org/ghostty" "ghostty-.*linux-x86_64.*\\.tar\\.gz" "/usr/local/bin"
+    # Install Ghostty via snap
+    echo "Installing Ghostty from snap..."
+    sudo snap install ghostty --classic
+    
+    if [ $? -eq 0 ]; then
+        echo "Ghostty installed successfully"
+        return 0
+    else
+        echo "Failed to install Ghostty"
+        return 1
+    fi
 }
 
 function verify() # Verify the installation
@@ -38,6 +47,14 @@ function verify() # Verify the installation
             echo "✓ Config file is properly linked"
         else
             echo "✗ Config file is not linked"
+            return 1
+        fi
+
+        # Check if theme is linked
+        if [ -L "$HOME/.config/ghostty/themes/NvimDark" ]; then
+            echo "✓ NvimDark theme is properly linked"
+        else
+            echo "✗ NvimDark theme is not linked"
             return 1
         fi
 
@@ -55,9 +72,13 @@ function install()
 
     # Create config directory if it doesn't exist
     mkdir -p "$HOME/.config/ghostty"
+    mkdir -p "$HOME/.config/ghostty/themes"
 
     # Link config file
     smart_link "${DIR}/config" "$HOME/.config/ghostty/config"
+    
+    # Link theme files
+    smart_link "${DIR}/themes/NvimDark" "$HOME/.config/ghostty/themes/NvimDark"
 }
 
 function help # Show a list of functions

@@ -1,0 +1,47 @@
+# NvimDark theme for Ghostty
+# Based on Neovim's default dark colorscheme
+
+# Background and foreground
+background = #1e1e1e
+foreground = #d4d4d4
+
+# Cursor
+cursor-color = #d4d4d4
+cursor-text = #1e1e1e
+
+# Selection
+selection-background = #264f78
+selection-foreground = #d4d4d4
+
+# Black
+palette = 0=#1e1e1e
+palette = 8=#808080
+
+# Red
+palette = 1=#f44747
+palette = 9=#ff6b6b
+
+# Green
+palette = 2=#4ec9b0
+palette = 10=#6fcf97
+
+# Yellow
+palette = 3=#ffcc66
+palette = 11=#ffd96a
+
+# Blue
+palette = 4=#569cd6
+palette = 12=#75beff
+
+# Magenta
+palette = 5=#c586c0
+palette = 13=#d28fd8
+
+# Cyan
+palette = 6=#4fc1ff
+palette = 14=#6dd9f7
+
+# White
+palette = 7=#d4d4d4
+palette = 15=#ffffff
+
