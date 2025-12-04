@@ -9,26 +9,133 @@ source ${DIR}/../../utils/smart_link
 
 function verify() # Verify the installation
 {
-    fast_apt_verify appimagelauncher
+    local all_ok=true
+    
+    # Check for FUSE library
+    if ldconfig -p 2>/dev/null | grep -q libfuse.so.2 || [ -f /usr/lib/x86_64-linux-gnu/libfuse.so.2 ] || [ -f /usr/lib/libfuse.so.2 ]; then
+        echo "FUSE library (libfuse.so.2) is installed"
+    else
+        echo "FUSE library (libfuse.so.2) is not installed"
+        all_ok=false
+    fi
+    
+    # Check for AppImageLauncher
+    if command -v appimagelauncher >/dev/null 2>&1; then
+        echo "appimagelauncher is installed"
+    else
+        echo "appimagelauncher is not installed"
+        all_ok=false
+    fi
+    
+    if [ "$all_ok" = true ]; then
+        return 0
+    else
+        return 1
+    fi
 }
 
-function add_appimagelauncher_repository()
+function remove_deprecated_ppa()
 {
-    fast_apt_install software-properties-common
-    add_repository ppa:appimagelauncher-team/stable
+    # Remove deprecated PPA if it exists (both .list and .sources formats)
+    local removed=false
+    
+    # Check for old .list format
+    if ls /etc/apt/sources.list.d/appimagelauncher-team-ubuntu-stable-*.list 2>/dev/null | grep -q .; then
+        echo "Removing deprecated AppImageLauncher PPA (.list format)..."
+        sudo rm -f /etc/apt/sources.list.d/appimagelauncher-team-ubuntu-stable-*.list
+        sudo rm -f /etc/apt/sources.list.d/appimagelauncher-team-ubuntu-stable-*.save 2>/dev/null || true
+        removed=true
+    fi
+    
+    # Check for new .sources format
+    if ls /etc/apt/sources.list.d/appimagelauncher-team-ubuntu-stable-*.sources 2>/dev/null | grep -q .; then
+        echo "Removing deprecated AppImageLauncher PPA (.sources format)..."
+        sudo rm -f /etc/apt/sources.list.d/appimagelauncher-team-ubuntu-stable-*.sources
+        removed=true
+    fi
+    
+    if [ "$removed" = true ]; then
+        echo "Updating package lists after PPA removal..."
+        sudo apt-get update >/dev/null 2>&1 || true
+    fi
 }
 
-function install_appimagelauncher()
+function install_appimagelauncher_from_github()
 {
-    fast_apt_install appimagelauncher
-}
+    # Install AppImageLauncher from GitHub releases
+    # Check if already installed
+    if command -v appimagelauncher >/dev/null 2>&1; then
+        echo "appimagelauncher is already installed"
+        return 0
+    fi
 
+    echo "Installing AppImageLauncher from GitHub releases..."
+    
+    # Detect architecture
+    ARCH=$(dpkg --print-architecture)
+    case "$ARCH" in
+        amd64)
+            DEB_ARCH="amd64"
+            ;;
+        arm64)
+            DEB_ARCH="arm64"
+            ;;
+        *)
+            echo "Unsupported architecture: $ARCH"
+            return 1
+            ;;
+    esac
+
+    # Get latest release URL
+    LATEST_RELEASE=$(curl -s https://api.github.com/repos/TheAssassin/AppImageLauncher/releases/latest)
+    DOWNLOAD_URL=$(echo "$LATEST_RELEASE" | grep "browser_download_url.*${DEB_ARCH}.deb" | cut -d '"' -f 4 | head -1)
+
+    if [ -z "$DOWNLOAD_URL" ]; then
+        echo "Could not find AppImageLauncher .deb package for architecture $DEB_ARCH"
+        echo "You can manually install it from: https://github.com/TheAssassin/AppImageLauncher/releases"
+        return 1
+    fi
+
+    # Download and install
+    TEMP_DEB=$(mktemp)
+    if wget -q "$DOWNLOAD_URL" -O "$TEMP_DEB"; then
+        sudo dpkg -i "$TEMP_DEB" || sudo apt-get install -f -y
+        rm -f "$TEMP_DEB"
+        
+        if command -v appimagelauncher >/dev/null 2>&1; then
+            echo "AppImageLauncher installed successfully"
+            return 0
+        else
+            echo "AppImageLauncher installation may have failed"
+            return 1
+        fi
+    else
+        echo "Failed to download AppImageLauncher"
+        rm -f "$TEMP_DEB"
+        return 1
+    fi
+}
 
 function install()
 {
-    add_appimagelauncher_repository
-    install_appimagelauncher
-
+    # Remove deprecated PPA first
+    remove_deprecated_ppa
+    
+    # Install FUSE library (required for AppImages to run)
+    echo "Installing FUSE library (libfuse2)..."
+    fast_apt_install libfuse2 || {
+        echo "Warning: libfuse2 installation failed. Trying alternative package..."
+        fast_apt_install fuse || {
+            echo "Error: Failed to install FUSE. AppImages may not work."
+            return 1
+        }
+    }
+    
+    # Install from GitHub releases
+    install_appimagelauncher_from_github || {
+        echo "Warning: AppImageLauncher installation failed. You can install it manually from:"
+        echo "https://github.com/TheAssassin/AppImageLauncher/releases"
+    }
 }
 
 function help # Show a list of functions

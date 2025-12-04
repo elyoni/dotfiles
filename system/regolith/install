@@ -14,36 +14,126 @@ function _link() # Link regolith folder to ~/.config/regolith3
     ln -s "${DIR}/regolith3" "${HOME}/.config/regolith3"
 }
 
+function _ensure_ubuntu_repos_configured()
+{
+    # Ensure Ubuntu repository suites are properly configured
+    # This prevents version conflicts by ensuring all suites (base, updates, security) are available
+    echo "Ensuring Ubuntu repository configuration includes all suites..."
+    
+    local codename=$(lsb_release -cs)
+    local ubuntu_sources="/etc/apt/sources.list.d/ubuntu.sources"
+    
+    # Check if ubuntu.sources exists and has all required suites
+    if [ -f "$ubuntu_sources" ]; then
+        # Check if it has updates and security suites
+        if ! grep -q "${codename}-updates\|${codename}-security" "$ubuntu_sources" 2>/dev/null; then
+            echo "Warning: Ubuntu sources may be missing updates/security suites"
+            echo "This can cause version conflicts. Consider updating /etc/apt/sources.list.d/ubuntu.sources"
+        fi
+    else
+        echo "Note: /etc/apt/sources.list.d/ubuntu.sources not found"
+        echo "System may be using /etc/apt/sources.list - this is usually fine"
+    fi
+    
+    # Update and upgrade to sync package versions
+    echo "Updating package lists and syncing package versions..."
+    sudo apt update
+    echo "Upgrading existing packages to prevent version conflicts..."
+    sudo apt upgrade -y
+}
+
+
 function _regolith3_install()
 {
     # Detect Ubuntu codename
     UBUNTU_CODENAME=$(lsb_release -cs)
     
-    # Validate supported Ubuntu versions for Regolith 3.0
+    # Validate supported Ubuntu versions for Regolith 3.3
+    # According to https://regolith-desktop.com/docs/using-regolith/install/
+    # Supported: plucky (25.04), noble (24.04), jammy (22.04)
     case "$UBUNTU_CODENAME" in
-        jammy|focal|noble)
+        plucky|noble|jammy)
             echo "Installing Regolith for Ubuntu $UBUNTU_CODENAME"
             ;;
         *)
-            echo "Warning: Ubuntu $UBUNTU_CODENAME may not be officially supported by Regolith 3.0"
-            echo "Falling back to jammy repository"
-            UBUNTU_CODENAME="jammy"
+            echo "Error: Ubuntu $UBUNTU_CODENAME may not be officially supported by Regolith 3.3"
+            echo "Supported versions: plucky (25.04), noble (24.04), jammy (22.04)"
+            echo "See: https://regolith-desktop.com/docs/using-regolith/install/"
+            return 1
             ;;
     esac
 
-    wget -qO - https://regolith-desktop.org/regolith.key | \
+    # Step 1: Ensure Ubuntu repositories are properly configured
+    _ensure_ubuntu_repos_configured
+
+    # Step 2: Remove existing regolith repository if it exists
+    if [ -f /etc/apt/sources.list.d/regolith.list ]; then
+        echo "Removing existing Regolith repository configuration..."
+        sudo rm -f /etc/apt/sources.list.d/regolith.list
+    fi
+
+    # Step 3: Register the Regolith public key
+    # Using the correct URL from official docs: https://archive.regolith-desktop.com/regolith.key
+    echo "Registering Regolith public key..."
+    wget -qO - https://archive.regolith-desktop.com/regolith.key | \
     gpg --dearmor | sudo tee /usr/share/keyrings/regolith-archive-keyring.gpg > /dev/null
 
+    # Step 4: Add the repository URL using the correct format from official docs
+    # Format: https://archive.regolith-desktop.com/ubuntu/stable <codename> v3.3
+    echo "Adding Regolith repository..."
     echo deb "[arch=amd64 signed-by=/usr/share/keyrings/regolith-archive-keyring.gpg] \
-        https://regolith-desktop.org/release-3_0-ubuntu-${UBUNTU_CODENAME}-amd64 ${UBUNTU_CODENAME} main" | \
+https://archive.regolith-desktop.com/ubuntu/stable ${UBUNTU_CODENAME} v3.3" | \
         sudo tee /etc/apt/sources.list.d/regolith.list
 
-    sudo apt update
+    # Step 5: Update package lists
+    echo "Updating package lists..."
+    local update_output=""
+    update_output=$(sudo apt update 2>&1)
+    local update_exit_code=$?
+    
+    # Check if update failed due to other repository errors (not Regolith)
+    if [ $update_exit_code -ne 0 ]; then
+        # Check if it's a Regolith-specific error
+        if echo "$update_output" | grep -q "regolith"; then
+            echo "Error: Failed to update Regolith repository"
+            echo "The Regolith repository may not be available for $UBUNTU_CODENAME"
+            sudo rm -f /etc/apt/sources.list.d/regolith.list
+            return 1
+        else
+            echo "Warning: apt update had errors from other repositories"
+            echo "Continuing with Regolith installation..."
+            echo "$update_output" | grep -E "Err:|W:" | head -3 || true
+        fi
+    fi
 
-    sudo apt install -y \
-        regolith-desktop \
-        regolith-look-lascaille
+    # Step 6: Install Regolith packages
+    # According to official docs, install: regolith-desktop regolith-session-flashback regolith-look-lascaille
+    echo "Installing Regolith desktop and components..."
+    if ! sudo apt install -y regolith-desktop regolith-session-flashback regolith-look-lascaille; then
+        echo "Error: Regolith packages installation failed"
+        return 1
+    fi
 
+    # Step 7: Install essential GNOME components for system management
+    echo "Installing essential GNOME components..."
+    sudo apt install -y gnome-keyring gnome-session gnome-flashback seahorse || {
+        echo "Warning: Some GNOME components installation had issues"
+        echo "Desktop may still function, but some features may be limited"
+    }
+
+    # Step 9: Install useful utilities
+    echo "Installing useful utilities..."
+    sudo apt install -y network-manager-gnome gnome-terminal || {
+        echo "Warning: Some utilities installation had issues"
+    }
+
+    # Step 9: Configure system for graphical login
+    echo "Configuring system for graphical login..."
+    sudo systemctl set-default graphical.target
+    # Note: Regolith will use its own display manager (gdm3), don't enable lightdm
+
+    echo "Regolith installed successfully"
+    return 0
 }
 
 function _i3xrocks(){
