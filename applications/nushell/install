@@ -39,20 +39,13 @@ function install_nushell() {
     echo "Installing nushell (this may take 10-20 minutes)..."
     echo "Building from source with cargo..."
 
-    # Try installing with extra features first, fallback to default if it fails
-    if ! cargo install nu --features=extra 2>&1; then
-        echo "Installation with 'extra' features failed, trying default installation..."
-        if ! cargo install nu 2>&1; then
-            echo "❌ Nushell installation failed"
-            return 1
-        fi
-    fi
+    cargo install nu --features=extra
 
     if command -v nu &> /dev/null; then
         echo "✅ Nushell installed successfully!"
         nu --version
     else
-        echo "❌ Nushell installation failed - binary not found"
+        echo "❌ Nushell installation failed"
         return 1
     fi
 
@@ -138,24 +131,21 @@ function verify() {
     echo '====== Verifying installation ======'
 
     local all_good=true
-    local critical_failed=false
 
-    # Check nushell (critical)
+    # Check nushell
     if command -v nu &> /dev/null; then
-        echo "✅ nushell: $(nu --version 2>/dev/null | head -1 || echo 'installed')"
+        echo "✅ nushell: $(nu --version | head -1)"
     else
         echo "❌ nushell: not found"
-        echo "Note: If installation failed, you may need to install manually or check for errors"
         all_good=false
-        critical_failed=true
     fi
 
-    # Check config (not critical, but recommended)
+    # Check config
     if [ -f "$HOME/.config/nushell/config.nu" ]; then
         echo "✅ config.nu: installed"
     else
-        echo "⚠️  config.nu: not found (optional, but recommended)"
-        # Don't mark as failed - config is optional
+        echo "❌ config.nu: not found"
+        all_good=false
     fi
 
     # Check optional tools
@@ -171,17 +161,14 @@ function verify() {
 
     echo '======== End ========'
 
-    if [ "$critical_failed" = true ]; then
-        return 1
-    elif [ "$all_good" = true ]; then
+    if [ "$all_good" = true ]; then
         echo ""
         echo "🎉 Nushell is ready to use!"
         echo "   Run: nu"
         echo "   Docs: ~/.config/nushell/QUICKSTART.md"
         return 0
     else
-        # Config missing but nushell is installed - still success
-        return 0
+        return 1
     fi
 }
 
@@ -234,20 +221,13 @@ function update() {
     fi
 
     echo "Updating nushell via cargo..."
-    # Try with extra features first, fallback to default
-    if ! cargo install nu --features=extra --force 2>&1; then
-        echo "Update with 'extra' features failed, trying default..."
-        if ! cargo install nu --force 2>&1; then
-            echo "❌ Update failed"
-            return 1
-        fi
-    fi
+    cargo install nu --features=extra --force
 
-    if command -v nu &> /dev/null; then
+    if [ $? -eq 0 ]; then
         echo "✅ Nushell updated"
         nu --version
     else
-        echo "❌ Update failed - binary not found"
+        echo "❌ Update failed"
         return 1
     fi
 

@@ -5,6 +5,20 @@ DIR=$(cd -P "$DIR" && pwd)
 
 source "${DIR}"/../../utils/package/github
 
+function _create_config()
+{
+    local config_dir="${HOME}/.config/ripgrep"
+    local config_file="${config_dir}/ripgreprc"
+
+    if [[ ! -d "${config_dir}" ]]; then
+        mkdir -p "${config_dir}"
+    fi
+
+    if [[ ! -f "${config_file}" ]]; then
+        echo "# Ripgrep configuration file" > "${config_file}"
+    fi
+}
+
 function install()
 {
     local extruct_dir
@@ -13,6 +27,8 @@ function install()
     rm -rf "${extruct_dir}"
 
     "${HOME}"/.local/bin/rg --generate=complete-zsh  > ~/.zfunc/_rg
+
+    _create_config
 }
 
 function verify()

@@ -33,10 +33,11 @@ function install_starship() {
 
 function plugin
 {
+    local github_url="https://github.com/zsh-users"
     mkdir -p "${ZSH_CUSTOM_PLUGIN}"
-    git clone "https://github.com/zsh-users/zsh-autosuggestions" "${ZSH_CUSTOM_PLUGIN}/zsh-autosuggestions"
-    git clone "https://github.com/zsh-users/zsh-history-substring-search" "${ZSH_CUSTOM_PLUGIN}/zsh-history-substring-search"
-    git clone "https://github.com/zdharma-continuum/fast-syntax-highlighting" "${ZSH_CUSTOM_PLUGIN}/fast-syntax-highlighting"
+    git clone "${github_url}/zsh-autosuggestions" "${ZSH_CUSTOM_PLUGIN}/zsh-autosuggestions"
+    git clone "${github_url}/zsh-history-substring-search" "${ZSH_CUSTOM_PLUGIN}/zsh-history-substring-search"
+    git clone "${github_url}/fast-syntax-highlighting" "${ZSH_CUSTOM_PLUGIN}/fast-syntax-highlighting"
 }
 
 
@@ -95,29 +96,21 @@ function verify_zsh_install(){
 
 function verify()
 {
-    local all_good=true
-    
     if verify_zsh_install; then
         echo "Zsh is installed"
     else
         echo "Zsh is not installed"
-        all_good=false
+        return 1
     fi
 
     if verify_default_shell; then
         echo "Default shell is zsh"
     else
         echo "Default shell is not zsh"
-        echo "Note: This is normal if you haven't logged out and back in after changing shell"
-        echo "The shell change will take effect after your next login"
-        # Don't fail verification for this - it's expected behavior
-    fi
-
-    if [ "$all_good" = true ]; then
-        return 0
-    else
         return 1
     fi
+
+    return 0
 }
 
 function install
