@@ -78,13 +78,15 @@ remove_appimage() {
 extract_and_choose_icon() {
     local appimage_path="$1"
     local temp_dir="$2"
+    local -n icon_result="$3"  # nameref for output
 
     pushd "$temp_dir" > /dev/null
     "$appimage_path" --appimage-extract > /dev/null
     cd squashfs-root/
 
     echo "Choose icon: "
-    mapfile -t FILENAMES < <(find -L . -maxdepth 1 -type f \( -iname '*.png' -o -iname '*.svg' \))
+    # Find icon files (both regular files and symlinks)
+    mapfile -t FILENAMES < <(find . -maxdepth 1 \( -type f -o -type l \) \( -iname '*.png' -o -iname '*.svg' -o -iname '.DirIcon' \))
 
     if [ ${#FILENAMES[@]} -eq 0 ]; then
         echo "Warning: No icons found in AppImage"
@@ -100,10 +102,49 @@ extract_and_choose_icon() {
 
     read -r SELECTED_INDEX
 
-    ICON_SRC=${FILENAMES[$((SELECTED_INDEX - 1))]}
+    # Validate input
+    if [ -z "$SELECTED_INDEX" ]; then
+        echo "Error: No selection made"
+        popd > /dev/null
+        return 1
+    fi
+
+    if ! [[ "$SELECTED_INDEX" =~ ^[0-9]+$ ]] || [ "$SELECTED_INDEX" -lt 1 ] || [ "$SELECTED_INDEX" -gt "${#FILENAMES[@]}" ]; then
+        echo "Error: Invalid selection. Please enter a number between 1 and ${#FILENAMES[@]}"
+        popd > /dev/null
+        return 1
+    fi
+
+    local ICON_SRC=${FILENAMES[$((SELECTED_INDEX - 1))]}
+    
+    # Follow symlinks if necessary
+    if [ -L "$ICON_SRC" ]; then
+        ICON_SRC=$(readlink -f "$ICON_SRC")
+    else
+        ICON_SRC="$temp_dir/squashfs-root/$ICON_SRC"
+    fi
+    
+    if [ -z "$ICON_SRC" ] || [ ! -f "$ICON_SRC" ]; then
+        echo "Error: Selected icon file not found: $ICON_SRC"
+        popd > /dev/null
+        return 1
+    fi
+    
     popd > /dev/null
 
-    echo "$temp_dir/squashfs-root/$ICON_SRC"
+    icon_result="$ICON_SRC"
+    return 0
+}
+
+detect_electron_app() {
+    local temp_dir="$1"
+    # Check if it's an Electron app by looking for common Electron files
+    if [ -f "$temp_dir/squashfs-root/chrome-sandbox" ] || \
+       [ -f "$temp_dir/squashfs-root/libffmpeg.so" ] || \
+       grep -q "electron" "$temp_dir/squashfs-root/"*.json 2>/dev/null; then
+        return 0  # Is Electron
+    fi
+    return 1  # Not Electron
 }
 
 install_appimage() {
@@ -124,7 +165,8 @@ install_appimage() {
     local desktop_entry="${DESKTOP_ENTRY_DIR}/${app_name}.desktop"
 
     # Extract and select icon
-    local icon_src=$(extract_and_choose_icon "$appimage_fullpath" "$temp_dir")
+    local icon_src=""
+    extract_and_choose_icon "$appimage_fullpath" "$temp_dir" icon_src
 
     if [ -z "$icon_src" ] || [ ! -f "$icon_src" ]; then
         echo "Error: Failed to select icon"
@@ -139,6 +181,13 @@ install_appimage() {
     cp "$icon_src" "$icon_dst"
     echo "✓ Icon copied to: $icon_dst"
 
+    # Detect if it's an Electron app
+    local electron_flags=""
+    if detect_electron_app "$temp_dir"; then
+        electron_flags=" --no-sandbox"
+        echo "✓ Detected Electron app - will use --no-sandbox flag"
+    fi
+
     # Move AppImage to dedicated directory
     if [ "$appimage_fullpath" != "$appimage_dest" ]; then
         cp "$appimage_fullpath" "$appimage_dest"
@@ -148,19 +197,23 @@ install_appimage() {
         echo "✓ AppImage already in correct location"
     fi
 
-    # Create symlink in ~/.local/bin
+    # Create wrapper script in ~/.local/bin (instead of symlink)
     if [ -L "$bin_link" ] || [ -f "$bin_link" ]; then
         rm -f "$bin_link"
     fi
-    ln -s "$appimage_dest" "$bin_link"
-    echo "✓ Symlink created: $bin_link -> $appimage_dest"
+    cat > "$bin_link" <<EOF
+#!/bin/bash
+exec "$appimage_dest"${electron_flags} "\$@"
+EOF
+    chmod +x "$bin_link"
+    echo "✓ Wrapper script created: $bin_link"
 
     # Create desktop entry
     cat <<EOT > "$desktop_entry"
 [Desktop Entry]
 Name=$app_name
 StartupWMClass=$app_name
-Exec=$appimage_dest
+Exec=$appimage_dest${electron_flags}
 Icon=$icon_dst
 Type=Application
 Terminal=false
