@@ -37,7 +37,7 @@ precmd() {
             # Extract the base command name (first word, without arguments or paths)
             local base_cmd="${__command_name%% *}"  # Get first word
             base_cmd="${base_cmd##*/}"               # Remove path if present
-            
+
             # Check if command is in the exclusion list
             local is_excluded=false
             for excluded_cmd in ${=NOTIFY_EXCLUDE_COMMANDS}; do
@@ -46,14 +46,14 @@ precmd() {
                     break
                 fi
             done
-            
+
             # Skip notification if command is excluded
             if [[ "$is_excluded" == "true" ]]; then
                 unset __command_start_time
                 unset __command_name
                 return
             fi
-            
+
             local should_notify=true
 
             # Check if we should only notify when unfocused
@@ -94,7 +94,7 @@ precmd() {
                         --urgency=normal \
                         --icon="$([ $exit_status = 0 ] && echo terminal || echo error)" \
                         "Command ${status_text}" \
-                        "${icon} ${cmd_display}\nDuration: ${duration_display}"
+                        "${icon} ${cmd_display}\nDuration: ${duration_display}" 2>/dev/null
                 fi
             fi
         fi
