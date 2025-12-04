@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 function install_rustup(){
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+    # Use -y flag for non-interactive installation (default options)
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 }
 
 function zsh_autocompletion(){
