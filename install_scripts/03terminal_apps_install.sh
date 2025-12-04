@@ -21,6 +21,9 @@ install_package "Bat" "${DIR}"/../applications/bat
 install_package "Docker" "${DIR}"/../applications/docker
 install_package "Tusk" "${DIR}"/../applications/tusk
 install_package "Ghostty" "${DIR}"/../system/terminal/ghostty
+install_package "Task" "${DIR}"/../applications/task
+install_package "Nushell" "${DIR}"/../applications/nushell
+install_package "Taskwarrior" "${DIR}"/../applications/taskwarrior
 
 
 echo "${summary}"
