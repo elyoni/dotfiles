@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep:*)",
+      "WebSearch",
+      "Read(//tmp/starship_test/**)",
+      "Bash(nu -l -c \"if (''WIMP_PROJECTS_PATH'' in $env) { print ''WIMP configured'' } else { print ''WIMP not configured'' }; print ''Completion:'' $env.config.completions.algorithm\")",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ],
+    "deny": []
+  }
+}
