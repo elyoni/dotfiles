@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P "$DIR" && pwd)
+
+function install_task()
+{
+    echo "======= Installing Task (go-task) ======="
+    
+    # Check if task is already installed
+    if command -v task >/dev/null 2>&1; then
+        echo "Task is already installed at $(which task)"
+        task --version
+        echo "Skipping installation."
+        return 0
+    fi
+    
+    # Create local bin directory if it doesn't exist
+    mkdir -p "${HOME}/.local/bin"
+    
+    # Download and install using the official install script
+    echo "Downloading and installing Task..."
+    sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b "${HOME}/.local/bin"
+    
+    if [ $? -eq 0 ]; then
+        echo "Task installed successfully to ${HOME}/.local/bin/task"
+        "${HOME}/.local/bin/task" --version
+    else
+        echo "Failed to install Task"
+        return 1
+    fi
+    
+    echo "======= End ======="
+}
+
+function setup_task_completion()
+{
+    echo "======= Setting up Task completion ======="
+    
+    # Create zsh completion directory if it doesn't exist
+    mkdir -p "${HOME}/.zfunc"
+    
+    if command -v task >/dev/null 2>&1; then
+        # Generate zsh completion
+        task --completion zsh > "${HOME}/.zfunc/_task"
+        echo "Task zsh completion installed to ${HOME}/.zfunc/_task"
+    else
+        echo "Task not found, skipping completion setup"
+        return 1
+    fi
+    
+    echo "======= End ======="
+}
+
+function install()
+{
+    install_task
+    setup_task_completion
+}
+
+function verify()
+{
+    if command -v task >/dev/null 2>&1; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+function help() # Show a list of functions
+{
+    awk '/^function / && ! /^function _/' "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi
+
+
+
