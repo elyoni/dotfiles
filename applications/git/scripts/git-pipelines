@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+
+# Usage:
+#   git-pipelines [--update] [--remote remote_name] [--branch branch_name]
+
+UPDATE=0
+REMOTE="origin"
+BRANCH=""
+
+# --- Parse args ---
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -h|--help)
+      cat << EOF
+Usage: git-pipelines [options]
+
+Opens the GitLab CI/CD pipelines page filtered by the current branch
+
+Options:
+  -h, --help               Show this help message
+  --update                 Update remote refs before opening
+  --remote REMOTE_NAME     Use specified remote name (default: origin)
+  --branch BRANCH_NAME     Use specific branch (default: current branch)
+
+Examples:
+  git-pipelines                      # Open pipelines for current branch
+  git-pipelines --branch 10.0.1_GA   # Open pipelines for specific branch
+  git-pipelines --remote upstream    # Use 'upstream' remote instead of 'origin'
+  git-pipelines --update             # Update refs before opening
+EOF
+      exit 0
+      ;;
+    --update) UPDATE=1 ;;
+    --remote) shift; REMOTE="$1" ;;
+    --branch) shift; BRANCH="$1" ;;
+  esac
+  shift
+done
+
+# --- Optional: Update remote refs ---
+[ "$UPDATE" -eq 1 ] && git fetch --prune "$REMOTE" >/dev/null 2>&1
+
+# --- Get current branch if not specified ---
+if [ -z "$BRANCH" ]; then
+  BRANCH=$(git symbolic-ref --quiet --short HEAD 2>/dev/null || echo master)
+fi
+
+# --- Fallback to master if remote branch missing ---
+if [ -n "$BRANCH" ] && ! git show-ref --quiet "refs/remotes/$REMOTE/$BRANCH" 2>/dev/null; then
+  BRANCH=master
+fi
+
+# --- Normalize GitLab remote URL to web format ---
+remote_url=$(git config --get "remote.$REMOTE.url")
+host_path=$(echo "$remote_url" | sed -E 's#^(ssh://)?git@([^:/]+)(:[0-9]+)?[:/]([^/]+/.+)\.git$#https://\2/\4#')
+
+# --- Build final URL ---
+url="${host_path}/-/pipelines?page=1&scope=all&ref=${BRANCH}"
+
+# --- Output or open URL ---
+if [ -n "$SSH_CONNECTION" ]; then
+  echo "You are on a remote device. The pipelines URL is: $url"
+  if command -v xclip >/dev/null; then
+    echo "$url" | xclip -selection clipboard
+    echo "   URL copied to clipboard."
+  fi
+else
+  if command -v xdg-open >/dev/null; then
+    xdg-open "$url" >/dev/null 2>&1
+  else
+    echo "Failed to open browser. The pipelines URL is: $url"
+  fi
+fi
+
+
+

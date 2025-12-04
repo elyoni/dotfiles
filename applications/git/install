@@ -10,6 +10,17 @@ function link_files()
     echo ======= Link Files =======
     echo ln -sf "${DIR}"/gitconfig "${HOME}"/.gitconfig
     ln -sf "${DIR}"/gitconfig "${HOME}"/.gitconfig
+    
+    # Link git scripts to ~/.local/bin
+    mkdir -p "${HOME}"/.local/bin
+    for script in "${DIR}"/scripts/*; do
+        if [ -f "$script" ]; then
+            script_name=$(basename "$script")
+            echo ln -sf "$script" "${HOME}/.local/bin/$script_name"
+            ln -sf "$script" "${HOME}/.local/bin/$script_name"
+        fi
+    done
+    
     echo =======   End   =======
 }
 
@@ -93,6 +104,16 @@ function verify() # Verify the installation
     if [ ! -f "$HOME"/.gitconfig ]; then
         return 1
     fi
+    
+    # Verify git scripts are linked
+    for script in "${DIR}"/scripts/*; do
+        if [ -f "$script" ]; then
+            script_name=$(basename "$script")
+            if [ ! -L "$HOME/.local/bin/$script_name" ]; then
+                return 1
+            fi
+        fi
+    done
 }
 
 function help # Show a list of functions
