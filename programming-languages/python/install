@@ -4,8 +4,11 @@ function _install_python3_8(){
     sudo apt-get install -y software-properties-common
     sudo add-apt-repository --yes ppa:deadsnakes/ppa
     sudo apt-get update
-    sudo apt-get install -y python3.8
-    sudo apt-get install -y python3.8-venv
+    sudo apt-get install -y \
+        python3.8 \
+        python3.8-venv \
+        python3.8-distutils
+    python3.8 -m ensurepip --upgrade || echo "Warning: Could not install pip for Python 3.8"
 }
 
 function _install_python3_10(){
@@ -13,17 +16,19 @@ function _install_python3_10(){
     sudo add-apt-repository --yes ppa:deadsnakes/ppa
     sudo apt-get update
     sudo apt-get install -y \
-        python3.10\
-        python3.10-venv
-    sudo apt-get install -y
-    apt install libpython3.11-dev
+        python3.10 \
+        python3.10-venv \
+        python3.10-distutils
+    python3.10 -m ensurepip --upgrade || echo "Warning: Could not install pip for Python 3.10"
 }
 
 function _install_python3_11(){
     sudo apt-get install -y \
-        python3.11\
+        python3.11 \
         python3.11-venv \
-        libpython3.11-dev
+        libpython3.11-dev \
+        python3.11-distutils
+    python3.11 -m ensurepip --upgrade || echo "Warning: Could not install pip for Python 3.11"
 }
 
 function _install_poetry(){
@@ -32,25 +37,36 @@ function _install_poetry(){
 
 }
 
+function _install_uv(){
+    pipx install uv
+}
+
 #Install pip from the official site.
 #  Download the file get-pip.py from the official site.
 #  Install it with python3 get-pip.py.
 #  And install python venv, the version is the installed python version.
+#function _install_pip()
+# {
+#     sudo apt-get install -y wget
+#     wget https://bootstrap.pypa.io/get-pip.py
+#     python3 get-pip.py
+#     python3 -m pip install --user virtualenv
+#     rm get-pip.py
+# }
+
+# Install system pip (for the default python3)
 function _install_pip()
 {
-    sudo apt-get install -y wget
-    wget https://bootstrap.pypa.io/get-pip.py
-    python3 get-pip.py
-    python3 -m pip install --user virtualenv
-    rm get-pip.py
+    # Install system pip (for the default python3)
+    sudo apt-get install -y python3-pip
 }
 
-#Install pipx from an
+#Install pipx using apt (Ubuntu 24.04+ enforces PEP 668)
 
 function _install_pipx()
 {
-    python3 -m pip install --user pipx
-    python3 -m pipx ensurepath
+    sudo apt-get install -y pipx
+    pipx ensurepath
 }
 
 function install()
@@ -61,6 +77,7 @@ function install()
     _install_pip
     _install_pipx
     _install_poetry
+    _install_uv
 }
 
 
