@@ -136,5 +136,7 @@ if command -v aws_completer &>/dev/null; then
     complete -C '/usr/local/bin/aws_completer' aws
 fi
 
+termtitle() { printf "\033]0;$*\007"; }
+
 [[ ! -f ~/.config/zsh/p10k.zsh ]] || source ~/.config/zsh/p10k.zsh
 export PATH="$HOME/.local/bin:$PATH"
