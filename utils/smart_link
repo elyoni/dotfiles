@@ -22,3 +22,8 @@ smart_sym_link() {
 
     echo "Symbolic link created successfully."
 }
+
+# Alias for backward compatibility
+smart_link() {
+    smart_sym_link "$@"
+}

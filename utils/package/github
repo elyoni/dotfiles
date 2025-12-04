@@ -116,3 +116,41 @@ function download_fix_release()
     # Return extract file path
     echo "${filename_without_extension}"
 }
+
+function install_github_release()
+{
+    local repository_path=${1}
+    local file_pattern=${2}
+    local install_dir=${3:-"/usr/local/bin"}
+    local extract_dir
+    
+    echo "[GitHub] Installing from ${repository_path}" >&2
+    
+    # Download and extract the release
+    extract_dir=$(download_latest_release "${file_pattern}" "${repository_path}")
+    
+    if [[ -z "${extract_dir}" ]]; then
+        echo "Failed to download release" >&2
+        return 1
+    fi
+    
+    # Find and copy binaries to install directory
+    # Look for executables in the extracted directory
+    if [[ -d "${extract_dir}" ]]; then
+        echo "Searching for binaries in ${extract_dir}" >&2
+        
+        # Find executable files (excluding .sh scripts typically)
+        while IFS= read -r -d '' binary; do
+            local binary_name=$(basename "${binary}")
+            echo "Installing ${binary_name} to ${install_dir}" >&2
+            sudo cp "${binary}" "${install_dir}/${binary_name}"
+            sudo chmod +x "${install_dir}/${binary_name}"
+        done < <(find "${extract_dir}" -type f -executable -print0 | head -z -n 10)
+        
+        echo "Installation completed" >&2
+        return 0
+    else
+        echo "Extract directory not found: ${extract_dir}" >&2
+        return 1
+    fi
+}
