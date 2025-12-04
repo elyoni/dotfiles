@@ -6,14 +6,139 @@ DIR=$(cd -P "${DIR}" && pwd)
 source "${DIR}"/../../../utils/smart_link
 
 
-function _install_blutui() # <Add information about this package>
+function _check_rust_installed()
 {
-    if ! command -v cargo &> /dev/null; then
-        echo "cargo could not be found"
-        echo "Please install cargo and try again"
-        exit
+    if command -v cargo &> /dev/null; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+function _install_rust_if_needed()
+{
+    if _check_rust_installed; then
+        echo "Rust/cargo is already installed"
+        return 0
     fi
 
+    echo "Rust/cargo is not installed. Installing Rust using your Rust install script..."
+    
+    # Use the existing Rust install script from programming-languages/rust
+    local rust_install_script="${DIR}/../../../programming-languages/rust/install"
+    
+    if [ ! -f "$rust_install_script" ]; then
+        echo "Error: Rust install script not found at $rust_install_script"
+        echo "Please install Rust manually or run the programming languages installation first"
+        return 1
+    fi
+
+    # Run the Rust install script
+    if bash "$rust_install_script" install; then
+        # Source cargo environment if available
+        if [ -f "$HOME/.cargo/env" ]; then
+            source "$HOME/.cargo/env"
+        fi
+        
+        if _check_rust_installed; then
+            echo "Rust installed successfully using your install script"
+            return 0
+        else
+            echo "Warning: Rust installation completed but cargo is not available"
+            echo "Please ensure ~/.cargo/bin is in your PATH"
+            return 1
+        fi
+    else
+        echo "Error: Rust installation failed"
+        return 1
+    fi
+}
+
+function _install_build_dependencies()
+{
+    # Install build dependencies required for compiling bluetui
+    echo "Installing build dependencies for bluetui..."
+    
+    # Install pkg-config first (critical and usually no conflicts)
+    if ! command -v pkg-config >/dev/null 2>&1; then
+        echo "Installing pkg-config..."
+        if ! sudo apt-get install -y pkg-config 2>&1; then
+            echo "Error: Failed to install pkg-config - bluetui compilation will fail"
+            return 1
+        fi
+    else
+        echo "pkg-config is already installed"
+    fi
+    
+    # Try to install libdbus-1-dev (may have version conflicts)
+    if ! dpkg -l | awk -v pkg="libdbus-1-dev" '$1=="ii" && $2==pkg {found=1; exit} END {exit !found}' >/dev/null 2>&1; then
+        echo "Installing libdbus-1-dev..."
+        local install_output=""
+        install_output=$(sudo apt-get install -y libdbus-1-dev 2>&1) || {
+            # Check if it's a version conflict
+            if echo "$install_output" | grep -q "Depends:.*but.*is to be installed"; then
+                echo "Warning: libdbus-1-dev has version conflicts (similar to bzip2 issue)"
+                echo "Attempting to resolve version conflict..."
+                
+                # Extract the conflicting package and version
+                local conflict_pkg=$(echo "$install_output" | grep -o "Depends: [^ ]*" | cut -d' ' -f2 | head -1)
+                local required_version=$(echo "$install_output" | grep -o "= [^)]*" | cut -d' ' -f2 | head -1)
+                
+                if [ -n "$conflict_pkg" ] && [ -n "$required_version" ]; then
+                    echo "Attempting to install exact version: ${conflict_pkg}=${required_version}"
+                    if sudo apt-get install -y --allow-downgrades "${conflict_pkg}=${required_version}" 2>&1; then
+                        echo "Retrying libdbus-1-dev installation..."
+                        sudo apt-get install -y libdbus-1-dev 2>&1 || {
+                            echo "Warning: libdbus-1-dev installation still failed"
+                            echo "bluetui may compile using vendored dbus library instead"
+                        }
+                    fi
+                else
+                    echo "Warning: Could not resolve version conflict for libdbus-1-dev"
+                    echo "bluetui may compile using vendored dbus library instead"
+                fi
+            else
+                echo "Warning: Failed to install libdbus-1-dev"
+                echo "bluetui may compile using vendored dbus library instead"
+            fi
+        }
+    else
+        echo "libdbus-1-dev is already installed"
+    fi
+    
+    # Verify pkg-config is available
+    if ! command -v pkg-config >/dev/null 2>&1; then
+        echo "Error: pkg-config is not available in PATH"
+        return 1
+    fi
+    
+    return 0
+}
+
+function _install_blutui() # <Add information about this package>
+{
+    # Ensure Rust is installed
+    if ! _install_rust_if_needed; then
+        echo "Error: Could not install Rust. Please install it manually and try again"
+        echo "Visit: https://rustup.rs/"
+        return 1
+    fi
+
+    # Install build dependencies
+    _install_build_dependencies
+
+    # Source cargo environment if available
+    if [ -f "$HOME/.cargo/env" ]; then
+        source "$HOME/.cargo/env"
+    fi
+
+    if ! command -v cargo &> /dev/null; then
+        echo "Error: cargo is still not available after Rust installation"
+        echo "Please ensure ~/.cargo/bin is in your PATH"
+        return 1
+    fi
+
+    echo "Installing bluetui using cargo..."
     cargo install bluetui
 }
 
@@ -37,7 +162,7 @@ function _verify_bluetui() # Verify the installation
             echo "Shortcut bt is created"
         else
             echo "Shortcut bt is not created"
-            reutrn 2
+            return 2
         fi
     else
         echo "bluetui is not installed"
