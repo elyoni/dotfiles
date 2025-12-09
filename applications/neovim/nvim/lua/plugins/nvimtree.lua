@@ -5,7 +5,36 @@ return {
             'nvim-tree/nvim-web-devicons', -- optional
         },
         init = function()
+            local function on_attach(bufnr)
+                local api = require("nvim-tree.api")
+
+                local function opts(desc)
+                    return { desc = "nvim-tree: " .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
+                end
+
+                -- Apply default mappings
+                api.config.mappings.default_on_attach(bufnr)
+
+                -- Custom keybind: Duplicate file
+                vim.keymap.set("n", "D", function()
+                    local node = api.tree.get_node_under_cursor()
+                    if node and node.type == "file" then
+                        local source = node.absolute_path
+                        vim.ui.input({ prompt = "Duplicate to: ", default = source }, function(dest)
+                            if dest and dest ~= "" and dest ~= source then
+                                vim.fn.system({ "cp", source, dest })
+                                api.tree.reload()
+                                vim.notify("Duplicated to: " .. dest)
+                            end
+                        end)
+                    else
+                        vim.notify("Please select a file to duplicate", vim.log.levels.WARN)
+                    end
+                end, opts("Duplicate file"))
+            end
+
             require("nvim-tree").setup({
+                on_attach = on_attach,
                 git = {
                     enable = false
                 },
