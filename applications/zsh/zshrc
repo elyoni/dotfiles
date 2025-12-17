@@ -2,6 +2,17 @@
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
 
+# Timing: record start time (requires zsh/datetime for EPOCHREALTIME)
+zmodload zsh/datetime
+typeset -g _ZSHRC_START=$EPOCHREALTIME
+
+# Profiling options (uncomment to enable):
+#   DEBUG=true        -> lightweight zprof summary at shell startup
+#   VERBOSE_DEBUG=true -> detailed per-file source timing (slower)
+#export DEBUG=true
+#export VERBOSE_DEBUG=true
+[[ "$DEBUG" == "true" ]] && zmodload zsh/zprof
+
 if [[ "$TERM_PROGRAM" == "vscode" ]]; then
     # Needed for the cursor
     PROMPT='%n@%m:%~%# '
@@ -12,7 +23,7 @@ fi
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
     source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
-export SHELL=$(which zsh)
+export SHELL=${commands[zsh]}
 export LANG=en_IL.UTF-8
 
 #typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
@@ -57,10 +68,15 @@ fi
 export ZSH_WORK_CONFIGS="${HOME}/.work_dotfiles/zsh"
 _load_zsh_configs "${ZSH_WORK_CONFIGS}"
 
-# Only load direnv if it exists and we're in a project directory
-if command -v direnv &> /dev/null; then
+ Only load direnv if it exists
+ Optimized: cache direnv hook to avoid subprocess on every shell start
+if (( $+commands[direnv] )); then
     [[ "${PWD}" == "${HOME}" ]] && export DIRENV_LOG_FORMAT=""
-    eval "$(direnv hook zsh)"
+    local direnv_cache="${XDG_CACHE_HOME:-$HOME/.cache}/direnv_hook.zsh"
+    if [[ ! -f "$direnv_cache" || "$direnv_cache" -ot "${commands[direnv]}" ]]; then
+        direnv hook zsh > "$direnv_cache"
+    fi
+    source "$direnv_cache"
     unset DIRENV_LOG_FORMAT
 fi
 
@@ -110,33 +126,46 @@ function cur {
 bindkey '^[[1;6u' undo             # Ctrl+Shift+U to restore
 
 # Initialize completion system after all fpath modifications
-# -C skips security check for faster startup
+# Optimized: only regenerate compdump once per day, compile for faster loading
 autoload -Uz compinit
-compinit -C
+local zcompdump="${ZDOTDIR:-$HOME}/.zcompdump"
+# Only regenerate if older than 24 hours (glob qualifier: mh+24 = modified hours ago > 24)
+if [[ -n ${zcompdump}(#qN.mh+24) ]]; then
+    compinit
+    # Compile the dump file for faster loading next time
+    { zcompile "$zcompdump" } &!
+else
+    compinit -C  # -C skips security check and dump regeneration
+fi
 
 # Manually register custom completions from ~/.zfunc
 # Workaround for completions not being auto-loaded by compinit
+# Optimized: uses zsh parameter expansion instead of basename/sed subprocesses
 if [[ -d ~/.zfunc ]]; then
-    for completion_file in ~/.zfunc/_*; do
-        if [[ -f "$completion_file" ]]; then
-            # Extract completion name (remove path and leading underscore)
-            local comp_name=$(basename "$completion_file" | sed 's/^_//')
-            # Autoload the completion function
-            autoload -Uz "$(basename "$completion_file")"
-            # Register it with compdef if the command exists
-            if command -v "$comp_name" &>/dev/null; then
-                compdef "$(basename "$completion_file")" "$comp_name"
-            fi
-        fi
+    for completion_file in ~/.zfunc/_*(N); do
+        [[ -f "$completion_file" ]] || continue
+        # Extract completion name using zsh parameter expansion (no subprocesses)
+        local func_name=${completion_file:t}   # basename
+        local comp_name=${func_name#_}          # remove leading underscore
+        # Autoload and register
+        autoload -Uz "$func_name"
+        (( $+commands[$comp_name] )) && compdef "$func_name" "$comp_name"
     done
 fi
 
 # AWS CLI completion (requires bashcompinit which is loaded earlier)
-if command -v aws_completer &>/dev/null; then
-    complete -C '/usr/local/bin/aws_completer' aws
-fi
+(( $+commands[aws_completer] )) && complete -C "${commands[aws_completer]}" aws
 
 termtitle() { printf "\033]0;$*\007"; }
 
-[[ ! -f ~/.config/zsh/p10k.zsh ]] || source ~/.config/zsh/p10k.zsh
+# NOTE: p10k.zsh and fzf.zsh are already sourced via the ZSH_CONFIGS loop above
+# Removed duplicate sourcing to improve startup time
 export PATH="$HOME/.local/bin:$PATH"
+
+# Output profiling results if DEBUG is enabled
+[[ "$DEBUG" == "true" ]] && zprof
+
+# Show zshrc load time
+typeset -g _ZSHRC_TIME=$(( (EPOCHREALTIME - _ZSHRC_START) * 1000 ))
+printf '\033[90mzshrc loaded in %.0fms\033[0m\n' $_ZSHRC_TIME
+unset _ZSHRC_START _ZSHRC_TIME

@@ -1,12 +1,19 @@
 alias k='kubectl'
+alias kl='kubectl logs'
 alias kg='kubectl get'
 alias kgn='kubectl get nodes'
 alias kgp='kubectl get pods'
 alias kgd='kubectl get deployments.apps'
 alias kgr='kubectl get replicasets.apps'
 alias kgns='kubectl get namepspaces'
+alias kc='kubectl config'
+alias kcc='kubectl config current-context'
+alias kcg='kubectl config get-contexts'
+alias kcs='kubectl config set-context'
 
 
+
+alias kd='kubectl describe'
 alias kdp='kubectl describe pod'
 alias kdn='kubectl describe nodes'
 alias kdelpod='kubectl delete pod'

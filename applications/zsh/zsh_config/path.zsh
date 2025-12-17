@@ -12,25 +12,27 @@ function set_other_path(){
 
 function set_nvm_default_path(){
     # Smart NVM path detection without loading NVM
+    # Optimized: uses zsh builtins instead of cat/ls/sort/tail subprocesses
     local nvm_dir="${NVM_DIR:-$HOME/.config/nvm}"
     
-    if [[ -d "$nvm_dir" ]]; then
-        # Try to find default alias first
-        if [[ -f "$nvm_dir/alias/default" ]]; then
-            local default_version=$(cat "$nvm_dir/alias/default")
-            local node_path="$nvm_dir/versions/node/$default_version/bin"
-            if [[ -d "$node_path" ]]; then
-                set_path "$node_path"
-                return
-            fi
-        fi
-        
-        # Fallback: find the latest installed version
-        local latest_version=$(ls -1 "$nvm_dir/versions/node" 2>/dev/null | sort -V | tail -1)
-        if [[ -n "$latest_version" ]]; then
-            local node_path="$nvm_dir/versions/node/$latest_version/bin"
+    [[ -d "$nvm_dir" ]] || return
+    
+    # Try to find default alias first (using zsh $(<file) instead of cat)
+    if [[ -f "$nvm_dir/alias/default" ]]; then
+        local default_version=$(<"$nvm_dir/alias/default")
+        local node_path="$nvm_dir/versions/node/$default_version/bin"
+        if [[ -d "$node_path" ]]; then
             set_path "$node_path"
+            return
         fi
+    fi
+    
+    # Fallback: find the latest installed version using zsh glob qualifiers
+    # (On) = reverse name sort, [1] = first element = latest version
+    local versions=("$nvm_dir/versions/node"/*(NOn:t))
+    if (( ${#versions} > 0 )); then
+        local node_path="$nvm_dir/versions/node/${versions[1]}/bin"
+        set_path "$node_path"
     fi
 }
 function set_path(){
