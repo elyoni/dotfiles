@@ -230,7 +230,7 @@ bindsym $mod+$wm.binding.ws_prev_on_output workspace prev_on_output
 
 ## Navigate // Scratchpad // <><Ctrl> Enter ##
 set_from_resource $wm.binding.scratchpad wm.binding.scratchpad Ctrl+Return
-bindsym $mod+$wm.binding.scratchpad exec ${HOME}/.config/regolith3/i3/scratchpad.sh -s wiki
+bindsym $mod+$wm.binding.scratchpad exec ${HOME}/.config/regolith3/i3/scratchpad_obsidian.sh
 
 ## Navigate // Obsidian Scratchpad // <><Ctrl> o ##
 set_from_resource $wm.binding.scratchpad_obsidian wm.binding.scratchpad_obsidian Ctrl+o
@@ -325,9 +325,9 @@ set_from_resource $wm.program.logout i3-wm.program.logout /usr/bin/gnome-session
 bindsym $mod+$wm.binding.logout exec $wm.program.logout
 
 ## Session // Reboot // <><Shift> b ##
-set_from_resource $wm.binding.reboot i3-wm.binding.reboot Shift+b
-set_from_resource $wm.program.reboot i3-wm.program.reboot /usr/bin/gnome-session-quit --reboot
-bindsym $mod+$wm.binding.reboot exec $wm.program.reboot
+#set_from_resource $wm.binding.reboot i3-wm.binding.reboot Shift+b
+#set_from_resource $wm.program.reboot i3-wm.program.reboot /usr/bin/gnome-session-quit --reboot
+#bindsym $mod+$wm.binding.reboot exec $wm.program.reboot
 
 ## Session // Power Down // <><Shift> p ##
 #set_from_resource $wm.binding.shutdown i3-wm.binding.shutdown Shift+p
@@ -644,8 +644,8 @@ set_from_resource $wm.program.compositor i3-wm.program.compositor /usr/share/reg
 exec_always --no-startup-id $wm.program.compositor
 
 # Start Rofication for notifications
-#set_from_resource $wm.program.notifications i3-wm.program.notifications /usr/bin/rofication-daemon
-#exec --no-startup-id $wm.program.notifications
+set_from_resource $wm.program.notifications i3-wm.program.notifications /usr/bin/rofication-daemon
+exec --no-startup-id $wm.program.notifications
 
 # Launch first time user experience script
 set_from_resource $wm.program.ftui i3-wm.program.ftui /usr/bin/regolith-ftue
