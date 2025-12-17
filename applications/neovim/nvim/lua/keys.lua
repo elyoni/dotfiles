@@ -213,3 +213,6 @@ vim.keymap.set("n", "<leader>aa", ":VimwikiSearchTags ", with_desc("Search wiki 
 -- Map <Leader>r to run a command in a new terminal split
 vim.keymap.set('n', '<Leader>t', ':split<CR>:terminal ',
     vim.tbl_extend('force', opts, { silent = false, desc = "Open terminal in split" }))
+
+-- Search with Telescope
+vim.keymap.set("n", "<leader>fg", "<cmd>Telescope live_grep_args<CR>", with_desc("Live grep search"))

@@ -1,6 +1,24 @@
 vim.g.mapleader = "," -- Make sure to set `mapleader` before lazy so your mappings are correct
 vim.g.editorconfig = true
 
+-- Add Node.js to PATH for markdown preview and other plugins
+local nvm_dir = os.getenv("HOME") .. "/.config/nvm"
+if vim.fn.isdirectory(nvm_dir) == 1 then
+    local versions_dir = nvm_dir .. "/versions/node"
+    local node_path = nil
+    if vim.fn.isdirectory(versions_dir) == 1 then
+        -- Find the latest version (use last one alphabetically, usually latest)
+        local versions = vim.fn.readdir(versions_dir)
+        table.sort(versions)
+        if #versions > 0 then
+            node_path = versions_dir .. "/" .. versions[#versions] .. "/bin"
+        end
+    end
+    if node_path and vim.fn.isdirectory(node_path) == 1 then
+        vim.env.PATH = node_path .. ":" .. vim.env.PATH
+    end
+end
+
 
 vim.opt.hidden = true          -- Required to keep multiple buffers open multiple buffers
 vim.opt.wrap = false           -- Display long lines as just one line
@@ -10,6 +28,8 @@ vim.opt.pumheight = 10         -- Makes popup menu smaller
 vim.opt.fileencoding = "utf-8" -- The encoding written to file
 vim.opt.ruler = true           -- Show the cursor position all the time
 vim.opt.cmdheight = 2          -- More space for displaying messages
+vim.opt.showcmd = true         -- Show partial command in the last line of the screen
+vim.opt.laststatus = 2         -- Always display the status line
 vim.opt.iskeyword:append("-")  -- treat dash separated words as a word text object/
 vim.opt.mouse = "a"            -- Enable your mouse
 vim.opt.splitbelow = true      -- Horizontal splits will automatically be below
@@ -21,7 +41,7 @@ vim.opt.smarttab = true        -- Makes tabbing smarter will realize you have 2 
 vim.opt.expandtab = true       -- Converts tabs to spaces
 vim.opt.smartindent = true     -- Makes indenting smart
 vim.opt.autoindent = true      -- Good auto indent
---set laststatus=0                       -- Always display the status line
+-- laststatus is set above to 2 (always display the status line)
 vim.opt.scrolloff = 10         -- Good auto indent
 
 --" Number bar
@@ -40,7 +60,8 @@ end
 vim.opt.backupdir = nvim_backup_dir
 
 vim.opt.updatetime = 300                       -- Faster completion
-vim.opt.timeoutlen = 500                       -- By default timeoutlen is 1000 ms
+vim.opt.timeoutlen = 1000                      -- Timeout for key sequences (increased to see showcmd)
+vim.opt.ttimeoutlen = 100                      -- Timeout for key codes
 vim.opt.formatoptions:remove { "c", "r", "o" } -- Stop newline continution of comments
 
 --vim.opt.clipboard="unnamedplus"               -- Copy paste between vim and everything else

@@ -53,14 +53,17 @@ local sections = {
 
 return {
     'nvim-lualine/lualine.nvim',
-    opts = {
-        options = { theme = theme },
-        sections = sections,
-        inactive_sections = sections,
-    },
-    init = function()
+    config = function()
         require("lualine").setup {
+            options = {
+                theme = theme,
+                component_separators = '',
+                section_separators = '',
+            },
             sections = {
+                lualine_a = { 'mode' },
+                lualine_b = { 'branch', 'diff', 'diagnostics' },
+                lualine_c = { { 'filename', path = 3 }, '%S' },
                 lualine_x = {
                     function()
                         local ok, pomo = pcall(require, "pomo")
@@ -79,6 +82,16 @@ return {
                     "fileformat",
                     "filetype",
                 },
+                lualine_y = { 'progress' },
+                lualine_z = { 'location' }
+            },
+            inactive_sections = {
+                lualine_a = { 'mode' },
+                lualine_b = { 'branch', 'diff', 'diagnostics' },
+                lualine_c = { { 'filename', path = 3 }, '%S' },
+                lualine_x = { 'encoding', 'fileformat', 'filetype' },
+                lualine_y = { 'progress' },
+                lualine_z = { 'location' }
             },
         }
     end,
