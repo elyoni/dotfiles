@@ -54,6 +54,11 @@ case "$extension" in
         try acat "$path" && { dump | trim; exit 3; }
         try bsdtar -lf "$path" && { dump | trim; exit 0; }
         exit 1;;
+    # Zstandard compressed tar archives:
+    zst)
+        try tar --zstd -tf "$path" && { dump | trim; exit 0; }
+        try bsdtar -lf "$path" && { dump | trim; exit 0; }
+        exit 1;;
     rar)
         try unrar -p- lt "$path" && { dump | trim; exit 0; } || exit 1;;
     # PDF documents:
