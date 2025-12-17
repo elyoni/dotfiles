@@ -68,3 +68,19 @@ The install script provides a menu with 4 options:
 ├── utils/                 # Shared utility functions
 └── install_scripts/       # Installation orchestration
 ```
+
+## Commit Conventions
+
+All commit messages must start with the module name in square brackets:
+
+```
+[<module name>] <commit message>
+```
+
+The module name should correspond to the top-level directory or specific application being modified. Examples:
+
+- `[neovim] Update keybindings and plugin configurations`
+- `[zsh] Add new aliases for kubectl`
+- `[system] Update i3 window manager configuration`
+- `[scripts] Add log viewer installation script`
+- `[python] Update installation script dependencies`
