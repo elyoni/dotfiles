@@ -68,8 +68,8 @@ fi
 export ZSH_WORK_CONFIGS="${HOME}/.work_dotfiles/zsh"
 _load_zsh_configs "${ZSH_WORK_CONFIGS}"
 
- Only load direnv if it exists
- Optimized: cache direnv hook to avoid subprocess on every shell start
+# Only load direnv if it exists
+# Optimized: cache direnv hook to avoid subprocess on every shell start
 if (( $+commands[direnv] )); then
     [[ "${PWD}" == "${HOME}" ]] && export DIRENV_LOG_FORMAT=""
     local direnv_cache="${XDG_CACHE_HOME:-$HOME/.cache}/direnv_hook.zsh"
