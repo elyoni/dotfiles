@@ -373,8 +373,10 @@ sync_file() {
         cmd="$cmd '$REMOTE_HOST:~/$relative_path' '$file'"
     fi
 
+    set +e
     eval "$cmd" 2>"$error_file"
     local exit_code=$?
+    set -e
 
     if [ $exit_code -eq 0 ]; then
         log "✓ Synced: $file"
@@ -444,8 +446,10 @@ sync_directory() {
         cmd="$cmd '$REMOTE_HOST:~/$relative_path/' '$dir/'"
     fi
 
+    set +e
     eval "$cmd" 2>"$error_file"
     local exit_code=$?
+    set -e
 
     if [ $exit_code -eq 0 ]; then
         log "✓ Synced: $dir"
