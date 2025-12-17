@@ -48,6 +48,9 @@
 window-decoration = none
 theme = NvimDark
 
+# Enable GTK single instance mode for faster subsequent window opens
+gtk-single-instance = desktop
+
 # Set zsh as the default shell
 command = /usr/bin/zsh
 
@@ -59,7 +62,8 @@ font-size = 14
 # audio-bell = false
 
 # Shell integration and notifications
-shell-integration = zsh
+# Disable to test startup speed - re-enable if needed
+shell-integration = none
 
 # Command completion notifications (from Kitty config)
 # Note: Ghostty handles this differently - notifications work through shell integration
@@ -74,7 +78,7 @@ keybind = ctrl+minus=decrease_font_size:2
 
 # Advanced keybindings from Kitty config
 # Open scrollback in editor (like Kitty's overlay but using Ghostty's built-in feature)
-# This writes scrollback to temp file and opens it with default editor
+# These write scrollback/screen to temp file and open it with nvim (configured above)
 #unbind write_scrollback_file
 keybind = ctrl+shift+f=write_scrollback_file:open
 keybind = ctrl+shift+g=write_screen_file:open
@@ -93,3 +97,36 @@ keybind = alt+three=unbind
 keybind = alt+four=unbind
 
 clipboard-paste-protection = false
+
+# Unbind default ctrl+comma (was reload_config)
+keybind = ctrl+comma=unbind
+
+# Leader key: Ctrl+,
+# Usage: Press Ctrl+, then press the action key
+#
+# Navigation (vim-style)
+keybind = ctrl+comma>h=goto_split:left
+keybind = ctrl+comma>j=goto_split:down
+keybind = ctrl+comma>k=goto_split:up
+keybind = ctrl+comma>l=goto_split:right
+
+# Split management
+keybind = ctrl+comma>backslash=new_split:right
+keybind = ctrl+comma>minus=new_split:down
+keybind = ctrl+comma>x=close_surface
+
+# Resize splits
+keybind = ctrl+comma>shift+h=resize_split:left,10
+keybind = ctrl+comma>shift+j=resize_split:down,10
+keybind = ctrl+comma>shift+k=resize_split:up,10
+keybind = ctrl+comma>shift+l=resize_split:right,10
+keybind = ctrl+comma>s>r=new_split:right
+keybind = ctrl+comma>s>d=new_split:down
+
+# Window/Tab management
+keybind = ctrl+comma>c=new_tab
+keybind = ctrl+comma>n=new_window
+keybind = ctrl+comma>r=reload_config
+
+# Zoom toggle (like tmux z)
+keybind = ctrl+comma>z=toggle_split_zoom
