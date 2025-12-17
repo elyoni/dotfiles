@@ -32,13 +32,19 @@ function _install_python3_11(){
 }
 
 function _install_poetry(){
-    pipx install poetry
-    poetry completions zsh > $HOME/.zsh/completion/_poetry
-
+    if ! command -v poetry &>/dev/null; then
+        pipx install poetry
+    fi
+    if command -v poetry &>/dev/null; then
+        mkdir -p "$HOME/.zfunc"
+        poetry completions zsh > "$HOME/.zfunc/_poetry" 2>/dev/null || echo "Warning: Could not generate poetry completions"
+    fi
 }
 
 function _install_uv(){
-    pipx install uv
+    if ! command -v uv &>/dev/null; then
+        pipx install uv
+    fi
 }
 
 #Install pip from the official site.
@@ -66,7 +72,7 @@ function _install_pip()
 function _install_pipx()
 {
     sudo apt-get install -y pipx
-    pipx ensurepath
+    pipx ensurepath --force 2>/dev/null || pipx ensurepath
 }
 
 function install()
