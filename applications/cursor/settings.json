@@ -1,0 +1,26 @@
+{
+	"window.commandCenter": true,
+	"cursor.composer.shouldChimeAfterChatFinishes": true,
+	"remote.SSH.remotePlatform": {
+		"yonie-ub-pc.me": "linux"
+	},
+	"makefile.configureOnOpen": true,
+	"vscode-neovim.compositeKeys": {
+		"kj": {
+			"command": "vscode-neovim.escape"
+		}
+	},
+	"vscode-neovim.compositeTimeout": 500,
+	"vscode-neovim.useCtrlKeysCommands": "none",
+	"vscode-neovim.neovimInitVimPaths.linux": "~/.config/nvim/init.lua",
+	"editor.lineNumbers": "relative",
+	"workbench.statusBar.visible": true,
+	"vscode-neovim.useVSCodeNeovimIntegration": true,
+	"vscode-neovim.normalModeKeyBindingsNonRecursive": [
+		{
+			"before": [","],
+			"after": [","]
+		}
+	],
+	"window.titleBarStyle": "native"
+}

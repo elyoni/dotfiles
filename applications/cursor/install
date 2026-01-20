@@ -1,0 +1,191 @@
+#!/usr/bin/env bash
+
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P "${DIR}" && pwd)
+
+CURSOR_USER_DIR="${HOME}/.config/Cursor/User"
+
+function link_files()
+{
+    echo ======= Link Cursor Files =======
+    
+    # Create Cursor User directory if it doesn't exist
+    mkdir -p "${CURSOR_USER_DIR}"
+    
+    # Remove existing files/directories if they exist
+    if [ -e "${CURSOR_USER_DIR}/settings.json" ]; then
+        echo "Removing existing settings.json..."
+        rm -f "${CURSOR_USER_DIR}/settings.json"
+    fi
+    
+    if [ -e "${CURSOR_USER_DIR}/keybindings.json" ]; then
+        echo "Removing existing keybindings.json..."
+        rm -f "${CURSOR_USER_DIR}/keybindings.json"
+    fi
+    
+    if [ -e "${CURSOR_USER_DIR}/snippets" ]; then
+        echo "Removing existing snippets directory..."
+        rm -rf "${CURSOR_USER_DIR}/snippets"
+    fi
+    
+    # Create symlinks
+    echo "ln -sf ${DIR}/settings.json ${CURSOR_USER_DIR}/settings.json"
+    ln -sf "${DIR}/settings.json" "${CURSOR_USER_DIR}/settings.json"
+    
+    echo "ln -sf ${DIR}/keybindings.json ${CURSOR_USER_DIR}/keybindings.json"
+    ln -sf "${DIR}/keybindings.json" "${CURSOR_USER_DIR}/keybindings.json"
+    
+    echo "ln -sf ${DIR}/snippets ${CURSOR_USER_DIR}/snippets"
+    ln -sf "${DIR}/snippets" "${CURSOR_USER_DIR}/snippets"
+    
+    echo =======   End   =======
+}
+
+function install_extensions() # Install extensions from extensions.txt
+{
+    if [ ! -f "${DIR}/extensions.txt" ]; then
+        echo "extensions.txt not found, skipping extension installation"
+        return
+    fi
+    
+    echo ======= Install Cursor Extensions =======
+    
+    if ! command -v cursor >/dev/null 2>&1; then
+        echo "cursor command not found, skipping extension installation"
+        return
+    fi
+    
+    while IFS= read -r extension; do
+        # Skip empty lines and comments
+        [[ -z "$extension" || "$extension" =~ ^# ]] && continue
+        
+        echo "Installing extension: $extension"
+        cursor --install-extension "$extension" || echo "Failed to install $extension"
+    done < "${DIR}/extensions.txt"
+    
+    echo =======   End   =======
+}
+
+function export_extensions() # Export currently installed extensions to extensions.txt
+{
+    echo ======= Export Cursor Extensions =======
+    
+    if ! command -v cursor >/dev/null 2>&1; then
+        echo "cursor command not found, cannot export extensions"
+        return 1
+    fi
+    
+    cursor --list-extensions > "${DIR}/extensions.txt"
+    echo "Extensions exported to ${DIR}/extensions.txt"
+    
+    echo =======   End   =======
+}
+
+function backup_current_config() # Backup current Cursor config to dotfiles
+{
+    echo ======= Backup Current Cursor Config =======
+    
+    if [ ! -d "${CURSOR_USER_DIR}" ]; then
+        echo "Cursor User directory not found, nothing to backup"
+        return 1
+    fi
+    
+    # Backup settings.json
+    if [ -f "${CURSOR_USER_DIR}/settings.json" ] && [ ! -L "${CURSOR_USER_DIR}/settings.json" ]; then
+        echo "Copying settings.json to dotfiles..."
+        cp "${CURSOR_USER_DIR}/settings.json" "${DIR}/settings.json"
+    fi
+    
+    # Backup keybindings.json
+    if [ -f "${CURSOR_USER_DIR}/keybindings.json" ] && [ ! -L "${CURSOR_USER_DIR}/keybindings.json" ]; then
+        echo "Copying keybindings.json to dotfiles..."
+        cp "${CURSOR_USER_DIR}/keybindings.json" "${DIR}/keybindings.json"
+    fi
+    
+    # Backup snippets if they exist and aren't symlinks
+    if [ -d "${CURSOR_USER_DIR}/snippets" ] && [ ! -L "${CURSOR_USER_DIR}/snippets" ]; then
+        echo "Copying snippets to dotfiles..."
+        cp -r "${CURSOR_USER_DIR}/snippets"/* "${DIR}/snippets/" 2>/dev/null || echo "No snippets to copy"
+    fi
+    
+    # Export extensions
+    export_extensions
+    
+    echo =======   End   =======
+}
+
+function verify() # Verify the installation
+{
+    local all_verified=true
+    
+    # Check if settings.json is a symlink pointing to dotfiles
+    if [ -L "${CURSOR_USER_DIR}/settings.json" ]; then
+        local target=$(readlink "${CURSOR_USER_DIR}/settings.json")
+        if [[ "$target" == "${DIR}/settings.json" ]]; then
+            echo "✓ settings.json is correctly symlinked"
+        else
+            echo "✗ settings.json symlink points to wrong location: $target"
+            all_verified=false
+        fi
+    else
+        echo "✗ settings.json is not a symlink"
+        all_verified=false
+    fi
+    
+    # Check if keybindings.json is a symlink pointing to dotfiles
+    if [ -L "${CURSOR_USER_DIR}/keybindings.json" ]; then
+        local target=$(readlink "${CURSOR_USER_DIR}/keybindings.json")
+        if [[ "$target" == "${DIR}/keybindings.json" ]]; then
+            echo "✓ keybindings.json is correctly symlinked"
+        else
+            echo "✗ keybindings.json symlink points to wrong location: $target"
+            all_verified=false
+        fi
+    else
+        echo "✗ keybindings.json is not a symlink"
+        all_verified=false
+    fi
+    
+    # Check if snippets is a symlink pointing to dotfiles
+    if [ -L "${CURSOR_USER_DIR}/snippets" ]; then
+        local target=$(readlink "${CURSOR_USER_DIR}/snippets")
+        if [[ "$target" == "${DIR}/snippets" ]]; then
+            echo "✓ snippets is correctly symlinked"
+        else
+            echo "✗ snippets symlink points to wrong location: $target"
+            all_verified=false
+        fi
+    else
+        echo "✗ snippets is not a symlink"
+        all_verified=false
+    fi
+    
+    if [ "$all_verified" = true ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+function install() # Main installation function
+{
+    link_files
+    
+    # Optionally install extensions
+    read -p "Do you want to install extensions? (y/n) " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        install_extensions
+    fi
+}
+
+function help() # Show a list of functions
+{
+    awk '/^function / && ! /^function _/' "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi

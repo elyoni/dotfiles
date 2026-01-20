@@ -1,0 +1,12 @@
+anysphere.cursorpyright
+anysphere.remote-ssh
+asvetliakov.vscode-neovim
+golang.go
+jackiotyu.git-worktree-manager
+jebbs.plantuml
+ms-azuretools.vscode-containers
+ms-azuretools.vscode-docker
+ms-python.debugpy
+ms-python.python
+ms-vscode.makefile-tools
+vscodevim.vim
