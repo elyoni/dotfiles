@@ -59,6 +59,13 @@ if vim.fn.isdirectory(nvim_backup_dir) then
 end
 vim.opt.backupdir = nvim_backup_dir
 
+-- Set nvim swap file directory
+local nvim_swap_dir = os.getenv("HOME") .. "/.local/state/nvim/swap"
+if not vim.fn.isdirectory(nvim_swap_dir) then
+    os.execute("mkdir -p " .. nvim_swap_dir)
+end
+vim.opt.directory = nvim_swap_dir
+
 vim.opt.updatetime = 300                       -- Faster completion
 vim.opt.timeoutlen = 1000                      -- Timeout for key sequences (increased to see showcmd)
 vim.opt.ttimeoutlen = 100                      -- Timeout for key codes
@@ -117,4 +124,99 @@ vim.api.nvim_create_autocmd("FileType", {
 vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
     pattern = vim.fn.expand("~/.ssh/config.d/*"),
     command = "setfiletype sshconfig",
+})
+
+-- Folding for markdown files in Obsidian vault (code blocks only)
+_G.markdown_fold_cache = {}
+
+vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile", "BufWritePost" }, {
+    pattern = vim.fn.expand("~/private/obsidian/work") .. "/**/*.md",
+    callback = function(args)
+        local bufnr = args.buf
+        
+        vim.opt_local.foldmethod = "expr"
+        vim.opt_local.foldexpr = "v:lua.markdown_codeblock_fold()"
+        vim.opt_local.foldlevel = 0  -- Start with all folds closed
+        vim.opt_local.foldenable = true
+        
+        -- Build cache of code block positions
+        vim.schedule(function()
+            _G.build_markdown_fold_cache(bufnr)
+        end)
+    end,
+})
+
+-- Build cache of code block start/end lines
+function _G.build_markdown_fold_cache(bufnr)
+    if not vim.api.nvim_buf_is_valid(bufnr) then return end
+    
+    local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+    local cache = {}
+    local in_block = false
+    local block_start = nil
+    
+    for i, line in ipairs(lines) do
+        if line:match("^%s*```") then
+            if not in_block then
+                block_start = i
+                in_block = true
+            else
+                -- Found closing fence
+                if block_start then
+                    cache[block_start] = "start"
+                    cache[i] = "end"
+                end
+                in_block = false
+                block_start = nil
+            end
+        end
+    end
+    
+    _G.markdown_fold_cache[bufnr] = cache
+end
+
+-- Fold expression using the cache
+function _G.markdown_codeblock_fold()
+    local bufnr = vim.api.nvim_get_current_buf()
+    local lnum = vim.v.lnum
+    local cache = _G.markdown_fold_cache[bufnr]
+    
+    if not cache then
+        return "="
+    end
+    
+    if cache[lnum] == "start" then
+        return "a1"  -- Start fold after this line
+    elseif cache[lnum] == "end" then
+        return "s1"  -- End fold on this line
+    end
+    
+    return "="
+end
+
+-- Clean up cache when buffer is deleted
+vim.api.nvim_create_autocmd("BufDelete", {
+    callback = function(args)
+        _G.markdown_fold_cache[args.buf] = nil
+    end,
+})
+
+-- Automatically handle stale swap files
+vim.api.nvim_create_autocmd("SwapExists", {
+    callback = function(args)
+        local swap_file = args.file
+        if swap_file and vim.fn.filereadable(swap_file) == 1 then
+            -- Check if swap file is stale by trying to read it
+            local handle = io.open(swap_file, "r")
+            if handle then
+                handle:close()
+                -- Remove stale swap file and continue
+                local result = os.remove(swap_file)
+                if result then
+                    vim.v.swapchoice = "e"  -- Edit anyway
+                    vim.notify("Removed stale swap file: " .. vim.fn.fnamemodify(swap_file, ":t"), vim.log.levels.INFO)
+                end
+            end
+        end
+    end,
 })
