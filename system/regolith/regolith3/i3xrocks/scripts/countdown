@@ -1,13 +1,105 @@
 #!/bin/bash
+# Countdown timer script for i3xrocks
 # File to store the target time
 TARGET_FILE="/tmp/countdown_target_time"
 COUNTDOWN_NOTIFIED="/tmp/countdown_notified"
+MESSAGE_FILE="/tmp/countdown_message"
+DURATION_FILE="/tmp/countdown_duration"
 
-# Load the saved countdown target or use a default value
+# Get button click (support both button and BLOCK_BUTTON for compatibility)
+BUTTON=${button:-${BLOCK_BUTTON:-}}
+
+# Format duration string
+format_duration() {
+    local total_seconds=$1
+    local hours=$((total_seconds / 3600))
+    local minutes=$(((total_seconds % 3600) / 60))
+    local seconds=$((total_seconds % 60))
+    
+    local parts=()
+    if [ $hours -gt 0 ]; then
+        parts+=("${hours}h")
+    fi
+    if [ $minutes -gt 0 ]; then
+        parts+=("${minutes}m")
+    fi
+    if [ $seconds -gt 0 ] || [ ${#parts[@]} -eq 0 ]; then
+        parts+=("${seconds}s")
+    fi
+    
+    # Join parts with space
+    local result=""
+    for part in "${parts[@]}"; do
+        if [ -n "$result" ]; then
+            result="$result "
+        fi
+        result="$result$part"
+    done
+    echo "$result"
+}
+
+# Load custom message if exists
+load_custom_message() {
+    local custom_msg=""
+    if [ -f "$MESSAGE_FILE" ]; then
+        custom_msg=$(cat "$MESSAGE_FILE" 2>/dev/null)
+    fi
+    
+    # Use custom message only if it's non-empty
+    if [ -n "$custom_msg" ]; then
+        echo "$custom_msg"
+    else
+        # Generate default message with duration
+        if [ -f "$DURATION_FILE" ]; then
+            local duration_seconds=$(cat "$DURATION_FILE" 2>/dev/null)
+            if [ -n "$duration_seconds" ] && [[ "$duration_seconds" =~ ^[0-9]+$ ]]; then
+                local duration_str=$(format_duration "$duration_seconds")
+                echo "Countdown of ${duration_str}, has finished"
+            else
+                echo "Countdown has finished"
+            fi
+        else
+            echo "Countdown has finished"
+        fi
+    fi
+}
+
+# Save custom message
+save_custom_message() {
+    local message="$1"
+    if [ -n "$message" ]; then
+        echo "$message" > "$MESSAGE_FILE"
+    else
+        rm -f "$MESSAGE_FILE"
+    fi
+}
+
+# Save duration
+save_duration() {
+    local duration_seconds="$1"
+    if [ -n "$duration_seconds" ] && [[ "$duration_seconds" =~ ^[0-9]+$ ]]; then
+        echo "$duration_seconds" > "$DURATION_FILE"
+    fi
+}
+
+# Load the saved countdown target with error handling
+TARGET_TIME=""
 if [ -f "$TARGET_FILE" ]; then
-    TARGET_TIME=$(date -d $(cat "$TARGET_FILE") +%s)
-else
-    TARGET_TIME=$(date -d 0 +"%T")
+    TARGET_STRING=$(cat "$TARGET_FILE" 2>/dev/null)
+    if [ -n "$TARGET_STRING" ]; then
+        # Try to parse as time string (HH:MM:SS) and convert to epoch
+        TARGET_TIME=$(date -d "$TARGET_STRING" +%s 2>/dev/null)
+        # If that fails, try parsing as epoch seconds directly
+        if [ -z "$TARGET_TIME" ] && [[ "$TARGET_STRING" =~ ^[0-9]+$ ]]; then
+            TARGET_TIME="$TARGET_STRING"
+        fi
+        # Validate the target time
+        if [ -z "$TARGET_TIME" ] || ! [[ "$TARGET_TIME" =~ ^[0-9]+$ ]]; then
+            # Invalid file content, remove it
+            rm -f "$TARGET_FILE"
+            TARGET_TIME=""
+        fi
+    fi
 fi
 
 function display_time() {
@@ -16,9 +108,14 @@ function display_time() {
     local MINUTES
     local SECONDS
 
-    CURRENT_TIME=$(date +%s)
+    # Performance: Cache current time (only called once per execution)
+    local CURRENT_TIME=$(date +%s)
+    local REMAINING_TIME=$((TARGET_TIME - CURRENT_TIME))
 
-    REMAINING_TIME=$((TARGET_TIME - CURRENT_TIME))
+    # Handle negative time (countdown expired)
+    if [ $REMAINING_TIME -lt 0 ]; then
+        REMAINING_TIME=0
+    fi
 
     # Format and display the remaining time
     DAYS=$((REMAINING_TIME / 86400))
@@ -35,61 +132,411 @@ function display_time() {
     else
         echo "CD: $(printf '%02d' $SECONDS)"
     fi
+}
 
+# Calculate remaining time components
+get_remaining_components() {
+    local CURRENT_TIME=$(date +%s)
+    local REMAINING_TIME=$((TARGET_TIME - CURRENT_TIME))
+
+    if [ $REMAINING_TIME -lt 0 ]; then
+        REMAINING_TIME=0
+    fi
+
+    local HOURS=$(( (REMAINING_TIME % 86400) / 3600 ))
+    local MINUTES=$(( (REMAINING_TIME % 3600) / 60 ))
+    local SECONDS=$((REMAINING_TIME % 60))
+
+    echo "$HOURS $MINUTES $SECONDS"
+}
+
+# Adjust time by adding/subtracting seconds
+adjust_time() {
+    local adjustment=$1
+    local CURRENT_TIME=$(date +%s)
+    local NEW_TARGET_TIME=$((TARGET_TIME + adjustment))
+
+    # Ensure we don't go into the past
+    if [ $NEW_TARGET_TIME -le $CURRENT_TIME ]; then
+        return 1
+    fi
+
+    # Save as time string for compatibility
+    local TIME_STRING=$(date -d "@$NEW_TARGET_TIME" +"%H:%M:%S" 2>/dev/null)
+    if [ -n "$TIME_STRING" ]; then
+        echo "$TIME_STRING" > "$TARGET_FILE"
+        TARGET_TIME=$NEW_TARGET_TIME
+        return 0
+    fi
+    return 1
+}
+
+function show_time_adjustment_dialog() {
+    # Prevent multiple dialogs
+    local LOCK_FILE="/tmp/countdown_dialog_lock"
+    if [ -f "$LOCK_FILE" ]; then
+        # Check if the lock is stale (older than 5 seconds)
+        local LOCK_AGE=$(($(date +%s) - $(stat -c %Y "$LOCK_FILE" 2>/dev/null || echo 0)))
+        if [ $LOCK_AGE -lt 5 ]; then
+            return 1
+        fi
+    fi
+    touch "$LOCK_FILE"
+
+    # Get current remaining time
+    local CURRENT_TIME=$(date +%s)
+    local REMAINING_TIME=0
+    local HOURS=0
+    local MINUTES=0
+    local SECONDS=0
+
+    # Only calculate if we have a valid target time
+    if [ -n "$TARGET_TIME" ] && [[ "$TARGET_TIME" =~ ^[0-9]+$ ]]; then
+        REMAINING_TIME=$((TARGET_TIME - CURRENT_TIME))
+        if [ $REMAINING_TIME -lt 0 ]; then
+            REMAINING_TIME=0
+        fi
+        HOURS=$(( (REMAINING_TIME % 86400) / 3600 ))
+        MINUTES=$(( (REMAINING_TIME % 3600) / 60 ))
+        SECONDS=$((REMAINING_TIME % 60))
+    fi
+
+    # Load current message
+    local CURRENT_MESSAGE=$(load_custom_message)
+
+    # Show main dialog with time adjustment options
+    # Use multiple entry dialogs with --entry-text to pre-fill values (zenity forms can't pre-fill)
+    while true; do
+        local HEADER_MSG="Countdown Timer"
+        if [ $HOURS -gt 0 ] || [ $MINUTES -gt 0 ] || [ $SECONDS -gt 0 ]; then
+            HEADER_MSG="Countdown Timer (Current: ${HOURS}h ${MINUTES}m ${SECONDS}s)"
+        fi
+        
+        # Get hours (pre-filled)
+        local NEW_HOURS=$(zenity --entry --title "$HEADER_MSG" \
+            --text "Hours:" \
+            --entry-text "$HOURS" 2>/dev/null)
+        
+        if [ $? -ne 0 ]; then
+            rm -f "$LOCK_FILE"
+            return 1
+        fi
+        # Default to 0 if empty
+        NEW_HOURS=${NEW_HOURS:-0}
+        
+        # Get minutes (pre-filled)
+        local NEW_MINUTES=$(zenity --entry --title "$HEADER_MSG" \
+            --text "Minutes:" \
+            --entry-text "$MINUTES" 2>/dev/null)
+        
+        if [ $? -ne 0 ]; then
+            rm -f "$LOCK_FILE"
+            return 1
+        fi
+        # Default to 0 if empty
+        NEW_MINUTES=${NEW_MINUTES:-0}
+        
+        # Get seconds (pre-filled)
+        local NEW_SECONDS=$(zenity --entry --title "$HEADER_MSG" \
+            --text "Seconds:" \
+            --entry-text "$SECONDS" 2>/dev/null)
+        
+        if [ $? -ne 0 ]; then
+            rm -f "$LOCK_FILE"
+            return 1
+        fi
+        # Default to 0 if empty
+        NEW_SECONDS=${NEW_SECONDS:-0}
+        
+        # Get custom message (pre-filled)
+        local NEW_MESSAGE=$(zenity --entry --title "$HEADER_MSG" \
+            --text "Custom notification message (optional):" \
+            --entry-text "$CURRENT_MESSAGE" 2>/dev/null)
+        
+        if [ $? -ne 0 ]; then
+            rm -f "$LOCK_FILE"
+            return 1
+        fi
+
+        # Validate inputs
+        if ! [[ "$NEW_HOURS" =~ ^[0-9]+$ ]] || ! [[ "$NEW_MINUTES" =~ ^[0-9]+$ ]] || ! [[ "$NEW_SECONDS" =~ ^[0-9]+$ ]]; then
+            zenity --error --text "Please enter valid numbers for hours, minutes, and seconds." 2>/dev/null
+            continue
+        fi
+
+        # Convert to total seconds
+        local TOTAL_SECONDS=$((NEW_HOURS * 3600 + NEW_MINUTES * 60 + NEW_SECONDS))
+
+        if [ $TOTAL_SECONDS -eq 0 ]; then
+            zenity --error --text "Countdown time cannot be zero." 2>/dev/null
+            continue
+        fi
+
+        # Calculate new target time
+        local NEW_TARGET_TIME=$((CURRENT_TIME + TOTAL_SECONDS))
+
+        # Save target time as HH:MM:SS string
+        local TIME_STRING=$(date -d "@$NEW_TARGET_TIME" +"%H:%M:%S" 2>/dev/null)
+        if [ -z "$TIME_STRING" ]; then
+            zenity --error --text "Failed to calculate target time." 2>/dev/null
+            continue
+        fi
+
+        echo "$TIME_STRING" > "$TARGET_FILE"
+        TARGET_TIME=$NEW_TARGET_TIME
+
+        # Save custom message
+        save_custom_message "$NEW_MESSAGE"
+        
+        # Save duration
+        save_duration "$TOTAL_SECONDS"
+
+        # Clear notification flag
+        rm -f "$COUNTDOWN_NOTIFIED"
+
+        rm -f "$LOCK_FILE"
+        return 0
+    done
+}
+
+function show_quick_adjust_dialog() {
+    local LOCK_FILE="/tmp/countdown_dialog_lock"
+    if [ -f "$LOCK_FILE" ]; then
+        local LOCK_AGE=$(($(date +%s) - $(stat -c %Y "$LOCK_FILE" 2>/dev/null || echo 0)))
+        if [ $LOCK_AGE -lt 5 ]; then
+            return 1
+        fi
+    fi
+    touch "$LOCK_FILE"
+
+    local CURRENT_TIME=$(date +%s)
+    local REMAINING_TIME=0
+    local HOURS=0
+    local MINUTES=0
+    local SECONDS=0
+
+    # Only calculate if we have a valid target time
+    if [ -n "$TARGET_TIME" ] && [[ "$TARGET_TIME" =~ ^[0-9]+$ ]]; then
+        REMAINING_TIME=$((TARGET_TIME - CURRENT_TIME))
+        if [ $REMAINING_TIME -lt 0 ]; then
+            REMAINING_TIME=0
+        fi
+        HOURS=$(( (REMAINING_TIME % 86400) / 3600 ))
+        MINUTES=$(( (REMAINING_TIME % 3600) / 60 ))
+        SECONDS=$((REMAINING_TIME % 60))
+    fi
+
+    local CURRENT_MESSAGE=$(load_custom_message)
+
+    # Show menu for quick adjustments
+    local MENU_CHOICE=$(zenity --list --title "Countdown Timer" \
+        --text "Current: $(printf '%02d:%02d:%02d' $HOURS $MINUTES $SECONDS)\n\nQuick Adjust:" \
+        --column "Action" \
+        "+1 Hour" \
+        "-1 Hour" \
+        "+5 Minutes" \
+        "-5 Minutes" \
+        "+1 Minute" \
+        "-1 Minute" \
+        "+30 Seconds" \
+        "-30 Seconds" \
+        "+10 Seconds" \
+        "-10 Seconds" \
+        "+1 Second" \
+        "-1 Second" \
+        "Set Custom Time" \
+        "Set Message Only" \
+        --height=400 2>/dev/null)
+
+    if [ $? -ne 0 ] || [ -z "$MENU_CHOICE" ]; then
+        rm -f "$LOCK_FILE"
+        return 1
+    fi
+
+    case "$MENU_CHOICE" in
+        "+1 Hour")
+            adjust_time 3600 && show_quick_adjust_dialog
+            ;;
+        "-1 Hour")
+            adjust_time -3600 && show_quick_adjust_dialog
+            ;;
+        "+5 Minutes")
+            adjust_time 300 && show_quick_adjust_dialog
+            ;;
+        "-5 Minutes")
+            adjust_time -300 && show_quick_adjust_dialog
+            ;;
+        "+1 Minute")
+            adjust_time 60 && show_quick_adjust_dialog
+            ;;
+        "-1 Minute")
+            adjust_time -60 && show_quick_adjust_dialog
+            ;;
+        "+30 Seconds")
+            adjust_time 30 && show_quick_adjust_dialog
+            ;;
+        "-30 Seconds")
+            adjust_time -30 && show_quick_adjust_dialog
+            ;;
+        "+10 Seconds")
+            adjust_time 10 && show_quick_adjust_dialog
+            ;;
+        "-10 Seconds")
+            adjust_time -10 && show_quick_adjust_dialog
+            ;;
+        "+1 Second")
+            adjust_time 1 && show_quick_adjust_dialog
+            ;;
+        "-1 Second")
+            adjust_time -1 && show_quick_adjust_dialog
+            ;;
+        "Set Custom Time")
+            show_time_adjustment_dialog
+            ;;
+        "Set Message Only")
+            local NEW_MESSAGE=$(zenity --entry --title "Set Notification Message" \
+                --text "Enter custom message for countdown completion:" \
+                --entry-text "$CURRENT_MESSAGE" 2>/dev/null)
+            if [ $? -eq 0 ] && [ -n "$NEW_MESSAGE" ]; then
+                save_custom_message "$NEW_MESSAGE"
+            fi
+            ;;
+    esac
+
+    rm -f "$LOCK_FILE"
 }
 
 function click() {
-    local NEW_TIME
-    END_TIME=$(date -d "+10 min" +"%T")
-    if NEW_TIME=$(zenity --entry --title "Update Countdown" --text "Enter new target time (HH:MM:SS):" --entry-text "$END_TIME"); then
-        if [[ "$NEW_TIME" =~ ^[0-2]?[0-9]:[0-5][0-9]:[0-5][0-9]$ ]]; then
-            if date -d "$NEW_TIME" >/dev/null 2>&1; then
-                local CURRENT_TIME=$(date +%s)
-                local TARGET_TIME=$(date -d "$NEW_TIME" +%s)
-
-                if [ $TARGET_TIME -gt $CURRENT_TIME ]; then
-                    echo "$NEW_TIME" > "$TARGET_FILE"
-                    rm -f "$COUNTDOWN_NOTIFIED"
-                    display_time
-                    exit 0
-                else
-                    zenity --error --text "The entered time is in the past. Please enter a future time."
-                fi
-            else
-                zenity --error --text "Invalid time format. Please use HH:MM:SS."
-            fi
-        else
-            zenity --error --text "Invalid time format. Please use HH:MM:SS."
-        fi
+    # Use i3-msg to launch countdown-set script in a new process with proper GUI access
+    # This ensures the dialog can display properly
+    local SCRIPT_PATH=""
+    if command -v countdown-set >/dev/null 2>&1; then
+        SCRIPT_PATH="countdown-set"
+    elif [ -f ~/.config/regolith3/i3xrocks/scripts/countdown-set ]; then
+        SCRIPT_PATH="$HOME/.config/regolith3/i3xrocks/scripts/countdown-set"
+    elif [ -f ~/.dotfiles/system/regolith/regolith3/i3xrocks/scripts/countdown-set ]; then
+        SCRIPT_PATH="$HOME/.dotfiles/system/regolith/regolith3/i3xrocks/scripts/countdown-set"
     fi
+    
+    if [ -n "$SCRIPT_PATH" ]; then
+        # Use i3-msg to execute in a new process with proper environment
+        $(which i3-msg) -q exec "$SCRIPT_PATH" >/dev/null 2>&1 &
+    fi
+    # Don't exit - let the script continue to display current status
 }
 
+# Handle click events (following keyboard-layout pattern)
+case "x${BUTTON}" in
+"x1")
+    # Left click - open countdown setter dialog
+    LEFT_CLICK_ACTION=$(xrescat i3xrocks.countdown.left_click_action "" 2>/dev/null)
+    if [ -n "$LEFT_CLICK_ACTION" ]; then
+        $(which i3-msg) -q exec "$LEFT_CLICK_ACTION" >/dev/null 2>&1 &
+    else
+        # Default: launch countdown-set script in background
+        click
+    fi
+    # Continue to display current status (don't exit)
+    ;;
+"x2")
+    # Middle click - open countdown setter dialog
+    MIDDLE_CLICK_ACTION=$(xrescat i3xrocks.countdown.middle_click_action "" 2>/dev/null)
+    if [ -n "$MIDDLE_CLICK_ACTION" ]; then
+        $(which i3-msg) -q exec "$MIDDLE_CLICK_ACTION" >/dev/null 2>&1 &
+    else
+        # Default: launch countdown-set script in background
+        click
+    fi
+    # Continue to display current status
+    ;;
+"x3")
+    # Right click - stop/reset countdown
+    RIGHT_CLICK_ACTION=$(xrescat i3xrocks.countdown.right_click_action "" 2>/dev/null)
+    if [ -n "$RIGHT_CLICK_ACTION" ]; then
+        $(which i3-msg) -q exec "$RIGHT_CLICK_ACTION" >/dev/null 2>&1 &
+    else
+        # Default: stop countdown if it exists
+        if [ -f "$TARGET_FILE" ]; then
+            rm -f "$TARGET_FILE"
+            rm -f "$COUNTDOWN_NOTIFIED"
+            rm -f "$MESSAGE_FILE"
+            rm -f "$DURATION_FILE"
+            TARGET_TIME=""
+        fi
+    fi
+    # Continue to display current status
+    ;;
+"x4")
+    # Scroll up - add 1 minute
+    SCROLL_UP_ACTION=$(xrescat i3xrocks.countdown.scroll_up_action "" 2>/dev/null)
+    if [ -n "$SCROLL_UP_ACTION" ]; then
+        $(which i3-msg) -q exec "$SCROLL_UP_ACTION"
+    else
+        # Default: add 1 minute
+        if [ -f "$TARGET_FILE" ]; then
+            TARGET_STRING=$(cat "$TARGET_FILE" 2>/dev/null)
+            if [ -n "$TARGET_STRING" ]; then
+                TARGET_TIME=$(date -d "$TARGET_STRING" +%s 2>/dev/null)
+                if [ -n "$TARGET_TIME" ] && [[ "$TARGET_TIME" =~ ^[0-9]+$ ]]; then
+                    NEW_TARGET_TIME=$((TARGET_TIME + 60))
+                    TIME_STRING=$(date -d "@$NEW_TARGET_TIME" +"%H:%M:%S" 2>/dev/null)
+                    if [ -n "$TIME_STRING" ]; then
+                        echo "$TIME_STRING" > "$TARGET_FILE"
+                    fi
+                fi
+            fi
+        fi
+    fi
+    ;;
+"x5")
+    # Scroll down - subtract 1 minute
+    SCROLL_DOWN_ACTION=$(xrescat i3xrocks.countdown.scroll_down_action "" 2>/dev/null)
+    if [ -n "$SCROLL_DOWN_ACTION" ]; then
+        $(which i3-msg) -q exec "$SCROLL_DOWN_ACTION"
+    else
+        # Default: subtract 1 minute
+        if [ -f "$TARGET_FILE" ]; then
+            TARGET_STRING=$(cat "$TARGET_FILE" 2>/dev/null)
+            if [ -n "$TARGET_STRING" ]; then
+                TARGET_TIME=$(date -d "$TARGET_STRING" +%s 2>/dev/null)
+                if [ -n "$TARGET_TIME" ] && [[ "$TARGET_TIME" =~ ^[0-9]+$ ]]; then
+                    CURRENT_TIME=$(date +%s)
+                    NEW_TARGET_TIME=$((TARGET_TIME - 60))
+                    # Don't go into the past
+                    if [ $NEW_TARGET_TIME -gt $CURRENT_TIME ]; then
+                        TIME_STRING=$(date -d "@$NEW_TARGET_TIME" +"%H:%M:%S" 2>/dev/null)
+                        if [ -n "$TIME_STRING" ]; then
+                            echo "$TIME_STRING" > "$TARGET_FILE"
+                        fi
+                    fi
+                fi
+            fi
+        fi
+    fi
+    ;;
+esac
 
-# Handle click event
-if [ "$BLOCK_BUTTON" = "1" ]; then
-    click
+# Performance: Show status if no valid countdown (allows user to see widget and click to set)
+if [ -z "$TARGET_TIME" ] || ! [[ "$TARGET_TIME" =~ ^[0-9]+$ ]]; then
+    echo "CD: --"
+    exit 0
 fi
 
-# Validate END_TIME
-#if ! TARGET_TIME=$(date -d "$END_TIME" +%s 2>/dev/null); then
-#    echo "Invalid target time in $TARGET_FILE."
-#    rm "$TARGET_FILE"
-#    exit 1
-#fi
-
-# Calculate remaining time
-CURRENT_TIME=$(date -d "12:30:00" +%s)
+# Calculate remaining time (performance: single date call, cached)
+CURRENT_TIME=$(date +%s)
 
 if [ "${TARGET_TIME}" -gt "${CURRENT_TIME}" ]; then
     display_time
 else
+    # Countdown expired
     echo "Countdown: Time's up!"
+
     # Trigger notification only once
     if [ ! -f "$COUNTDOWN_NOTIFIED" ]; then
-        local title="Countdown Timer"
-        local message="Time's up!"
-        notify-send "${title}" "${message}"
-        zenity --info --text="<span font='32' foreground='red'>${message}</span>" --title="${title}"
+        TITLE="Countdown Timer"
+        MESSAGE=$(load_custom_message)
+        notify-send "${TITLE}" "${MESSAGE}"
+        zenity --info --text="<span font='24' weight='bold' foreground='black'>${MESSAGE}</span>" --title="${TITLE}" --width=400 2>/dev/null &
         rm -f "$TARGET_FILE"
         touch "$COUNTDOWN_NOTIFIED"
     fi

@@ -1,0 +1,341 @@
+#!/bin/bash
+# Standalone script to set countdown timer
+# Usage: countdown-set [hours] [minutes] [seconds] [message]
+#        countdown-set --help
+
+TARGET_FILE="/tmp/countdown_target_time"
+MESSAGE_FILE="/tmp/countdown_message"
+DURATION_FILE="/tmp/countdown_duration"
+COUNTDOWN_NOTIFIED="/tmp/countdown_notified"
+
+# Show help message
+show_help() {
+    cat << EOF
+Countdown Timer Setter
+
+Usage:
+    countdown-set [OPTIONS]
+    countdown-set [hours] [minutes] [seconds] [message]
+
+Options:
+    --help, -h          Show this help message
+
+Modes:
+    Interactive mode:
+        Run without arguments to open a GUI dialog:
+        $ countdown-set
+
+    Command line mode:
+        Set countdown directly from command line:
+        $ countdown-set 0 5 0                    # 5 minutes
+        $ countdown-set 1 30 0 "Break time"     # 1 hour 30 minutes with message
+        $ countdown-set 0 0 10                   # 10 seconds
+
+Examples:
+    # Set 5 minute countdown
+    countdown-set 0 5 0
+
+    # Set 1 hour countdown with custom message
+    countdown-set 1 0 0 "Meeting time"
+
+    # Set 30 second countdown
+    countdown-set 0 0 30
+
+Files:
+    Target time: $TARGET_FILE
+    Message: $MESSAGE_FILE
+    Notification flag: $COUNTDOWN_NOTIFIED
+
+EOF
+}
+
+# Format duration string
+format_duration() {
+    local total_seconds=$1
+    local hours=$((total_seconds / 3600))
+    local minutes=$(((total_seconds % 3600) / 60))
+    local seconds=$((total_seconds % 60))
+    
+    local parts=()
+    if [ $hours -gt 0 ]; then
+        parts+=("${hours}h")
+    fi
+    if [ $minutes -gt 0 ]; then
+        parts+=("${minutes}m")
+    fi
+    if [ $seconds -gt 0 ] || [ ${#parts[@]} -eq 0 ]; then
+        parts+=("${seconds}s")
+    fi
+    
+    # Join parts with space
+    local result=""
+    for part in "${parts[@]}"; do
+        if [ -n "$result" ]; then
+            result="$result "
+        fi
+        result="$result$part"
+    done
+    echo "$result"
+}
+
+# Load custom message if exists
+load_custom_message() {
+    local custom_msg=""
+    if [ -f "$MESSAGE_FILE" ]; then
+        custom_msg=$(cat "$MESSAGE_FILE" 2>/dev/null)
+    fi
+    
+    # Use custom message only if it's non-empty
+    if [ -n "$custom_msg" ]; then
+        echo "$custom_msg"
+    else
+        # Generate default message with duration
+        if [ -f "$DURATION_FILE" ]; then
+            local duration_seconds=$(cat "$DURATION_FILE" 2>/dev/null)
+            if [ -n "$duration_seconds" ] && [[ "$duration_seconds" =~ ^[0-9]+$ ]]; then
+                local duration_str=$(format_duration "$duration_seconds")
+                echo "Countdown of ${duration_str}, has finished"
+            else
+                echo "Countdown has finished"
+            fi
+        else
+            echo "Countdown has finished"
+        fi
+    fi
+}
+
+# Save custom message
+save_custom_message() {
+    local message="$1"
+    if [ -n "$message" ]; then
+        echo "$message" > "$MESSAGE_FILE"
+    else
+        rm -f "$MESSAGE_FILE"
+    fi
+}
+
+# Save duration
+save_duration() {
+    local duration_seconds="$1"
+    if [ -n "$duration_seconds" ] && [[ "$duration_seconds" =~ ^[0-9]+$ ]]; then
+        echo "$duration_seconds" > "$DURATION_FILE"
+    fi
+}
+
+# Function to show time adjustment dialog
+show_time_adjustment_dialog() {
+    local LOCK_FILE="/tmp/countdown_dialog_lock"
+    if [ -f "$LOCK_FILE" ]; then
+        local LOCK_AGE=$(($(date +%s) - $(stat -c %Y "$LOCK_FILE" 2>/dev/null || echo 0)))
+        if [ $LOCK_AGE -lt 5 ]; then
+            echo "Another dialog is already open. Please wait."
+            return 1
+        fi
+    fi
+    touch "$LOCK_FILE"
+    
+    # Get current remaining time if countdown exists
+    local CURRENT_TIME=$(date +%s)
+    local HOURS=0
+    local MINUTES=0
+    local SECONDS=0
+    local CURRENT_MESSAGE=$(load_custom_message)
+    
+    if [ -f "$TARGET_FILE" ]; then
+        local TARGET_STRING=$(cat "$TARGET_FILE" 2>/dev/null)
+        if [ -n "$TARGET_STRING" ]; then
+            local TARGET_TIME=$(date -d "$TARGET_STRING" +%s 2>/dev/null)
+            if [ -z "$TARGET_TIME" ] && [[ "$TARGET_STRING" =~ ^[0-9]+$ ]]; then
+                TARGET_TIME="$TARGET_STRING"
+            fi
+            
+            if [ -n "$TARGET_TIME" ] && [[ "$TARGET_TIME" =~ ^[0-9]+$ ]]; then
+                local REMAINING_TIME=$((TARGET_TIME - CURRENT_TIME))
+                if [ $REMAINING_TIME -lt 0 ]; then
+                    REMAINING_TIME=0
+                fi
+                HOURS=$(( (REMAINING_TIME % 86400) / 3600 ))
+                MINUTES=$(( (REMAINING_TIME % 3600) / 60 ))
+                SECONDS=$((REMAINING_TIME % 60))
+            fi
+        fi
+    fi
+    
+    # Show main dialog with time adjustment options
+    # Use single forms dialog (zenity doesn't support pre-filling, but we show current values in text)
+    while true; do
+        local TEXT_MSG=""
+        local HAS_COUNTDOWN=false
+        if [ $HOURS -gt 0 ] || [ $MINUTES -gt 0 ] || [ $SECONDS -gt 0 ]; then
+            TEXT_MSG="Current: ${HOURS}h ${MINUTES}m ${SECONDS}s\n\nEnter new countdown time (default: 0 for all):"
+            HAS_COUNTDOWN=true
+        else
+            TEXT_MSG="Set countdown time (default: 0 for all):"
+        fi
+        
+        # Build zenity command with conditional reset button
+        local ZENITY_CMD="zenity --forms --title \"Countdown Timer\" --text \"$TEXT_MSG\" --add-entry \"Hours:\" --add-entry \"Minutes:\" --add-entry \"Seconds:\" --add-entry \"Custom Message:\""
+        
+        # Add extra button for reset only if countdown is active
+        if [ "$HAS_COUNTDOWN" = true ]; then
+            ZENITY_CMD="$ZENITY_CMD --extra-button \"Reset/Stop Countdown\""
+        fi
+        
+        local RESULT=$(eval "$ZENITY_CMD" 2>/dev/null)
+        local EXIT_CODE=$?
+        
+        # Check if Reset button was clicked (exit code 1 with specific output)
+        if [ $EXIT_CODE -eq 1 ]; then
+            if [ "$RESULT" = "Reset/Stop Countdown" ]; then
+                # Stop the countdown
+                rm -f "$TARGET_FILE"
+                rm -f "$COUNTDOWN_NOTIFIED"
+                rm -f "$MESSAGE_FILE"
+                rm -f "$DURATION_FILE"
+                rm -f "$LOCK_FILE"
+                echo "Countdown stopped and reset"
+                return 0
+            else
+                # Dialog was cancelled
+                rm -f "$LOCK_FILE"
+                return 1
+            fi
+        fi
+        
+        if [ $EXIT_CODE -ne 0 ] || [ -z "$RESULT" ]; then
+            rm -f "$LOCK_FILE"
+            return 1
+        fi
+        
+        # Parse form results (zenity returns pipe-separated values)
+        IFS='|' read -r NEW_HOURS NEW_MINUTES NEW_SECONDS NEW_MESSAGE <<< "$RESULT"
+        
+        # Default empty values to 0
+        NEW_HOURS=${NEW_HOURS:-0}
+        NEW_MINUTES=${NEW_MINUTES:-0}
+        NEW_SECONDS=${NEW_SECONDS:-0}
+        
+        # Validate inputs
+        if ! [[ "$NEW_HOURS" =~ ^[0-9]+$ ]] || ! [[ "$NEW_MINUTES" =~ ^[0-9]+$ ]] || ! [[ "$NEW_SECONDS" =~ ^[0-9]+$ ]]; then
+            zenity --error --text "Please enter valid numbers for hours, minutes, and seconds." 2>/dev/null
+            continue
+        fi
+        
+        # Convert to total seconds
+        local TOTAL_SECONDS=$((NEW_HOURS * 3600 + NEW_MINUTES * 60 + NEW_SECONDS))
+        
+        if [ $TOTAL_SECONDS -eq 0 ]; then
+            zenity --error --text "Countdown time cannot be zero." 2>/dev/null
+            continue
+        fi
+        
+        # Calculate new target time
+        local NEW_TARGET_TIME=$((CURRENT_TIME + TOTAL_SECONDS))
+        
+        # Save target time as HH:MM:SS string
+        local TIME_STRING=$(date -d "@$NEW_TARGET_TIME" +"%H:%M:%S" 2>/dev/null)
+        if [ -z "$TIME_STRING" ]; then
+            zenity --error --text "Failed to calculate target time." 2>/dev/null
+            continue
+        fi
+        
+        echo "$TIME_STRING" > "$TARGET_FILE"
+        
+        # Save custom message
+        save_custom_message "$NEW_MESSAGE"
+        
+        # Save duration
+        save_duration "$TOTAL_SECONDS"
+        
+        # Clear notification flag
+        rm -f "$COUNTDOWN_NOTIFIED"
+        
+        rm -f "$LOCK_FILE"
+        
+        echo "Countdown set: $NEW_HOURS hours, $NEW_MINUTES minutes, $NEW_SECONDS seconds"
+        echo "Target time: $TIME_STRING"
+        if [ -n "$NEW_MESSAGE" ]; then
+            echo "Message: $NEW_MESSAGE"
+        fi
+        return 0
+    done
+}
+
+# Check for help option
+if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
+    show_help
+    exit 0
+fi
+
+# Check if arguments provided (non-interactive mode)
+if [ $# -ge 3 ]; then
+    HOURS=$1
+    MINUTES=$2
+    SECONDS=$3
+    MESSAGE="${4:-Time is up}"
+    
+    # Validate inputs
+    if ! [[ "$HOURS" =~ ^[0-9]+$ ]] || ! [[ "$MINUTES" =~ ^[0-9]+$ ]] || ! [[ "$SECONDS" =~ ^[0-9]+$ ]]; then
+        echo "Error: Hours, minutes, and seconds must be numbers"
+        exit 1
+    fi
+    
+    # Convert to total seconds
+    TOTAL_SECONDS=$((HOURS * 3600 + MINUTES * 60 + SECONDS))
+    
+    if [ $TOTAL_SECONDS -eq 0 ]; then
+        echo "Error: Countdown time cannot be zero"
+        exit 1
+    fi
+    
+    # Calculate new target time
+    CURRENT_TIME=$(date +%s)
+    NEW_TARGET_TIME=$((CURRENT_TIME + TOTAL_SECONDS))
+    
+    # Save target time as HH:MM:SS string
+    TIME_STRING=$(date -d "@$NEW_TARGET_TIME" +"%H:%M:%S" 2>/dev/null)
+    if [ -z "$TIME_STRING" ]; then
+        echo "Error: Failed to calculate target time"
+        exit 1
+    fi
+    
+    echo "$TIME_STRING" > "$TARGET_FILE"
+    save_custom_message "$MESSAGE"
+    save_duration "$TOTAL_SECONDS"
+    rm -f "$COUNTDOWN_NOTIFIED"
+    
+    echo "Countdown set: $HOURS hours, $MINUTES minutes, $SECONDS seconds"
+    echo "Target time: $TIME_STRING"
+    echo "Message: $MESSAGE"
+    exit 0
+fi
+
+# Interactive mode - show dialog
+if ! command -v zenity >/dev/null 2>&1; then
+    echo "Error: zenity is not installed or not in PATH"
+    echo "Please install zenity: sudo apt install zenity"
+    exit 1
+fi
+
+# Check if DISPLAY is set (needed for GUI)
+if [ -z "$DISPLAY" ]; then
+    echo "Error: DISPLAY environment variable is not set"
+    echo "This script requires a graphical environment to show the dialog"
+    echo "Use command line mode instead: countdown-set [hours] [minutes] [seconds] [message]"
+    exit 1
+fi
+
+show_time_adjustment_dialog
+DIALOG_EXIT=$?
+if [ $DIALOG_EXIT -ne 0 ]; then
+    if [ $DIALOG_EXIT -eq 1 ]; then
+        echo "Dialog was cancelled or failed to open"
+        echo ""
+        echo "Tip: If you're in a terminal without GUI access, use command line mode:"
+        echo "  countdown-set [hours] [minutes] [seconds] [message]"
+        echo ""
+        echo "Example: countdown-set 0 5 0"
+    fi
+    exit 1
+fi
+
