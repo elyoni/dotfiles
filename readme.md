@@ -2,6 +2,8 @@
 
 Personal dotfiles for Linux development environment.
 
+Project rules for AI (commit policy, etc.) are in `.cursor/rules/`.
+
 ## System Overview
 
 - **Linux Distribution:** Ubuntu 24.04
@@ -71,16 +73,10 @@ The install script provides a menu with 4 options:
 
 ## Commit Conventions
 
-All commit messages must start with the module name in square brackets:
+See `.cursor/rules/commit-policy.mdc` for the full commit policy. Summary:
 
-```
-[<module name>] <commit message>
-```
+- One commit per application (easy to revert).
+- Never commit binary files; keep the repo text-only.
+- Message format: `[<application>]: <feat/fix> - <short description>`.
 
-The module name should correspond to the top-level directory or specific application being modified. Examples:
-
-- `[neovim] Update keybindings and plugin configurations`
-- `[zsh] Add new aliases for kubectl`
-- `[system] Update i3 window manager configuration`
-- `[scripts] Add log viewer installation script`
-- `[python] Update installation script dependencies`
+Examples: `[neovim]: feat - add obsidian plugin`, `[zsh]: fix - timer script`.

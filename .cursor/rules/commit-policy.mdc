@@ -1,0 +1,8 @@
+# Commit policy
+
+This project handles commits differently: **one commit per application**, so changes are easy to revert.
+
+- **Never commit a binary file to the dotfiles.** Keep the repo text-only (configs, scripts, docs). Add binary extensions to `.gitignore` as needed (e.g. `*.iso`, `*.bin`).
+- Every commit must contain changes from a **single group** (one application or one top-level area), so reverting a commit reverts only that group.
+- Every commit must be **grouped by a single application**: one commit per `applications/<name>` (e.g. `applications/neovim`, `applications/git`). For areas outside `applications/`, use one commit per top-level folder: `system/`, `programming-languages/`, `scripts/` (and repo-root files like `.gitignore` can go in a small "chore" commit if needed).
+- Commit message format: **`[<application>]: <feat/fix> - <short description>`**.
