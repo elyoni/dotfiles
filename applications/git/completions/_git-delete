@@ -1,0 +1,10 @@
+#compdef git-delete
+
+_git-delete() {
+    _arguments \
+        '--force-worktree[Automatically remove worktree without prompting]' \
+        '(-h --help)'{-h,--help}'[Show help message]' \
+        '*:branch:__git_branch_names'
+}
+
+_git-delete "$@"

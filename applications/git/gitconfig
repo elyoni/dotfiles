@@ -7,9 +7,10 @@
     rebase = true
     default = current
 [push]
-    default = current
+	default = current
 [alias]
-    co = checkout
+    # co is handled by shell function in zsh config, not as git alias
+    # This allows cd to work in the current shell
     br = branch
     c = commit
     ci = c
@@ -21,33 +22,7 @@
     fa = fetch --all
     fb = "!f() { git fetch $(git remote | head -n 1) $1; }; f"  # Fetch branch
     lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
-    delete = "!f() { \
-      echo \"Deleting branch '$1'...\"; \
-      branch=\"$1\"; \
-      git fetch --prune origin >/dev/null 2>&1; \
-      if git show-ref --quiet --verify \"refs/remotes/origin/$branch\"; then \
-        git push --delete origin \"$branch\" >/dev/null 2>&1 && echo \"Remote branch '$branch' deleted successfully.\" || echo \"Failed to delete remote branch '$branch'.\"; \
-      else \
-        echo \"Remote branch '$branch' does not exist.\"; \
-      fi; \
-      if git show-ref --quiet --verify \"refs/heads/$branch\"; then \
-        if git branch -d \"$branch\" >/dev/null 2>&1; then \
-          echo \"Local branch $branch deleted successfully.\"; \
-        else \
-          printf '\\033[5m\\033[31mLocal branch %s is not fully merged.\\033[0m\\n' "$branch"; \
-          printf '\\033[33mDo you want to force-delete the branch %s? [y/N]\\033[0m\\n' "$branch"; \
-          read -p \"\" confirm; \
-          if [ \"$confirm\" = \"y\" ] || [ \"$confirm\" = \"Y\" ]; then \
-            git branch -D \"$branch\" >/dev/null 2>&1 && echo \"Local branch '$branch' force-deleted successfully.\" || echo \"Failed to force-delete local branch '$branch'.\"; \
-          else \
-            echo \"Local branch '$branch' was not deleted.\"; \
-          fi; \
-        fi; \
-      else \
-        echo \"Local branch '$branch' does not exist.\"; \
-      fi; \
-      git fetch --prune origin >/dev/null 2>&1; \
-    }; f"
+    delete = !git-delete
     ph = push
     cpb = !"f() { git branch | grep -e '^*' |  sed 's/^* //' | tr -d '\n' | xclip -sel clip ; }; f"
     copy-branch = cpb
@@ -55,7 +30,24 @@
     copy-sha = cps
     cpr = !"f() { git remote -v | awk '{print $2}' | head -1 | xclip -sel clip ; }; f"
     copy-remote = cpr
-    brl = branch --list
+    brl = "!f() { \
+      repo_root=$(git rev-parse --show-toplevel 2>/dev/null); \
+      if [ -z \"$repo_root\" ]; then \
+        git branch --list \"$@\"; \
+        return; \
+      fi; \
+      worktree_branches=$(git worktree list --porcelain 2>/dev/null | awk '/^branch / {gsub(/^branch /, \"\"); print}' | sed 's|refs/heads/||'); \
+      git branch --list \"$@\" | while IFS= read -r line; do \
+        branch_name=$(echo \"$line\" | sed 's/^[* ] //' | sed 's/^[*]//' | xargs); \
+        is_current=$(echo \"$line\" | grep -q '^*' && echo 'yes' || echo 'no'); \
+        is_worktree=$(echo \"$worktree_branches\" | grep -q \"^$branch_name$\" && echo 'yes' || echo 'no'); \
+        if [ \"$is_worktree\" = \"yes\" ]; then \
+          echo \"$line [worktree]\"; \
+        else \
+          echo \"$line\"; \
+        fi; \
+      done; \
+    }; f"
     set-upstream-branch = !"f() { branch=$(git branch | grep -e '^*' |  sed 's/^* //' | tr -d '\n') ; git branch --set-upstream-to=origin/${branch} ${branch} ; }; f"
     phf = push -f
     pl = pull
@@ -63,6 +55,196 @@
     dtv = difftool -v vimdiff
     cnv = !"version=$(cat version); git commit --include version --message \"[Version] $version\""
     root = rev-parse --show-toplevel
+# Worktree aliases
+    wt = worktree
+    wtl = worktree list
+    wta = worktree add
+    wtr = worktree remove
+    wtpr = worktree prune
+    wtadd = "!f() { \
+      branch=\"$1\"; \
+      if [ -z \"$branch\" ]; then \
+        echo \"Usage: git wtadd <branch-name>\"; \
+        return 1; \
+      fi; \
+      git_common_dir=$(git rev-parse --git-common-dir 2>/dev/null); \
+      repo_root=\"\"; \
+      if [ -n \"$git_common_dir\" ]; then \
+        if [ \"$git_common_dir\" = \".git\" ]; then \
+          repo_root=$(git rev-parse --show-toplevel 2>/dev/null); \
+        else \
+          repo_root=$(dirname \"$git_common_dir\" 2>/dev/null); \
+        fi; \
+      else \
+        repo_root=$(git rev-parse --show-toplevel 2>/dev/null); \
+      fi; \
+      if [ -z \"$repo_root\" ]; then \
+        echo \"Not in a git repository\"; \
+        return 1; \
+      fi; \
+      current_dir=$(pwd); \
+      if [ \"$current_dir\" = \"$repo_root\" ]; then \
+        repo_name=$(basename \"$repo_root\"); \
+        target_path=\"../${repo_name}-${branch}\"; \
+      else \
+        worktree_dir=\"$repo_root/.worktree\"; \
+        target_path=\"$worktree_dir/$branch\"; \
+        mkdir -p \"$worktree_dir\" 2>/dev/null; \
+      fi; \
+      if [[ \"$target_path\" != /* ]]; then \
+        target_path=$(cd \"$(dirname \"$target_path\")\" && pwd)/$(basename \"$target_path\"); \
+      fi; \
+      if git show-ref --verify --quiet \"refs/heads/$branch\" 2>/dev/null; then \
+        git worktree add \"$target_path\" \"$branch\" 2>/dev/null; \
+      elif git show-ref --verify --quiet \"refs/remotes/origin/$branch\" 2>/dev/null; then \
+        git worktree add -b \"$branch\" \"$target_path\" \"origin/$branch\" 2>/dev/null; \
+      else \
+        start_point=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo \"HEAD\"); \
+        git worktree add -b \"$branch\" \"$target_path\" \"$start_point\" 2>/dev/null; \
+      fi; \
+    }; f"
+    wtcd = "!f() { \
+      if command -v fzf >/dev/null 2>&1; then \
+        selected=$(git worktree list --porcelain 2>/dev/null | awk '/^worktree / {print $2}' | fzf); \
+        if [ -n \"$selected\" ]; then \
+          cd \"$selected\" 2>/dev/null && echo \"Switched to worktree: $selected\" || echo \"Failed to cd to worktree\"; \
+        fi; \
+      else \
+        worktrees=$(git worktree list --porcelain 2>/dev/null | awk '/^worktree / {print $2}'); \
+        if [ -z \"$worktrees\" ]; then \
+          echo \"No worktrees found\"; \
+          return; \
+        fi; \
+        echo \"Available worktrees:\"; \
+        echo \"$worktrees\" | nl; \
+        read -p \"Enter number: \" num; \
+        selected=$(echo \"$worktrees\" | sed -n \"${num}p\"); \
+        if [ -n \"$selected\" ]; then \
+          cd \"$selected\" 2>/dev/null && echo \"Switched to worktree: $selected\" || echo \"Failed to cd to worktree\"; \
+        fi; \
+      fi; \
+    }; f"
+    wtrm = "!f() { \
+      if ! command -v fzf >/dev/null 2>&1; then \
+        echo \"fzf not found. Please install fzf or use: git worktree remove <path>\"; \
+        return 1; \
+      fi; \
+      worktree_info=$(git worktree list --porcelain 2>/dev/null); \
+      if [ -z \"$worktree_info\" ]; then \
+        echo \"No worktrees found\"; \
+        return 1; \
+      fi; \
+      selected=$(echo \"$worktree_info\" | awk 'BEGIN {wt=\"\"; branch=\"\"; head=\"\"} /^worktree / {wt=$2} /^HEAD / {head=$2} /^branch / {branch=$2; if (wt != \"\") {branch_name=branch; gsub(/refs\\/heads\\//, \"\", branch_name); print wt \" | \" branch_name \" | \" head; wt=\"\"; branch=\"\"; head=\"\"}}' | fzf --height 40% --reverse --border --header=\"Select worktree to remove (Ctrl+C to cancel)\" --preview-window=right:50%:wrap --preview='wt_path=$(echo \"{}\" | cut -d\"|\" -f1 | xargs); branch_name=$(echo \"{}\" | cut -d\"|\" -f2 | xargs); echo \"Worktree: $wt_path\"; echo \"Branch: $branch_name\"; echo \"\"; git -C \"$wt_path\" log -1 --oneline --decorate 2>/dev/null || echo \"No commits\"; echo \"\"; git -C \"$wt_path\" status --short 2>/dev/null | head -10 || echo \"Clean\"'); \
+      if [ -z \"$selected\" ]; then \
+        return 1; \
+      fi; \
+      worktree_path=$(echo \"$selected\" | cut -d\"|\" -f1 | xargs); \
+      branch_name=$(echo \"$selected\" | cut -d\"|\" -f2 | xargs); \
+      echo \"Selected worktree: $worktree_path\"; \
+      echo \"Branch: $branch_name\"; \
+      echo \"\"; \
+      read -p \"Are you sure you want to remove this worktree? [y/N]: \" confirm; \
+      if [ \"$confirm\" != \"y\" ] && [ \"$confirm\" != \"Y\" ]; then \
+        echo \"Cancelled\"; \
+        return 1; \
+      fi; \
+      if git worktree remove \"$worktree_path\" 2>/dev/null; then \
+        echo \"Worktree removed successfully\"; \
+        git worktree prune 2>/dev/null; \
+      else \
+        echo \"Failed to remove worktree. Attempting force removal...\"; \
+        read -p \"Force remove? [y/N]: \" force_confirm; \
+        if [ \"$force_confirm\" = \"y\" ] || [ \"$force_confirm\" = \"Y\" ]; then \
+          if git worktree remove --force \"$worktree_path\" 2>/dev/null; then \
+            echo \"Worktree force-removed successfully\"; \
+            git worktree prune 2>/dev/null; \
+          else \
+            echo \"Failed to force remove worktree\"; \
+            return 1; \
+          fi; \
+        else \
+          echo \"Cancelled\"; \
+          return 1; \
+        fi; \
+      fi; \
+    }; f"
+    wtclean = "!f() { \
+      input=\"$1\"; \
+      if [ -z \"$input\" ]; then \
+        echo \"Usage: git wtclean <worktree-path-or-branch-name>\"; \
+        return 1; \
+      fi; \
+      path=\"\"; \
+      case \"$input\" in \
+        /*|./*|../*) \
+          path=\"$input\" \
+          ;; \
+        *) \
+          if [ -d \"$input\" ]; then \
+            path=\"$input\"; \
+          else \
+            branch=\"$input\"; \
+            git_common_dir=$(git rev-parse --git-common-dir 2>/dev/null); \
+            repo_root=\"\"; \
+            if [ -n \"$git_common_dir\" ]; then \
+              if [ \"$git_common_dir\" = \".git\" ]; then \
+                repo_root=$(git rev-parse --show-toplevel 2>/dev/null); \
+              else \
+                repo_root=$(dirname \"$git_common_dir\" 2>/dev/null); \
+              fi; \
+            else \
+              repo_root=$(git rev-parse --show-toplevel 2>/dev/null); \
+            fi; \
+            if [ -n \"$repo_root\" ]; then \
+              path=$(git worktree list --porcelain 2>/dev/null | awk -v branch=\"refs/heads/$branch\" 'BEGIN {wt=\"\"} /^worktree / {wt=$2} /^branch / {if ($2 == branch && wt != \"\") {print wt; exit}} /^$/ {wt=\"\"}'); \
+              if [ -z \"$path\" ]; then \
+                worktree_dir=\"$repo_root/.worktree\"; \
+                potential_path=\"$worktree_dir/$branch\"; \
+                if [ -d \"$potential_path\" ]; then \
+                  path=\"$potential_path\"; \
+                fi; \
+              fi; \
+            fi; \
+            if [ -z \"$path\" ]; then \
+              echo \"No worktree found for branch: $branch\"; \
+              return 1; \
+            fi; \
+          fi \
+          ;; \
+      esac; \
+      case \"$path\" in \
+        /*) \
+          ;; \
+        *) \
+          if [ -d \"$path\" ]; then \
+            path=$(cd \"$path\" && pwd); \
+          fi \
+          ;; \
+      esac; \
+      git worktree remove \"$path\" 2>/dev/null && git worktree prune 2>/dev/null; \
+    }; f"
+    cow = "!f() { \
+      branch=\"$1\"; \
+      if [ -z \"$branch\" ]; then \
+        echo \"Usage: git cow <branch-name>\"; \
+        return 1; \
+      fi; \
+      worktree_path=$(git worktree list --porcelain 2>/dev/null | awk -v branch=\"refs/heads/$branch\" '/^branch / {if ($2 == branch) {getline; if (/^worktree /) {print $2; exit}}}'); \
+      if [ -n \"$worktree_path\" ]; then \
+        cd \"$worktree_path\" 2>/dev/null && echo \"Switched to worktree: $worktree_path\" || echo \"Failed to cd to worktree\"; \
+      else \
+        echo \"No worktree found for branch: $branch\"; \
+        return 1; \
+      fi; \
+    }; f"
+# Additional branch aliases
+    brr = branch -r
+    bra = branch -a
+    brd = branch -d
+    is-merged = !git-is-merged
+# Status aliases
+    sts = status --short
+    stb = status --branch
 [diff]
     tool = meld
     merge = meld

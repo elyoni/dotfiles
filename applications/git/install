@@ -90,12 +90,62 @@ function setup_glab_completion()
     echo ======= End =======
 }
 
+function setup_git_scripts_completion()
+{
+    echo ======= Setup git scripts completion =======
+    local bash_completion_dir="$HOME/.local/share/bash-completion/completions"
+    local zsh_completion_dir="$HOME/.local/share/zsh/site-functions"
+    
+    mkdir -p "$bash_completion_dir"
+    mkdir -p "$zsh_completion_dir"
+    
+    # Install bash completions
+    if [ -f "${DIR}/completions/git-worktree.bash" ]; then
+        cp "${DIR}/completions/git-worktree.bash" "$bash_completion_dir/git-worktree"
+        echo "git-worktree bash completion installed"
+    fi
+    
+    if [ -f "${DIR}/completions/git-delete.bash" ]; then
+        cp "${DIR}/completions/git-delete.bash" "$bash_completion_dir/git-delete"
+        echo "git-delete bash completion installed"
+    fi
+    
+    if [ -f "${DIR}/completions/git-custom.bash" ]; then
+        cp "${DIR}/completions/git-custom.bash" "$bash_completion_dir/git-custom"
+        echo "git-custom bash completion installed"
+    fi
+    
+    # Install zsh completions
+    if [ -f "${DIR}/completions/_git-worktree" ]; then
+        cp "${DIR}/completions/_git-worktree" "$zsh_completion_dir/_git-worktree"
+        echo "git-worktree zsh completion installed"
+    fi
+    
+    if [ -f "${DIR}/completions/_git-delete" ]; then
+        cp "${DIR}/completions/_git-delete" "$zsh_completion_dir/_git-delete"
+        echo "git-delete zsh completion installed"
+    fi
+    
+    if [ -f "${DIR}/completions/_git-custom" ]; then
+        cp "${DIR}/completions/_git-custom" "$zsh_completion_dir/_git-custom"
+        echo "git-custom zsh completion installed"
+    fi
+    
+    if [ -f "${DIR}/completions/_git-co" ]; then
+        cp "${DIR}/completions/_git-co" "$zsh_completion_dir/_git-co"
+        echo "git-co zsh completion installed"
+    fi
+    
+    echo ======= End =======
+}
+
 function install()
 {
     link_files
     install_cdiff
     install_glab
     setup_glab_completion
+    setup_git_scripts_completion
     [ -n "${DISPLAY}" ] && install_meld
 }
 

@@ -1,52 +1,171 @@
 #!/usr/bin/env bash
 
-# Usage: ./git-delete.sh <branch-name>
+# Usage: git-delete <branch-name> [--force-worktree]
 
-branch="$1"
+RED='\033[0;31m'
+YELLOW='\033[0;33m'
+CYAN='\033[0;36m'
+GREEN='\033[0;32m'
+NC='\033[0m'
 
-if [ -z "$branch" ]; then
-    echo "❌ Please provide a branch name."
-    echo "Usage: $0 <branch-name>"
-    exit 1
-fi
+FORCE_WORKTREE=0
 
-echo "🔨 Deleting branch '$branch'..."
+function parse_args() {
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --force-worktree)
+                FORCE_WORKTREE=1
+                shift
+                ;;
+            -h|--help)
+                show_help
+                exit 0
+                ;;
+            *)
+                if [ -z "$branch" ]; then
+                    branch="$1"
+                fi
+                shift
+                ;;
+        esac
+    done
+}
 
-# Refresh remote tracking
-git fetch --prune origin >/dev/null 2>&1
+function show_help() {
+    cat << EOF
+Usage: git-delete <branch-name> [--force-worktree]
 
-# Delete remote branch if it exists
-if git show-ref --quiet --verify "refs/remotes/origin/$branch"; then
-    if git push --delete origin "$branch" >/dev/null 2>&1; then
-        echo "✅ Remote branch '$branch' deleted successfully."
-    else
-        echo "❌ Failed to delete remote branch '$branch'."
+Delete a branch both locally and remotely, with worktree support.
+
+Options:
+    --force-worktree    Automatically remove worktree without prompting
+    -h, --help          Show this help message
+
+Examples:
+    git-delete feature-branch
+    git-delete feature-branch --force-worktree
+EOF
+}
+
+function check_and_remove_worktree() {
+    local branch="$1"
+    
+    if [ -z "$branch" ]; then
+        return 0
     fi
-else
-    echo "ℹ️  Remote branch '$branch' does not exist."
-fi
-
-# Delete local branch if it exists
-if git show-ref --quiet --verify "refs/heads/$branch"; then
-    if git branch -d "$branch" >/dev/null 2>&1; then
-        echo "✅ Local branch '$branch' deleted successfully."
+    
+    local worktree_info
+    worktree_info=$(git worktree list --porcelain 2>/dev/null | awk -v branch="refs/heads/$branch" '
+        /^worktree / {wt=$2}
+        /^branch / {if ($2 == branch) {print wt; exit}}
+    ')
+    
+    if [ -z "$worktree_info" ]; then
+        return 0
+    fi
+    
+    local worktree_path="$worktree_info"
+    
+    if [ "$FORCE_WORKTREE" -eq 1 ]; then
+        echo -e "${CYAN}Removing worktree at: $worktree_path${NC}"
+        if git worktree remove --force "$worktree_path" 2>/dev/null; then
+            echo -e "${GREEN}Worktree removed successfully${NC}"
+        else
+            echo -e "${YELLOW}Warning: Failed to remove worktree, continuing...${NC}"
+        fi
+        return 0
+    fi
+    
+    echo -e "${YELLOW}Branch '$branch' has a worktree at: $worktree_path${NC}"
+    echo -e "${YELLOW}Do you want to remove it? [y/N]${NC}"
+    read -r confirm
+    
+    if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
+        echo -e "${CYAN}Removing worktree at: $worktree_path${NC}"
+        if git worktree remove --force "$worktree_path" 2>/dev/null; then
+            echo -e "${GREEN}Worktree removed successfully${NC}"
+        else
+            echo -e "${RED}Failed to remove worktree${NC}"
+            return 1
+        fi
     else
-        echo -e "\033[5m\033[31m⚠️  Local branch '$branch' is not fully merged.\033[0m"
-        echo -e "\033[33m❓ Do you want to force-delete the branch '$branch'? [y/N]\033[0m"
+        echo -e "${YELLOW}Skipping worktree removal${NC}"
+    fi
+    
+    return 0
+}
+
+function delete_remote_branch() {
+    local branch="$1"
+    
+    git fetch --prune origin >/dev/null 2>&1
+    
+    if git show-ref --quiet --verify "refs/remotes/origin/$branch" 2>/dev/null; then
+        if git push --delete origin "$branch" >/dev/null 2>&1; then
+            echo -e "${GREEN}Remote branch '$branch' deleted successfully${NC}"
+            return 0
+        else
+            echo -e "${RED}Failed to delete remote branch '$branch'${NC}"
+            return 1
+        fi
+    else
+        echo -e "${CYAN}Remote branch '$branch' does not exist${NC}"
+        return 0
+    fi
+}
+
+function delete_local_branch() {
+    local branch="$1"
+    
+    if ! git show-ref --verify --quiet "refs/heads/$branch" 2>/dev/null; then
+        echo -e "${CYAN}Local branch '$branch' does not exist${NC}"
+        return 0
+    fi
+    
+    if git branch -d "$branch" >/dev/null 2>&1; then
+        echo -e "${GREEN}Local branch '$branch' deleted successfully${NC}"
+        return 0
+    else
+        echo -e "${YELLOW}Local branch '$branch' is not fully merged${NC}"
+        echo -e "${YELLOW}Do you want to force-delete the branch '$branch'? [y/N]${NC}"
         read -r confirm
+        
         if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
             if git branch -D "$branch" >/dev/null 2>&1; then
-                echo "✅ Local branch '$branch' force-deleted successfully."
+                echo -e "${GREEN}Local branch '$branch' force-deleted successfully${NC}"
+                return 0
             else
-                echo "❌ Failed to force-delete local branch '$branch'."
+                echo -e "${RED}Failed to force-delete local branch '$branch'${NC}"
+                return 1
             fi
         else
-            echo "❌ Local branch '$branch' was not deleted."
+            echo -e "${YELLOW}Local branch '$branch' was not deleted${NC}"
+            return 1
         fi
     fi
-else
-    echo "ℹ️  Local branch '$branch' does not exist."
-fi
+}
 
-# Final cleanup
-git fetch --prune origin >/dev/null 2>&1
+function main() {
+    local branch=""
+    
+    parse_args "$@"
+    
+    if [ -z "$branch" ]; then
+        echo -e "${RED}Error: Branch name required${NC}"
+        echo ""
+        show_help
+        exit 1
+    fi
+    
+    echo -e "${CYAN}Deleting branch '$branch'...${NC}"
+    
+    delete_remote_branch "$branch"
+    check_and_remove_worktree "$branch"
+    delete_local_branch "$branch"
+    
+    git fetch --prune origin >/dev/null 2>&1
+    
+    echo -e "${GREEN}Branch deletion process completed${NC}"
+}
+
+main "$@"

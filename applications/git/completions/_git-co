@@ -1,0 +1,31 @@
+#compdef git
+# Completion for git co command (smart checkout with worktree support)
+# This file extends the _git completion system
+
+# Load the main git completion first
+(( $+functions[_git] )) || _git 2>/dev/null
+
+# Add "co" to git subcommands
+if (( $+_git_subcommands )); then
+    if [[ -z ${_git_subcommands[(r)co]} ]]; then
+        _git_subcommands+=(co)
+    fi
+else
+    # If _git_subcommands doesn't exist yet, create it
+    typeset -ga _git_subcommands
+    _git_subcommands=(co)
+fi
+
+# Define completion function for git co
+_git_co() {
+    local expl
+    _description branch expl 'branch name'
+    _wanted branch expl 'branch name' __git_branch_names
+}
+
+
+
+
+
+
+

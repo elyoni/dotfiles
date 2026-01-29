@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+
+# Smart git checkout with worktree support
+# Usage: git-co <branch-name> [additional checkout args]
+
+branch="$1"
+
+if [ -z "$branch" ]; then
+    git checkout "$@"
+    exit $?
+fi
+
+# Get the main repository root, not the worktree root
+git_common_dir=$(git rev-parse --git-common-dir 2>/dev/null)
+repo_root=""
+
+if [ -n "$git_common_dir" ]; then
+    if [ "$git_common_dir" = ".git" ]; then
+        repo_root=$(git rev-parse --show-toplevel 2>/dev/null)
+    else
+        repo_root=$(dirname "$git_common_dir" 2>/dev/null)
+    fi
+else
+    repo_root=$(git rev-parse --show-toplevel 2>/dev/null)
+fi
+
+if [ -z "$repo_root" ]; then
+    git checkout "$@"
+    exit $?
+fi
+
+# Check if worktree exists for this branch
+worktree_path=$(git worktree list --porcelain 2>/dev/null | awk -v branch="refs/heads/$branch" 'BEGIN {found=0} /^worktree / {wt=$2; getline} /^branch / {if ($2 == branch) {print wt; exit}}')
+
+if [ -n "$worktree_path" ] && [ -d "$worktree_path" ]; then
+    echo "Switching to existing worktree: $worktree_path" >&2
+    echo "cd \"$worktree_path\""
+    exit 0
+fi
+
+# Check if branch exists (local or remote)
+if git show-ref --verify --quiet "refs/heads/$branch" 2>/dev/null || git show-ref --verify --quiet "refs/remotes/origin/$branch" 2>/dev/null; then
+    worktree_dir="$repo_root/.worktree"
+    target_path="$worktree_dir/$branch"
+    
+    # Convert to absolute path to avoid issues when running from a worktree
+    if [[ "$target_path" != /* ]]; then
+        target_path=$(cd "$(dirname "$target_path")" && pwd)/$(basename "$target_path")
+    fi
+    
+    if [ -d "$target_path" ]; then
+        echo "Switching to existing worktree: $target_path" >&2
+        echo "cd \"$target_path\""
+        exit 0
+    fi
+    
+    # Create new worktree
+    mkdir -p "$worktree_dir" 2>/dev/null
+    echo "Creating worktree for branch: $branch" >&2
+    if git worktree add "$target_path" "$branch" 2>/dev/null; then
+        echo "Created and switching to worktree: $target_path" >&2
+        echo "cd \"$target_path\""
+        exit 0
+    else
+        echo "Failed to create worktree, falling back to normal checkout" >&2
+    fi
+fi
+
+# Fall back to normal checkout
+git checkout "$@"

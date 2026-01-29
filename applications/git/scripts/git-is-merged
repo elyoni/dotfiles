@@ -1,0 +1,113 @@
+#!/usr/bin/env bash
+
+# Check if a branch is merged locally and on GitLab
+# Usage: git is-merged [branch-name] [target-branch]
+
+RED='\033[0;31m'
+YELLOW='\033[0;33m'
+CYAN='\033[0;36m'
+GREEN='\033[0;32m'
+NC='\033[0m'
+
+function show_help() {
+    cat << EOF
+Usage: git is-merged [branch-name] [target-branch]
+
+Check if a branch is merged locally and on GitLab.
+
+Arguments:
+  branch-name     The branch to check (default: current branch)
+  target-branch   The target branch to check against (default: current branch)
+
+Examples:
+  git is-merged                    # Check if current branch is merged
+  git is-merged feature-branch      # Check if feature-branch is merged into current branch
+  git is-merged feature-branch main # Check if feature-branch is merged into main
+EOF
+}
+
+function check_merged() {
+    local branch="${1:-$(git rev-parse --abbrev-ref HEAD 2>/dev/null)}"
+    local target_branch="${2:-$(git rev-parse --abbrev-ref HEAD 2>/dev/null)}"
+    
+    if [ -z "$branch" ]; then
+        echo -e "${RED}Error: Not in a git repository${NC}"
+        return 1
+    fi
+    
+    if [ -z "$target_branch" ]; then
+        echo -e "${RED}Error: Not in a git repository${NC}"
+        return 1
+    fi
+    
+    echo -e "${CYAN}Checking if '${branch}' is merged into '${target_branch}'...${NC}"
+    echo ""
+    
+    # Check local merge status
+    echo -e "${CYAN}=== Local Check ===${NC}"
+    if git branch --merged "$target_branch" 2>/dev/null | grep -q "^[ *]*${branch}$"; then
+        echo -e "${GREEN}✓ Branch '${branch}' is merged locally into '${target_branch}'${NC}"
+        local_merged=1
+    else
+        echo -e "${RED}✗ Branch '${branch}' is NOT merged locally into '${target_branch}'${NC}"
+        local_merged=0
+    fi
+    
+    echo ""
+    
+    # Check GitLab merge status
+    echo -e "${CYAN}=== GitLab Check ===${NC}"
+    if ! command -v glab >/dev/null 2>&1; then
+        echo -e "${YELLOW}⚠ glab CLI not found, skipping GitLab check${NC}"
+        echo -e "${YELLOW}  Install glab: https://gitlab.com/gitlab-org/cli${NC}"
+        glab_merged=-1
+    else
+        # Check for merged MRs
+        local mr_list
+        mr_list=$(glab mr list --source "$branch" --state merged --per-page 1 2>/dev/null)
+        
+        if [ -n "$mr_list" ]; then
+            echo -e "${GREEN}✓ Found merged merge request for branch '${branch}'${NC}"
+            echo "$mr_list" | head -1
+            glab_merged=1
+        else
+            # Check for open MRs
+            local mr_list_open
+            mr_list_open=$(glab mr list --source "$branch" --state opened --per-page 1 2>/dev/null)
+            
+            if [ -n "$mr_list_open" ]; then
+                echo -e "${YELLOW}⚠ Found open merge request for branch '${branch}' (not merged yet)${NC}"
+                echo "$mr_list_open" | head -1
+            else
+                echo -e "${RED}✗ No merged merge request found for branch '${branch}' on GitLab${NC}"
+            fi
+            glab_merged=0
+        fi
+    fi
+    
+    echo ""
+    
+    # Summary
+    if [ $local_merged -eq 1 ] && [ $glab_merged -eq 1 ]; then
+        echo -e "${GREEN}✅ Branch is fully merged (both locally and on GitLab)${NC}"
+        return 0
+    elif [ $local_merged -eq 1 ]; then
+        echo -e "${YELLOW}⚠ Branch is merged locally but not confirmed on GitLab${NC}"
+        return 0
+    elif [ $glab_merged -eq 1 ]; then
+        echo -e "${YELLOW}⚠ Branch is merged on GitLab but not found locally (may need to fetch)${NC}"
+        return 0
+    else
+        echo -e "${RED}❌ Branch is NOT merged${NC}"
+        return 1
+    fi
+}
+
+# Parse arguments
+if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    show_help
+    exit 0
+fi
+
+check_merged "$@"
+

@@ -1,0 +1,39 @@
+#compdef git-worktree
+
+_git-worktree() {
+    local -a subcommands
+    subcommands=(
+        'list:List all worktrees'
+        'add:Add new worktree for branch'
+        'remove:Remove worktree at path'
+        'rm:Remove worktree at path'
+        'prune:Prune stale worktree entries'
+        'find:Find which worktree contains path'
+        'current:Show current worktree information'
+        'help:Show help message'
+    )
+
+    _arguments \
+        '1: :->subcommand' \
+        '*:: :->args'
+
+    case $state in
+        subcommand)
+            _describe 'subcommand' subcommands
+            ;;
+        args)
+            case $words[1] in
+                add)
+                    _git_branch_names
+                    ;;
+                remove|rm|find)
+                    local worktrees
+                    worktrees=($(git worktree list --porcelain 2>/dev/null | awk '/^worktree / {print $2}'))
+                    _describe 'worktree' worktrees
+                    ;;
+            esac
+            ;;
+    esac
+}
+
+_git-worktree "$@"

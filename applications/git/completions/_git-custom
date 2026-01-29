@@ -1,0 +1,51 @@
+#compdef git
+# Extend git completion with custom git-* scripts
+
+_git_custom_scripts() {
+    local scripts=()
+    local path_dirs=(${(s.:.)PATH})
+    
+    for dir in $path_dirs; do
+        if [[ -d $dir ]]; then
+            for script in $dir/git-*(N); do
+                if [[ -x $script && -f $script ]]; then
+                    local script_name=${script:t}
+                    local subcommand=${script_name#git-}
+                    scripts+=($subcommand)
+                fi
+            done
+        fi
+    done
+    
+    # Remove duplicates
+    scripts=(${(u)scripts})
+    echo ${(j: :)scripts}
+}
+
+# Hook into _git completion
+# This function extends _git to include custom scripts and "co" command
+_git() {
+    local -a custom_scripts
+    custom_scripts=(${(s: :)$(_git_custom_scripts)})
+    
+    # Add custom scripts to git subcommands
+    if (( ${#custom_scripts} > 0 )); then
+        _git_subcommands+=($custom_scripts)
+    fi
+    
+    # Add "co" as a subcommand if not already present
+    if [[ ! $_git_subcommands[(ie)co] -le ${#_git_subcommands} ]]; then
+        _git_subcommands+=(co)
+    fi
+    
+    # Call original _git completion (if it exists and hasn't been called yet)
+    if (( $+functions[_git_original] )); then
+        _git_original "$@"
+    elif (( $+functions[__git_main] )); then
+        # For bash-style completion
+        __git_main "$@"
+    else
+        # Fallback: try to call the system _git
+        command _git "$@" 2>/dev/null || builtin _git "$@"
+    fi
+}

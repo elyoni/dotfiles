@@ -1,0 +1,332 @@
+#!/usr/bin/env bash
+
+# Git worktree management script
+# Usage: git-worktree <subcommand> [options]
+
+RED='\033[0;31m'
+YELLOW='\033[0;33m'
+CYAN='\033[0;36m'
+GREEN='\033[0;32m'
+NC='\033[0m'
+
+function show_help() {
+    cat << EOF
+Usage: git-worktree <subcommand> [options]
+
+Subcommands:
+    list              List all worktrees with details
+    add <branch>      Add new worktree for branch (smart location)
+    remove <path-or-branch>  Remove worktree at path or by branch name
+    prune             Prune stale worktree entries
+    find <path>       Find which worktree contains the given path
+    current           Show current worktree information
+
+Examples:
+    git-worktree list
+    git-worktree add feature-branch
+    git-worktree remove ../repo-feature
+    git-worktree prune
+    git-worktree find /path/to/file
+    git-worktree current
+EOF
+}
+
+function get_main_repo_root() {
+    # Get the main repository root, not the worktree root
+    # This handles the case where we're inside a worktree
+    local git_common_dir
+    git_common_dir=$(git rev-parse --git-common-dir 2>/dev/null)
+    
+    if [ -z "$git_common_dir" ]; then
+        # Fallback to show-toplevel if git-common-dir doesn't work
+        git rev-parse --show-toplevel 2>/dev/null
+        return
+    fi
+    
+    # git-common-dir returns the .git directory path
+    # For the main repo, it's .git, for worktrees it's the main repo's .git path
+    # We need to get the parent directory
+    if [ "$git_common_dir" = ".git" ]; then
+        # We're in the main repo
+        git rev-parse --show-toplevel 2>/dev/null
+    else
+        # We're in a worktree, git-common-dir points to main repo's .git
+        # Get the parent directory
+        dirname "$git_common_dir" 2>/dev/null
+    fi
+}
+
+function list_worktrees() {
+    echo -e "${CYAN}===== Worktrees =====${NC}"
+    git worktree list
+}
+
+function add_worktree() {
+    local branch="$1"
+    
+    if [ -z "$branch" ]; then
+        echo -e "${RED}Error: Branch name required${NC}"
+        echo "Usage: git-worktree add <branch-name>"
+        return 1
+    fi
+    
+    local repo_root
+    repo_root=$(get_main_repo_root)
+    
+    if [ -z "$repo_root" ]; then
+        echo -e "${RED}Error: Not in a git repository${NC}"
+        return 1
+    fi
+    
+    local current_dir
+    current_dir=$(pwd)
+    local target_path
+    
+    if [ "$current_dir" = "$repo_root" ]; then
+        local repo_name
+        repo_name=$(basename "$repo_root")
+        target_path="../${repo_name}-${branch}"
+    else
+        local worktree_dir="$repo_root/.worktree"
+        target_path="$worktree_dir/$branch"
+        mkdir -p "$worktree_dir" 2>/dev/null
+    fi
+    
+    # Convert to absolute path to avoid issues when running from a worktree
+    if [[ "$target_path" != /* ]]; then
+        target_path=$(cd "$(dirname "$target_path")" && pwd)/$(basename "$target_path")
+    fi
+    
+    if [ -d "$target_path" ]; then
+        echo -e "${YELLOW}Worktree already exists at: $target_path${NC}"
+        return 1
+    fi
+    
+    echo -e "${CYAN}Creating worktree for branch: $branch${NC}"
+    echo -e "${CYAN}Target path: $target_path${NC}"
+    
+    if git show-ref --verify --quiet "refs/heads/$branch" 2>/dev/null; then
+        if git worktree add "$target_path" "$branch" 2>/dev/null; then
+            echo -e "${GREEN}Worktree created successfully${NC}"
+        else
+            echo -e "${RED}Failed to create worktree${NC}"
+            return 1
+        fi
+    elif git show-ref --verify --quiet "refs/remotes/origin/$branch" 2>/dev/null; then
+        if git worktree add -b "$branch" "$target_path" "origin/$branch" 2>/dev/null; then
+            echo -e "${GREEN}Worktree created successfully from remote branch${NC}"
+        else
+            echo -e "${RED}Failed to create worktree${NC}"
+            return 1
+        fi
+    else
+        # Get the current branch as the starting point for the new branch
+        local start_point
+        start_point=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "HEAD")
+        if git worktree add -b "$branch" "$target_path" "$start_point" 2>/dev/null; then
+            echo -e "${GREEN}Worktree created successfully with new branch${NC}"
+        else
+            echo -e "${RED}Failed to create worktree${NC}"
+            return 1
+        fi
+    fi
+}
+
+function remove_worktree() {
+    local input="$1"
+    
+    if [ -z "$input" ]; then
+        echo -e "${RED}Error: Worktree path or branch name required${NC}"
+        echo "Usage: git-worktree remove <path-or-branch-name>"
+        return 1
+    fi
+    
+    local path=""
+    
+    # Check if input is a path (absolute or relative that exists)
+    if [ -d "$input" ]; then
+        # It's a path
+        path="$input"
+    elif [[ "$input" == /* ]] || [[ "$input" == ./* ]] || [[ "$input" == ../* ]]; then
+        # It looks like a path (starts with /, ./, or ../)
+        path="$input"
+    else
+        # Assume it's a branch name, try to find the worktree
+        local branch="$input"
+        local worktree_info
+        worktree_info=$(git worktree list --porcelain 2>/dev/null)
+        
+        # Try to find worktree by branch name
+        local current_wt_path=""
+        while IFS= read -r line; do
+            if [[ "$line" =~ ^worktree[[:space:]]+(.+)$ ]]; then
+                current_wt_path="${BASH_REMATCH[1]}"
+            elif [[ "$line" =~ ^branch[[:space:]]+(.+)$ ]] && [ -n "$current_wt_path" ]; then
+                local branch_ref="${BASH_REMATCH[1]}"
+                local branch_name="${branch_ref#refs/heads/}"
+                if [ "$branch_name" = "$branch" ]; then
+                    path="$current_wt_path"
+                    break
+                fi
+                current_wt_path=""
+            fi
+        done <<< "$worktree_info"
+        
+        # If not found by branch, check if it's in .worktree directory
+        if [ -z "$path" ]; then
+            local repo_root
+            repo_root=$(get_main_repo_root)
+            if [ -n "$repo_root" ]; then
+                local worktree_dir="$repo_root/.worktree"
+                local potential_path="$worktree_dir/$branch"
+                if [ -d "$potential_path" ]; then
+                    path="$potential_path"
+                fi
+            fi
+        fi
+        
+        if [ -z "$path" ]; then
+            echo -e "${RED}Error: No worktree found for branch: $branch${NC}"
+            return 1
+        fi
+        
+        echo -e "${CYAN}Found worktree for branch '$branch': $path${NC}"
+    fi
+    
+    # Convert to absolute path if relative
+    if [[ "$path" != /* ]]; then
+        if [ -d "$path" ]; then
+            path=$(cd "$path" && pwd)
+        fi
+    fi
+    
+    if [ ! -d "$path" ]; then
+        echo -e "${YELLOW}Warning: Path does not exist: $path${NC}"
+    fi
+    
+    echo -e "${CYAN}Removing worktree: $path${NC}"
+    
+    if git worktree remove "$path" 2>/dev/null; then
+        echo -e "${GREEN}Worktree removed successfully${NC}"
+    else
+        echo -e "${YELLOW}Attempting force removal...${NC}"
+        if git worktree remove --force "$path" 2>/dev/null; then
+            echo -e "${GREEN}Worktree force-removed successfully${NC}"
+        else
+            echo -e "${RED}Failed to remove worktree${NC}"
+            return 1
+        fi
+    fi
+}
+
+function prune_worktrees() {
+    echo -e "${CYAN}Pruning stale worktree entries...${NC}"
+    
+    if git worktree prune 2>/dev/null; then
+        echo -e "${GREEN}Stale worktree entries pruned${NC}"
+    else
+        echo -e "${RED}Failed to prune worktrees${NC}"
+        return 1
+    fi
+}
+
+function find_worktree() {
+    local search_path="$1"
+    
+    if [ -z "$search_path" ]; then
+        echo -e "${RED}Error: Path required${NC}"
+        echo "Usage: git-worktree find <path>"
+        return 1
+    fi
+    
+    local abs_path
+    abs_path=$(realpath "$search_path" 2>/dev/null || echo "$search_path")
+    
+    echo -e "${CYAN}Searching for worktree containing: $abs_path${NC}"
+    
+    git worktree list --porcelain 2>/dev/null | while IFS= read -r line; do
+        if [[ "$line" =~ ^worktree[[:space:]]+(.+)$ ]]; then
+            local worktree_path="${BASH_REMATCH[1]}"
+            local abs_worktree
+            abs_worktree=$(realpath "$worktree_path" 2>/dev/null || echo "$worktree_path")
+            
+            if [[ "$abs_path" == "$abs_worktree"* ]]; then
+                echo -e "${GREEN}Found worktree: $worktree_path${NC}"
+                git worktree list --porcelain 2>/dev/null | awk -v wt="$worktree_path" '/^worktree / {if ($2 == wt) {found=1} found && /^branch / {print "Branch: "$2; exit} found && /^HEAD / {print "HEAD: "$2; exit}}'
+                return 0
+            fi
+        fi
+    done
+    
+    echo -e "${YELLOW}No worktree found containing: $abs_path${NC}"
+    return 1
+}
+
+function show_current() {
+    local repo_root
+    repo_root=$(get_main_repo_root)
+    
+    if [ -z "$repo_root" ]; then
+        echo -e "${RED}Error: Not in a git repository${NC}"
+        return 1
+    fi
+    
+    local current_dir
+    current_dir=$(pwd)
+    
+    echo -e "${CYAN}===== Current Worktree Info =====${NC}"
+    echo "Repository root: $repo_root"
+    echo "Current directory: $current_dir"
+    
+    if [ "$current_dir" = "$repo_root" ]; then
+        echo -e "${GREEN}You are in the main repository${NC}"
+    else
+        local worktree_info
+        worktree_info=$(git worktree list --porcelain 2>/dev/null | awk -v current="$current_dir" '/^worktree / {wt=$2; getline; if (/^branch /) {branch=$2; if (wt == current || index(current, wt) == 1) {print "Worktree: "wt"\nBranch: "branch; exit}}}')
+        
+        if [ -n "$worktree_info" ]; then
+            echo -e "${GREEN}You are in a worktree:${NC}"
+            echo "$worktree_info"
+        else
+            echo -e "${YELLOW}Current directory may not be a worktree${NC}"
+        fi
+    fi
+}
+
+# Main command dispatcher
+case "$1" in
+    list)
+        list_worktrees
+        ;;
+    add)
+        shift
+        add_worktree "$@"
+        ;;
+    remove|rm)
+        shift
+        remove_worktree "$@"
+        ;;
+    prune)
+        prune_worktrees
+        ;;
+    find)
+        shift
+        find_worktree "$@"
+        ;;
+    current)
+        show_current
+        ;;
+    help|--help|-h)
+        show_help
+        ;;
+    *)
+        if [ -z "$1" ]; then
+            show_help
+        else
+            echo -e "${RED}Unknown subcommand: $1${NC}"
+            echo ""
+            show_help
+            exit 1
+        fi
+        ;;
+esac
