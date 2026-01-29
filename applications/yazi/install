@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P "$DIR" && pwd)
+
+source "${DIR}"/../../utils/package/apt
+
+function _install_dependencies()
+{
+    echo ====== Install Yazi + Packages =====
+    # Check if cargo is available (for building from source)
+    if command -v cargo >/dev/null 2>&1; then
+        echo "Cargo found, installing yazi via cargo..."
+        # Yazi must be installed using yazi-build, not individual crates
+        cargo install --locked --force yazi-build
+    elif command -v yazi >/dev/null 2>&1; then
+        echo "Yazi already installed"
+    else
+        echo "ERROR: Cargo not found. Please install Rust and Cargo first."
+        echo "Visit: https://rustup.rs/"
+        exit 1
+    fi
+    
+    # Install optional dependencies for better functionality
+    fast_apt_install xsel  # For clipboard operations
+    fast_apt_install file  # For file type detection
+    fast_apt_install ripgrep  # For search functionality
+    echo ====== End =====
+}
+
+function _verify_yazi()
+{
+    if ! command -v yazi >/dev/null 2>&1; then
+        echo "VERIFY FAILED: yazi binary file wasn't installed"
+        exit 1
+    fi
+}
+
+function _link_files()
+{
+    echo ======= Link Files =======
+    mkdir -p "${HOME}"/.config/yazi
+    ln -sf "${DIR}/keymap.toml" "${HOME}/.config/yazi/keymap.toml"
+    ln -sf "${DIR}/yazi.toml" "${HOME}/.config/yazi/yazi.toml"
+    ln -sf "${DIR}/open.toml" "${HOME}/.config/yazi/open.toml"
+    echo =======   End   =======
+}
+
+function _verify_link()
+{
+    link_path="${HOME}"/.config/yazi/keymap.toml
+    if [ ! -L "${link_path}" ]; then
+        echo "VERIFY FAILED: Yazi keymap.toml link not exists"
+        exit 1
+    elif [ ! -e "${link_path}" ]; then
+        echo "VERIFY FAILED: Yazi keymap.toml link not exists"
+        exit 2
+    fi
+    
+    link_path="${HOME}"/.config/yazi/yazi.toml
+    if [ ! -L "${link_path}" ]; then
+        echo "VERIFY FAILED: Yazi yazi.toml link not exists"
+        exit 1
+    elif [ ! -e "${link_path}" ]; then
+        echo "VERIFY FAILED: Yazi yazi.toml link not exists"
+        exit 2
+    fi
+    
+    link_path="${HOME}"/.config/yazi/open.toml
+    if [ ! -L "${link_path}" ]; then
+        echo "VERIFY FAILED: Yazi open.toml link not exists"
+        exit 1
+    elif [ ! -e "${link_path}" ]; then
+        echo "VERIFY FAILED: Yazi open.toml link not exists"
+        exit 2
+    fi
+}
+
+function install()
+{
+    _install_dependencies
+    _link_files
+}
+
+function verify()
+{
+    _verify_yazi
+    _verify_link
+    echo "Verification Pass"
+}
+
+function help() # Show a list of functions
+{
+    awk '/^function / && ! /^function _/' "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi
+

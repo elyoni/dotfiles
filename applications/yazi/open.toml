@@ -1,0 +1,144 @@
+# Yazi File Opener Configuration
+# Based on ranger's rifle.conf
+
+# Text files - Editor
+[[rules]]
+run = ["$EDITOR", "$file"]
+desc = "Edit with $EDITOR"
+mime = "text/*"
+mime_not = "text/x-shellscript"
+
+# Text files - Pager
+[[rules]]
+run = ["$PAGER", "$file"]
+desc = "View with $PAGER"
+mime = "text/*"
+mime_not = "text/x-shellscript"
+
+# Shell scripts - Execute
+[[rules]]
+run = ["sh", "$file"]
+desc = "Execute shell script"
+mime = "text/x-shellscript"
+
+# Code files - Execute
+[[rules]]
+run = ["python", "$file"]
+desc = "Execute Python script"
+ext = "py"
+
+[[rules]]
+run = ["perl", "$file"]
+desc = "Execute Perl script"
+ext = "pl"
+
+[[rules]]
+run = ["ruby", "$file"]
+desc = "Execute Ruby script"
+ext = "rb"
+
+[[rules]]
+run = ["node", "$file"]
+desc = "Execute Node.js script"
+ext = "js"
+
+[[rules]]
+run = ["php", "$file"]
+desc = "Execute PHP script"
+ext = "php"
+
+# Images
+[[rules]]
+run = ["feh", "$file"]
+desc = "View image with feh"
+mime = "image/*"
+for = "linux"
+
+[[rules]]
+run = ["sxiv", "$file"]
+desc = "View image with sxiv"
+mime = "image/*"
+for = "linux"
+
+[[rules]]
+run = ["eog", "$file"]
+desc = "View image with eog"
+mime = "image/*"
+for = "linux"
+
+# Videos/Audio
+[[rules]]
+run = ["mpv", "$file"]
+desc = "Play with mpv"
+mime = "video/*"
+for = "linux"
+
+[[rules]]
+run = ["mpv", "$file"]
+desc = "Play audio with mpv"
+mime = "audio/*"
+for = "linux"
+
+# PDFs
+[[rules]]
+run = ["zathura", "$file"]
+desc = "View PDF with zathura"
+ext = "pdf"
+for = "linux"
+
+[[rules]]
+run = ["mupdf", "$file"]
+desc = "View PDF with mupdf"
+ext = "pdf"
+for = "linux"
+
+[[rules]]
+run = ["evince", "$file"]
+desc = "View PDF with evince"
+ext = "pdf"
+for = "linux"
+
+# Archives
+[[rules]]
+run = ["unzip", "-d", "{file:parent}", "$file"]
+desc = "Extract ZIP archive"
+ext = "zip"
+for = "linux"
+
+[[rules]]
+run = ["tar", "-xvf", "$file", "--one-top-level"]
+desc = "Extract tar archive"
+ext = "tar"
+for = "linux"
+
+[[rules]]
+run = ["tar", "-xzvf", "$file", "--one-top-level"]
+desc = "Extract tar.gz archive"
+ext = "tar.gz"
+for = "linux"
+
+[[rules]]
+run = ["tar", "-xJvf", "$file", "--one-top-level"]
+desc = "Extract tar.xz archive"
+ext = "tar.xz"
+for = "linux"
+
+# Man pages
+[[rules]]
+run = ["man", "$file"]
+desc = "View man page"
+ext = "1"
+
+# Makefiles
+[[rules]]
+run = ["make"]
+desc = "Run make"
+name = "^[mM]akefile$"
+
+# Fallback - use xdg-open for everything else
+[[rules]]
+run = ["xdg-open", "$file"]
+desc = "Open with default application"
+for = "linux"
+
+

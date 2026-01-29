@@ -1,0 +1,69 @@
+# Yazi Configuration
+# Based on ranger settings
+
+[manager]
+# Show hidden files (toggle with zh, but default false like ranger)
+show_hidden = false
+
+# Sorting
+sort_by = "natural"  # natural, alphabetical, modified, created, extension, size, none
+sort_sensitive = false
+sort_reverse = false
+sort_dir_first = true
+
+# UI
+mouse_enabled = true
+linemode = "none"  # none, size, mtime, permissions, owner, git-status
+
+# Scroll
+scrolloff = 8
+
+# File operations
+trash_method = "auto"  # auto, linux, macos, windows, disabled
+
+[preview]
+# Preview settings
+tab_size = 2
+max_width = 600
+max_height = 900
+cache_dir = "~/.cache/yazi"
+ueberzug_scale = 1
+ueberzug_offset = [0, 0, 0, 0]  # [x_offset, y_offset, width_offset, height_offset]
+
+# Image preview
+image_filter = "triangle"  # nearest, triangle, catmull-rom, gaussian, lanczos3
+image_quality = 75
+
+# Text preview
+syntax_theme = "auto"  # auto or specific theme name
+text_wrap = false
+text_maximum_lines = 1000
+
+[opener]
+# File opener settings - each opener is an array of OpenerRule tables
+edit = [
+    { run = '$EDITOR "$@"', block = true },
+]
+reveal = [
+    { run = 'open --reveal "$@"' },
+]
+play = [
+    { run = 'mpv "$@"' },
+]
+
+# [open] section removed - using open.toml for file opener rules instead
+
+[plugin]
+prepend_previewers = [
+	{ run = "scope.sh", desc = "Preview with scope.sh", block = true, for = "unix" },
+]
+
+[notify]
+# Notification settings
+max = 5
+timeout = 5000
+
+[theme]
+# Theme can be customized in theme.toml
+# Using default theme
+

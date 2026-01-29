@@ -1,0 +1,109 @@
+# Yazi Keymap Configuration
+# Based on ranger settings, customized for specific needs
+
+# Navigation - Move to parent directory
+# File Operations
+[[mgr.prepend_keymap]]
+on = "="
+run = "chmod"
+desc = "Change file permissions"
+
+[[mgr.prepend_keymap]]
+on = "I"
+run = "rename"
+desc = "Edit filename from the start"
+
+# Clone/Duplicate file
+[[mgr.prepend_keymap]]
+on = ["c", "c"]
+run = "shell --block sh -c 'for f in \"$@\"; do cp \"$f\" \"${f}.copy\" && echo \"Cloned: ${f}.copy\"; done'"
+desc = "Clone/duplicate file (creates file.copy)"
+
+# Search & Filter
+[[mgr.prepend_keymap]]
+on = "/"
+run = "find"
+desc = "Search files by name (fd)"
+
+[[mgr.prepend_keymap]]
+on = "?"
+run = "search --via=rg"
+desc = "Search file contents with ripgrep"
+
+# Toggle hidden files
+[[mgr.prepend_keymap]]
+on = ["z", "h"]
+run = "toggle hidden"
+desc = "Toggle hidden files"
+
+
+# Terminal & Shell
+[[keys.normal]]
+on = "S"
+run = "shell $SHELL"
+desc = "Spawn shell in current directory"
+
+
+# Quit & Misc - Disable q for quit
+# Using manager.prepend_keymap to override default keybinding
+[[mgr.prepend_keymap]]
+on = [ "q" , "q" ]
+run =  "quit"
+
+# Disable z key (fzf) but allow zf sequence
+# First, define the zf sequence in prepend_keymap so it takes precedence
+[[mgr.prepend_keymap]]
+on = [ "z", "f" ]
+run = "filter"
+desc = "Filter files"
+
+# Then disable single z key
+[[mgr.prepend_keymap]]
+on = [ "z" ]
+run = "noop"
+desc = "Disabled z (fzf)"
+
+[[mgr.prepend_keymap]]
+on = [ "t" ]
+run = "noop"
+desc = "Disabled tag"
+
+# Tabs
+[[mgr.prepend_keymap]]
+on = ["t", "n"]
+run = "tab_create"
+desc = "New tab"
+
+[[mgr.prepend_keymap]]
+on = ["t", "c"]
+run = "tab_close"
+desc = "Close tab"
+
+# File copy and paste operations
+[[mgr.prepend_keymap]]
+on = ["y", "y"]
+run = "yank"
+desc = "Yank/Copy files (for pasting)"
+
+[[mgr.prepend_keymap]]
+on = ["y", "p"]
+run = "paste"
+desc = "Paste files"
+
+# Yank (copy) commands - copy paths to clipboard
+# Note: These copy paths to system clipboard using yazi's copy commands
+[[mgr.prepend_keymap]]
+on = ["y", "d"]
+run = ['copy', 'dirname']
+desc = "Copy directory path to clipboard"
+
+[[mgr.prepend_keymap]]
+on = ["y", "f"]
+run = ['copy', 'filename']
+desc = "Copy filename only to clipboard"
+
+# Copy full path to clipboard (using yP to avoid conflict with paste)
+[[mgr.prepend_keymap]]
+on = ["y", "P"]
+run = ['copy', 'path']
+desc = "Copy full file path to clipboard"
