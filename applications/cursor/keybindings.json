@@ -4,6 +4,7 @@
         "key": "ctrl+i",
         "command": "composerMode.agent"
     },
+    // Ctrl+N - Toggle sidebar (editor only)
     {
         "key": "ctrl+n",
         "command": "-workbench.action.files.newUntitledFile"
@@ -11,17 +12,57 @@
     {
         "key": "ctrl+n",
         "command": "workbench.view.explorer",
-        "when": "!explorerViewletVisible"
+        "when": "!explorerViewletVisible && editorTextFocus"
     },
     {
         "key": "ctrl+n",
         "command": "workbench.action.toggleSidebarVisibility",
-        "when": "explorerViewletVisible"
+        "when": "explorerViewletVisible && editorTextFocus"
     },
+    // Ctrl+[ and Ctrl+] - Navigate between editor tabs
+    {
+        "key": "ctrl+[",
+        "command": "workbench.action.previousEditor",
+        "when": "editorTextFocus"
+    },
+    {
+        "key": "ctrl+]",
+        "command": "workbench.action.nextEditor",
+        "when": "editorTextFocus"
+    },
+    // Ctrl+W - Close current file (editor only)
+    {
+        "key": "ctrl+w",
+        "command": "workbench.action.closeActiveEditor",
+        "when": "editorTextFocus"
+    },
+    // Ctrl+Shift+L - Toggle between editor and chat
+    {
+        "key": "ctrl+shift+l",
+        "command": "aichat.newchataction",
+        "when": "editorTextFocus"
+    },
+    {
+        "key": "ctrl+shift+l",
+        "command": "workbench.action.focusActiveEditorGroup",
+        "when": "!editorTextFocus"
+    },
+    // Ctrl+T - Open new chat (when in chat side)
+    {
+        "key": "ctrl+t",
+        "command": "composer.createNewWithPrevContext",
+        "when": "!editorTextFocus"
+    },
+    // Ctrl+Shift+Z - Toggle zen mode (works everywhere)
+    {
+        "key": "ctrl+shift+z",
+        "command": "workbench.action.toggleZenMode"
+    },
+    // Existing neovim keybinding
     {
         "key": ", f b",
         "command": "vscode-neovim.send",
         "when": "editorTextFocus && neovim.mode == 'normal'",
         "args": ",fn"
-    },
+    }
 ]
