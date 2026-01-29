@@ -3,6 +3,7 @@ alias kl='kubectl logs'
 alias kg='kubectl get'
 alias kgn='kubectl get nodes'
 alias kgp='kubectl get pods'
+alias kgp_containers="kubectl get pods -o jsonpath='{.spec.containers[*].name}'"
 alias kgd='kubectl get deployments.apps'
 alias kgr='kubectl get replicasets.apps'
 alias kgns='kubectl get namepspaces'

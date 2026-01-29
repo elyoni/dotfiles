@@ -13,13 +13,6 @@ typeset -g _ZSHRC_START=$EPOCHREALTIME
 #export VERBOSE_DEBUG=true
 [[ "$DEBUG" == "true" ]] && zmodload zsh/zprof
 
-if [[ "$TERM_PROGRAM" == "vscode" ]]; then
-    # Needed for the cursor
-    PROMPT='%n@%m:%~%# '
-    RPROMPT=''
-    break
-fi
-
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
     source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
@@ -137,6 +130,9 @@ if [[ -n ${zcompdump}(#qN.mh+24) ]]; then
 else
     compinit -C  # -C skips security check and dump regeneration
 fi
+
+# Setup git completion extensions (must be after compinit)
+[[ -f "${ZSH_CONFIG_DIR}/git_completion.zsh" ]] && source "${ZSH_CONFIG_DIR}/git_completion.zsh"
 
 # Manually register custom completions from ~/.zfunc
 # Workaround for completions not being auto-loaded by compinit
