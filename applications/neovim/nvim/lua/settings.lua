@@ -129,7 +129,7 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
 -- Folding for markdown files in Obsidian vault (code blocks only)
 _G.markdown_fold_cache = {}
 
-vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile", "BufWritePost" }, {
+vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile", "BufWritePost", "FileType" }, {
     pattern = vim.fn.expand("~/private/obsidian/work") .. "/**/*.md",
     callback = function(args)
         local bufnr = args.buf
@@ -143,8 +143,40 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile", "BufWritePost" }, {
         vim.schedule(function()
             _G.build_markdown_fold_cache(bufnr)
         end)
+        
+        -- Set up todo keybindings for this buffer
+        local todo = require('obsidian_todo')
+        vim.keymap.set('n', '<leader>tc', todo.toggle_checkbox, { buffer = bufnr, desc = "Toggle checkbox" })
+        vim.keymap.set('n', '<leader>ta', todo.new_todo_above, { buffer = bufnr, desc = "New todo above" })
+        vim.keymap.set('n', '<leader>tb', todo.new_todo_below, { buffer = bufnr, desc = "New todo below" })
+        vim.keymap.set('v', '<leader>tc', todo.toggle_selection, { buffer = bufnr, desc = "Toggle todos in selection" })
+        vim.keymap.set('v', '<leader>tx', todo.check_selection, { buffer = bufnr, desc = "Check todos in selection" })
+        vim.keymap.set('v', '<leader>tu', todo.uncheck_selection, { buffer = bufnr, desc = "Uncheck todos in selection" })
+        
+        -- Set up visual highlighting for todos
+        vim.schedule(function()
+            vim.api.nvim_buf_set_var(bufnr, 'obsidian_todo_highlighted', true)
+        end)
     end,
 })
+
+-- Visual highlighting for todo states (simple highlighting, no syntax overrides)
+--vim.api.nvim_create_autocmd({ "Syntax", "BufReadPost", "BufNewFile", "FileType" }, {
+    --pattern = vim.fn.expand("~/private/obsidian/work") .. "/**/*.md",
+    --callback = function()
+        ---- Simple highlighting for todos without overriding markdown syntax
+        --vim.cmd([[
+            --syntax match ObsidianTodoChecked /- \[x\].*/
+            --highlight ObsidianTodoChecked cterm=strikethrough gui=strikethrough ctermfg=gray guifg=gray
+            
+            --syntax match ObsidianTodoUnchecked /- \[ \].*/
+            --highlight ObsidianTodoUnchecked ctermfg=cyan guifg=cyan
+            
+            --syntax match ObsidianTodoCancelled /- \[-\].*/
+            --highlight ObsidianTodoCancelled cterm=strikethrough gui=strikethrough ctermfg=red guifg=red
+        --]])
+    --end,
+--})
 
 -- Build cache of code block start/end lines
 function _G.build_markdown_fold_cache(bufnr)
@@ -204,17 +236,35 @@ vim.api.nvim_create_autocmd("BufDelete", {
 -- Automatically handle stale swap files
 vim.api.nvim_create_autocmd("SwapExists", {
     callback = function(args)
-        local swap_file = args.file
-        if swap_file and vim.fn.filereadable(swap_file) == 1 then
-            -- Check if swap file is stale by trying to read it
+        local original_file = args.file
+        if not original_file then return end
+        
+        -- Get swap directory
+        local swap_dir = vim.opt.directory:get()[1] or (vim.fn.stdpath("state") .. "/swap")
+        
+        -- Construct swap file path: neovim encodes paths by replacing / with %
+        local full_path = vim.fn.fnamemodify(original_file, ":p")
+        local encoded_path = full_path:gsub("/", "%%")
+        local swap_file = swap_dir .. "/" .. encoded_path .. ".swp"
+        
+        -- CRITICAL SAFETY CHECKS:
+        -- 1. Swap file must end with .swp
+        -- 2. Swap file must be different from original file
+        -- 3. Original file must NOT end with .swp (never delete the actual file!)
+        -- 4. Swap file must exist
+        if swap_file:match("%.swp$") 
+           and not original_file:match("%.swp$")
+           and swap_file ~= original_file
+           and vim.fn.filereadable(swap_file) == 1 then
+            -- Check if swap file is stale (can be opened for reading)
             local handle = io.open(swap_file, "r")
             if handle then
                 handle:close()
-                -- Remove stale swap file and continue
+                -- Remove ONLY the swap file, never the original file
                 local result = os.remove(swap_file)
                 if result then
                     vim.v.swapchoice = "e"  -- Edit anyway
-                    vim.notify("Removed stale swap file: " .. vim.fn.fnamemodify(swap_file, ":t"), vim.log.levels.INFO)
+                    vim.notify("Removed stale swap file", vim.log.levels.INFO)
                 end
             end
         end

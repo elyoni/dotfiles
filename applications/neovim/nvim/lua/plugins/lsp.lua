@@ -70,16 +70,25 @@ return
                 },
             })
 
-            -- Configure ltex
+            -- Configure ltex (only for markdown and latex files)
             vim.lsp.config('ltex', {
                 capabilities = capabilities,
                 cmd = { "ltex-ls" },
+                filetypes = { "markdown", "tex", "bib" },
                 on_attach = function(client, bufnr)
-                    -- your other on_attach code
-                    -- for example, set keymaps here, like
-                    -- vim.keymap.set({ 'n', 'v' }, '<leader>ca', vim.lsp.buf.code_action, opts)
-                    -- (see below code block for more details)
-                    require("ltex-utils").on_attach(bufnr)
+                    -- Defer ltex-utils attachment to ensure client is fully ready
+                    vim.schedule(function()
+                        -- Check if ltex client is actually active
+                        local clients = vim.lsp.get_clients({ bufnr = bufnr, name = "ltex" })
+                        if #clients > 0 then
+                            local ok, ltex_utils = pcall(require, "ltex-utils")
+                            if ok and ltex_utils then
+                                pcall(function()
+                                    ltex_utils.on_attach(bufnr)
+                                end)
+                            end
+                        end
+                    end)
                 end,
                 settings = {
                     ltex = {
@@ -141,8 +150,24 @@ return
                 end,
             })
 
+            -- Configure pyright
+            vim.lsp.config('pyright', {
+                capabilities = capabilities,
+                settings = {
+                    pyright = {
+                        -- Optional: configure pyright settings here
+                    },
+                    python = {
+                        analysis = {
+                            -- Optional: configure analysis settings
+                            typeCheckingMode = "basic", -- "off", "basic", "strict"
+                        },
+                    },
+                },
+            })
+
             require('mason-lspconfig').setup({
-                ensure_installed = { "lua_ls", "ltex" }, -- Add more servers as needed
+                ensure_installed = { "lua_ls", "ltex", "pyright" }, -- Add more servers as needed
                 handlers = {
                     -- this first function is the "default handler"
                     -- it applies to every language server without a "custom handler"
@@ -157,6 +182,8 @@ return
     },
     {
         "jhofscheier/ltex-utils.nvim",
+        lazy = true,
+        ft = { "markdown", "tex", "bib" },
         dependencies = {
             "neovim/nvim-lspconfig",
             "nvim-telescope/telescope.nvim",

@@ -1,0 +1,58 @@
+return {
+    "folke/which-key.nvim",
+    event = "VeryLazy",
+    init = function()
+        vim.o.timeout = true
+        vim.o.timeoutlen = 300
+    end,
+    opts = {
+        preset = "modern",
+        icons = {
+            mappings = vim.g.have_nerd_font,
+        },
+        win = {
+            border = "rounded",
+            padding = { 1, 2 },
+        },
+        layout = {
+            height = { min = 4, max = 25 },
+            width = { min = 20, max = 50 },
+            spacing = 3,
+            align = "left",
+        },
+        spec = {
+            { "<leader>a", group = "wiki" },
+            { "<leader>d", group = "diff" },
+            { "<leader>f", group = "find/telescope" },
+            { "<leader>g", group = "git" },
+            { "<leader>n", group = "new" },
+            { "<leader>o", group = "obsidian" },
+            { "<leader>oa", desc = "New todo above" },
+            { "<leader>ob", desc = "New todo below" },
+            { "<leader>oc", desc = "Toggle checkbox" },
+            { "<leader>oD", desc = "Daily notes" },
+            { "<leader>od", desc = "Today's note" },
+            { "<leader>oi", desc = "Insert template" },
+            { "<leader>on", desc = "New note" },
+            { "<leader>oo", group = "open" },
+            { "<leader>ot", desc = "Tags" },
+            { "<leader>oy", desc = "Yesterday's note" },
+            { "<leader>r", group = "run" },
+            { "<leader>s", group = "shell" },
+            { "<leader>t", group = "tab/terminal/todo" },
+            { "<leader>ta", desc = "New todo above" },
+            { "<leader>tb", desc = "New todo below" },
+            { "<leader>tc", desc = "Toggle checkbox/todos" },
+            { "<leader>tu", desc = "Uncheck todos (visual)" },
+            { "<leader>tx", desc = "Check todos (visual)" },
+            { "<leader>v", group = "view/window" },
+            { "<leader>z", group = "fold" },
+            { "<leader>zc", desc = "Close folds to level" },
+            { "<leader>zf", desc = "Fold by type (code/headers)" },
+            { "<leader>zF", desc = "Close all folds" },
+            { "<leader>zo", desc = "Open folds from level" },
+            { "<leader>zO", desc = "Open all folds" },
+            { "<leader>zt", desc = "Toggle fold" },
+        },
+    },
+}

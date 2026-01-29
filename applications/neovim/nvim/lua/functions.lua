@@ -71,3 +71,61 @@ function TrimShellPrompt()
 
     print(string.format("Trimmed shell prompts on lines %d-%d", start_line, end_line))
 end
+
+-- Folding functions
+
+-- Close folds until a specific level
+function FoldCloseToLevel()
+    vim.ui.input({ prompt = "Close folds to level (0-9): " }, function(input)
+        if not input or input == "" then return end
+        local level = tonumber(input)
+        if level and level >= 0 and level <= 9 then
+            vim.opt.foldlevel = level
+            vim.notify("Closed folds to level " .. level, vim.log.levels.INFO)
+        else
+            vim.notify("Invalid level. Please enter a number between 0-9", vim.log.levels.ERROR)
+        end
+    end)
+end
+
+-- Open folds from a specific level
+function FoldOpenFromLevel()
+    vim.ui.input({ prompt = "Open folds from level (0-9): " }, function(input)
+        if not input or input == "" then return end
+        local level = tonumber(input)
+        if level and level >= 0 and level <= 9 then
+            vim.opt.foldlevel = level
+            vim.notify("Opened folds from level " .. level, vim.log.levels.INFO)
+        else
+            vim.notify("Invalid level. Please enter a number between 0-9", vim.log.levels.ERROR)
+        end
+    end)
+end
+
+-- Fold by type (code blocks or headers)
+function FoldByType()
+    vim.ui.select({ "code", "headers" }, {
+        prompt = "Select fold type:",
+    }, function(choice)
+        if not choice then return end
+        
+        if choice == "code" then
+            -- For markdown files in Obsidian, trigger code block folding
+            local bufnr = vim.api.nvim_get_current_buf()
+            local filepath = vim.api.nvim_buf_get_name(bufnr)
+            
+            if filepath:match("private/obsidian/work/.*%.md$") then
+                -- Rebuild fold cache and apply
+                _G.build_markdown_fold_cache(bufnr)
+                vim.cmd("normal! zx")  -- Update folds
+                vim.opt.foldlevel = 0  -- Close all folds
+                vim.notify("Folded all code blocks", vim.log.levels.INFO)
+            else
+                vim.notify("Code block folding only works in Obsidian markdown files", vim.log.levels.WARN)
+            end
+        elseif choice == "headers" then
+            -- Fold by markdown headers (requires treesitter or manual setup)
+            vim.notify("Header folding not yet implemented", vim.log.levels.INFO)
+        end
+    end)
+end

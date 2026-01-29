@@ -39,10 +39,15 @@ vim.keymap.set('v', '<leader>sp', TrimShellPrompt, with_desc("Trim shell prompt 
 -- Folding
 vim.keymap.set("n", "zC", "zM", with_desc("Close all folds"))
 vim.keymap.set("n", "zO", "zR", with_desc("Open all folds"))
-vim.keymap.set("n", "<leader>zf", "<cmd>foldclose<CR>", with_desc("Close current fold"))
 vim.keymap.set("n", "<leader>zF", "zM", with_desc("Close all folds deeply"))
 vim.keymap.set("n", "<leader>zt", "za", with_desc("Toggle fold"))
 vim.keymap.set("n", "<leader>zO", "zR", with_desc("Open all folds deeply"))
+
+-- Custom fold commands
+vim.keymap.set("n", "<leader>zc", FoldCloseToLevel, with_desc("Close folds to level"))
+vim.keymap.set("n", "<leader>zo", FoldOpenFromLevel, with_desc("Open folds from level"))
+vim.keymap.set("n", "<leader>zf", FoldByType, with_desc("Fold by type (code/headers)"))
+
 vim.cmd("set foldmethod=marker")
 
 -- Tabs

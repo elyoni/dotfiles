@@ -55,3 +55,25 @@ vim.api.nvim_create_user_command(
     end,
     { desc = "Toggle Format Auto-Save" }
 )
+
+-- Obsidian New File command
+local obsidian_new_file = require('obsidian_new_file')
+vim.api.nvim_create_user_command(
+    "ObsidianNewFile",
+    function()
+        obsidian_new_file.new_file()
+    end,
+    { desc = "Create new Obsidian file with menu" }
+)
+
+-- Command to fix conceal issues in markdown files
+vim.api.nvim_create_user_command(
+    "FixConceal",
+    function()
+        vim.opt_local.conceallevel = 0
+        vim.opt_local.concealcursor = ""
+        vim.cmd("syntax sync fromstart")
+        vim.notify("Conceal disabled", vim.log.levels.INFO)
+    end,
+    { desc = "Fix conceal issues in markdown files" }
+)

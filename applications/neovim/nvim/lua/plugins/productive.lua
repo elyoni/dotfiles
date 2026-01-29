@@ -10,18 +10,6 @@ vim.api.nvim_create_user_command("ObsidianSwitchWork", function()
     end
 end, {})
 
-vim.api.nvim_create_user_command("ObsidianSwitchPrivate", function()
-    local obsidian = require("obsidian")
-    local client = obsidian.get_client()
-    if client then
-        client:switch_workspace("private")
-        --vim.notify("Switched to workspace: private")
-        client:open_note("main.md")
-    else
-        vim.notify("Error: Obsidian client not initialized.", vim.log.levels.ERROR)
-    end
-end, {})
-
 return {
 
     {
@@ -60,10 +48,8 @@ return {
             -- If you want to use the home shortcut '~' here you need to call 'vim.fn.expand'.
             -- E.g. "BufReadPre " .. vim.fn.expand "~" .. "/my-vault/*.md"
             -- refer to `:h file-pattern` for more examples
-            "BufReadPre " .. vim.fn.expand "~" .. "/.obsidian/private/*.md",
-            "BufNewFile " .. vim.fn.expand "~" .. "/.obsidian/private/*.md",
-            "BufReadPre " .. vim.fn.expand "~" .. "/.obsidian/work/*.md",
-            "BufNewFile " .. vim.fn.expand "~" .. "/.obsidian/work/*.md",
+            "BufReadPre " .. vim.fn.expand "~" .. "/private/obsidian/work/*.md",
+            "BufNewFile " .. vim.fn.expand "~" .. "/private/obsidian/work/*.md",
         },
         dependencies = {
             -- Required.
@@ -77,42 +63,69 @@ return {
                 "<cmd>ObsidianSwitchWork<CR>",
                 desc = "Switch to Work Workspace",
             },
-            {
-                "<leader>oop",
-                "<cmd>ObsidianSwitchPrivate<CR>",
-                desc = "Switch to Private Workspace",
-            }, --{ "<leader>oow", "<cmd>lua require('obsidian').set_workspace('work')<CR>", desc = "Switch to Work Workspace" },
             { "<leader>on", "<cmd>ObsidianNew<CR>",        desc = "New Note" },
+            { "<leader>nf", "<cmd>ObsidianNewFile<CR>",    desc = "New File (Menu)" },
             { "<leader>od", "<cmd>ObsidianToday<CR>",      desc = "Todays Note" },
             { "<leader>oy", "<cmd>ObsidianYesterday <CR>", desc = "Yesterday Note" },
             { "<leader>oD", "<cmd>ObsidianDailies<CR>",    desc = "Daily Notes" },
             { "<leader>ot", "<cmd>ObsidianTags<CR>",       desc = "Open obsidian tags" },
+            { "<leader>oi", "<cmd>ObsidianTemplate<CR>",   desc = "Insert template" },
+            { "<leader>oc", "<cmd>lua require('obsidian_todo').toggle_checkbox()<CR>", desc = "Toggle checkbox" },
+            { "<leader>oa", "<cmd>lua require('obsidian_todo').new_todo_above()<CR>", desc = "New todo above" },
+            { "<leader>ob", "<cmd>lua require('obsidian_todo').new_todo_below()<CR>", desc = "New todo below" },
         },
-        opts = {
-            workspaces = {
-                {
-                    name = "private",
-                    path = "~/.obsidian/private",
-                    strict = true,
+        config = function(_, opts)
+            -- Ensure path is a string, not a table
+            local work_path = vim.fn.fnamemodify(vim.fn.expand("~/private/obsidian/work"), ":p")
+            -- Remove trailing slash if present
+            work_path = work_path:gsub("/$", "")
+            
+            require("obsidian").setup(vim.tbl_deep_extend("force", opts or {}, {
+                workspaces = {
+                    {
+                        name = "work",
+                        path = work_path,
+                        strict = true,
+                    },
                 },
-                {
-                    name = "work",
-                    path = "~/.obsidian/work",
-                    strict = true,
+            daily_notes = {
+                folder = "00-Inbox/daily-notes",
+                date_format = "%Y-%m-%d",
+                alias_format = "%B %-d, %Y",
+                template = "04-Meta/templates/daily-note.md",
+            },
+            templates = {
+                folder = "04-Meta/templates",
+                date_format = "%Y-%m-%d",
+                time_format = "%H:%M",
+                substitutions = {
+                    yesterday = function()
+                        return os.date("%Y-%m-%d", os.time() - 86400)
+                    end,
+                    tomorrow = function()
+                        return os.date("%Y-%m-%d", os.time() + 86400)
+                    end,
                 },
             },
             callbacks = {
                 post_set_workspace = function(client, workspace)
                     -- Change the working directory to the current workspace's path
-                    local new_cwd = workspace.path and workspace.path.filename or nil
+                    -- Handle both string and table path formats
+                    local new_cwd = nil
+                    if workspace.path then
+                        if type(workspace.path) == "string" then
+                            new_cwd = workspace.path
+                        elseif type(workspace.path) == "table" and workspace.path.filename then
+                            new_cwd = workspace.path.filename
+                        end
+                    end
+                    
                     if new_cwd then
                         -- Change the working directory to the new workspace path
-                        vim.cmd("cd " .. new_cwd)
+                        vim.cmd("cd " .. vim.fn.fnameescape(new_cwd))
                         vim.notify("Switched to workspace: work", vim.log.levels.INFO, {
                             timeout = 1000, -- auto-dismiss after 1s
                         })
-
-                        --print("Changed working directory to: " .. new_cwd)
                     else
                         print("Error: Workspace path is invalid or nil.")
                     end
@@ -136,7 +149,8 @@ return {
                 end
                 return tostring(os.time()) .. "-" .. suffix
             end, --
-        },
+            }))
+        end,
     },
 
     --{
