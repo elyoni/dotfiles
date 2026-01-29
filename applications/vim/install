@@ -1,0 +1,104 @@
+#!/usr/bin/env bash
+
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P "$DIR" && pwd)
+
+function _link_files()
+{
+    echo ======= Link Vim Log Syntax Files =======
+    mkdir -p "${HOME}"/.vim/syntax
+    mkdir -p "${HOME}"/.vim/ftdetect
+    mkdir -p "${HOME}"/.local/bin
+    
+    ln -sf "${DIR}/syntax/log.vim" "${HOME}/.vim/syntax/log.vim"
+    ln -sf "${DIR}/ftdetect/log.vim" "${HOME}/.vim/ftdetect/log.vim"
+    
+    # Link tail-log.sh script
+    if [[ -f "${DIR}/tail-log.sh" ]]; then
+        ln -sf "${DIR}/tail-log.sh" "${HOME}/.local/bin/tailog"
+        chmod +x "${DIR}/tail-log.sh"
+    fi
+    
+    echo =======   End   =======
+}
+
+function _verify_link()
+{
+    syntax_link="${HOME}"/.vim/syntax/log.vim
+    ftdetect_link="${HOME}"/.vim/ftdetect/log.vim
+    tailog_link="${HOME}"/.local/bin/tailog
+    
+    if [ ! -L "${syntax_link}" ] || [ ! -e "${syntax_link}" ]; then
+        echo "VERIFY FAILED: Syntax file link not exists"
+        exit 1
+    fi
+    
+    if [ ! -L "${ftdetect_link}" ] || [ ! -e "${ftdetect_link}" ]; then
+        echo "VERIFY FAILED: Filetype detection link not exists"
+        exit 2
+    fi
+    
+    if [[ -f "${DIR}/tail-log.sh" ]] && ([ ! -L "${tailog_link}" ] || [ ! -e "${tailog_link}" ]); then
+        echo "VERIFY FAILED: tailog script link not exists"
+        exit 3
+    fi
+}
+
+function _verify_vim()
+{
+    if ! which vim >/dev/null; then
+        echo "VERIFY FAILED: vim binary file not found"
+        exit 1
+    fi
+    
+    local vim_version
+    vim_version=$(vim --version | head -n 1 | grep -oE '[0-9]+\.[0-9]+' | head -n 1)
+    local major_version
+    major_version=$(echo "$vim_version" | cut -d. -f1)
+    local minor_version
+    minor_version=$(echo "$vim_version" | cut -d. -f2)
+    
+    if [ "$major_version" -lt 8 ] || ([ "$major_version" -eq 8 ] && [ "$minor_version" -lt 2 ]); then
+        echo "WARNING: Vim version is $vim_version, but 8.2+ is recommended"
+    fi
+}
+
+function install()
+{
+    _link_files
+    echo ""
+    echo "Installation complete. To verify, run:"
+    echo "  ./install verify"
+    echo ""
+    echo "To diagnose issues, run:"
+    echo "  ./diagnose.sh"
+}
+
+function verify()
+{
+    _verify_vim
+    _verify_link
+    echo "Verification Pass"
+}
+
+function help() # Show a list of functions
+{
+    awk '/^function / && ! /^function _/' "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi
+
+
+
+
+
+
+
+
+
+
+
