@@ -8,9 +8,11 @@ if xinput list-props $DEVICE_KEYBOARD_ID | grep "Device Enabled (.*):.*1" > /dev
 then
     xinput disable $DEVICE_KEYBOARD_ID
     xinput disable $DEVICE_TRACKPAD_ID
-    echo "Keyboard disabled"
+    #echo "Keyboard disabled"
+    echo "｢🚫｣"
 else
     xinput enable $DEVICE_KEYBOARD_ID
     xinput enable $DEVICE_TRACKPAD_ID
-    echo "Keyboard enabled"
+    #echo "Keyboard enabled"
+    echo "｢⌨｣"
 fi

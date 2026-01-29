@@ -42,6 +42,7 @@ function find_obsidian_appimage() {
 function launch_obsidian() {
     local obsidian_cmd=""
     local is_appimage=false
+    local vault_path="$HOME/private/obsidian/work"
     
     # Try different methods to find Obsidian
     if command -v obsidian &> /dev/null; then
@@ -58,11 +59,12 @@ function launch_obsidian() {
         exit 1
     fi
 
-    # Launch Obsidian in background
+    # Launch Obsidian in background with work vault
+    # Use the vault path directly as argument
     if [ "$is_appimage" = true ] && [ -f "${DIR}/obsidian-wrapper.sh" ]; then
-        "${DIR}/obsidian-wrapper.sh" "${obsidian_cmd}" &
+        "${DIR}/obsidian-wrapper.sh" "${obsidian_cmd}" "${vault_path}" &
     else
-        "${obsidian_cmd}" &
+        "${obsidian_cmd}" "${vault_path}" &
     fi
 
     # Wait for Obsidian window to appear

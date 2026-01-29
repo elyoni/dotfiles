@@ -230,7 +230,7 @@ bindsym $mod+$wm.binding.ws_prev_on_output workspace prev_on_output
 
 ## Navigate // Scratchpad // <><Ctrl> Enter ##
 set_from_resource $wm.binding.scratchpad wm.binding.scratchpad Ctrl+Return
-bindsym $mod+$wm.binding.scratchpad exec ${HOME}/.config/regolith3/i3/scratchpad_obsidian.sh
+bindsym $mod+$wm.binding.scratchpad exec ${HOME}/.config/regolith3/i3/scratchpad.sh -s wiki
 
 ## Navigate // Obsidian Scratchpad // <><Ctrl> o ##
 set_from_resource $wm.binding.scratchpad_obsidian wm.binding.scratchpad_obsidian Ctrl+o

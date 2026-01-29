@@ -1,28 +1,16 @@
 # Each block command defaults to the script name to avoid boilerplate.
 command=~/.config/regolith3/i3xrocks/scripts/$BLOCK_NAME
-separator_block_width=30
+separator_block_width=10
 markup=pango
 color=xresource:i3xrocks.value.color
 label_color=xresource:i3xrocks.label.color
 
-[keyboard_toggle]
-full_text=kt
-command=~/.config/regolith3/i3xrocks/scripts/disable_laptop_keyboard.sh
-color=#F79494
+#[info]
+#full_text=xresource:i3xrocks.label.help
+#command=i3-msg -q "exec --no-startup-id ilia -p keybindings"
 
-[volume]
-interval=5
-
-[keyboard-layout]
-interval=60
-
-[info]
-full_text=xresource:i3xrocks.label.help
-command=i3-msg -q "exec --no-startup-id ilia -p keybindings"
-
-[taskwarrior]
-interval=10
-command=~/.dotfiles/system/regolith/regolith3/i3xrocks/scripts/taskwarrior
+[countdown]
+interval=1
 
 [ip]
 interval=60  # Update every 60 seconds
@@ -35,14 +23,26 @@ interval=30 # Update time every 30 seconds
 [battery]
 interval=60
 
-#[countdown]
-#interval=1
+[volume]
+interval=5
 
-[Microphone]
-label=🎤
-interval=1
-#instance=PCM
-command=amixer get Capture | grep -E -o '\[[a-zA-Z]+\]' | sed 's/\[//;s/\]//' | head -1
-#command=amixer get Master | grep -E -o '[0-9]{1,3}?%' | head -1
+[keyboard-layout]
+interval=60
+
+[keyboard_toggle]
+full_text="｢⌨｣"
+command=~/.config/regolith3/i3xrocks/scripts/disable_laptop_keyboard.sh
+color=#F79494
+
+#[taskwarrior]
+#interval=10
+#command=~/.dotfiles/system/regolith/regolith3/i3xrocks/scripts/taskwarrior
+
+#[Microphone]
+#label=🎤
+#interval=1
+##instance=PCM
+#command=amixer get Capture | grep -E -o '\[[a-zA-Z]+\]' | sed 's/\[//;s/\]//' | head -1
+##command=amixer get Master | grep -E -o '[0-9]{1,3}?%' | head -1
 #
 #
