@@ -3,7 +3,6 @@
 DIR=$(dirname "${BASH_SOURCE[0]}")
 DIR=$(cd -P "$DIR" && pwd)
 
-GOVERSION=1.21.7
 INSTALL_DIR_BASE=/usr/local
 INSTALL_DIR=${INSTALL_DIR_BASE}/go
 
@@ -14,6 +13,7 @@ function _remove_old_version()
 
 function _install_go()
 {
+    GOVERSION=$(curl -sL "https://go.dev/VERSION?m=text" | head -n1 | sed 's/go//')
     wget https://go.dev/dl/go${GOVERSION}.linux-amd64.tar.gz
     if [ -f ${INSTALL_DIR} ]; then
         _remove_old_version
