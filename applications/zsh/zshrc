@@ -2,6 +2,7 @@
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
 
+
 # Timing: record start time (requires zsh/datetime for EPOCHREALTIME)
 zmodload zsh/datetime
 typeset -g _ZSHRC_START=$EPOCHREALTIME
@@ -134,6 +135,9 @@ fi
 # Setup git completion extensions (must be after compinit)
 [[ -f "${ZSH_CONFIG_DIR}/git_completion.zsh" ]] && source "${ZSH_CONFIG_DIR}/git_completion.zsh"
 
+# Multi-level completion for my_cmd (must be after compinit)
+[[ -f "${ZSH_CONFIGS}/my_cmd_completion.zsh" ]] && source "${ZSH_CONFIGS}/my_cmd_completion.zsh"
+
 # Manually register custom completions from ~/.zfunc
 # Workaround for completions not being auto-loaded by compinit
 # Optimized: uses zsh parameter expansion instead of basename/sed subprocesses
@@ -165,3 +169,8 @@ export PATH="$HOME/.local/bin:$PATH"
 typeset -g _ZSHRC_TIME=$(( (EPOCHREALTIME - _ZSHRC_START) * 1000 ))
 printf '\033[90mzshrc loaded in %.0fms\033[0m\n' $_ZSHRC_TIME
 unset _ZSHRC_START _ZSHRC_TIME
+# Enhanced completion for wt (optional)
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|=*' 'l:|=* r:|=*'
+
+eval "$(wt init zsh)"
+# git-wt completion

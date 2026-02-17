@@ -13,6 +13,7 @@ autoload -Uz compinit
 # - '.' matches "regular files"
 # - 'mh+24' matches files (or directories or whatever) that are older than 24 hours.
 fpath+=~/.zfunc
+fpath+=~/.zsh/completions/
 
 # Note: compinit is called at the end of .zshrc after all fpath modifications
 
