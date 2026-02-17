@@ -1,0 +1,38 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Open Current File in Neovim (Project Directory)",
+            "type": "shell",
+            "command": "${env:HOME}/.dotfiles/scripts/nvim-open.sh",
+            "args": [
+                "${file}"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "close": false,
+                "echo": true,
+                "focus": false
+            },
+            "runOptions": {
+                "runOn": "default"
+            }
+        },
+        {
+            "label": "Open Relative File in Neovim (Project Directory)",
+            "type": "shell",
+            "command": "${env:HOME}/.dotfiles/scripts/nvim-open.sh",
+            "args": [
+                "${relativeFile}"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "never",
+                "panel": "dedicated",
+                "close": true
+            }
+        }
+    ]
+}

@@ -58,11 +58,33 @@
         "key": "ctrl+shift+z",
         "command": "workbench.action.toggleZenMode"
     },
+    // ,fg - Find in files (ripgrep search in project)
+    {
+        "key": ", f g",
+        "command": "workbench.action.findInFiles",
+        "when": "editorTextFocus && neovim.mode == 'normal'"
+    },
     // Existing neovim keybinding
     {
         "key": ", f b",
         "command": "vscode-neovim.send",
         "when": "editorTextFocus && neovim.mode == 'normal'",
         "args": ",fn"
+    },
+    // Open current file in external Neovim (project directory)
+    // Option 1: Using task (requires .vscode/tasks.json in workspace)
+    {
+        "key": "ctrl+shift+n",
+        "command": "workbench.action.tasks.runTask",
+        "args": "Open Current File in Neovim (Project Directory)"
+    },
+    // Option 2: Direct terminal command (works without tasks.json)
+    {
+        "key": "ctrl+shift+alt+n",
+        "command": "workbench.action.terminal.sendSequence",
+        "args": {
+            "text": "cd ${workspaceFolder} && ${env:HOME}/.dotfiles/scripts/nvim-open.sh '${file}'\r"
+        },
+        "when": "editorTextFocus && terminalProcessSupported"
     }
 ]
