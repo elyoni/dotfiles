@@ -113,7 +113,7 @@ keybind = alt+comma>k=goto_split:up
 keybind = alt+comma>l=goto_split:right
 
 # Split management
-keybind = alt+comma>backslash=new_split:right
+keybind = alt+comma>%=new_split:right
 keybind = alt+comma>minus=new_split:down
 keybind = alt+comma>x=close_surface
 
@@ -123,12 +123,20 @@ keybind = alt+comma>shift+j=resize_split:down,10
 keybind = alt+comma>shift+k=resize_split:up,10
 keybind = alt+comma>shift+l=resize_split:right,10
 keybind = alt+comma>s>r=new_split:right
+keybind = alt+comma>s>l=new_split:left
 keybind = alt+comma>s>d=new_split:down
+keybind = alt+comma>s>u=new_split:up
 
 # Window/Tab management
 keybind = alt+comma>c=new_tab
 keybind = alt+comma>n=new_window
 keybind = alt+comma>r=reload_config
+
+# Note: Ghostty doesn't currently support promoting/demoting splits to tabs
+# or tabs to splits. If this feature is added in the future, potential
+# keybindings might be:
+# keybind = alt+comma>p=promote_split_to_tab  # split -> tab
+# keybind = alt+comma>shift+p=demote_tab_to_split  # tab -> split
 
 # Zoom toggle (like tmux z)
 keybind = alt+comma>z=toggle_split_zoom

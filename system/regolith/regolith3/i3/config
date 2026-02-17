@@ -143,6 +143,8 @@ set_from_resource $wm.binding.terminal_app wm.binding.terminal_app ${HOME}/.conf
 set_from_resource $wm.binding.terminal wm.binding.terminal Return
 bindsym $mod+$wm.binding.terminal exec $wm.binding.terminal_app
 
+bindsym $mod+c exec rofi -modi "clipboard:greenclip print" -show clipboard
+
 ## Launch // Terminal - ssh yoni-vm // <><Shift> Enter ##
 set_from_resource $wm.binding.ssh-yoni wm.binding.terminal Shift+Return
 #bindsym $mod+$wm.binding.ssh-yoni exec "TERM=xterm-256color $wm.binding.terminal_app ssh -X -R 8888:localhost:22 -R 9999:localhost:9999 yoni@seil-sdk-ye -y"
@@ -662,6 +664,8 @@ exec --no-startup-id $wm.program.nm-applet
 
 set_from_resource $wm.program.thunderbird i3-wm.program.thunderbird /usr/bin/thunderbird
 exec --no-startup-id $wm.program.thunderbird
+
+
 
 
 set_from_resource $wm.program.teams i3-wm.program.teams /snap/bin/teams-for-linux

@@ -9,3 +9,5 @@ wm.binding.display: none
 wm.binding.launcher.app: d
 !regolith.look.path: /usr/share/regolith-look/lascaille
 regolith.look.path: /usr/share/regolith-look/lascaille
+
+i3xrocks.media-player.player: spotify
