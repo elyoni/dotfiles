@@ -30,12 +30,26 @@ local function process_template(template_path, vars)
   
   -- Replace template variables
   -- First replace variables with format specifiers (e.g., {{date:YYYY-MM-DD}})
+  -- In Lua patterns, { and } are special and must be escaped as %{ and %}
   for key, value in pairs(vars) do
+    -- Escape special characters in key for pattern matching
+    -- Only - needs escaping in keys (for keys like "project-name")
     local escaped_key = key:gsub("%-", "%%-")
-    -- Replace {{key:format}} patterns
-    content = content:gsub("{{" .. escaped_key .. ":([^}]+)}}", value)
+    -- Replace {{key:format}} patterns (format part is captured but ignored)
+    -- Escape braces: {{ becomes %{%{ and }} becomes %}%}
+    -- In character class [^}], } doesn't need escaping
+    content = content:gsub("%{%{" .. escaped_key .. ":([^}]+)%}%}", value)
     -- Replace {{key}} patterns
-    content = content:gsub("{{" .. escaped_key .. "}}", value)
+    content = content:gsub("%{%{" .. escaped_key .. "%}%}", value)
+  end
+  
+  -- Also handle common patterns like {{date:YYYY-MM-DD}} where "date" is the base key
+  -- This handles cases where the template uses {{date:YYYY-MM-DD}} but vars has "date" key
+  if vars.date then
+    -- Replace {{date:format}} patterns (any format)
+    content = content:gsub("%{%{date:([^}]+)%}%}", vars.date)
+    -- Replace {{date}} pattern
+    content = content:gsub("%{%{date%}%}", vars.date)
   end
   
   return content
@@ -64,9 +78,7 @@ local handlers = {
     local date = get_date()
     local file_path = VAULT_ROOT .. "/00-Inbox/daily-notes/" .. date .. ".md"
       local content, err = process_template("04-Meta/templates/daily-note.md", {
-        ["date:YYYY-MM-DD"] = date,
-        date = date,
-        ["date"] = date
+        date = date
       })
     if not content then
       vim.notify("Error: " .. err, vim.log.levels.ERROR)
@@ -91,9 +103,7 @@ local handlers = {
       
       local content, err = process_template("04-Meta/templates/project-note.md", {
         ["project-name"] = slug,
-        ["date:YYYY-MM-DD"] = date,
-        date = date,
-        ["date"] = date
+        date = date
       })
       if not content then
         vim.notify("Error: " .. err, vim.log.levels.ERROR)
@@ -122,9 +132,7 @@ local handlers = {
       
       local content, err = process_template("04-Meta/templates/project-note.md", {
         ["project-name"] = slug,
-        ["date:YYYY-MM-DD"] = date,
-        date = date,
-        ["date"] = date
+        date = date
       })
       if not content then
         vim.notify("Error: " .. err, vim.log.levels.ERROR)
@@ -154,9 +162,7 @@ local handlers = {
       local content, err = process_template("04-Meta/templates/ticket-note.md", {
         ["ticket-id"] = ticket_id,
         ["ticket-title"] = ticket_title,
-        ["date:YYYY-MM-DD"] = date,
-        date = date,
-        ["date"] = date
+        date = date
       })
         if not content then
           vim.notify("Error: " .. err, vim.log.levels.ERROR)
@@ -183,10 +189,7 @@ local handlers = {
       
       local content, err = process_template("04-Meta/templates/quick-capture.md", {
         title = name,
-        ["title"] = name,
-        ["date:YYYY-MM-DD"] = date,
-        date = date,
-        ["date"] = date
+        date = date
       })
       if not content then
         vim.notify("Error: " .. err, vim.log.levels.ERROR)
@@ -215,12 +218,8 @@ local handlers = {
         
         local content, err = process_template("04-Meta/templates/resource-note.md", {
           title = slug,
-          ["title"] = slug,
           category = category,
-          ["category"] = category,
-          ["date:YYYY-MM-DD"] = date,
-          date = date,
-          ["date"] = date
+          date = date
         })
         if not content then
           vim.notify("Error: " .. err, vim.log.levels.ERROR)
@@ -251,11 +250,8 @@ local handlers = {
         
         local content, err = process_template("04-Meta/templates/design-note.md", {
           feature = feature_slug,
-          ["feature"] = feature_slug,
           ["project-name"] = project_slug,
-          ["date:YYYY-MM-DD"] = date,
-          date = date,
-          ["date"] = date
+          date = date
         })
         if not content then
           vim.notify("Error: " .. err, vim.log.levels.ERROR)

@@ -134,6 +134,10 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile", "BufWritePost", "FileType
     callback = function(args)
         local bufnr = args.buf
         
+        -- Show checkboxes and list markers literally (no conceal)
+        vim.opt_local.conceallevel = 0
+        vim.opt_local.concealcursor = ""
+        
         vim.opt_local.foldmethod = "expr"
         vim.opt_local.foldexpr = "v:lua.markdown_codeblock_fold()"
         vim.opt_local.foldlevel = 0  -- Start with all folds closed

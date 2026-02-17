@@ -21,7 +21,11 @@ return {
             align = "left",
         },
         spec = {
-            { "<leader>a", group = "wiki" },
+            { "<leader>a", group = "cursor-agent/wiki" },
+            { "<leader>aJ", desc = "Cursor Agent (current dir)" },
+            { "<leader>aj", desc = "Cursor Agent (project root)" },
+            { "<leader>al", desc = "Cursor Agent (sessions)" },
+            { "<leader>hm", desc = "Open AI chat (Cursor/neocodeium/Claude)" },
             { "<leader>d", group = "diff" },
             { "<leader>f", group = "find/telescope" },
             { "<leader>g", group = "git" },
