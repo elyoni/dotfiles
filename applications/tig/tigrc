@@ -1,3 +1,6 @@
+# Show total commit count (rev-list HEAD --count) in status bar
+bind main C +sh -c 'git rev-list HEAD --count'
+
 bind main b none
 bind main bb view-blame
 #bind main bi !git rebase -i %(commit)

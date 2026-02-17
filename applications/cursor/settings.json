@@ -22,5 +22,10 @@
 			"after": [","]
 		}
 	],
-	"window.titleBarStyle": "native"
+	"window.titleBarStyle": "native",
+	"terminal.integrated.automationProfile.linux": {},
+	"workbench.navigationControl.enabled": false,
+	"extensions.experimental.affinity": {
+		"asvetliakov.vscode-neovim": 1
+	}
 }
