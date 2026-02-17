@@ -2,12 +2,17 @@
 
 # Usage:
 #   ./git-site [--update] [--remote remote_name] [--file path[:line] or path:start:end]
+#   ./git-site mr [--me] [--state opened|merged|closed] [--scope all|assigned_to_me|created_by_me]
 
 UPDATE=0
 REMOTE="origin"
 FILE_LINE=""
 FILE=""
 LINE=""
+MR_MODE=0
+MR_ME=0
+MR_STATE="opened"
+MR_SCOPE="all"
 
 # --- Parse args ---
 while [ $# -gt 0 ]; do
@@ -15,6 +20,7 @@ while [ $# -gt 0 ]; do
     -h|--help)
       cat << EOF
 Usage: git-site [options]
+       git-site mr [options]
 
 Opens the current git repository in the browser at the hosting service (GitHub, GitLab, etc.)
 
@@ -25,17 +31,31 @@ Options:
   --file PATH[:LINE]       Open specific file, optionally at line number
                           Format: path/to/file.txt:42 or path/to/file.txt:10:20
 
+Merge Request Options (git-site mr):
+  --me                     Filter merge requests by current user
+  --state STATE            Filter by state: opened, merged, or closed (default: opened)
+  --scope SCOPE            Filter by scope: all, assigned_to_me, or created_by_me (default: all)
+
 Examples:
   git-site                           # Open current branch
   git-site --file src/main.js:25     # Open file at line 25
   git-site --remote upstream         # Use 'upstream' remote instead of 'origin'
   git-site --update --file README.md # Update refs and open README
+  git-site mr                        # Open merge requests page
+  git-site mr --me                   # Open merge requests filtered by current user
+  git-site mr --me --state merged    # Open merged merge requests by current user
 EOF
       exit 0
+      ;;
+    mr)
+      MR_MODE=1
       ;;
     --update) UPDATE=1 ;;
     --remote) shift; REMOTE="$1" ;;
     --file) shift; FILE_LINE="$1" ;;
+    --me) MR_ME=1 ;;
+    --state) shift; MR_STATE="$1" ;;
+    --scope) shift; MR_SCOPE="$1" ;;
   esac
   shift
 done
@@ -43,37 +63,40 @@ done
 # --- Optional: Update remote refs ---
 [ "$UPDATE" -eq 1 ] && git fetch --prune "$REMOTE" >/dev/null 2>&1
 
-# --- Get current branch ---
-current_branch=$(git symbolic-ref --quiet --short HEAD 2>/dev/null || echo master)
-
-# --- Fallback to master if remote branch missing ---
-if ! git show-ref --quiet "refs/remotes/$REMOTE/$current_branch"; then
-  current_branch=master
-fi
-
-# --- Extract file and line range ---
-if echo "$FILE_LINE" | grep -q ":"; then
-  FILE="${FILE_LINE%:*}"
-  LINE="${FILE_LINE##*:}"
-  if echo "$LINE" | grep -q ":"; then
-    start="${LINE%:*}"
-    end="${LINE#*:}"
-    line_anchor="#L${start}-L${end}"
-  else
-    line_anchor="#L$LINE"
+# --- Skip branch/file logic if in MR mode ---
+if [ $MR_MODE -eq 0 ]; then
+  # --- Get current branch ---
+  current_branch=$(git symbolic-ref --quiet --short HEAD 2>/dev/null || echo master)
+  
+  # --- Fallback to master if remote branch missing ---
+  if ! git show-ref --quiet "refs/remotes/$REMOTE/$current_branch"; then
+    current_branch=master
   fi
-else
-  FILE="$FILE_LINE"
-  line_anchor=""
-fi
-
-# --- Resolve file path relative to repo root ---
-repo_root=$(git rev-parse --show-toplevel)
-if [ -n "$FILE" ]; then
-  rel_path=$(realpath --relative-to="$repo_root" "$FILE")
-  file_part="/$rel_path"
-else
-  file_part=""
+  
+  # --- Extract file and line range ---
+  if echo "$FILE_LINE" | grep -q ":"; then
+    FILE="${FILE_LINE%:*}"
+    LINE="${FILE_LINE##*:}"
+    if echo "$LINE" | grep -q ":"; then
+      start="${LINE%:*}"
+      end="${LINE#*:}"
+      line_anchor="#L${start}-L${end}"
+    else
+      line_anchor="#L$LINE"
+    fi
+  else
+    FILE="$FILE_LINE"
+    line_anchor=""
+  fi
+  
+  # --- Resolve file path relative to repo root ---
+  repo_root=$(git rev-parse --show-toplevel)
+  if [ -n "$FILE" ]; then
+    rel_path=$(realpath --relative-to="$repo_root" "$FILE")
+    file_part="/$rel_path"
+  else
+    file_part=""
+  fi
 fi
 
 # --- Normalize GitHub/GitLab remote URL to web format ---
@@ -81,7 +104,45 @@ remote_url=$(git config --get "remote.$REMOTE.url")
 host_path=$(echo "$remote_url" | sed -E 's#^(ssh://)?git@([^:/]+)(:[0-9]+)?[:/]([^/]+/.+)\.git$#https://\2/\4#')
 
 # --- Build final URL ---
-url="${host_path}/blob/${current_branch}${file_part}${line_anchor}"
+if [ $MR_MODE -eq 1 ]; then
+  # Merge request mode
+  url="${host_path}/-/merge_requests"
+  
+  # Build query parameters
+  query_params=()
+  query_params+=("scope=${MR_SCOPE}")
+  query_params+=("state=${MR_STATE}")
+  
+  # Add author_username if --me flag is set
+  if [ $MR_ME -eq 1 ]; then
+    username=""
+    # Try to get username from glab
+    if command -v glab >/dev/null 2>&1; then
+      username=$(glab api user 2>/dev/null | grep -o '"username":"[^"]*"' | cut -d'"' -f4)
+    fi
+    
+    # Fallback to git config user.name
+    if [ -z "$username" ]; then
+      username=$(git config user.name 2>/dev/null)
+    fi
+    
+    # Fallback to environment variable
+    if [ -z "$username" ]; then
+      username="${GITLAB_USERNAME:-${USER}}"
+    fi
+    
+    if [ -n "$username" ]; then
+      query_params+=("author_username=${username}")
+    fi
+  fi
+  
+  # Join query parameters
+  query_string=$(IFS='&'; echo "${query_params[*]}")
+  url="${url}?${query_string}"
+else
+  # Normal file/branch mode
+  url="${host_path}/blob/${current_branch}${file_part}${line_anchor}"
+fi
 
 # --- Output or open URL ---
 if [ -n "$SSH_CONNECTION" ]; then

@@ -9,8 +9,7 @@
 [push]
 	default = current
 [alias]
-    # co is handled by shell function in zsh config, not as git alias
-    # This allows cd to work in the current shell
+    co = checkout
     br = branch
     c = commit
     ci = c
@@ -56,7 +55,7 @@
     cnv = !"version=$(cat version); git commit --include version --message \"[Version] $version\""
     root = rev-parse --show-toplevel
 # Worktree aliases
-    wt = worktree
+    ;wt = worktree
     wtl = worktree list
     wta = worktree add
     wtr = worktree remove
