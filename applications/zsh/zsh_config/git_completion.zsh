@@ -25,20 +25,34 @@ if [[ -z ${_git_subcommands[(r)wttest]} ]]; then
     _git_subcommands+=(wttest)
 fi
 
-# git co: completion that avoids __git_remote_branch_names_noprefix (slow; can hang 9s+ and get killed).
+# Branch names only; use compadd so branch names with '#' or ':' never touch _describe.
+# Keep only branches that contain PREFIX (substring) so "mmh" matches *mmh*.
+# -M 'r:|?=**': allow substring/fuzzy match so typed prefix can match anywhere in completion.
+__git_co_branch_names() {
+  local -a branches
+  branches=(${${(f)"$(_call_program branchrefs command git for-each-ref --format='"%(refname:short)"' refs/heads 2>/dev/null)"}})
+  if [[ -n "$PREFIX" ]]; then
+    branches=(${(M)branches:#*${PREFIX}*})
+  fi
+  (( ${#branches} )) && compadd -M 'r:|?=**' -a branches
+}
+
+# git co: completion that avoids __git_remote_branch_names_noprefix (slow) and
+# __git_branch_names descriptions (commit subjects with # or : break compadd).
 # _git (system) calls _git-$words[1], i.e. _git-co (hyphen).
+# Substring matcher so "mmh" matches *mmh* in branch names.
 _git-co() {
   local curcontext=$curcontext state line ret=1
   declare -A opt_args
+  zstyle ':completion:*:git-co:*' matcher-list 'r:|?=**'
   _arguments -C -s \
-    '-b[create new branch]: :__git_branch_names' \
-    '-w[create new worktree and branch]: :__git_branch_names' \
+    '-b[create new branch]: :__git_co_branch_names' \
+    '-w[create new worktree and branch]: :__git_co_branch_names' \
     '-[switch to last branch/worktree]' \
     '*:: :->branch-or-path' && ret=0
   case $state in
     (branch-or-path)
-      # Local branches only (no tree-ish, no remote) so completion is instant
-      __git_branch_names && ret=0
+      __git_co_branch_names && ret=0
       ;;
   esac
   return ret
