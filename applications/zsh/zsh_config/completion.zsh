@@ -27,6 +27,9 @@ zstyle ':completion:*:*:*:*:*' menu select
 
 # Case-insensitive (all), partial-word, and then substring completion.
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+# Path/file completion: only case-insensitive; avoid r:|=* so paths with # or : don't break compadd.
+zstyle ':completion:*:paths' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+zstyle ':completion:*:files' matcher-list 'm:{a-zA-Z}={A-Za-z}'
 unsetopt CASE_GLOB
 
 # Colors for completion

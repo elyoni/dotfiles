@@ -1,0 +1,136 @@
+#!/bin/bash
+# Sprint countdown for i3xrocks: days until active Jira sprint ends.
+# Reads JIRA_* from env or ~/.config/jira-sprint.env. No output if not configured.
+
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}"
+CACHE_FILE="${CACHE_DIR}/i3xrocks-sprint-countdown"
+CACHE_MAX_AGE=300
+
+load_jira_env() {
+    if [ -z "${JIRA_BASE_URL}" ] || [ -z "${JIRA_BOARD_ID}" ] || \
+       [ -z "${JIRA_EMAIL}" ] || [ -z "${JIRA_API_TOKEN}" ]; then
+        if [ -r "${HOME}/.config/jira-sprint.env" ]; then
+            # shellcheck source=/dev/null
+            . "${HOME}/.config/jira-sprint.env"
+        fi
+    fi
+}
+
+is_configured() {
+    [ -n "${JIRA_BASE_URL}" ] && [ -n "${JIRA_BOARD_ID}" ] && \
+    [ -n "${JIRA_EMAIL}" ] && [ -n "${JIRA_API_TOKEN}" ]
+}
+
+read_cache() {
+    local cache="$1"
+    if [ -f "$cache" ]; then
+        local age now ts
+        now=$(date +%s)
+        ts=$(head -n 1 "$cache" 2>/dev/null)
+        if [ -n "$ts" ] && [ "$ts" -eq "$ts" ] 2>/dev/null; then
+            age=$((now - ts))
+            if [ "$age" -lt "$CACHE_MAX_AGE" ]; then
+                tail -n +2 "$cache"
+                return 0
+            fi
+        fi
+    fi
+    return 1
+}
+
+write_cache() {
+    local cache="$1"
+    local content="$2"
+    local dir
+    dir=$(dirname "$cache")
+    if [ -n "$dir" ] && { [ -d "$dir" ] || mkdir -p "$dir" 2>/dev/null; }; then
+        echo "$(date +%s)" > "$cache"
+        echo "$content" >> "$cache"
+    fi
+}
+
+fetch_active_sprint_json() {
+    local base board url
+    base="${JIRA_BASE_URL%/}"
+    board="$JIRA_BOARD_ID"
+    url="${base}/rest/agile/1.0/board/${board}/sprint?state=active"
+    curl -sf -u "${JIRA_EMAIL}:${JIRA_API_TOKEN}" "$url" 2>/dev/null
+}
+
+parse_end_date() {
+    local json="$1"
+    if command -v jq >/dev/null 2>&1; then
+        jq -r '.values[0].endDate // empty' 2>/dev/null <<< "$json"
+    else
+        echo "$json" | sed -n 's/.*"endDate"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -n 1
+    fi
+}
+
+days_until_end() {
+    local end_date_iso="$1"
+    local end_ymd now_epoch end_epoch days
+    end_ymd="${end_date_iso:0:10}"
+    if [ -z "$end_ymd" ] || [[ ! "$end_ymd" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+        echo "-1"
+        return
+    fi
+    now_epoch=$(date +%s)
+    end_epoch=$(date -d "${end_ymd} 23:59:59" +%s 2>/dev/null)
+    if [ -z "$end_epoch" ]; then
+        end_epoch=$(date -d "$end_ymd" +%s 2>/dev/null)
+    fi
+    if [ -z "$end_epoch" ]; then
+        echo "-1"
+        return
+    fi
+    days=$(( (end_epoch - now_epoch) / 86400 ))
+    if [ "$days" -lt 0 ]; then
+        days=0
+    fi
+    echo "$days"
+}
+
+output_line() {
+    local days="$1"
+    if [ -n "$days" ] && [ "$days" -ge 0 ]; then
+        echo "Sprt:${days}d"
+    fi
+}
+
+main() {
+    load_jira_env
+    if ! is_configured; then
+        exit 0
+    fi
+
+    local cached
+    cached=$(read_cache "$CACHE_FILE")
+    if [ -n "$cached" ]; then
+        echo "$cached"
+        exit 0
+    fi
+
+    local json end_date days line
+    json=$(fetch_active_sprint_json)
+    if [ -z "$json" ]; then
+        exit 0
+    fi
+
+    end_date=$(parse_end_date "$json")
+    if [ -z "$end_date" ]; then
+        exit 0
+    fi
+
+    days=$(days_until_end "$end_date")
+    if [ "$days" = "-1" ]; then
+        exit 0
+    fi
+
+    line=$(output_line "$days")
+    if [ -n "$line" ]; then
+        write_cache "$CACHE_FILE" "$line"
+        echo "$line"
+    fi
+}
+
+main

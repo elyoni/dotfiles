@@ -12,6 +12,9 @@ label_color=xresource:i3xrocks.label.color
 [countdown]
 interval=1
 
+[sprint-countdown]
+interval=3600
+
 [ip]
 interval=60  # Update every 60 seconds
 color=#91E78B
