@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P "${DIR}" && pwd)
+
+function _install_xorg_conf()
+{
+    local src="${DIR}/30-middle-button-scroll.conf"
+    local xorg_d="/etc/X11/xorg.conf.d"
+    local dest="${xorg_d}/30-middle-button-scroll.conf"
+
+    if [ ! -f "${src}" ]; then
+        echo "Error: config file not found: ${src}"
+        return 1
+    fi
+
+    echo "Installing middle-button scroll Xorg config..."
+    sudo mkdir -p "${xorg_d}"
+    sudo cp "${src}" "${dest}"
+    echo "Config installed to ${dest}"
+    echo "Restart X (logout/login) for the change to take effect."
+}
+
+function _apply_current_session()
+{
+    if ! command -v xinput >/dev/null 2>&1; then
+        echo "xinput not found, skipping current-session apply"
+        return 0
+    fi
+
+    echo "Applying middle-button scroll and middle emulation to current session (all pointer devices with libinput)..."
+    local id
+    for id in $(xinput list 2>/dev/null | grep -i "pointer" | sed -n 's/.*id=\([0-9]*\).*/\1/p'); do
+        local applied=""
+        if xinput list-props "${id}" 2>/dev/null | grep -q "libinput Scroll Method Enabled"; then
+            if xinput set-prop "${id}" "libinput Scroll Method Enabled" 0 0 1 2>/dev/null &&
+               xinput set-prop "${id}" "libinput Button Scrolling Button" 2 2>/dev/null; then
+                applied="scroll"
+            fi
+        fi
+        if xinput list-props "${id}" 2>/dev/null | grep -q "libinput Middle Emulation Enabled"; then
+            if xinput set-prop "${id}" "libinput Middle Emulation Enabled" 1 2>/dev/null; then
+                applied="${applied:+$applied, }middle emulation"
+            fi
+        fi
+        [ -n "${applied}" ] && echo "  Applied (${applied}) to device id ${id}"
+    done
+}
+
+function install()
+{
+    _install_xorg_conf
+    _apply_current_session
+}
+
+function verify()
+{
+    local dest="/etc/X11/xorg.conf.d/30-middle-button-scroll.conf"
+    if [ -f "${dest}" ]; then
+        echo "Config present: ${dest}"
+        grep -E "ScrollMethod|ScrollButton|MiddleEmulation" "${dest}" 2>/dev/null || true
+    else
+        echo "Config not found: ${dest}"
+        return 1
+    fi
+}
+
+function help()
+{
+    awk '/^function / && ! /^function _/' "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi
