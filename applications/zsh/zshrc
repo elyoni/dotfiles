@@ -175,4 +175,4 @@ zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|=*' 'l:|=* r:|=*'
 eval "$(wt init zsh)"
 # git-wt completion
 
-alias claude="/home/yoni/.claude/local/claude"
+alias claude="$HOME/.claude/local/claude"
