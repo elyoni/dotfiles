@@ -14,9 +14,6 @@ typeset -g _ZSHRC_START=$EPOCHREALTIME
 #export VERBOSE_DEBUG=true
 [[ "$DEBUG" == "true" ]] && zmodload zsh/zprof
 
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-    source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
 export SHELL=${commands[zsh]}
 export LANG=en_IL.UTF-8
 
@@ -54,7 +51,7 @@ fi
 # Load user configs (this will load functions.zsh first, making _load_zsh_configs available)
 if [[ -d "${ZSH_CONFIGS}" ]]; then
     for config_file in "${ZSH_CONFIGS}"/*.zsh; do
-        [[ -f "$config_file" ]] && source "$config_file"
+        [[ -f "$config_file" ]] && [[ "${config_file:t}" != "p10k.zsh" ]] && source "$config_file"
     done
 fi
 
@@ -172,7 +169,7 @@ unset _ZSHRC_START _ZSHRC_TIME
 # Enhanced completion for wt (optional)
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|=*' 'l:|=* r:|=*'
 
-eval "$(wt init zsh)"
+[ -s "$(which wt)" ] && eval "$(wt init zsh)"
 # git-wt completion
 
 alias claude="$HOME/.claude/local/claude"
