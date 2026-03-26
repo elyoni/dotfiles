@@ -29,6 +29,46 @@ function install_powerlevel10k() {
 function install_starship() {
     echo "Installing Starship prompt..."
     curl -sS https://starship.rs/install.sh | sh -s -- -y
+
+    # Initialize starship cache and config
+    echo "Initializing Starship configuration..."
+    mkdir -p "$HOME/.cache"
+    starship init zsh > "$HOME/.cache/starship_init.zsh"
+
+    # Create default starship config if it doesn't exist
+    if [ ! -f "$HOME/.config/starship.toml" ]; then
+        mkdir -p "$HOME/.config"
+        cat > "$HOME/.config/starship.toml" << 'STARSHIP_CONFIG'
+# Starship configuration
+format = """
+$username\
+$hostname\
+$directory\
+$git_branch\
+$git_status\
+$nodejs\
+$python\
+$rust\
+$golang\
+$docker_context\
+$line_break\
+$character"""
+
+[character]
+success_symbol = "[➜](bold green)"
+error_symbol = "[✗](bold red)"
+
+[directory]
+truncation_length = 3
+truncate_to_repo = true
+
+[git_branch]
+format = "on [$symbol$branch]($style) "
+
+[git_status]
+format = '([\[$all_status$ahead_behind\]]($style) )?'
+STARSHIP_CONFIG
+    fi
 }
 
 function plugin
