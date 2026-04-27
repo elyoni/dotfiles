@@ -14,6 +14,15 @@ typeset -g _ZSHRC_START=$EPOCHREALTIME
 #export VERBOSE_DEBUG=true
 [[ "$DEBUG" == "true" ]] && zmodload zsh/zprof
 
+if [[ "$CURSOR_AGENT" == "1" ]]; then
+    PROMPT='%n@%m:%~%# '
+    RPROMPT=''
+    return
+fi
+
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+    source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
 export SHELL=${commands[zsh]}
 export LANG=en_IL.UTF-8
 
@@ -173,3 +182,5 @@ zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|=*' 'l:|=* r:|=*'
 # git-wt completion
 
 alias claude="$HOME/.claude/local/claude"
+
+[[ -e "/home/me/lib/oracle-cli/lib/python3.12/site-packages/oci_cli/bin/oci_autocomplete.sh" ]] && source "/home/me/lib/oracle-cli/lib/python3.12/site-packages/oci_cli/bin/oci_autocomplete.sh"
