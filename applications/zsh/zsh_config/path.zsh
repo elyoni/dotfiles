@@ -61,3 +61,7 @@ function main(){
 
 set_other_path
 main
+
+# Man pages for git-* scripts (e.g. git site --help)
+[[ -d "${DOTFILES:-$HOME/.dotfiles}/applications/git/man" ]] && \
+  export MANPATH="${DOTFILES:-$HOME/.dotfiles}/applications/git/man:${MANPATH}"
