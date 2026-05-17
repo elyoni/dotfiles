@@ -89,7 +89,10 @@ precmd() {
                 fi
 
                 # Send notification
-                if command -v notify-send &>/dev/null; then
+                if [[ -n "$SSH_CONNECTION" ]]; then
+                    # SSH session: use OSC 9 escape sequence to notify the local terminal
+                    printf '\e]9;%s %s (%s)\e\\' "${icon}" "${cmd_display}" "${duration_display}"
+                elif command -v notify-send &>/dev/null; then
                     notify-send \
                         --urgency=normal \
                         --icon="$([ $exit_status = 0 ] && echo terminal || echo error)" \
