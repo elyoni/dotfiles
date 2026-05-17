@@ -10,6 +10,7 @@
 	default = current
 [alias]
     co = checkout
+    ch = checkout
     br = branch
     c = commit
     ci = c
@@ -266,3 +267,10 @@
 	helper = store
 [branch]
 	sort = -committerdate
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+[lfs]
+	locksverify = false
