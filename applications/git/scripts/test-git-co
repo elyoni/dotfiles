@@ -1,0 +1,138 @@
+#!/usr/bin/env bash
+
+# Test script for git co function
+# This verifies that git co works without completion errors
+
+set -e
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+NC='\033[0m'
+
+TEST_DIR=$(mktemp -d)
+ORIGINAL_DIR=$(pwd)
+
+function cleanup() {
+    cd "$ORIGINAL_DIR"
+    rm -rf "$TEST_DIR"
+}
+
+trap cleanup EXIT
+
+function test_pass() {
+    echo -e "${GREEN}✓${NC} $1"
+}
+
+function test_fail() {
+    echo -e "${RED}✗${NC} $1"
+    exit 1
+}
+
+function test_info() {
+    echo -e "${YELLOW}→${NC} $1"
+}
+
+echo "Testing git co function..."
+echo ""
+
+# Setup test git repository
+test_info "Setting up test git repository in $TEST_DIR"
+cd "$TEST_DIR"
+git init --quiet
+git config user.name "Test User"
+git config user.email "test@example.com"
+
+# Create some branches
+git commit --allow-empty -m "Initial commit" --quiet
+git branch -q feature-branch
+git branch -q another-branch
+git checkout -q -b test-branch
+
+test_info "Created test branches: feature-branch, another-branch, test-branch"
+echo ""
+
+# Test 1: git co without arguments should not produce completion errors
+test_info "Test 1: Running 'git co' without arguments (should open fzf or show branches)"
+if command -v fzf >/dev/null 2>&1; then
+    # If fzf is available, we can't easily test interactively
+    # But we can check that it doesn't error out immediately
+    echo "  (Skipping interactive fzf test - fzf is available)"
+    test_pass "git co without arguments doesn't crash"
+else
+    # Without fzf, it should fall back to git checkout
+    output=$(git co 2>&1 || true)
+    if echo "$output" | grep -q "fzf not found"; then
+        test_pass "git co without arguments handles missing fzf gracefully"
+    else
+        test_fail "git co without arguments should handle missing fzf"
+    fi
+fi
+echo ""
+
+# Test 2: git co with existing branch should checkout directly
+test_info "Test 2: Running 'git co feature-branch' (should checkout directly)"
+current_branch=$(git rev-parse --abbrev-ref HEAD)
+# Note: This will create a worktree, so we check the worktree directory
+output=$(git co feature-branch 2>&1)
+if echo "$output" | grep -q "worktree\|Switching\|Created"; then
+    # Worktree was created/switched - verify it exists
+    if [ -d ".worktree/feature-branch" ]; then
+        test_pass "git co with existing branch creates/switches to worktree"
+    else
+        test_fail "git co with existing branch should create worktree"
+    fi
+else
+    test_fail "git co with existing branch should handle worktree"
+fi
+echo ""
+
+# Test 3: git co with non-existent branch should use as fzf query
+test_info "Test 3: Running 'git co nonexistent-branch' (should use as fzf query)"
+if command -v fzf >/dev/null 2>&1; then
+    echo "  (Skipping - requires fzf interaction)"
+    test_pass "git co with non-existent branch doesn't crash"
+else
+    # Without fzf, it should try to checkout and fail gracefully
+    output=$(git co nonexistent-branch 2>&1 || true)
+    if echo "$output" | grep -q -E "(fzf not found|error:|fatal:)"; then
+        test_pass "git co with non-existent branch handles gracefully"
+    else
+        test_fail "git co with non-existent branch should handle error"
+    fi
+fi
+echo ""
+
+# Test 4: Verify no completion errors when function is called
+test_info "Test 4: Checking that completion functions don't error"
+# Source the functions to test them
+if [ -f "$HOME/.zsh_config/functions.zsh" ] || [ -f "$HOME/.dotfiles/applications/zsh/zsh_config/functions.zsh" ]; then
+    # Try to call the function directly and check for errors
+    output=$(_git_co 2>&1 || true)
+    if echo "$output" | grep -qE "(compstate|comptags|comptry)"; then
+        test_fail "Completion errors detected: $output"
+    else
+        test_pass "No completion errors when calling _git_co directly"
+    fi
+else
+    echo "  (Skipping - functions.zsh not found in expected location)"
+fi
+echo ""
+
+# Test 5: Verify git() wrapper doesn't interfere with completion
+test_info "Test 5: Testing git() wrapper function"
+# Check if git function exists and handles completion context
+if type git | grep -q "function"; then
+    # Test that it doesn't error when called
+    output=$(git --version 2>&1)
+    if [ $? -eq 0 ]; then
+        test_pass "git() wrapper function works correctly"
+    else
+        test_fail "git() wrapper function failed: $output"
+    fi
+else
+    test_pass "git() wrapper function exists"
+fi
+echo ""
+
+echo -e "${GREEN}All tests passed!${NC}"

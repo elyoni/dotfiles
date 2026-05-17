@@ -1,0 +1,99 @@
+.\" Copyright (c) 2024. License: same as dotfiles repository.
+.TH GIT\-SITE 1 "2024-01-01" "Git extras" "User Commands"
+.SH NAME
+git-site \- open the current git repository in the browser at the hosting service
+.SH SYNOPSIS
+.B git site
+[\fIoptions\fR]
+.br
+.B git site
+.B mr
+[\fIoptions\fR]
+.SH DESCRIPTION
+\fBgit-site\fR opens the current git repository in the default browser at the
+hosting service (GitHub, GitLab, etc.) using the remote URL. It converts
+SSH remote URLs to HTTPS and builds the appropriate web URL for the current
+branch, optional file path, and line number.
+.PP
+The
+.B mr
+subcommand opens the merge requests (or pull requests) page, with optional
+filtering by current user and state.
+.SH OPTIONS
+.TP
+.BR \-h ", " \-\-help
+Show this help message and exit.
+.TP
+.B \-\-update
+Run
+.B git fetch \-\-prune
+on the remote before opening the URL.
+.TP
+.BI \-\-remote " REMOTE_NAME"
+Use the specified remote (default:
+.IR origin ).
+.TP
+.BI \-\-file " PATH[\fB:\fRLINE]\fR"
+Open a specific file, optionally at a line number.
+.br
+Format:
+.IR path/to/file.txt:42
+or
+.IR path/to/file.txt:10:20
+for a line range.
+.SH "MERGE REQUEST OPTIONS (git site mr)"
+.TP
+.B \-\-me
+Filter merge requests by the current user (GitLab username or fallback).
+.TP
+.BI \-\-state " STATE"
+Filter by state:
+.B opened
+(default),
+.B merged
+, or
+.BR closed .
+.TP
+.BI \-\-scope " SCOPE"
+Filter by scope:
+.B all
+(default),
+.B assigned_to_me
+, or
+.BR created_by_me .
+.SH EXAMPLES
+.TP
+.B git site
+Open the current branch in the browser.
+.TP
+.B "git site \-\-file src/main.js:25"
+Open the file at line 25.
+.TP
+.B "git site \-\-remote upstream"
+Use the
+.I upstream
+remote instead of
+.IR origin .
+.TP
+.B "git site \-\-update \-\-file README.md"
+Update refs and open README.
+.TP
+.B "git site mr"
+Open the merge requests page.
+.TP
+.B "git site mr \-\-me"
+Open merge requests filtered by the current user.
+.TP
+.B "git site mr \-\-me \-\-state merged"
+Open merged merge requests by the current user.
+.SH "REMOTE URL FORMAT"
+Supports SSH remotes such as
+.IR git@host:org/repo.git
+or
+.IR ssh://git@host:port/org/repo.git ,
+which are converted to
+.IR https://host/org/repo .
+.SH "SEE ALSO"
+.BR git (1),
+.BR git-config (1),
+.BR xdg-open (1)
