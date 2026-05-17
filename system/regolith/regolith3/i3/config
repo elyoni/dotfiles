@@ -389,7 +389,8 @@ bindsym $mod+$wm.binding.files exec $wm.program.files
 
 ## Launch // Notification Viewer // <> n ##
 set_from_resource $wm.binding.notification_ui wm.binding.notification_ui n
-set_from_resource $wm.program.notification_ui wm.program.notification_ui ilia -p notifications
+#set_from_resource $wm.program.notification_ui wm.program.notification_ui ilia -p notifications
+set_from_resource $wm.program.notification_ui wm.program.notification_ui dunstctl history-pop
 bindsym $mod+$wm.binding.notification_ui exec --no-startup-id $wm.program.notification_ui
 
 ###############################################################################
@@ -637,6 +638,8 @@ bar {
   }
 }
 
+bindsym $mod+Ctrl+f exec --no-startup-id bash -c 'xclip -o | piper --model ~/.local/share/piper/en_US-lessac-low.onnx --output_file /tmp/tts.wav && aplay /tmp/tts.wav'
+bindsym $mod+Ctrl+x exec --no-startup-id pkill aplay
 ###############################################################################
 # External programs launched with i3
 ###############################################################################
