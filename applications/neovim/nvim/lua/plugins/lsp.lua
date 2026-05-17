@@ -70,48 +70,19 @@ return
                 },
             })
 
-            -- Configure ltex (only for markdown and latex files)
-            vim.lsp.config('ltex', {
+            -- Configure harper-ls (lightweight Rust-based grammar checker)
+            vim.lsp.config('harper_ls', {
                 capabilities = capabilities,
-                cmd = { "ltex-ls" },
                 filetypes = { "markdown", "tex", "bib" },
-                on_attach = function(client, bufnr)
-                    -- Defer ltex-utils attachment to ensure client is fully ready
-                    vim.schedule(function()
-                        -- Check if ltex client is actually active
-                        local clients = vim.lsp.get_clients({ bufnr = bufnr, name = "ltex" })
-                        if #clients > 0 then
-                            local ok, ltex_utils = pcall(require, "ltex-utils")
-                            if ok and ltex_utils then
-                                pcall(function()
-                                    ltex_utils.on_attach(bufnr)
-                                end)
-                            end
-                        end
-                    end)
-                end,
                 settings = {
-                    ltex = {
-                        language = "en-US",
-                        disabledRules = {
-                            ["en-US"] = {
-                                "WHITESPACE_RULE", -- Ensure that the whitespace rule is disabled for en-US
-                            }
+                    ["harper-ls"] = {
+                        linters = {
+                            spell_check = true,
+                            sentence_capitalization = false,
                         },
-                        additionalRuleFiles = {}, -- If you have any custom rules, specify them here
                     },
                 },
             })
-
-            --lspconfig.ltex.setup {
-            --    cmd = { vim.fn.expand("~/.local/share/nvim/mason/bin/ltex-ls") },
-            --    settings = {
-            --        ltex = {
-            --            language = "en",
-            --            disabledRules = { ["en-US"] = { "WHITESPACE_RULE" } },
-            --        },
-            --    },
-            --}
 
             -- Add cmp_nvim_lsp capabilities settings to lspconfig
             --
@@ -167,7 +138,7 @@ return
             })
 
             require('mason-lspconfig').setup({
-                ensure_installed = { "lua_ls", "ltex", "pyright" }, -- Add more servers as needed
+                ensure_installed = { "lua_ls", "harper-ls", "pyright" }, -- Add more servers as needed
                 handlers = {
                     -- this first function is the "default handler"
                     -- it applies to every language server without a "custom handler"
@@ -179,20 +150,5 @@ return
                 }
             })
         end
-    },
-    {
-        "jhofscheier/ltex-utils.nvim",
-        lazy = true,
-        ft = { "markdown", "tex", "bib" },
-        dependencies = {
-            "neovim/nvim-lspconfig",
-            "nvim-telescope/telescope.nvim",
-            -- "nvim-telescope/telescope-fzf-native.nvim", -- optional
-        },
-        opts = {
-            -- your configuration comes here
-            -- or leave it empty to use the default settings
-            -- refer to the configuration section below
-        },
     },
 }
