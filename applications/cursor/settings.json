@@ -2,7 +2,8 @@
 	"window.commandCenter": true,
 	"cursor.composer.shouldChimeAfterChatFinishes": true,
 	"remote.SSH.remotePlatform": {
-		"yonie-ub-pc.me": "linux"
+		"yonie-ub-pc.me": "linux",
+		"ypc": "linux"
 	},
 	"makefile.configureOnOpen": true,
 	"vscode-neovim.compositeKeys": {
@@ -14,7 +15,6 @@
 	"vscode-neovim.useCtrlKeysCommands": "none",
 	"vscode-neovim.neovimInitVimPaths.linux": "~/.config/nvim/init.lua",
 	"editor.lineNumbers": "relative",
-	"workbench.statusBar.visible": true,
 	"vscode-neovim.useVSCodeNeovimIntegration": true,
 	"vscode-neovim.normalModeKeyBindingsNonRecursive": [
 		{
@@ -27,5 +27,7 @@
 	"workbench.navigationControl.enabled": false,
 	"extensions.experimental.affinity": {
 		"asvetliakov.vscode-neovim": 1
-	}
+	},
+	"cursor.general.glassShowWarningNotifications": true,
+	"window.autoDetectColorScheme": false
 }
