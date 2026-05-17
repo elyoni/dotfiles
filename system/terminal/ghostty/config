@@ -58,7 +58,7 @@ command = /usr/bin/zsh
 font-family = "DejaVu Sans Mono Nerd Font"
 font-size = 14
 
-mouse-scroll-multiplier = 5
+mouse-scroll-multiplier = 2
 
 # Audio settings (bell config not available in Ghostty)
 # audio-bell = false
@@ -93,10 +93,27 @@ keybind = ctrl+shift+j=scroll_page_down
 # Quick terminal toggle (similar to overlay functionality)
 keybind = ctrl+shift+s=toggle_quick_terminal
 
-#keybind = alt+1=ignore
-#keybind = alt+two=unbind
-#keybind = alt+three=unbind
-#keybind = alt+four=unbind
+keybind = alt+1=unbind
+keybind = alt+2=unbind
+keybind = alt+3=unbind
+keybind = alt+4=unbind
+keybind = alt+5=unbind
+keybind = alt+6=unbind
+keybind = alt+7=unbind
+keybind = alt+8=unbind
+keybind = alt+9=unbind
+keybind = alt+0=unbind
+
+keybind = alt+digit_1=unbind
+keybind = alt+digit_2=unbind
+keybind = alt+digit_3=unbind
+keybind = alt+digit_4=unbind
+keybind = alt+digit_5=unbind
+keybind = alt+digit_6=unbind
+keybind = alt+digit_7=unbind
+keybind = alt+digit_8=unbind
+keybind = alt+digit_9=unbind
+keybind = alt+digit_0=unbind
 
 clipboard-paste-protection = false
 
