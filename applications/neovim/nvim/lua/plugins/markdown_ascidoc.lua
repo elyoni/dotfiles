@@ -16,11 +16,16 @@ return {
         keys = {
             { "<leader>mp", "<cmd>MarkdownPreview<CR>", mode = "n" },
         },
-        build = function() vim.fn["mkdp#util#install"]() end,
+        build = "cd app && npm install",
         config = function()
             vim.g.mkdp_browser = '/usr/bin/microsoft-edge'
             vim.g.mkdp_auto_start = 0
             vim.g.mkdp_auto_close = 1
+            -- Debug: echo preview URL so you see something when it works
+            vim.g.mkdp_echo_preview_url = 1
+            -- Optional: enable plugin debug log (set before opening a markdown buffer / running command)
+            -- vim.env.NVIM_MKDP_LOG_FILE = vim.fn.expand("~") .. "/mkdp-log.log"
+            -- vim.env.NVIM_MKDP_LOG_LEVEL = "debug"
         end,
     },
     {
