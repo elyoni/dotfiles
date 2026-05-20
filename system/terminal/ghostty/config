@@ -145,6 +145,8 @@ keybind = alt+comma>s>d=new_split:down
 keybind = alt+comma>s>u=new_split:up
 
 # Window/Tab management
+keybind = alt+comma>t>n=new_tab
+keybind = alt+comma>t>x=close_surface
 keybind = alt+comma>c=new_tab
 keybind = alt+comma>n=new_window
 keybind = alt+comma>r=reload_config
