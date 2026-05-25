@@ -1,8 +1,3 @@
-# Smart URLs {{{1
-
-# Replace '?', '=' and '&' with \?, \=, \& when typing urls
-autoload -Uz url-quote-magic
-zle -N self-insert url-quote-magic
 # History {{{1
 HISTFILE="$HOME/.zhistory" # The path to the history file.
 HISTSIZE=10000                   # The maximum number of events to save in the internal history.
