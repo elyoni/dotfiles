@@ -242,6 +242,8 @@
     bra = branch -a
     brd = branch -d
     is-merged = !git-is-merged
+    default-branch = !git-default-branch
+    db = !git-default-branch
 # Status aliases
     sts = status --short
     stb = status --branch

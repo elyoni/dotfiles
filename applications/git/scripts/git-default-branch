@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+
+# Usage: git-default-branch [--checkout] [--remote remote_name]
+
+REMOTE="origin"
+CHECKOUT=0
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -h|--help)
+      cat << EOF
+Usage: git-default-branch [options]
+
+Get the default branch of the current GitLab repository via the GitLab API.
+
+Options:
+  -h, --help               Show this help message
+  -c, --checkout           Checkout the default branch
+  --remote REMOTE_NAME     Use specified remote name (default: origin)
+
+Examples:
+  git default-branch            # Print the default branch name
+  git default-branch --checkout # Switch to the default branch
+  git db -c                     # Short alias with checkout
+EOF
+      exit 0
+      ;;
+    -c|--checkout) CHECKOUT=1 ;;
+    --remote) shift; REMOTE="$1" ;;
+  esac
+  shift
+done
+
+if ! command -v glab >/dev/null 2>&1; then
+  echo "Error: glab not found. Install it with: git install install_glab" >&2
+  exit 1
+fi
+
+remote_url=$(git config --get "remote.$REMOTE.url")
+if [ -z "$remote_url" ]; then
+  echo "Error: No remote '$REMOTE' found" >&2
+  exit 1
+fi
+
+# Extract project path from SSH or HTTPS GitLab URL
+project_path=$(echo "$remote_url" | sed -E 's#^(ssh://)?git@([^:/]+)(:[0-9]+)?[:/]##;s#\.git$##')
+
+if [ -z "$project_path" ]; then
+  echo "Error: Could not extract project path from remote URL: $remote_url" >&2
+  exit 1
+fi
+
+encoded_path=$(echo "$project_path" | sed 's|/|%2F|g')
+
+default_branch=$(glab api "projects/$encoded_path" 2>/dev/null | grep -o '"default_branch":"[^"]*"' | cut -d'"' -f4)
+
+if [ -z "$default_branch" ]; then
+  echo "Error: Could not fetch default branch from GitLab" >&2
+  exit 1
+fi
+
+if [ "$CHECKOUT" -eq 1 ]; then
+  git checkout "$default_branch"
+else
+  echo "$default_branch"
+fi
