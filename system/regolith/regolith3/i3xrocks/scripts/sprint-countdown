@@ -1,10 +1,13 @@
 #!/bin/bash
-# Sprint countdown for i3xrocks: days until active Jira sprint ends.
+# Sprint countdown for i3xrocks: working days until active Jira sprint ends.
+# Working days = Sun-Thu, excluding Jewish public holidays (Hebcal API, Israeli scheme).
 # Reads JIRA_* from env or ~/.config/jira-sprint.env. No output if not configured.
 
 CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}"
 CACHE_FILE="${CACHE_DIR}/i3xrocks-sprint-countdown"
+HOLIDAY_CACHE_PREFIX="${CACHE_DIR}/i3xrocks-holidays"
 CACHE_MAX_AGE=300
+HOLIDAY_CACHE_MAX_AGE=86400
 
 load_jira_env() {
     if [ -z "${JIRA_BASE_URL}" ] || [ -z "${JIRA_BOARD_ID}" ] || \
@@ -22,14 +25,14 @@ is_configured() {
 }
 
 read_cache() {
-    local cache="$1"
+    local cache="$1" max_age="${2:-$CACHE_MAX_AGE}"
     if [ -f "$cache" ]; then
         local age now ts
         now=$(date +%s)
         ts=$(head -n 1 "$cache" 2>/dev/null)
         if [ -n "$ts" ] && [ "$ts" -eq "$ts" ] 2>/dev/null; then
             age=$((now - ts))
-            if [ "$age" -lt "$CACHE_MAX_AGE" ]; then
+            if [ "$age" -lt "$max_age" ]; then
                 tail -n +2 "$cache"
                 return 0
             fi
@@ -39,13 +42,11 @@ read_cache() {
 }
 
 write_cache() {
-    local cache="$1"
-    local content="$2"
+    local cache="$1" content="$2"
     local dir
     dir=$(dirname "$cache")
     if [ -n "$dir" ] && { [ -d "$dir" ] || mkdir -p "$dir" 2>/dev/null; }; then
-        echo "$(date +%s)" > "$cache"
-        echo "$content" >> "$cache"
+        printf '%s\n%s\n' "$(date +%s)" "$content" > "$cache"
     fi
 }
 
@@ -66,27 +67,89 @@ parse_end_date() {
     fi
 }
 
-days_until_end() {
-    local end_date_iso="$1"
-    local end_ymd now_epoch end_epoch days
-    end_ymd="${end_date_iso:0:10}"
+# Fetch Israeli public holidays for YEAR from Hebcal (Israeli Yom Tov only).
+# Returns newline-separated YYYY-MM-DD dates.
+# Excluded: Erev (eve-of), Chol HaMoed, Purim, Chanukah, Tish'a B'Av, Hoshana Raba.
+fetch_jewish_holidays() {
+    local year="$1"
+    local url="https://www.hebcal.com/hebcal?v=1&cfg=json&maj=on&year=${year}&month=x&i=on"
+    local json
+    json=$(curl -sf --max-time 5 "$url" 2>/dev/null) || return 1
+    if command -v jq >/dev/null 2>&1; then
+        jq -r '
+          .items[] | select(
+            .category == "holiday" and
+            (.title | startswith("Erev ") | not) and
+            (.title | contains("(CH") | not) and
+            (.title | startswith("Chanukah") | not) and
+            (.title | startswith("Purim") | not) and
+            (.title | startswith("Tish") | not) and
+            (.title | contains("Hoshana") | not)
+          ) | .date[0:10]
+        ' 2>/dev/null <<< "$json"
+    else
+        # Requires jq for correct filtering; without it, no holidays skipped.
+        :
+    fi
+}
+
+# Return cached holiday dates for YEAR; refresh after 24h, fall back to stale on error.
+get_holiday_dates() {
+    local year="$1"
+    local cache="${HOLIDAY_CACHE_PREFIX}-${year}"
+
+    local fresh
+    fresh=$(read_cache "$cache" "$HOLIDAY_CACHE_MAX_AGE") && { echo "$fresh"; return 0; }
+
+    local dates
+    if dates=$(fetch_jewish_holidays "$year"); then
+        write_cache "$cache" "$dates"
+        echo "$dates"
+    elif [ -f "$cache" ]; then
+        # Offline: serve stale cache rather than losing holiday awareness
+        tail -n +2 "$cache"
+    fi
+}
+
+# Count working days from tomorrow through END_YMD (inclusive).
+# Working day: Sunday–Thursday, not a Jewish public holiday.
+working_days_until_end() {
+    local end_ymd="$1"
     if [ -z "$end_ymd" ] || [[ ! "$end_ymd" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
-        echo "-1"
-        return
+        echo "-1"; return
     fi
-    now_epoch=$(date +%s)
-    end_epoch=$(date -d "${end_ymd} 23:59:59" +%s 2>/dev/null)
-    if [ -z "$end_epoch" ]; then
-        end_epoch=$(date -d "$end_ymd" +%s 2>/dev/null)
-    fi
-    if [ -z "$end_epoch" ]; then
-        echo "-1"
-        return
-    fi
-    days=$(( (end_epoch - now_epoch) / 86400 ))
-    if [ "$days" -lt 0 ]; then
-        days=0
-    fi
+
+    local end_epoch
+    end_epoch=$(date -d "${end_ymd} 23:59:59" +%s 2>/dev/null) || \
+    end_epoch=$(date -d "$end_ymd" +%s 2>/dev/null)
+    if [ -z "$end_epoch" ]; then echo "-1"; return; fi
+
+    # Build holiday set covering the years spanned
+    local now_year end_year holidays
+    now_year=$(date +%Y)
+    end_year="${end_ymd:0:4}"
+    holidays=$(get_holiday_dates "$now_year")
+    [ "$end_year" != "$now_year" ] && holidays+=$'\n'"$(get_holiday_dates "$end_year")"
+
+    local current days=0
+    current=$(date -d "$(date +%Y-%m-%d) +1 day" +%s 2>/dev/null)
+
+    while [ "$current" -le "$end_epoch" ]; do
+        local ymd dow
+        ymd=$(date -d "@$current" +%Y-%m-%d)
+        dow=$(date -d "@$current" +%u)   # 1=Mon … 5=Fri 6=Sat 7=Sun
+
+        # Skip Friday (5) and Saturday (6)
+        if [ "$dow" != "5" ] && [ "$dow" != "6" ]; then
+            # Skip Jewish public holidays
+            if ! grep -qxF "$ymd" <<< "$holidays" 2>/dev/null; then
+                days=$((days + 1))
+            fi
+        fi
+
+        current=$((current + 86400))
+    done
+
     echo "$days"
 }
 
@@ -99,32 +162,21 @@ output_line() {
 
 main() {
     load_jira_env
-    if ! is_configured; then
-        exit 0
-    fi
+    if ! is_configured; then exit 0; fi
 
     local cached
     cached=$(read_cache "$CACHE_FILE")
-    if [ -n "$cached" ]; then
-        echo "$cached"
-        exit 0
-    fi
+    if [ -n "$cached" ]; then echo "$cached"; exit 0; fi
 
     local json end_date days line
     json=$(fetch_active_sprint_json)
-    if [ -z "$json" ]; then
-        exit 0
-    fi
+    [ -z "$json" ] && exit 0
 
     end_date=$(parse_end_date "$json")
-    if [ -z "$end_date" ]; then
-        exit 0
-    fi
+    [ -z "$end_date" ] && exit 0
 
-    days=$(days_until_end "$end_date")
-    if [ "$days" = "-1" ]; then
-        exit 0
-    fi
+    days=$(working_days_until_end "${end_date:0:10}")
+    [ "$days" = "-1" ] && exit 0
 
     line=$(output_line "$days")
     if [ -n "$line" ]; then
