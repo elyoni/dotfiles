@@ -165,6 +165,7 @@ bindsym $mod+$wm.binding.launcher.app exec --no-startup-id $wm.program.launcher.
 set_from_resource $wm.binding.launcher.window wm.binding.launcher.window Ctrl+Tab
 set_from_resource $wm.program.launcher.window wm.program.launcher.window ilia -p windows
 bindsym $alt+$wm.binding.launcher.window exec --no-startup-id $wm.program.launcher.window -t $ilia.stylesheet
+bindsym $mod+Ctrl+Shift+space exec --no-startup-id $wm.program.launcher.window -t $ilia.stylesheet
 
 ## Launch // This Dialog // <><Shift> ? ##
 set_from_resource $wm.binding.help wm.binding.help Shift+question
