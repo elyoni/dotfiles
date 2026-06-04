@@ -14,6 +14,7 @@
 	"vscode-neovim.compositeTimeout": 500,
 	"vscode-neovim.useCtrlKeysCommands": "none",
 	"vscode-neovim.neovimInitVimPaths.linux": "~/.config/nvim/init.lua",
+    "vscode-neovim.neovimExecutablePaths.linux": "/home/yonie@liveu.tv/.local/bin/nvim"
 	"editor.lineNumbers": "relative",
 	"vscode-neovim.useVSCodeNeovimIntegration": true,
 	"vscode-neovim.normalModeKeyBindingsNonRecursive": [
