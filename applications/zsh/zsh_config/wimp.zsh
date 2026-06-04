@@ -51,6 +51,7 @@ enter_to_project_path() {
     # Update WIMP_PROJECTS_PATH with only valid paths
     WIMP_PROJECTS_PATH=("${VALID_PATHS[@]}")
 
+    local output
     output=$(fdfind \
         --no-ignore \
         --type directory \
