@@ -48,7 +48,7 @@
 window-decoration = none
 theme = NvimDark
 
-# Enable GTK single instance mode for faster subsequent window opens
+# Required for quick terminal (toggle_quick_terminal) to work on Linux
 gtk-single-instance = true
 
 # Set zsh as the default shell
@@ -91,7 +91,10 @@ keybind = ctrl+shift+k=scroll_page_up
 keybind = ctrl+shift+j=scroll_page_down
 
 # Quick terminal toggle (similar to overlay functionality)
-keybind = ctrl+shift+s=toggle_quick_terminal
+# toggle_quick_terminal requires Wayland + wlr-layer-shell-v1. Does NOT work on X11 (Regolith/i3).
+# On Wayland, also needs the "global:" prefix and gtk-single-instance=true:
+#   keybind = global:f13=toggle_quick_terminal
+keybind = f13=toggle_quick_terminal
 
 keybind = alt+1=unbind
 keybind = alt+2=unbind
