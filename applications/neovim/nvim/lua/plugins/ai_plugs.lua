@@ -70,6 +70,29 @@ function FuncPrivatePC()
     return PluginEnv == PluginEnvEnum.Private
 end
 
+-- Yank file:line reference for AI (normal mode: file:line, visual: file:start:end)
+vim.keymap.set('n', '<leader>hy', function()
+    local file = vim.fn.fnamemodify(vim.fn.expand('%'), ':~:.')
+    local line = vim.fn.line('.')
+    local ref = file .. ':' .. line
+    vim.fn.setreg('+', ref)
+    vim.notify('Yanked: ' .. ref)
+end, { noremap = true, silent = true, desc = "Yank file:line reference for AI" })
+
+vim.keymap.set('v', '<leader>hy', function()
+    local file = vim.fn.fnamemodify(vim.fn.expand('%'), ':~:.')
+    local start_line = vim.fn.line("'<")
+    local end_line = vim.fn.line("'>")
+    local ref
+    if start_line == end_line then
+        ref = file .. ':' .. start_line
+    else
+        ref = file .. ':' .. start_line .. ':' .. end_line
+    end
+    vim.fn.setreg('+', ref)
+    vim.notify('Yanked: ' .. ref)
+end, { noremap = true, silent = true, desc = "Yank file:line range reference for AI" })
+
 --vim.keymap.set('i', '<C-l>', function()
 --local suggestion = require('tabnine.status').status().message
 --if suggestion then
