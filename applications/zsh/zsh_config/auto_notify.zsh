@@ -98,6 +98,7 @@ precmd() {
                         --icon="$([ $exit_status = 0 ] && echo terminal || echo error)" \
                         "Command ${status_text}" \
                         "${icon} ${cmd_display}\nDuration: ${duration_display}" 2>/dev/null &
+                    disown
                 fi
             fi
         fi
