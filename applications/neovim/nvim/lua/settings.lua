@@ -73,7 +73,7 @@ vim.opt.formatoptions:remove { "c", "r", "o" } -- Stop newline continution of co
 
 --vim.opt.clipboard="unnamedplus"               -- Copy paste between vim and everything else
 vim.opt.clipboard = { "unnamed", "unnamedplus" }
-if os.getenv('SSH_TTY') then
+if os.getenv('SSH_TTY') or os.getenv('SSH_CLIENT') or os.getenv('SSH_CONNECTION') then
     vim.g.clipboard = {
         name = 'OSC 52',
         copy = {
