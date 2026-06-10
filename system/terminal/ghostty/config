@@ -119,6 +119,8 @@ keybind = alt+digit_9=unbind
 keybind = alt+digit_0=unbind
 
 clipboard-paste-protection = false
+clipboard-read = allow
+clipboard-write = allow
 
 # Unbind default alt+comma (was reload_config)
 keybind = alt+shift+comma=reload_config
