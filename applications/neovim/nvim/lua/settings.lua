@@ -73,7 +73,14 @@ vim.opt.formatoptions:remove { "c", "r", "o" } -- Stop newline continution of co
 
 --vim.opt.clipboard="unnamedplus"               -- Copy paste between vim and everything else
 vim.opt.clipboard = { "unnamed", "unnamedplus" }
-if os.getenv('SSH_TTY') or os.getenv('SSH_CLIENT') or os.getenv('SSH_CONNECTION') then
+-- xclip is picked before tmux by default. Inside tmux, delegate to tmux load-buffer -w
+-- (tmux set-clipboard sends OSC 52 to the terminal). Direct OSC 52 from Neovim often
+-- fails over SSH+tmux because Neovim writes the sequence to stderr.
+local in_tmux = os.getenv('TMUX')
+local in_ssh = os.getenv('SSH_TTY') or os.getenv('SSH_CLIENT') or os.getenv('SSH_CONNECTION')
+if in_tmux then
+    vim.g.clipboard = 'tmux'
+elseif in_ssh then
     vim.g.clipboard = {
         name = 'OSC 52',
         copy = {
