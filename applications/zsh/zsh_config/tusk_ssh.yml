@@ -1,0 +1,60 @@
+interpreter: bash -c
+tasks:
+  preview:
+    usage: "Show what would sync between local and ypc (no changes)"
+    quiet: true
+    run: |
+      run_preview() {
+        "$HOME/.dotfiles/scripts/sync_ssh.sh" sync --dry-run
+      }
+      run_preview
+
+  sync:
+    usage: "Sync ~/.ssh with ypc (skips conflicts, writes changes)"
+    quiet: true
+    run: |
+      run_sync() {
+        "$HOME/.dotfiles/scripts/sync_ssh.sh" sync --apply
+      }
+      run_sync
+
+  meld:
+    usage: "Sync ~/.ssh and resolve conflicts interactively in meld"
+    quiet: true
+    run: |
+      run_meld() {
+        "$HOME/.dotfiles/scripts/sync_ssh.sh" sync --meld
+      }
+      run_meld
+
+  nvim:
+    usage: "Sync ~/.ssh and resolve conflicts interactively in nvim -d"
+    quiet: true
+    run: |
+      run_nvim() {
+        "$HOME/.dotfiles/scripts/sync_ssh.sh" sync --nvim
+      }
+      run_nvim
+
+  status:
+    usage: "Check if ypc is reachable over SSH"
+    quiet: true
+    run: |
+      check_status() {
+        echo "Checking connection to ypc..."
+        if ssh -o ConnectTimeout=5 -o BatchMode=yes ypc true 2>/dev/null; then
+          echo "ypc is reachable"
+        else
+          echo "ypc is NOT reachable - check network or VPN"
+          exit 1
+        fi
+      }
+      check_status
+
+  edit:
+    usage: "Edit the sync script in nvim"
+    run: nvim "$HOME/.dotfiles/scripts/sync_ssh.sh"
+
+  edit-tusk:
+    usage: "Edit this tusk file in nvim"
+    run: nvim "$HOME/.dotfiles/applications/zsh/zsh_config/tusk_ssh.yml"
