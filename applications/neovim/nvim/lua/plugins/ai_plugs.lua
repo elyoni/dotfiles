@@ -73,7 +73,8 @@ end
 -- Yank file:line reference for AI (normal mode: file:line, visual: file:start:end)
 vim.keymap.set('n', '<leader>hy', function()
     local file = vim.fn.fnamemodify(vim.fn.expand('%'), ':~:.')
-    local line = vim.fn.line('.')
+    -- In diff mode, cursor can land on a virtual filler line which returns 0
+    local line = math.max(1, vim.fn.line('.'))
     local ref = file .. ':' .. line
     vim.fn.setreg('+', ref)
     vim.notify('Yanked: ' .. ref)
@@ -81,8 +82,9 @@ end, { noremap = true, silent = true, desc = "Yank file:line reference for AI" }
 
 vim.keymap.set('v', '<leader>hy', function()
     local file = vim.fn.fnamemodify(vim.fn.expand('%'), ':~:.')
-    local start_line = vim.fn.line("'<")
-    local end_line = vim.fn.line("'>")
+    -- In diff mode, filler lines return 0; clamp to 1
+    local start_line = math.max(1, vim.fn.line("'<"))
+    local end_line = math.max(1, vim.fn.line("'>"))
     local ref
     if start_line == end_line then
         ref = file .. ':' .. start_line
