@@ -66,6 +66,36 @@ vim.api.nvim_create_user_command(
     { desc = "Create new Obsidian file with menu" }
 )
 
+local obsidian_workflow = require('obsidian_workflow')
+vim.api.nvim_create_user_command(
+    "ObsidianActiveTasks",
+    function()
+        obsidian_workflow.open_active_tasks()
+    end,
+    { desc = "Open active-tasks.md" }
+)
+vim.api.nvim_create_user_command(
+    "ObsidianNewJiraTicket",
+    function()
+        obsidian_workflow.new_jira_ticket_and_link()
+    end,
+    { desc = "Create Jira ticket note and link in today's daily" }
+)
+vim.api.nvim_create_user_command(
+    "ObsidianLinkJiraTicket",
+    function()
+        obsidian_workflow.link_existing_ticket_to_daily()
+    end,
+    { desc = "Link existing Jira ticket to today's daily note" }
+)
+vim.api.nvim_create_user_command(
+    "ObsidianOpenJiraTicket",
+    function()
+        obsidian_workflow.open_jira_ticket_telescope()
+    end,
+    { desc = "Open Jira ticket (telescope, remembers last filter)" }
+)
+
 -- Command to fix conceal issues in markdown files
 vim.api.nvim_create_user_command(
     "FixConceal",
