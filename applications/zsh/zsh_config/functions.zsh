@@ -81,73 +81,106 @@ function _extract_ssh_host() {
     echo "$host_ip"
 }
 
+# Build a new args array with StrictHostKeyChecking=accept-new injected after "ssh"
+function _args_with_accept_new_key() {
+    local ssh_command="$1"
+    shift
+    local args=("$@")
+    local new_args=()
+    local i=1
+
+    if [[ "$ssh_command" == "sshpass" ]]; then
+        while [[ $i -le ${#args[@]} ]]; do
+            new_args+=("${args[$i]}")
+            if [[ "${args[$i]}" == "ssh" ]]; then
+                new_args+=("-o" "StrictHostKeyChecking=accept-new")
+                ((i++))
+                break
+            fi
+            ((i++))
+        done
+        while [[ $i -le ${#args[@]} ]]; do
+            new_args+=("${args[$i]}")
+            ((i++))
+        done
+    else
+        new_args=("-o" "StrictHostKeyChecking=accept-new" "${args[@]}")
+    fi
+
+    echo "${new_args[@]}"
+}
+
 # Helper function to handle SSH host key conflicts and other issues
 function _handle_ssh_smart() {
     local ssh_command="$1"
     shift
     local args=("$@")
 
-    local ssh_output
     local exit_code
     local host_ip
+    local ssh_stderr=""
+    local tmpfile
+    tmpfile=$(mktemp)
 
-    # Try SSH connection and capture output
-    ssh_output=$(command $ssh_command "${args[@]}" 2>&1)
+    # Run with stdin/stdout connected to the terminal (interactive session works)
+    # and stderr captured to a temp file so we can detect specific errors after.
+    # sshpass uses a pty so SSH's stderr goes through the pty to the terminal;
+    # for sshpass we rely on exit codes, not stderr content.
+    command $ssh_command "${args[@]}" 2>|"$tmpfile"
     exit_code=$?
+    ssh_stderr=$(cat "$tmpfile")
+    rm -f "$tmpfile"
 
-    # Check if connection was successful
-    if [[ $exit_code -eq 0 ]]; then
-        return 0
+    [[ $exit_code -eq 0 ]] && return 0
+
+    # sshpass exit code 6 = host key unknown or changed
+    local is_host_key_failure=false
+    if [[ "$ssh_command" == "sshpass" && $exit_code -eq 6 ]]; then
+        is_host_key_failure=true
+    elif echo "$ssh_stderr" | grep -q "Host key verification failed"; then
+        is_host_key_failure=true
     fi
 
-    # Check for different types of failures
-    if echo "$ssh_output" | grep -q "Host key verification failed"; then
-        echo "$ssh_output"
-        echo ""
+    if [[ "$is_host_key_failure" == true ]]; then
+        [[ -n "$ssh_stderr" ]] && echo "$ssh_stderr" && echo ""
 
-        # Extract the host/IP from the command arguments
         if [[ "$ssh_command" == "sshpass" ]]; then
             host_ip=$(_extract_ssh_host "sshpass" "${args[@]}")
         else
             host_ip=$(_extract_ssh_host "${args[@]}")
         fi
 
-        echo "🔑 Host key conflict detected for: $host_ip"
+        echo "Host key conflict detected for: $host_ip"
         echo ""
-        read -q "REPLY?Do you want to remove the old host key and reconnect? (y/N): "
+        read -q "REPLY?Remove old host key and reconnect? (y/N): "
         echo ""
 
         if [[ $REPLY =~ ^[Yy]$ ]]; then
-            echo "🗑️  Removing old host key for $host_ip..."
-
-            # Use ssh-keygen to remove the host key
+            echo "Removing old host key for $host_ip..."
             ssh-keygen -f "${HOME}/.ssh/known_hosts" -R "$host_ip"
             ssh-keygen -f "${HOME}/.ssh/known_hosts" -R "[$host_ip]" 2>/dev/null
-
-            echo "✅ Host key removed successfully"
-            echo "🔄 Reconnecting..."
+            echo "Host key removed. Reconnecting..."
             echo ""
 
-            # Reconnect with the original command
-            command $ssh_command "${args[@]}"
+            local new_args
+            new_args=($(_args_with_accept_new_key "$ssh_command" "${args[@]}"))
+            command $ssh_command "${new_args[@]}"
             return $?
         else
-            echo "❌ Connection aborted"
+            echo "Connection aborted"
             return 1
         fi
-    elif echo "$ssh_output" | grep -q -E "(Permission denied|Authentication failed)"; then
-        echo "$ssh_output"
+    elif echo "$ssh_stderr" | grep -q -E "(Permission denied|Authentication failed)"; then
+        [[ -n "$ssh_stderr" ]] && echo "$ssh_stderr"
         echo ""
-        echo "🔐 Authentication failed - please check your credentials"
+        echo "Authentication failed - please check your credentials"
         return $exit_code
-    elif echo "$ssh_output" | grep -q -E "(No route to host|Connection refused|Connection timed out|Network is unreachable)"; then
-        echo "$ssh_output"
+    elif echo "$ssh_stderr" | grep -q -E "(No route to host|Connection refused|Connection timed out|Network is unreachable)"; then
+        [[ -n "$ssh_stderr" ]] && echo "$ssh_stderr"
         echo ""
-        echo "🌐 Network connectivity issue detected"
-        echo "⏱️  Will retry every 5 seconds. Press Ctrl+C to cancel."
+        echo "Network issue detected. Retrying every 5 seconds. Press Ctrl+C to cancel."
         echo ""
 
-        # Extract host for display
         if [[ "$ssh_command" == "sshpass" ]]; then
             host_ip=$(_extract_ssh_host "sshpass" "${args[@]}")
         else
@@ -156,20 +189,15 @@ function _handle_ssh_smart() {
 
         local retry_count=1
         while true; do
-            echo "🔄 Retry #$retry_count - Attempting to connect to $host_ip..."
-
-            # Try connection again
-            if command $ssh_command "${args[@]}"; then
-                return 0
-            fi
-
-            echo "❌ Connection failed, waiting 5 seconds..."
+            echo "Retry #$retry_count - connecting to $host_ip..."
+            command $ssh_command "${args[@]}" 2>/dev/null
+            [[ $? -eq 0 ]] && return 0
+            echo "Failed, waiting 5 seconds..."
             sleep 5
             ((retry_count++))
         done
     else
-        # For other SSH errors, just show the output
-        echo "$ssh_output"
+        [[ -n "$ssh_stderr" ]] && echo "$ssh_stderr"
         return $exit_code
     fi
 }
@@ -312,3 +340,9 @@ function _git_co_impl() {
     command git checkout "$@"
 }
 
+# Open a Meld-like directory diff in neovim using diffview.nvim
+# Usage: gdiff [ref]   (default: master)
+function gdiff() {
+    local ref="${1:-master}"
+    nvim -c "DiffviewOpen ${ref}"
+}
