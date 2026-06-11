@@ -121,8 +121,8 @@ vim.keymap.set("n", "dj", "]c", with_desc("Next diff change"))
 vim.keymap.set("n", "dk", "[c", with_desc("Previous diff change"))
 
 
-vim.keymap.set("n", "<F5>", "<cmd>r! date<CR>", with_desc("Insert current date (normal mode)"))
-vim.keymap.set("i", "<F5>", "<cmd>r! date<CR>", with_desc("Insert current date (insert mode)"))
+vim.keymap.set("n", "<F5>", "<cmd>r! date '+\\%Y/\\%m/\\%d \\%H:\\%M:\\%S'<CR>", with_desc("Insert current date (normal mode)"))
+vim.keymap.set("i", "<F5>", "<C-r>=trim(system(\"date '+%Y/%m/%d %H:%M:%S'\"))<CR>", with_desc("Insert current date (insert mode)"))
 
 -- Python autocmd
 vim.cmd [[
