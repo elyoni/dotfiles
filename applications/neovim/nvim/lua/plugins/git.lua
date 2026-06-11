@@ -29,6 +29,18 @@ return {
         'will133/vim-dirdiff',
     },
     {
+        "sindrets/diffview.nvim",
+        cmd = { "DiffviewOpen", "DiffviewFileHistory", "DiffviewClose" },
+        keys = {
+            { "<leader>gD", function()
+                local rev = vim.fn.input("Diff against: ", "master")
+                if rev ~= "" then vim.cmd("DiffviewOpen " .. rev) end
+            end, desc = "Diffview open against ref" },
+            { "<leader>gH", "<cmd>DiffviewFileHistory %<CR>",         desc = "Diffview file history" },
+        },
+        config = true,
+    },
+    {
         "NeogitOrg/neogit",
         version = "v0.0.1",
         dependencies = {
