@@ -82,9 +82,14 @@ end, { noremap = true, silent = true, desc = "Yank file:line reference for AI" }
 
 vim.keymap.set('v', '<leader>hy', function()
     local file = vim.fn.fnamemodify(vim.fn.expand('%'), ':~:.')
-    -- In diff mode, filler lines return 0; clamp to 1
-    local start_line = math.max(1, vim.fn.line("'<"))
-    local end_line = math.max(1, vim.fn.line("'>"))
+    -- Use 'v' (visual start) and '.' (cursor) which are valid *during* visual
+    -- mode; the '< and '> marks only update after leaving visual mode and would
+    -- otherwise return the previous selection. In diff mode filler lines return
+    -- 0, so clamp to 1.
+    local l1 = math.max(1, vim.fn.line('v'))
+    local l2 = math.max(1, vim.fn.line('.'))
+    local start_line = math.min(l1, l2)
+    local end_line = math.max(l1, l2)
     local ref
     if start_line == end_line then
         ref = file .. ':' .. start_line
