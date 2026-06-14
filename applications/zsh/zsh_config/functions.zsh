@@ -157,8 +157,16 @@ function _handle_ssh_smart() {
 
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             echo "Removing old host key for $host_ip..."
-            ssh-keygen -f "${HOME}/.ssh/known_hosts" -R "$host_ip"
-            ssh-keygen -f "${HOME}/.ssh/known_hosts" -R "[$host_ip]" 2>/dev/null
+            ssh-keygen -f "${HOME}/.ssh/known_hosts" -R "$host_ip" 2>/dev/null || true
+            ssh-keygen -f "${HOME}/.ssh/known_hosts" -R "[$host_ip]" 2>/dev/null || true
+            # also remove by the resolved IP/hostname (alias → real address via ssh -G)
+            local resolved_host
+            resolved_host=$(ssh -G "$host_ip" 2>/dev/null | awk '/^hostname / {print $2; exit}')
+            if [[ -n "$resolved_host" && "$resolved_host" != "$host_ip" ]]; then
+                echo "Removing old host key for resolved address $resolved_host..."
+                ssh-keygen -f "${HOME}/.ssh/known_hosts" -R "$resolved_host" 2>/dev/null || true
+                ssh-keygen -f "${HOME}/.ssh/known_hosts" -R "[$resolved_host]" 2>/dev/null || true
+            fi
             echo "Host key removed. Reconnecting..."
             echo ""
 
