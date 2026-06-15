@@ -71,8 +71,8 @@ return {
             require("markview").setup({
                 preview = {
                     -- Enable Hebrew/RTL text support
-                    modes = { "n", "i", "no", "c" },
-                    hybrid_modes = { "i" },
+                    modes = { "n", "no", "c" },
+                    hybrid_modes = { "n" },
 
                     -- Fix Hebrew font rendering
                     callbacks = {
