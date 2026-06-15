@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+# ai-history - Show AI session history logged by nvim
+#
+# Usage:
+#   ai-history              show sessions for current git project
+#   ai-history /path/to/p   show sessions for a specific project path
+#   ai-history --all        show sessions for all projects
+
+set -euo pipefail
+
+LOG_FILE="${HOME}/.local/share/nvim/ai_sessions/sessions.log"
+SEPARATOR="------------------------------------------------------------"
+
+get_current_project() {
+    git rev-parse --show-toplevel 2>/dev/null || pwd
+}
+
+check_log_exists() {
+    if [[ ! -f "${LOG_FILE}" ]]; then
+        echo "No session history found."
+        echo "Log file does not exist: ${LOG_FILE}"
+        exit 0
+    fi
+}
+
+reverse_lines() {
+    if command -v tac &>/dev/null; then
+        tac "${LOG_FILE}"
+    else
+        tail -r "${LOG_FILE}"
+    fi
+}
+
+show_project_history() {
+    local project_path="${1}"
+    local project_name
+    project_name=$(basename "${project_path}")
+    local count=0
+
+    echo "AI sessions for: ${project_name}"
+    echo "Path: ${project_path}"
+    echo "${SEPARATOR}"
+    printf "%-22s  %-8s  %s\n" "TIMESTAMP" "AI" "PROJECT"
+    echo "${SEPARATOR}"
+
+    while IFS=$'\t' read -r ts ai path name; do
+        if [[ "${path}" == "${project_path}" ]]; then
+            printf "%-22s  %-8s  %s\n" "${ts}" "${ai}" "${name}"
+            count=$((count + 1))
+        fi
+    done < <(reverse_lines)
+
+    echo "${SEPARATOR}"
+    if [[ ${count} -eq 0 ]]; then
+        echo "No sessions found for this project."
+    else
+        echo "Total: ${count} session(s)"
+    fi
+}
+
+show_all_history() {
+    local count
+    count=$(wc -l < "${LOG_FILE}")
+
+    echo "All AI sessions (newest first):"
+    echo "${SEPARATOR}"
+    printf "%-22s  %-8s  %-20s  %s\n" "TIMESTAMP" "AI" "PROJECT" "PATH"
+    echo "${SEPARATOR}"
+
+    while IFS=$'\t' read -r ts ai path name; do
+        printf "%-22s  %-8s  %-20s  %s\n" "${ts}" "${ai}" "${name}" "${path}"
+    done < <(reverse_lines)
+
+    echo "${SEPARATOR}"
+    echo "Total: ${count} session(s)"
+}
+
+main() {
+    local arg="${1:-}"
+
+    check_log_exists
+
+    case "${arg}" in
+        --all | -a)
+            show_all_history
+            ;;
+        "")
+            local project
+            project=$(get_current_project)
+            show_project_history "${project}"
+            ;;
+        *)
+            show_project_history "${arg}"
+            ;;
+    esac
+}
+
+main "$@"
