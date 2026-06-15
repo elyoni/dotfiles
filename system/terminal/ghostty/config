@@ -58,7 +58,8 @@ command = /usr/bin/zsh
 font-family = "DejaVu Sans Mono Nerd Font"
 font-size = 14
 
-mouse-scroll-multiplier = 2
+# precision = touchpad (high-res events), discrete = mouse wheel
+mouse-scroll-multiplier = precision:3,discrete:3
 
 # Audio settings (bell config not available in Ghostty)
 # audio-bell = false
@@ -87,8 +88,10 @@ keybind = ctrl+shift+g=write_screen_file:open
 
 keybind = ctrl+shift+up=scroll_page_up
 keybind = ctrl+shift+down=scroll_page_down
-keybind = ctrl+shift+k=scroll_page_up
-keybind = ctrl+shift+j=scroll_page_down
+keybind = ctrl+shift+u=scroll_page_up
+keybind = ctrl+shift+d=scroll_page_down
+keybind = ctrl+shift+k=scroll_page_fractional:-0.5
+keybind = ctrl+shift+j=scroll_page_fractional:0.5
 
 # Quick terminal toggle (similar to overlay functionality)
 # toggle_quick_terminal requires Wayland + wlr-layer-shell-v1. Does NOT work on X11 (Regolith/i3).
