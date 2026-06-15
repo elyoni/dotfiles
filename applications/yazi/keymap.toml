@@ -38,10 +38,15 @@ desc = "Toggle hidden files"
 
 
 # Terminal & Shell
-[[keys.normal]]
+[[mgr.prepend_keymap]]
 on = "S"
-run = "shell $SHELL"
+run = "shell --block $SHELL"
 desc = "Spawn shell in current directory"
+
+[[mgr.prepend_keymap]]
+on = "<C-g>"
+run = "shell --block ~/.dotfiles/applications/yazi/scripts/wimp.sh"
+desc = "Jump to project (wimp)"
 
 
 # Quit & Misc - Disable q for quit
