@@ -95,6 +95,20 @@ vim.api.nvim_create_user_command(
     end,
     { desc = "Open Jira ticket (telescope, remembers last filter)" }
 )
+vim.api.nvim_create_user_command(
+    "ObsidianOpenArchivedJiraTicket",
+    function()
+        obsidian_workflow.open_archived_jira_ticket_telescope()
+    end,
+    { desc = "Open archived Jira ticket (telescope)" }
+)
+vim.api.nvim_create_user_command(
+    "ObsidianToggleJiraTicketScope",
+    function()
+        obsidian_workflow.toggle_jira_ticket_telescope()
+    end,
+    { desc = "Toggle Jira ticket picker between active and archived" }
+)
 
 -- Command to fix conceal issues in markdown files
 vim.api.nvim_create_user_command(

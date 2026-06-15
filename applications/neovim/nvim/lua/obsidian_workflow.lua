@@ -2,9 +2,12 @@
 
 local M = {}
 
+M._last_jira_ticket_scope = "active"
+
 local VAULT_ROOT = "/home/yonie@liveu.tv/private/obsidian/work"
 local DAILY_DIR = VAULT_ROOT .. "/00-Inbox/daily-notes"
 local TICKETS_DIR = VAULT_ROOT .. "/01-Areas/work/tickets"
+local ARCHIVE_DIR = TICKETS_DIR .. "/archive"
 local ACTIVE_TASKS = VAULT_ROOT .. "/01-Areas/work/active-tasks.md"
 local FILTER_HISTORY_FILE = vim.fn.stdpath("data") .. "/jira_ticket_filter.json"
 
@@ -180,9 +183,13 @@ function M.create_ticket_file(ticket_id, ticket_title)
   local date = get_date()
   local basename = ticket_id .. "-" .. slug
   local file_path = TICKETS_DIR .. "/" .. basename .. ".md"
+  local archive_path = ARCHIVE_DIR .. "/" .. basename .. ".md"
 
-  if vim.fn.filereadable(file_path) == 1 then
-    return file_path, basename, true
+  if vim.fn.filereadable(file_path) == 1 or vim.fn.filereadable(archive_path) == 1 then
+    if vim.fn.filereadable(file_path) == 1 then
+      return file_path, basename, true
+    end
+    return archive_path, basename, true
   end
 
   local content, err = process_template("04-Meta/templates/ticket-note.md", {
@@ -249,13 +256,71 @@ function M.new_jira_ticket_and_link()
   end)
 end
 
-function M.list_ticket_files()
-  local pattern = TICKETS_DIR .. "/FP-*.md"
-  local files = vim.fn.glob(pattern, false, true)
-  table.sort(files, function(a, b)
-    return vim.fn.getftime(a) > vim.fn.getftime(b)
+function M.list_ticket_paths(scope)
+  scope = scope or "active"
+  local entries = {}
+
+  if scope == "active" or scope == "all" then
+    for _, path in ipairs(vim.fn.glob(TICKETS_DIR .. "/FP-*.md", false, true)) do
+      table.insert(entries, { path = path, archived = false })
+    end
+  end
+
+  if scope == "archive" or scope == "all" then
+    ensure_dir(ARCHIVE_DIR)
+    for _, path in ipairs(vim.fn.glob(ARCHIVE_DIR .. "/FP-*.md", false, true)) do
+      table.insert(entries, { path = path, archived = true })
+    end
+  end
+
+  table.sort(entries, function(a, b)
+    return vim.fn.getftime(a.path) > vim.fn.getftime(b.path)
   end)
+
+  return entries
+end
+
+function M.list_ticket_files()
+  local files = {}
+  for _, entry in ipairs(M.list_ticket_paths("active")) do
+    table.insert(files, entry.path)
+  end
   return files
+end
+
+local function move_ticket_file(path, dest_dir)
+  ensure_dir(dest_dir)
+  local basename = vim.fn.fnamemodify(path, ":t")
+  local dest = dest_dir .. "/" .. basename
+
+  if vim.fn.filereadable(dest) == 1 then
+    return nil, "File already exists: " .. dest
+  end
+
+  if vim.fn.rename(path, dest) ~= 0 then
+    return nil, "Failed to move ticket file"
+  end
+
+  local bufnr = vim.fn.bufnr(path)
+  if bufnr > 0 and vim.api.nvim_buf_is_loaded(bufnr) and vim.api.nvim_get_current_buf() == bufnr then
+    vim.cmd("edit " .. vim.fn.fnameescape(dest))
+  end
+
+  return dest
+end
+
+function M.archive_ticket(path)
+  if path:find(ARCHIVE_DIR, 1, true) then
+    return nil, "Ticket is already archived"
+  end
+  return move_ticket_file(path, ARCHIVE_DIR)
+end
+
+function M.unarchive_ticket(path)
+  if not path:find(ARCHIVE_DIR, 1, true) then
+    return nil, "Ticket is not archived"
+  end
+  return move_ticket_file(path, TICKETS_DIR)
 end
 
 local function load_jira_filter()
@@ -281,23 +346,39 @@ local function save_jira_filter(filter)
   file:close()
 end
 
-local function ticket_display_name(path)
+local function ticket_entry(entry)
+  local path = entry.path
   local basename = vim.fn.fnamemodify(path, ":t:r")
   local ticket_id = basename:match("^(FP%-%d+)") or basename
   local slug = basename:gsub("^FP%-%d+-", ""):gsub("-", " ")
-  return ticket_id .. " — " .. slug
+  local prefix = entry.archived and "[archived] " or ""
+  local display = prefix .. ticket_id .. " — " .. slug
+  return {
+    value = path,
+    display = display,
+    path = path,
+    basename = basename,
+    ticket_id = ticket_id,
+    archived = entry.archived,
+    ordinal = display .. " " .. basename,
+  }
 end
 
-function M.open_jira_ticket_telescope()
-  local ok_telescope, telescope = pcall(require, "telescope")
+local function jira_ticket_telescope(config)
+  local ok_telescope = pcall(require, "telescope")
   if not ok_telescope then
-    vim.notify("telescope.nvim is required for ,ojo", vim.log.levels.ERROR)
+    vim.notify("telescope.nvim is required for Jira ticket picker", vim.log.levels.ERROR)
     return
   end
 
-  local files = M.list_ticket_files()
-  if #files == 0 then
-    vim.notify("No ticket files in " .. TICKETS_DIR, vim.log.levels.WARN)
+  local scope = config.scope or "active"
+  M._last_jira_ticket_scope = scope
+  local entries = M.list_ticket_paths(scope)
+  if #entries == 0 then
+    local location = scope == "archive" and ARCHIVE_DIR
+      or scope == "all" and (TICKETS_DIR .. " or " .. ARCHIVE_DIR)
+      or TICKETS_DIR
+    vim.notify("No ticket files in " .. location, vim.log.levels.WARN)
     return
   end
 
@@ -316,37 +397,74 @@ function M.open_jira_ticket_telescope()
   end
 
   pickers.new({
-    prompt_title = "Jira tickets (filter remembered)",
+    prompt_title = config.prompt_title,
     default_text = last_filter,
     initial_mode = "insert",
   }, {
     finder = finders.new_table({
-      results = files,
-      entry_maker = function(path)
-        local display = ticket_display_name(path)
-        return {
-          value = path,
-          display = display,
-          path = path,
-          ordinal = display .. " " .. vim.fn.fnamemodify(path, ":t:r"),
-        }
-      end,
+      results = entries,
+      entry_maker = ticket_entry,
     }),
     sorter = conf.generic_sorter({}),
     previewer = conf.file_previewer({}),
     attach_mappings = function(prompt_bufnr, map)
+      local function persist_and_close()
+        persist_filter(prompt_bufnr)
+        actions.close(prompt_bufnr)
+      end
+
+      map("i", "<Esc>", persist_and_close)
+      map("i", "<C-c>", persist_and_close)
+      map("n", "q", persist_and_close)
+      map("n", "<Esc>", persist_and_close)
+
+      if config.toggle_scope then
+        local function toggle_scope_view()
+          persist_filter(prompt_bufnr)
+          actions.close(prompt_bufnr)
+          local next_scope = scope == "active" and "archive" or "active"
+          vim.schedule(function()
+            M.open_jira_ticket_telescope(next_scope)
+          end)
+        end
+
+        map("n", "a", toggle_scope_view)
+        map("n", "<leader>oja", toggle_scope_view)
+      end
+
+      if config.move_action then
+        map("n", config.move_action.key, function()
+          local selection = action_state.get_selected_entry()
+          if not selection then
+            return
+          end
+          if config.move_action.when and not config.move_action.when(selection) then
+            return
+          end
+          persist_filter(prompt_bufnr)
+          actions.close(prompt_bufnr)
+          local dest, err = config.move_action.fn(selection.value)
+          if not dest then
+            vim.notify(err or "Failed to move ticket", vim.log.levels.ERROR)
+            return
+          end
+          vim.notify(
+            config.move_action.success .. ticket_entry({ path = dest, archived = config.move_action.archived }).display,
+            vim.log.levels.INFO
+          )
+          vim.schedule(function()
+            config.move_action.reopen(scope)
+          end)
+        end)
+      end
+
       actions.select_default:replace(function()
         persist_filter(prompt_bufnr)
-        actions.close(prompt_bufnr)
         local selection = action_state.get_selected_entry()
-        if selection and selection.value then
-          vim.cmd("edit " .. vim.fn.fnameescape(selection.value))
-        end
-      end)
-
-      actions.close:replace(function()
-        persist_filter(prompt_bufnr)
         actions.close(prompt_bufnr)
+        if selection then
+          config.on_select(selection)
+        end
       end)
 
       return true
@@ -354,36 +472,60 @@ function M.open_jira_ticket_telescope()
   }):find()
 end
 
-function M.link_existing_ticket_to_daily()
-  local files = M.list_ticket_files()
-  if #files == 0 then
-    vim.notify("No ticket files in " .. TICKETS_DIR, vim.log.levels.WARN)
-    return
-  end
+function M.open_jira_ticket_telescope(scope)
+  scope = scope or "active"
 
-  local choices = {}
-  for _, path in ipairs(files) do
-    local basename = vim.fn.fnamemodify(path, ":t:r")
-    local ticket_id = basename:match("^(FP%-%d+)") or basename
-    table.insert(choices, {
-      label = ticket_id .. " — " .. basename:gsub("^FP%-%d+-", ""),
-      value = path,
-      basename = basename,
-      ticket_id = ticket_id,
-    })
-  end
-
-  vim.ui.select(choices, {
-    prompt = "Link ticket to today's daily note:",
-    format_item = function(item)
-      return item.label
+  local move_action = scope == "active" and {
+    key = "A",
+    fn = M.archive_ticket,
+    success = "Archived: ",
+    archived = true,
+    when = function(selection)
+      return not selection.archived
     end,
-  }, function(choice)
-    if not choice then
-      return
-    end
-    M.link_ticket_to_daily(choice.basename, choice.ticket_id, nil)
-  end)
+  } or {
+    key = "R",
+    fn = M.unarchive_ticket,
+    success = "Restored: ",
+    archived = false,
+    when = function(selection)
+      return selection.archived
+    end,
+  }
+
+  local scope_label = scope == "archive" and "Archived" or "Active"
+  jira_ticket_telescope({
+    scope = scope,
+    prompt_title = scope_label .. " Jira tickets (a/toggle, "
+      .. (scope == "active" and "A=archive" or "R=restore")
+      .. ", filter remembered)",
+    toggle_scope = true,
+    on_select = function(selection)
+      vim.cmd("edit " .. vim.fn.fnameescape(selection.value))
+    end,
+    move_action = vim.tbl_extend("force", move_action, {
+      reopen = M.open_jira_ticket_telescope,
+    }),
+  })
+end
+
+function M.open_archived_jira_ticket_telescope()
+  M.open_jira_ticket_telescope("archive")
+end
+
+function M.toggle_jira_ticket_telescope()
+  local next_scope = M._last_jira_ticket_scope == "archive" and "active" or "archive"
+  M.open_jira_ticket_telescope(next_scope)
+end
+
+function M.link_existing_ticket_to_daily()
+  jira_ticket_telescope({
+    scope = "all",
+    prompt_title = "Link Jira ticket to daily (active + archived)",
+    on_select = function(selection)
+      M.link_ticket_to_daily(selection.basename, selection.ticket_id, nil)
+    end,
+  })
 end
 
 return M
