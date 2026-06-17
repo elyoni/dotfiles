@@ -125,9 +125,6 @@ function cur {
 }
 bindkey '^[[1;6u' undo             # Ctrl+Shift+U to restore
 
-# luc-cli: zsh completions fpath (must be before compinit)
-fpath=(~/.zsh/completions $fpath)
-
 # Initialize completion system after all fpath modifications
 # Optimized: only regenerate compdump once per day, compile for faster loading
 autoload -Uz compinit
@@ -181,8 +178,3 @@ unset _ZSHRC_START _ZSHRC_TIME
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|=*' 'l:|=* r:|=*'
 
 (( $+commands[wt] )) && eval "$(wt init zsh)"
-
-[[ -e "/home/me/lib/oracle-cli/lib/python3.12/site-packages/oci_cli/bin/oci_autocomplete.sh" ]] && source "/home/me/lib/oracle-cli/lib/python3.12/site-packages/oci_cli/bin/oci_autocomplete.sh"
-
-# video-changer: zsh completion
-source <('/home/me/.local/bin/video-changer' completion zsh)
