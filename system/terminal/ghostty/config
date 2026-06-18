@@ -48,8 +48,9 @@
 window-decoration = none
 theme = NvimDark
 
-# Required for quick terminal (toggle_quick_terminal) to work on Linux
-gtk-single-instance = true
+# toggle_quick_terminal requires Wayland + wlr-layer-shell-v1 — does NOT work on X11/Regolith.
+# Keeping single-instance disabled avoids DBus timeout hangs under memory pressure.
+gtk-single-instance = false
 
 # Set zsh as the default shell
 command = /usr/bin/zsh
@@ -59,7 +60,7 @@ font-family = "DejaVu Sans Mono Nerd Font"
 font-size = 14
 
 # precision = touchpad (high-res events), discrete = mouse wheel
-mouse-scroll-multiplier = precision:3,discrete:3
+mouse-scroll-multiplier = precision:3,discrete:1
 
 # Audio settings (bell config not available in Ghostty)
 # audio-bell = false
