@@ -154,6 +154,10 @@ keybind = alt+comma>s>d=new_split:down
 keybind = alt+comma>s>u=new_split:up
 
 # Window/Tab management
+keybind = ctrl+page_up=previous_tab
+keybind = ctrl+page_down=next_tab
+keybind = ctrl+shift+page_up=move_tab:-1
+keybind = ctrl+shift+page_down=move_tab:1
 keybind = alt+comma>t>n=new_tab
 keybind = alt+comma>t>x=close_surface
 keybind = alt+comma>c=new_tab
