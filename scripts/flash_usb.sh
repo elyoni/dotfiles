@@ -7,6 +7,33 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
+usage() {
+    cat <<EOF
+Usage: $(basename "$0") <iso_file>
+       $(basename "$0") install
+
+Commands:
+  <iso_file>    Flash an ISO image to a USB device
+  install       Symlink this script into ~/.local/bin/flash_usb
+
+Options:
+  -h, --help    Show this help message
+
+Examples:
+  $(basename "$0") /path/to/ubuntu.iso
+  $(basename "$0") install
+EOF
+}
+
+install_script() {
+    local source
+    source="$(realpath "$0")"
+    local target="$HOME/.local/bin/flash_usb"
+    mkdir -p "$HOME/.local/bin"
+    ln -sf "$source" "$target"
+    log "Installed: $target -> $source"
+}
+
 log() {
     echo -e "${GREEN}[INFO]${NC} $1"
 }
@@ -140,14 +167,24 @@ verify_flash() {
 }
 
 main() {
+    case "${1:-}" in
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        install)
+            install_script
+            exit 0
+            ;;
+    esac
+
     log "USB ISO Flasher Script"
     log "====================="
 
     #check_root
 
     if [ $# -ne 1 ]; then
-        echo "Usage: $0 <iso_file>"
-        echo "Example: $0 /path/to/ubuntu.iso"
+        usage >&2
         exit 1
     fi
 
