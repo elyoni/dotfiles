@@ -1,0 +1,35 @@
+#compdef git-site
+
+_git-site() {
+    local -a subcommands
+    subcommands=(
+        'mr:Open merge requests page'
+    )
+
+    _arguments \
+        '--update[Update remote refs before opening]' \
+        '--remote[Use specified remote]:remote:__git_remotes' \
+        '--file[Open specific file]:file:_files' \
+        '1: :->first' \
+        '*:: :->args'
+
+    case $state in
+        first)
+            _describe 'subcommand' subcommands
+            _files
+            ;;
+        args)
+            case $words[1] in
+                mr)
+                    _arguments \
+                        '--me[Filter by current user]' \
+                        '--all[Disable branch filter (show all branches)]' \
+                        '--state[Filter by state]:state:(opened merged closed)' \
+                        '--scope[Filter by scope]:scope:(all assigned_to_me created_by_me)'
+                    ;;
+            esac
+            ;;
+    esac
+}
+
+_git-site "$@"

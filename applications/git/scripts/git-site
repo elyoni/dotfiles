@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 # Usage:
-#   ./git-site [--update] [--remote remote_name] [--file path[:line] or path:start:end]
-#   ./git-site mr [--me] [--state opened|merged|closed] [--scope all|assigned_to_me|created_by_me]
+#   ./git-site [--update] [--remote remote_name] [path[:L<line>] | --file path[:line]]
+#   ./git-site mr [--me] [--all] [--state opened|merged|closed] [--scope all|assigned_to_me|created_by_me]
 
 UPDATE=0
 REMOTE="origin"
@@ -11,6 +11,7 @@ FILE=""
 LINE=""
 MR_MODE=0
 MR_ME=0
+MR_ALL=0
 MR_STATE="opened"
 MR_SCOPE="all"
 
@@ -29,21 +30,28 @@ Options:
   --update                 Update remote refs before opening
   --remote REMOTE_NAME     Use specified remote name (default: origin)
   --file PATH[:LINE]       Open specific file, optionally at line number
-                          Format: path/to/file.txt:42 or path/to/file.txt:10:20
+  PATH[:LINE]              Positional shorthand for --file
+                          Line formats: :42  :L42  :10:20  :L10-L20
 
 Merge Request Options (git-site mr):
   --me                     Filter merge requests by current user
+  --all                    Disable branch filter (show all branches)
   --state STATE            Filter by state: opened, merged, or closed (default: opened)
   --scope SCOPE            Filter by scope: all, assigned_to_me, or created_by_me (default: all)
 
 Examples:
   git-site                           # Open current branch
-  git-site --file src/main.js:25     # Open file at line 25
+  git-site src/main.js               # Open file
+  git-site src/main.js:L25          # Open file at line 25
+  git-site src/main.js:L10-L20      # Open file at line range
+  git-site --file src/main.js:25    # Same with explicit flag
   git-site --remote upstream         # Use 'upstream' remote instead of 'origin'
-  git-site --update --file README.md # Update refs and open README
-  git-site mr                        # Open merge requests page
-  git-site mr --me                   # Open merge requests filtered by current user
-  git-site mr --me --state merged    # Open merged merge requests by current user
+  git-site --update README.md       # Update refs and open README
+  git-site mr                        # Open MRs filtered by current branch
+  git-site mr --me                   # Open MRs filtered by branch and current user
+  git-site mr --me --all             # Open MRs filtered by current user (all branches)
+  git-site mr --all                  # Open MRs page with no filters
+  git-site mr --me --state merged    # Open merged MRs by current user on this branch
 EOF
       exit 0
       ;;
@@ -54,8 +62,14 @@ EOF
     --remote) shift; REMOTE="$1" ;;
     --file) shift; FILE_LINE="$1" ;;
     --me) MR_ME=1 ;;
+    --all) MR_ALL=1 ;;
     --state) shift; MR_STATE="$1" ;;
     --scope) shift; MR_SCOPE="$1" ;;
+    *)
+      if [ -z "$FILE_LINE" ] && [ $MR_MODE -eq 0 ]; then
+        FILE_LINE="$1"
+      fi
+      ;;
   esac
   shift
 done
@@ -63,26 +77,32 @@ done
 # --- Optional: Update remote refs ---
 [ "$UPDATE" -eq 1 ] && git fetch --prune "$REMOTE" >/dev/null 2>&1
 
-# --- Skip branch/file logic if in MR mode ---
+# --- Get current branch (used by both normal and MR mode) ---
+current_branch=$(git symbolic-ref --quiet --short HEAD 2>/dev/null || echo master)
+if ! git show-ref --quiet "refs/remotes/$REMOTE/$current_branch"; then
+  current_branch=master
+fi
+
+# --- Skip file/line logic if in MR mode ---
 if [ $MR_MODE -eq 0 ]; then
-  # --- Get current branch ---
-  current_branch=$(git symbolic-ref --quiet --short HEAD 2>/dev/null || echo master)
-  
-  # --- Fallback to master if remote branch missing ---
-  if ! git show-ref --quiet "refs/remotes/$REMOTE/$current_branch"; then
-    current_branch=master
-  fi
-  
   # --- Extract file and line range ---
+  # Supported formats: path:42  path:L42  path:10:20  path:L10:L20  path:L10-L20
   if echo "$FILE_LINE" | grep -q ":"; then
-    FILE="${FILE_LINE%:*}"
-    LINE="${FILE_LINE##*:}"
-    if echo "$LINE" | grep -q ":"; then
-      start="${LINE%:*}"
-      end="${LINE#*:}"
+    FILE="${FILE_LINE%%:*}"          # everything before first colon
+    LINE_SPEC="${FILE_LINE#*:}"      # everything after first colon
+    LINE_SPEC="${LINE_SPEC#L}"       # strip optional leading L (handles :L42)
+    if echo "$LINE_SPEC" | grep -q ":"; then
+      # Colon-separated range: 10:20 or L10:L20
+      start="${LINE_SPEC%%:*}"; start="${start#L}"
+      end="${LINE_SPEC##*:}"; end="${end#L}"
+      line_anchor="#L${start}-L${end}"
+    elif echo "$LINE_SPEC" | grep -qE "^[0-9]+-"; then
+      # Dash-separated range: 10-20 or 10-L20 (GitHub/GitLab copy format)
+      start="${LINE_SPEC%%-*}"
+      end="${LINE_SPEC##*-}"; end="${end#L}"
       line_anchor="#L${start}-L${end}"
     else
-      line_anchor="#L$LINE"
+      line_anchor="#L${LINE_SPEC}"
     fi
   else
     FILE="$FILE_LINE"
@@ -112,6 +132,9 @@ if [ $MR_MODE -eq 1 ]; then
   query_params=()
   query_params+=("scope=${MR_SCOPE}")
   query_params+=("state=${MR_STATE}")
+  if [ $MR_ALL -eq 0 ]; then
+    query_params+=("source_branch=${current_branch}")
+  fi
   
   # Add author_username if --me flag is set
   if [ $MR_ME -eq 1 ]; then

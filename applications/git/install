@@ -138,7 +138,12 @@ function setup_git_scripts_completion()
         cp "${DIR}/completions/git-custom.bash" "$bash_completion_dir/git-custom"
         echo "git-custom bash completion installed"
     fi
-    
+
+    if [ -f "${DIR}/completions/git-site.bash" ]; then
+        cp "${DIR}/completions/git-site.bash" "$bash_completion_dir/git-site"
+        echo "git-site bash completion installed"
+    fi
+
     # Install zsh completions
     if [ -f "${DIR}/completions/_git-worktree" ]; then
         cp "${DIR}/completions/_git-worktree" "$zsh_completion_dir/_git-worktree"
@@ -159,7 +164,12 @@ function setup_git_scripts_completion()
         cp "${DIR}/completions/_git-co" "$zsh_completion_dir/_git-co"
         echo "git-co zsh completion installed"
     fi
-    
+
+    if [ -f "${DIR}/completions/_git-site" ]; then
+        cp "${DIR}/completions/_git-site" "$zsh_completion_dir/_git-site"
+        echo "git-site zsh completion installed"
+    fi
+
     echo ======= End =======
 }
 
