@@ -1,31 +1,52 @@
 #compdef git-site
 
-_git-site() {
-    local -a subcommands
-    subcommands=(
-        'mr:Open merge requests page'
-    )
+_git-site-ci-vars() {
+    local ci_file repo_root
+    repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || return
+    ci_file="${repo_root}/.gitlab-ci.yml"
+    [[ -f "$ci_file" ]] || return
+    grep -oE '^\s+[A-Z][A-Z0-9_]+\s*:' "$ci_file" 2>/dev/null | sed 's/^\s*//;s/\s*://' | sort -u
+}
 
-    _arguments \
+_git-site-first() {
+    local -a subs=('mr:Open merge requests page' 'pipeline:Open Run pipeline page')
+    _describe 'subcommand' subs
+    _files
+}
+
+_git-site() {
+    local context state state_descr line
+    typeset -A opt_args
+
+    _arguments -C \
+        '(-h --help)'{-h,--help}'[show help]' \
         '--update[Update remote refs before opening]' \
         '--remote[Use specified remote]:remote:__git_remotes' \
         '--file[Open specific file]:file:_files' \
-        '1: :->first' \
+        '1: :_git-site-first' \
         '*:: :->args'
 
     case $state in
-        first)
-            _describe 'subcommand' subcommands
-            _files
-            ;;
         args)
             case $words[1] in
                 mr)
                     _arguments \
+                        '(-h --help)'{-h,--help}'[show help]' \
                         '--me[Filter by current user]' \
                         '--all[Disable branch filter (show all branches)]' \
                         '--state[Filter by state]:state:(opened merged closed)' \
                         '--scope[Filter by scope]:scope:(all assigned_to_me created_by_me)'
+                    ;;
+                pipeline)
+                    local -a ci_vars
+                    ci_vars=($(_git-site-ci-vars))
+                    _arguments \
+                        '(-h --help)'{-h,--help}'[show help]' \
+                        '*--var[Set pipeline variable (NAME=VALUE)]:var:{
+                            if [[ ${#ci_vars} -gt 0 ]]; then
+                                _describe -t variables "CI variable" ci_vars -S "="
+                            fi
+                        }'
                     ;;
             esac
             ;;
