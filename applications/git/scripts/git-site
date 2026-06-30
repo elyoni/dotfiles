@@ -3,14 +3,16 @@
 # Usage:
 #   ./git-site [--update] [--remote remote_name] [path[:L<line>] | --file path[:line]]
 #   ./git-site mr [--me] [--all] [--state opened|merged|closed] [--scope all|assigned_to_me|created_by_me]
-#   ./git-site pipeline [--var NAME=VALUE ...]
+#   ./git-site pipeline
+#   ./git-site pipeline-new [--var NAME=VALUE ...]
+#   ./git-site pipeline-run [--var NAME=VALUE ...]
 
 UPDATE=0
 REMOTE="origin"
 FILE_LINE=""
 FILE=""
 LINE=""
-MODE="normal"  # normal, mr, pipeline
+MODE="normal"  # normal, mr, pipeline, pipeline-new, pipeline-run
 MR_ME=0
 MR_ALL=0
 MR_STATE="opened"
@@ -24,6 +26,9 @@ while [ $# -gt 0 ]; do
       cat << EOF
 Usage: git-site [options]
        git-site mr [options]
+       git-site pipeline
+       git-site pipeline-new [options]
+       git-site pipeline-run [options]
 
 Opens the current git repository in the browser at the hosting service (GitHub, GitLab, etc.)
 
@@ -41,8 +46,12 @@ Merge Request Options (git-site mr):
   --state STATE            Filter by state: opened, merged, or closed (default: opened)
   --scope SCOPE            Filter by scope: all, assigned_to_me, or created_by_me (default: all)
 
-Pipeline Options (git-site pipeline):
-  --var NAME=VALUE         Set a pipeline variable (repeatable)
+Pipeline Options:
+  git-site pipeline        Open pipelines list for current branch
+  git-site pipeline-new    Open "Run pipeline" web page (can pre-fill variables)
+  git-site pipeline-run    Trigger a new pipeline via glab API (requires glab)
+
+  --var NAME=VALUE         Set a pipeline variable (repeatable, for pipeline-new and pipeline-run)
                            Variable names are autocompleted from .gitlab-ci.yml
 
 Examples:
@@ -58,14 +67,19 @@ Examples:
   git-site mr --me --all             # Open MRs filtered by current user (all branches)
   git-site mr --all                  # Open MRs page with no filters
   git-site mr --me --state merged    # Open merged MRs by current user on this branch
-  git-site pipeline                  # Open "Run pipeline" page for current branch
-  git-site pipeline --var ENV=prod   # Pre-fill a variable
-  git-site pipeline --var ENV=prod --var DEBUG=1  # Pre-fill multiple variables
+  git-site pipeline                  # Open pipelines list for current branch
+  git-site pipeline-new              # Open "Run pipeline" page for current branch
+  git-site pipeline-new --var ENV=prod   # Pre-fill a variable
+  git-site pipeline-new --var ENV=prod --var DEBUG=1  # Pre-fill multiple variables
+  git-site pipeline-run              # Trigger a pipeline for current branch via glab
+  git-site pipeline-run --var ENV=prod   # Trigger with a variable
 EOF
       exit 0
       ;;
     mr) MODE="mr" ;;
     pipeline) MODE="pipeline" ;;
+    pipeline-new) MODE="pipeline-new" ;;
+    pipeline-run) MODE="pipeline-run" ;;
     --update) UPDATE=1 ;;
     --remote) shift; REMOTE="$1" ;;
     --file) shift; FILE_LINE="$1" ;;
@@ -145,7 +159,7 @@ _urlencode() {
   printf '%s' "$encoded"
 }
 
-# --- Build final URL ---
+# --- Build final URL or execute command ---
 if [ "$MODE" = "mr" ]; then
   # Merge request mode
   url="${host_path}/-/merge_requests"
@@ -185,13 +199,28 @@ if [ "$MODE" = "mr" ]; then
   query_string=$(IFS='&'; echo "${query_params[*]}")
   url="${url}?${query_string}"
 elif [ "$MODE" = "pipeline" ]; then
-  # Pipeline mode: open "Run pipeline" page with optional pre-filled variables
+  # Open pipelines list filtered by current branch
+  url="${host_path}/-/pipelines?ref=${current_branch}"
+elif [ "$MODE" = "pipeline-new" ]; then
+  # Open "Run pipeline" web page with optional pre-filled variables
   url="${host_path}/-/pipelines/new?ref=${current_branch}"
   for var_pair in "${PIPELINE_VARS[@]}"; do
     var_name="${var_pair%%=*}"
     var_value="${var_pair#*=}"
     url="${url}&var[$(_urlencode "$var_name")]=$(_urlencode "$var_value")"
   done
+elif [ "$MODE" = "pipeline-run" ]; then
+  # Trigger pipeline via glab API
+  if ! command -v glab >/dev/null 2>&1; then
+    echo "Error: glab is required for pipeline-run" >&2
+    exit 1
+  fi
+  cmd=(glab ci run --branch "$current_branch")
+  for var_pair in "${PIPELINE_VARS[@]}"; do
+    cmd+=(--variables "$var_pair")
+  done
+  "${cmd[@]}"
+  exit 0
 else
   # Normal file/branch mode
   url="${host_path}/blob/${current_branch}${file_part}${line_anchor}"

@@ -9,6 +9,17 @@ git-site \- open the current git repository in the browser at the hosting servic
 .B git site
 .B mr
 [\fIoptions\fR]
+.br
+.B git site
+.B pipeline
+.br
+.B git site
+.B pipeline\-new
+[\fIoptions\fR]
+.br
+.B git site
+.B pipeline\-run
+[\fIoptions\fR]
 .SH DESCRIPTION
 \fBgit-site\fR opens the current git repository in the default browser at the
 hosting service (GitHub, GitLab, etc.) using the remote URL. It converts
@@ -19,6 +30,24 @@ The
 .B mr
 subcommand opens the merge requests (or pull requests) page, with optional
 filtering by current user and state.
+.PP
+The
+.B pipeline
+subcommand opens the pipelines list page for the current branch.
+.PP
+The
+.B pipeline\-new
+subcommand opens the "Run Pipeline" web page where you can manually trigger
+a pipeline, with optional pre-filled variables from
+.IR .gitlab\-ci.yml .
+.PP
+The
+.B pipeline\-run
+subcommand triggers a new pipeline via the GitLab API using
+.BR glab (1),
+with optional variables. Requires
+.B glab
+to be installed and authenticated.
 .SH OPTIONS
 .TP
 .BR \-h ", " \-\-help
@@ -61,6 +90,17 @@ Filter by scope:
 .B assigned_to_me
 , or
 .BR created_by_me .
+.SH "PIPELINE OPTIONS (git site pipeline\-new, git site pipeline\-run)"
+.TP
+.BI \-\-var " NAME=VALUE"
+Set a pipeline variable. Variable names are auto-completed from
+.IR .gitlab\-ci.yml .
+Can be specified multiple times for multiple variables.
+Only applicable to
+.B pipeline\-new
+and
+.B pipeline\-run
+subcommands.
 .SH EXAMPLES
 .TP
 .B git site
@@ -86,6 +126,24 @@ Open merge requests filtered by the current user.
 .TP
 .B "git site mr \-\-me \-\-state merged"
 Open merged merge requests by the current user.
+.TP
+.B "git site pipeline"
+Open the pipelines list for the current branch.
+.TP
+.B "git site pipeline\-new"
+Open the "Run Pipeline" web page for the current branch.
+.TP
+.B "git site pipeline\-new \-\-var ENV=prod"
+Open "Run Pipeline" with ENV variable pre-filled.
+.TP
+.B "git site pipeline\-new \-\-var ENV=prod \-\-var DEBUG=1"
+Pre-fill multiple variables.
+.TP
+.B "git site pipeline\-run"
+Trigger a new pipeline for the current branch via glab.
+.TP
+.B "git site pipeline\-run \-\-var ENV=prod"
+Trigger a pipeline with a variable.
 .SH "REMOTE URL FORMAT"
 Supports SSH remotes such as
 .IR git@host:org/repo.git
