@@ -118,7 +118,7 @@ function setup_git_scripts_completion()
 {
     echo ======= Setup git scripts completion =======
     local bash_completion_dir="$HOME/.local/share/bash-completion/completions"
-    local zsh_completion_dir="$HOME/.local/share/zsh/site-functions"
+    local zsh_completion_dir="$HOME/.zsh/completions"
     
     mkdir -p "$bash_completion_dir"
     mkdir -p "$zsh_completion_dir"
