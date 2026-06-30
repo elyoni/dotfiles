@@ -217,7 +217,7 @@ elif [ "$MODE" = "pipeline-run" ]; then
   fi
   cmd=(glab ci run --branch "$current_branch")
   for var_pair in "${PIPELINE_VARS[@]}"; do
-    cmd+=(--variables "$var_pair")
+    cmd+=(--variables "${var_pair%%=*}:${var_pair#*=}")
   done
   "${cmd[@]}"
   exit 0
