@@ -173,6 +173,21 @@ function setup_git_scripts_completion()
     echo ======= End =======
 }
 
+function setup_git_man_pages()
+{
+    echo ======= Setup git man pages =======
+    local man_dir="$HOME/.local/share/man/man1"
+
+    mkdir -p "$man_dir"
+
+    if [ -f "${DIR}/man/man1/git-site.1" ]; then
+        cp "${DIR}/man/man1/git-site.1" "$man_dir/git-site.1"
+        echo "git-site man page installed"
+    fi
+
+    echo ======= End =======
+}
+
 function install()
 {
     link_files
@@ -180,6 +195,7 @@ function install()
     install_glab
     setup_glab_completion
     setup_git_scripts_completion
+    setup_git_man_pages
     [ -n "${DISPLAY}" ] && install_meld
 }
 
