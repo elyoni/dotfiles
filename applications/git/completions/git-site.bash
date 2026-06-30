@@ -36,6 +36,37 @@ _git_site_ci_vars() {
     echo "$vars"
 }
 
+# Returns possible values for a given CI variable name.
+_git_site_ci_var_value() {
+    local var_name="$1" ci_file repo_root
+    repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || return
+    ci_file="${repo_root}/.gitlab-ci.yml"
+
+    if [[ -f "$ci_file" ]]; then
+        local default_val
+        # Simple inline format: VAR: value  or  VAR: "value"
+        default_val=$(grep -E "^\s+${var_name}\s*:\s*\S" "$ci_file" 2>/dev/null | \
+            sed "s/^\s*${var_name}\s*:\s*//" | sed "s/^[\"']//;s/[\"']\s*$//" | head -1)
+        # Extended format: VAR:\n  value: "..."
+        if [[ -z "$default_val" ]]; then
+            default_val=$(grep -A2 "^\s*${var_name}\s*:\s*$" "$ci_file" 2>/dev/null | \
+                grep -E "^\s+value\s*:" | \
+                sed "s/^\s*value\s*:\s*//;s/^[\"']//;s/[\"']\s*$//" | head -1)
+        fi
+        [[ -n "$default_val" ]] && echo "$default_val"
+    fi
+
+    # Git tags for ref/tag/version-like variable names
+    if [[ "$var_name" =~ (REF|TAG|VERSION|RELEASE) ]]; then
+        git tag --sort=-version:refname 2>/dev/null | head -20
+    fi
+
+    # Git branches for branch/ref-like variable names
+    if [[ "$var_name" =~ (BRANCH|REF) ]]; then
+        git branch --format='%(refname:short)' 2>/dev/null | head -10
+    fi
+}
+
 _git_site() {
     local cur prev words cword
     _init_completion || return
@@ -60,12 +91,23 @@ _git_site() {
         --var)
             local vars
             vars=$(_git_site_ci_vars)
-            if [[ "$cur" == *=* ]]; then
-                : # no completion for values
-            elif [[ -n "$vars" ]]; then
+            if [[ -n "$vars" ]]; then
                 COMPREPLY=($(compgen -W "$vars" -- "$cur"))
                 COMPREPLY=("${COMPREPLY[@]/%/=}")
                 compopt -o nospace
+            fi
+            return
+            ;;
+        =)
+            # Completing the value part of --var NAME=VALUE
+            # In bash, = is a word break: words are [..., --var, NAME, =, <cur>]
+            if [[ $cword -ge 3 && "${words[cword-2]}" =~ ^[A-Z][A-Z0-9_]+$ && "${words[cword-3]}" == "--var" ]]; then
+                local var_name="${words[cword-2]}"
+                local values
+                values=$(printf '%s\n' $(_git_site_ci_var_value "$var_name") | sort -u)
+                if [[ -n "$values" ]]; then
+                    COMPREPLY=($(compgen -W "$values" -- "$cur"))
+                fi
             fi
             return
             ;;

@@ -1,5 +1,33 @@
 #compdef git-site
 
+# Parse a CI YAML file, outputting "VAR_NAME" or "VAR_NAME:description" per variable.
+# Handles both inline (description: "text") and block scalar (description: |\n  text) forms.
+_git-site-parse-ci-file() {
+    awk '
+        function emit(v, d) { if (v) print (d ? v ":" d : v) }
+        /^variables:/ { in_vars=1; next }
+        in_vars && /^[^ ]/ { emit(var, desc); in_vars=0; var=""; desc=""; read_desc=0 }
+        in_vars && read_desc {
+            sub(/^[ \t]+/, ""); desc=$0; read_desc=0; next
+        }
+        in_vars && /^  [A-Z][A-Z0-9_]+[ \t]*:/ {
+            emit(var, desc)
+            match($0, /[A-Z][A-Z0-9_]+/)
+            var=substr($0, RSTART, RLENGTH); desc=""; read_desc=0
+        }
+        in_vars && var && /^    description[ \t]*:/ {
+            if (/\|[ \t]*$/) {
+                read_desc=1
+            } else {
+                sub(/^    description[ \t]*:[ \t]*/, "")
+                gsub(/^["\047]|["\047][ \t]*$/, "")
+                desc=$0
+            }
+        }
+        END { emit(var, desc) }
+    ' "$1"
+}
+
 _git-site-ci-vars() {
     local ci_file repo_root git_dir sha cache_dir cache_file vars
 
@@ -12,15 +40,13 @@ _git-site-ci-vars() {
     cache_dir="${git_dir}/git-site-ci-vars"
     cache_file="${cache_dir}/${sha}.txt"
 
-    # Use cache if it exists (sha match = content match = cache is valid)
     if [[ -f "$cache_file" ]]; then
         cat "$cache_file"
         return
     fi
 
-    # Check if the main file has a variables: section
     if grep -q '^variables:' "$ci_file" 2>/dev/null; then
-        vars=$(grep -oE '^\s+[A-Z][A-Z0-9_]+\s*:' "$ci_file" | sed 's/^\s*//;s/\s*://')
+        vars=$(_git-site-parse-ci-file "$ci_file")
     else
         # Follow local include files (only simple `local: /path` or `- /path` forms)
         local inc_files
@@ -29,7 +55,7 @@ _git-site-ci-vars() {
         for inc in $inc_files; do
             local inc_path="${repo_root}/${inc#/}"
             [[ -f "$inc_path" ]] || continue
-            vars+=$'\n'$(grep -oE '^\s+[A-Z][A-Z0-9_]+\s*:' "$inc_path" | sed 's/^\s*//;s/\s*://')
+            vars+=$'\n'$(_git-site-parse-ci-file "$inc_path")
         done
     fi
 
@@ -40,6 +66,40 @@ _git-site-ci-vars() {
     rm -f "${cache_dir}/"*.txt 2>/dev/null
     echo "$vars" > "$cache_file"
     echo "$vars"
+}
+
+# Returns possible values for a given CI variable name.
+# Sources: default value from .gitlab-ci.yml, git tags (for *REF*/*TAG*/*VERSION*/*RELEASE*),
+# and git branches (for *BRANCH*/*REF*).
+_git-site-ci-var-value() {
+    local var_name="$1"
+    local ci_file repo_root
+    repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || return
+    ci_file="${repo_root}/.gitlab-ci.yml"
+
+    if [[ -f "$ci_file" ]]; then
+        local default_val
+        # Simple inline format: VAR: value  or  VAR: "value"
+        default_val=$(grep -E "^\s+${var_name}\s*:\s*\S" "$ci_file" 2>/dev/null | \
+            sed "s/^\s*${var_name}\s*:\s*//" | sed "s/^[\"']//;s/[\"']\s*$//" | head -1)
+        # Extended format: VAR:\n  value: "..."
+        if [[ -z "$default_val" ]]; then
+            default_val=$(grep -A2 "^\s*${var_name}\s*:\s*$" "$ci_file" 2>/dev/null | \
+                grep -E "^\s+value\s*:" | \
+                sed "s/^\s*value\s*:\s*//;s/^[\"']//;s/[\"']\s*$//" | head -1)
+        fi
+        [[ -n "$default_val" ]] && echo "$default_val"
+    fi
+
+    # Git tags for ref/tag/version-like variable names
+    if [[ "$var_name" =~ (REF|TAG|VERSION|RELEASE) ]]; then
+        git tag --sort=-version:refname 2>/dev/null | head -20
+    fi
+
+    # Git branches for branch/ref-like variable names
+    if [[ "$var_name" =~ (BRANCH|REF) ]]; then
+        git branch --format='%(refname:short)' 2>/dev/null | head -10
+    fi
 }
 
 _git-site-first() {
@@ -81,11 +141,16 @@ _git-site() {
                     ;;
                 pipeline-new|pipeline-run)
                     local -a ci_vars
-                    ci_vars=($(_git-site-ci-vars))
+                    ci_vars=("${(@f)$(_git-site-ci-vars)}")
                     _arguments \
                         '(-h --help)'{-h,--help}'[show help]' \
                         '*--var[Set pipeline variable (NAME=VALUE)]:var:{
-                            if [[ ${#ci_vars} -gt 0 ]]; then
+                            if compset -P "*="; then
+                                local var_name="${IPREFIX%=}"
+                                local -a var_values
+                                var_values=(${(u)$(_git-site-ci-var-value "$var_name")})
+                                [[ ${#var_values} -gt 0 ]] && _describe -t values "value for $var_name" var_values
+                            elif [[ ${#ci_vars} -gt 0 ]]; then
                                 _describe -t variables "CI variable" ci_vars -S "="
                             fi
                         }'
