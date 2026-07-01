@@ -1,0 +1,100 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+CONFIG_D="$HOME/.ssh/config.d"
+CONFIG_FILE="$HOME/.ssh/config"
+
+usage() {
+    cat <<EOF
+Usage: ssh-add-server --alias ALIAS --hostname HOST [OPTIONS]
+
+Add a host entry to ~/.ssh/config.d/<alias> (or ~/.ssh/config if no config.d/).
+
+Options:
+  --alias ALIAS       Host alias (required)
+  --hostname HOST     Actual hostname or IP (required)
+  --user USER         SSH user (default: current user)
+  --identity FILE     Identity file path
+  -h, --help          Show this help
+
+Examples:
+  ssh-add-server --alias myserver --hostname 192.168.1.100
+  ssh-add-server --alias myserver --hostname 192.168.1.100 --user ubuntu
+EOF
+}
+
+print_zsh_completion() {
+    cat <<'ZSHCOMP'
+#compdef ssh-add-server
+
+_ssh-add-server() {
+    _arguments -s -S \
+        '(-h --help)'{-h,--help}'[show help]' \
+        '--alias[host alias]:alias:' \
+        '--hostname[hostname or IP]:hostname:_hosts' \
+        '--user[SSH user]:user:_users' \
+        '--identity[identity file]:file:_files'
+}
+
+_ssh-add-server "$@"
+ZSHCOMP
+}
+
+cmd_completion() {
+    local shell="${1:-}"
+    local action="${2:-}"
+    if [[ "$shell" == "zsh" && "$action" == "--install" ]]; then
+        local dest="$HOME/.zsh/completions/_ssh-add-server"
+        mkdir -p "$(dirname "$dest")"
+        print_zsh_completion > "$dest"
+        echo "Installed: $dest"
+        echo "Reload with: exec zsh"
+    else
+        print_zsh_completion
+    fi
+}
+
+ALIAS=""
+HOSTNAME_VAL=""
+USER_VAL=""
+IDENTITY=""
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        completion) shift; cmd_completion "${@}"; exit 0 ;;
+        --alias)    ALIAS="$2"; shift 2 ;;
+        --hostname) HOSTNAME_VAL="$2"; shift 2 ;;
+        --user)     USER_VAL="$2"; shift 2 ;;
+        --identity) IDENTITY="$2"; shift 2 ;;
+        -h|--help)  usage; exit 0 ;;
+        *) echo "Unknown option: $1" >&2; usage; exit 1 ;;
+    esac
+done
+
+if [[ -z "$ALIAS" || -z "$HOSTNAME_VAL" ]]; then
+    echo "Error: --alias and --hostname are required" >&2
+    usage
+    exit 1
+fi
+
+# Check for duplicate alias in config and config.d
+if grep -rq "^Host.*\b${ALIAS}\b" "$CONFIG_FILE" "$CONFIG_D"/ 2>/dev/null; then
+    echo "Error: alias '${ALIAS}' already exists in SSH config" >&2
+    exit 1
+fi
+
+BLOCK="Host ${ALIAS}
+    HostName ${HOSTNAME_VAL}"
+[[ -n "$USER_VAL" ]] && BLOCK+="
+    User ${USER_VAL}"
+[[ -n "$IDENTITY" ]] && BLOCK+="
+    IdentityFile ${IDENTITY}"
+
+if [[ -d "$CONFIG_D" ]]; then
+    TARGET="${CONFIG_D}/${ALIAS}"
+    printf '%s\n' "$BLOCK" > "$TARGET"
+    echo "Added host '${ALIAS}' -> ${HOSTNAME_VAL} in ${TARGET}"
+else
+    printf '\n%s\n' "$BLOCK" >> "$CONFIG_FILE"
+    echo "Added host '${ALIAS}' -> ${HOSTNAME_VAL} in ${CONFIG_FILE}"
+fi
