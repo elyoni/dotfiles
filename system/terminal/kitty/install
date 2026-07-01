@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+
+set -e
+
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P "${DIR}" && pwd)
+
+source "${DIR}"/../../../utils/smart_link
+
+KITTY_APP_DIR="${HOME}/.local/kitty.app"
+
+
+function _install_kitty() # Install kitty via the official installer script
+{
+    mkdir -p "${HOME}/.local/bin"
+
+    curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
+
+    ln -sf "${KITTY_APP_DIR}/bin/kitty" "${KITTY_APP_DIR}/bin/kitten" "${HOME}/.local/bin/"
+}
+
+function _install_desktop_files() # Register kitty with the desktop environment
+{
+    mkdir -p "${HOME}/.local/share/applications"
+
+    cp "${KITTY_APP_DIR}/share/applications/kitty.desktop" "${HOME}/.local/share/applications/"
+    cp "${KITTY_APP_DIR}/share/applications/kitty-open.desktop" "${HOME}/.local/share/applications/"
+
+    sed -i "s|Icon=kitty|Icon=${KITTY_APP_DIR}/share/icons/hicolor/256x256/apps/kitty.png|g" "${HOME}"/.local/share/applications/kitty*.desktop
+    sed -i "s|Exec=kitty|Exec=${KITTY_APP_DIR}/bin/kitty|g" "${HOME}"/.local/share/applications/kitty*.desktop
+}
+
+function _set_configs()
+{
+    mkdir -p "${HOME}/.config/kitty"
+    smart_link "${DIR}/kitty.conf" "${HOME}/.config/kitty/kitty.conf"
+}
+
+function verify() # Verify the installation
+{
+    if ! command -v kitty &> /dev/null; then
+        echo "✗ kitty is not installed"
+        return 1
+    fi
+    echo "✓ kitty is installed: $(kitty --version)"
+
+    if [ -L "${HOME}/.config/kitty/kitty.conf" ]; then
+        echo "✓ Config file is properly linked"
+    else
+        echo "✗ Config file is not linked"
+        return 1
+    fi
+}
+
+
+function install()
+{
+    if command -v kitty &> /dev/null; then
+        echo "kitty is already installed: $(kitty --version)"
+    else
+        _install_kitty
+        _install_desktop_files
+    fi
+
+    _set_configs
+}
+
+function help # Show a list of functions
+{
+    awk '/^function / && ! /^function _/' "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi
