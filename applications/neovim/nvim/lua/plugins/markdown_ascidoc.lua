@@ -96,7 +96,7 @@ return {
                     -- Better list rendering for RTL text
                     list_items = {
                         enable = true,
-                        shift_width = 2,
+                        shift_width = 0,
                         indent_size = 2
                     },
 
