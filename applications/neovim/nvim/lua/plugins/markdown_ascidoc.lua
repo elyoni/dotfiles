@@ -72,7 +72,7 @@ return {
                 preview = {
                     -- Enable Hebrew/RTL text support
                     modes = { "n", "no", "c" },
-                    hybrid_modes = { "n" },
+                    hybrid_modes = {},
 
                     -- Fix Hebrew font rendering
                     callbacks = {
