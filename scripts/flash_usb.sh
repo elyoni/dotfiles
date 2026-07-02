@@ -157,7 +157,7 @@ verify_flash() {
     log "Verifying flash operation..."
 
     local iso_size=$(stat -c%s "$iso_file")
-    local written_size=$(dd if="$selected_device" bs=4M count=$((iso_size/4194304 + 1)) 2>/dev/null | wc -c)
+    local written_size=$(dd if="$selected_device" bs=4M count=$((iso_size/4194304 + 1)) status=progress | wc -c)
 
     if [ "$written_size" -ge "$iso_size" ]; then
         log "Verification successful - data written to device"
