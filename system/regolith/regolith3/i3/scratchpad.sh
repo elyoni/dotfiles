@@ -25,6 +25,7 @@ function has_an_instance(){
 function toggle_scratchpad(){
     local scratchpad_title
     local termial_exec_command
+    local exec_flag
     local scratchpad_script_path
 
     while getopts "s:" flag
@@ -38,14 +39,18 @@ function toggle_scratchpad(){
     scratchpad_title=${scratchpad_title:="wiki"}
     : "${scratchpad_title:?Missing scratchpad \'-s\'}"
 
-    if [[ -f "$(which ghostty)" ]]; then
-        termial_exec_command="ghostty --title=${scratchpad_title} --background-opacity=0.95"
+    if [[ -f "$(which kitty)" ]]; then
+        termial_exec_command="kitty --title=${scratchpad_title} -o background_opacity=0.95"
+        exec_flag="--"
     elif [[ -f "$(which gnome-terminal)" ]]; then
         termial_exec_command="gnome-terminal --title ${scratchpad_title}"
+        exec_flag="--"
     elif [[ -f "$(which wezterm)" ]]; then
         termial_exec_command="wezterm --title ${scratchpad_title}"
-    elif [[ -f "$(which kitty)" ]]; then
-        termial_exec_command="kitty --title ${scratchpad_title}"
+        exec_flag="--"
+    elif [[ -f "$(which ghostty)" ]]; then
+        termial_exec_command="ghostty --title=${scratchpad_title} --background-opacity=0.95"
+        exec_flag="-e"
     fi
 
     if ! i3-msg [title="${scratchpad_title}"] --quiet scratchpad show; then
@@ -62,11 +67,7 @@ function toggle_scratchpad(){
             fi
 
             # Execute the script in another terminal
-            if [[ -f "$(which ghostty)" ]]; then
-                ${termial_exec_command} -e "${DIR}/${scratchpad_script_path}" &>>  /tmp/scratchpad_script.log
-            else
-                ${termial_exec_command} -- "${DIR}/${scratchpad_script_path}" &>>  /tmp/scratchpad_script.log
-            fi
+            ${termial_exec_command} ${exec_flag} "${DIR}/${scratchpad_script_path}" &>>  /tmp/scratchpad_script.log
 
             # Wait for window to be created and focused
             while ! i3-msg -t get_tree | jq --arg var "${scratchpad_title}" '.. | select(.window_properties? | .title == $var) | any' | grep -q true; do
@@ -89,20 +90,20 @@ function toggle_scratchpad(){
 
 run_test() {
     scratchpad_title="test"
-    if [[ -f "$(which ghostty)" ]]; then
-        termial_exec_command="ghostty --title=${scratchpad_title}"
+    if [[ -f "$(which kitty)" ]]; then
+        termial_exec_command="kitty --title=${scratchpad_title}"
+        exec_flag="--"
     elif [[ -f "$(which gnome-terminal)" ]]; then
         termial_exec_command="gnome-terminal --title=${scratchpad_title}"
+        exec_flag="--"
     elif [[ -f "$(which wezterm)" ]]; then
         termial_exec_command="wezterm --title=${scratchpad_title}"
-    elif [[ -f "$(which kitty)" ]]; then
-        termial_exec_command="kitty --title=${scratchpad_title}"
+        exec_flag="--"
+    elif [[ -f "$(which ghostty)" ]]; then
+        termial_exec_command="ghostty --title=${scratchpad_title}"
+        exec_flag="-e"
     fi
-    if [[ -f "$(which ghostty)" ]]; then
-        ${termial_exec_command} -e "${DIR}/scratchpad_tmux_wiki"
-    else
-        ${termial_exec_command} -- "${DIR}/scratchpad_tmux_wiki"
-    fi
+    ${termial_exec_command} ${exec_flag} "${DIR}/scratchpad_tmux_wiki"
     #${termial_exec_command} -e tmux new-session -s "${scratchpad_title}"
     i3-msg -t subscribe  '[ "window" ]'
     i3-msg [title="test" instance="test"] move scratchpad
