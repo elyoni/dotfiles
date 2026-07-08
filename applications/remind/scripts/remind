@@ -1,0 +1,451 @@
+#!/usr/bin/env python3
+"""remind: watch pipelines, jobs, countdowns, and processes and notify when they finish.
+
+Usage:
+  remind add pipeline <url>              Watch a GitLab pipeline URL
+  remind add job <url>                   Watch a GitLab job URL
+  remind add countdown <duration> [label]  Watch a countdown ("25m", "1h30m", "90s", or seconds)
+  remind add process --pid <pid> [label]   Watch an already-running process by pid
+  remind add process --cmd "<cmd>" [label] Run a command and watch it to completion
+  remind notify <label> [body]           Notify immediately (e.g. from an agent-finished hook)
+  remind remove <id>                     Stop watching and drop an item from the list
+  remind list                            List watched items: id, kind, label, url-or-"-"
+  remind ensure-watchers                 (internal) spawn watchers for queued items missing one
+  remind watch <id>                      (internal) poll a single item until it finishes, then notify
+
+Every watched item is polled/waited on in its own background process. When it
+finishes, a notification is shown with two actions: "OK" (stop watching,
+remove from the list) and "Postpone" (keep it, show the same notification
+again after PIPELINE_WATCH_POSTPONE_SECONDS).
+
+State lives under ~/.local/state/remind/.
+"""
+import json
+import os
+import re
+import subprocess
+import sys
+import time
+import uuid
+
+STATE_DIR = os.path.expanduser("~/.local/state/remind")
+QUEUE_FILE = os.path.join(STATE_DIR, "queue.jsonl")
+PID_DIR = os.path.join(STATE_DIR, "pids")
+LOG_DIR = os.path.join(STATE_DIR, "logs")
+
+POLL_INTERVAL_SECONDS = int(os.environ.get("REMIND_POLL_SECONDS", "30"))
+POSTPONE_SECONDS = int(os.environ.get("REMIND_POSTPONE_SECONDS", str(15 * 60)))
+MAX_CONSECUTIVE_FAILURES = 20
+
+FINISHED_STATUSES = {"success", "failed", "canceled", "skipped"}
+URL_RE = re.compile(r"^https?://([^/]+)/(.+?)/-/(pipelines|jobs)/(\d+)")
+DURATION_RE = re.compile(r"(\d+)\s*([hms]?)", re.IGNORECASE)
+
+
+def ensure_dirs():
+    for d in (STATE_DIR, PID_DIR, LOG_DIR):
+        os.makedirs(d, exist_ok=True)
+
+
+def new_id():
+    return uuid.uuid4().hex[:12]
+
+
+def read_queue():
+    if not os.path.isfile(QUEUE_FILE):
+        return []
+    items = []
+    with open(QUEUE_FILE) as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                items.append(json.loads(line))
+            except json.JSONDecodeError:
+                continue
+    return items
+
+
+def write_queue(items):
+    with open(QUEUE_FILE, "w") as f:
+        for item in items:
+            f.write(json.dumps(item) + "\n")
+
+
+def find_item(items, item_id):
+    for item in items:
+        if item["id"] == item_id:
+            return item
+    return None
+
+
+def add_to_queue(item):
+    items = read_queue()
+    if item["kind"] in ("pipeline", "job"):
+        for existing in items:
+            if existing["kind"] in ("pipeline", "job") and existing.get("url") == item["url"]:
+                return existing
+    items.append(item)
+    write_queue(items)
+    return item
+
+
+def remove_from_queue(item_id):
+    items = [i for i in read_queue() if i["id"] != item_id]
+    write_queue(items)
+    pid_file = os.path.join(PID_DIR, item_id + ".pid")
+    if os.path.isfile(pid_file):
+        try:
+            with open(pid_file) as f:
+                pid = int(f.read().strip())
+            if pid != os.getpid():
+                os.kill(pid, 15)
+        except (ValueError, ProcessLookupError, PermissionError):
+            pass
+        try:
+            os.remove(pid_file)
+        except FileNotFoundError:
+            pass
+
+
+def pid_alive(pid):
+    try:
+        os.kill(pid, 0)
+    except (OSError, ValueError):
+        return False
+    return True
+
+
+def has_active_watcher(item_id):
+    pid_file = os.path.join(PID_DIR, item_id + ".pid")
+    if not os.path.isfile(pid_file):
+        return False
+    try:
+        with open(pid_file) as f:
+            pid = int(f.read().strip())
+    except ValueError:
+        return False
+    if pid_alive(pid):
+        return True
+    os.remove(pid_file)
+    return False
+
+
+def parse_url(url):
+    m = URL_RE.match(url)
+    if not m:
+        return None
+    host, project_path, kind, item_id = m.groups()
+    return host, project_path, kind, item_id
+
+
+def parse_duration(text):
+    text = text.strip()
+    if text.isdigit():
+        return int(text)
+    total = 0
+    matched = False
+    for amount, unit in DURATION_RE.findall(text):
+        if not amount:
+            continue
+        matched = True
+        amount = int(amount)
+        unit = unit.lower()
+        if unit == "h":
+            total += amount * 3600
+        elif unit == "m":
+            total += amount * 60
+        else:
+            total += amount
+    return total if matched else None
+
+
+def format_remaining(seconds):
+    seconds = max(0, int(seconds))
+    hours, rem = divmod(seconds, 3600)
+    minutes, secs = divmod(rem, 60)
+    if hours:
+        return f"{hours}h{minutes:02d}m{secs:02d}s"
+    if minutes:
+        return f"{minutes}m{secs:02d}s"
+    return f"{secs}s"
+
+
+def fetch_status(host, project_path, kind, item_id):
+    encoded_path = project_path.replace("/", "%2F")
+    endpoint = f"projects/{encoded_path}/{kind}/{item_id}"
+    try:
+        result = subprocess.run(
+            ["glab", "api", "--hostname", host, endpoint],
+            capture_output=True, text=True, timeout=20,
+        )
+    except subprocess.TimeoutExpired:
+        return None
+    if result.returncode != 0:
+        return None
+    try:
+        return json.loads(result.stdout).get("status")
+    except json.JSONDecodeError:
+        return None
+
+
+def notify(summary, body, timeout_ms=5000):
+    subprocess.run(["notify-send", "-t", str(timeout_ms), summary, body], check=False)
+
+
+def notify_finished(item, status):
+    kind = item["kind"]
+    label = item.get("label") or kind
+    body = item.get("url") or item.get("body") or ""
+
+    if kind in ("pipeline", "job"):
+        icon = "✅" if status == "success" else "❌"
+        thing = "Pipeline" if kind == "pipeline" else "Job"
+        summary = f"{icon} {thing} {status}"
+    elif kind == "countdown":
+        summary = f"⏰ {label}"
+    elif kind == "process":
+        icon = "✅" if status == "success" else "❌"
+        summary = f"{icon} {label} ({status})"
+    else:  # agent
+        summary = f"🤖 {label}"
+
+    have_dunstify = subprocess.run(["which", "dunstify"], capture_output=True).returncode == 0
+
+    while True:
+        if have_dunstify:
+            proc = subprocess.run(
+                [
+                    "dunstify", "-b", "-t", "0",
+                    "-A", "ok=OK",
+                    "-A", "postpone=Postpone",
+                    summary, body,
+                ],
+                capture_output=True, text=True,
+            )
+            action = proc.stdout.strip()
+        else:
+            notify(summary, body, timeout_ms=0)
+            action = "ok"  # no action support: acknowledge immediately
+
+        if action == "postpone":
+            time.sleep(POSTPONE_SECONDS)
+            continue
+        return
+
+
+def watch_pipeline(item):
+    parsed = parse_url(item["url"])
+    if not parsed:
+        notify("Remind", f"Not a pipeline/job URL, dropping:\n{item['url']}")
+        remove_from_queue(item["id"])
+        return
+    host, project_path, kind, gitlab_id = parsed
+
+    failures = 0
+    status = None
+    while True:
+        status = fetch_status(host, project_path, kind, gitlab_id)
+        if status in FINISHED_STATUSES:
+            break
+        if status is None:
+            failures += 1
+            if failures >= MAX_CONSECUTIVE_FAILURES:
+                notify("Remind", f"Giving up after repeated API errors:\n{item['url']}")
+                remove_from_queue(item["id"])
+                return
+        else:
+            failures = 0
+        time.sleep(POLL_INTERVAL_SECONDS)
+
+    notify_finished(item, status)
+    remove_from_queue(item["id"])
+
+
+def watch_countdown(item):
+    remaining = item["target_epoch"] - time.time()
+    if remaining > 0:
+        time.sleep(remaining)
+    notify_finished(item, "done")
+    remove_from_queue(item["id"])
+
+
+def watch_process(item):
+    if item.get("pid") is not None:
+        pid = item["pid"]
+        while os.path.isdir(f"/proc/{pid}"):
+            time.sleep(POLL_INTERVAL_SECONDS)
+        status = "success"
+    else:
+        proc = subprocess.Popen(["bash", "-c", item["command"]])
+        returncode = proc.wait()
+        status = "success" if returncode == 0 else "failed"
+
+    notify_finished(item, status)
+    remove_from_queue(item["id"])
+
+
+WATCHERS = {
+    "pipeline": watch_pipeline,
+    "job": watch_pipeline,
+    "countdown": watch_countdown,
+    "process": watch_process,
+}
+
+
+def spawn_watcher(item):
+    ensure_dirs()
+    log_file = os.path.join(LOG_DIR, item["id"] + ".log")
+    with open(log_file, "a") as log:
+        subprocess.Popen(
+            [sys.executable, os.path.abspath(__file__), "watch", item["id"]],
+            stdout=log, stderr=log, stdin=subprocess.DEVNULL,
+            start_new_session=True,
+        )
+
+
+def cmd_add_pipeline(url, kind):
+    ensure_dirs()
+    item = {
+        "id": new_id(), "kind": kind, "label": url,
+        "created_at": time.time(), "url": url,
+    }
+    item = add_to_queue(item)
+    if not has_active_watcher(item["id"]):
+        spawn_watcher(item)
+    notify("Remind", f"Now watching:\n{url}", timeout_ms=3000)
+
+
+def cmd_add_countdown(duration_text, label):
+    ensure_dirs()
+    seconds = parse_duration(duration_text)
+    if seconds is None:
+        print(f"Could not parse duration: {duration_text!r}", file=sys.stderr)
+        sys.exit(1)
+    label = label or f"Countdown ({duration_text})"
+    item = {
+        "id": new_id(), "kind": "countdown", "label": label,
+        "created_at": time.time(), "target_epoch": time.time() + seconds,
+    }
+    add_to_queue(item)
+    spawn_watcher(item)
+    notify("Remind", f"Counting down {format_remaining(seconds)}: {label}", timeout_ms=3000)
+
+
+def cmd_add_process(pid, command, label):
+    ensure_dirs()
+    if (pid is None) == (command is None):
+        print("Pass exactly one of --pid or --cmd", file=sys.stderr)
+        sys.exit(1)
+    default_label = f"pid {pid}" if pid is not None else command
+    item = {
+        "id": new_id(), "kind": "process", "label": label or default_label,
+        "created_at": time.time(), "pid": pid, "command": command,
+    }
+    add_to_queue(item)
+    spawn_watcher(item)
+    notify("Remind", f"Now watching: {item['label']}", timeout_ms=3000)
+
+
+def cmd_notify(label, body):
+    ensure_dirs()
+    item = {
+        "id": new_id(), "kind": "agent", "label": label,
+        "created_at": time.time(), "body": body or "",
+    }
+    items = read_queue()
+    items.append(item)
+    write_queue(items)
+    notify_finished(item, "done")
+    remove_from_queue(item["id"])
+
+
+def cmd_remove(item_id):
+    remove_from_queue(item_id)
+
+
+def cmd_list():
+    for item in read_queue():
+        print("\t".join([item["id"], item["kind"], item.get("label", ""), item.get("url") or "-"]))
+
+
+def cmd_ensure_watchers():
+    ensure_dirs()
+    for item in read_queue():
+        if item["kind"] != "agent" and not has_active_watcher(item["id"]):
+            spawn_watcher(item)
+
+
+def cmd_watch(item_id):
+    ensure_dirs()
+    pid_file = os.path.join(PID_DIR, item_id + ".pid")
+    with open(pid_file, "w") as f:
+        f.write(str(os.getpid()))
+
+    item = find_item(read_queue(), item_id)
+    if item is None:
+        return
+    watcher = WATCHERS.get(item["kind"])
+    if watcher is None:
+        remove_from_queue(item_id)
+        return
+    watcher(item)
+
+
+def main():
+    ensure_dirs()
+    args = sys.argv[1:]
+    if not args:
+        print(__doc__)
+        sys.exit(1)
+
+    cmd, rest = args[0], args[1:]
+
+    if cmd == "add" and rest:
+        subkind, subrest = rest[0], rest[1:]
+        if subkind in ("pipeline", "job") and len(subrest) == 1:
+            cmd_add_pipeline(subrest[0], subkind)
+            return
+        if subkind == "countdown" and 1 <= len(subrest) <= 2:
+            cmd_add_countdown(subrest[0], subrest[1] if len(subrest) > 1 else None)
+            return
+        if subkind == "process":
+            pid = None
+            command = None
+            label_parts = []
+            i = 0
+            while i < len(subrest):
+                if subrest[i] == "--pid" and i + 1 < len(subrest):
+                    pid = int(subrest[i + 1])
+                    i += 2
+                elif subrest[i] == "--cmd" and i + 1 < len(subrest):
+                    command = subrest[i + 1]
+                    i += 2
+                else:
+                    label_parts.append(subrest[i])
+                    i += 1
+            cmd_add_process(pid, command, " ".join(label_parts) or None)
+            return
+    elif cmd == "notify" and 1 <= len(rest) <= 2:
+        cmd_notify(rest[0], rest[1] if len(rest) > 1 else None)
+        return
+    elif cmd == "remove" and len(rest) == 1:
+        cmd_remove(rest[0])
+        return
+    elif cmd == "list" and not rest:
+        cmd_list()
+        return
+    elif cmd == "ensure-watchers" and not rest:
+        cmd_ensure_watchers()
+        return
+    elif cmd == "watch" and len(rest) == 1:
+        cmd_watch(rest[0])
+        return
+
+    print(__doc__)
+    sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

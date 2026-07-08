@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P "${DIR}" && pwd)
+
+function link_files()
+{
+    echo ======= Link Files =======
+    mkdir -p "${HOME}"/.local/bin
+    for script in "${DIR}"/scripts/*; do
+        if [ -f "$script" ]; then
+            script_name=$(basename "$script")
+            echo ln -sf "$script" "${HOME}/.local/bin/$script_name"
+            ln -sf "$script" "${HOME}/.local/bin/$script_name"
+        fi
+    done
+    echo =======   End   =======
+}
+
+function install()
+{
+    link_files
+}
+
+function verify() # Verify the installation
+{
+    for script in "${DIR}"/scripts/*; do
+        if [ -f "$script" ]; then
+            script_name=$(basename "$script")
+            if [ ! -L "$HOME/.local/bin/$script_name" ]; then
+                return 1
+            fi
+        fi
+    done
+}
+
+function help # Show a list of functions
+{
+    awk '/^function / && ! /^function _/' "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi
