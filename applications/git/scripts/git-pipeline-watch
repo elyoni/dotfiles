@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+# Usage:
+#   git-pipeline-watch [--branch branch_name] [--repo owner/repo]
+#
+# Watches the CI/CD pipeline for a branch until it finishes, printing live
+# status updates. Pair this with auto_notify.zsh (already loaded in the zsh
+# config) which sends a desktop notification with a pass/fail icon as soon
+# as this command exits, so you can walk away and get reminded.
+
+BRANCH=""
+REPO=""
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -h|--help)
+      cat << EOF
+Usage: git-pipeline-watch [options]
+
+Watches the current (or specified) branch's GitLab CI/CD pipeline live until
+it finishes. Relies on auto_notify.zsh to fire a desktop notification with
+the pipeline's pass/fail result once this command exits.
+
+Options:
+  -h, --help               Show this help message
+  --branch BRANCH_NAME     Watch pipeline for a specific branch (default: current branch)
+  --repo OWNER/REPO        Select another repository (passed through to glab)
+
+Examples:
+  git-pipeline-watch                    # Watch pipeline for current branch, notify when done
+  git-pipeline-watch --branch 10.0.1_GA # Watch pipeline for a specific branch
+EOF
+      exit 0
+      ;;
+    --branch) shift; BRANCH="$1" ;;
+    --repo) shift; REPO="$1" ;;
+  esac
+  shift
+done
+
+if ! command -v glab >/dev/null 2>&1; then
+  echo "glab CLI is required but not found in PATH." >&2
+  exit 1
+fi
+
+args=(ci status --live)
+[ -n "$BRANCH" ] && args+=(--branch "$BRANCH")
+[ -n "$REPO" ] && args+=(--repo "$REPO")
+
+glab "${args[@]}"
