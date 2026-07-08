@@ -7,19 +7,23 @@ CONFIG_FILE="$HOME/.ssh/config"
 usage() {
     cat <<EOF
 Usage: ssh-add-server --alias ALIAS --hostname HOST [OPTIONS]
+       ssh-add-server --alias ALIAS --update [--hostname HOST] [OPTIONS]
 
-Add a host entry to ~/.ssh/config.d/<alias> (or ~/.ssh/config if no config.d/).
+Add or update a host entry in ~/.ssh/config.d/<alias> (or ~/.ssh/config if no config.d/).
 
 Options:
   --alias ALIAS       Host alias (required)
-  --hostname HOST     Actual hostname or IP (required)
-  --user USER         SSH user (default: current user)
+  --hostname HOST     Actual hostname or IP (required for add; optional for update)
+  --user USER         SSH user
   --identity FILE     Identity file path
+  --update            Update existing entry, preserving fields not specified
   -h, --help          Show this help
 
 Examples:
   ssh-add-server --alias myserver --hostname 192.168.1.100
   ssh-add-server --alias myserver --hostname 192.168.1.100 --user ubuntu
+  ssh-add-server --alias myserver --update --hostname 10.0.0.5
+  ssh-add-server --alias myserver --update --user ubuntu
 EOF
 }
 
@@ -33,7 +37,8 @@ _ssh-add-server() {
         '--alias[host alias]:alias:' \
         '--hostname[hostname or IP]:hostname:_hosts' \
         '--user[SSH user]:user:_users' \
-        '--identity[identity file]:file:_files'
+        '--identity[identity file]:file:_files' \
+        '--update[overwrite existing entry]'
 }
 
 _ssh-add-server "$@"
@@ -58,6 +63,7 @@ ALIAS=""
 HOSTNAME_VAL=""
 USER_VAL=""
 IDENTITY=""
+UPDATE=0
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -66,21 +72,47 @@ while [[ $# -gt 0 ]]; do
         --hostname) HOSTNAME_VAL="$2"; shift 2 ;;
         --user)     USER_VAL="$2"; shift 2 ;;
         --identity) IDENTITY="$2"; shift 2 ;;
+        --update)   UPDATE=1; shift ;;
         -h|--help)  usage; exit 0 ;;
         *) echo "Unknown option: $1" >&2; usage; exit 1 ;;
     esac
 done
 
-if [[ -z "$ALIAS" || -z "$HOSTNAME_VAL" ]]; then
-    echo "Error: --alias and --hostname are required" >&2
+if [[ -z "$ALIAS" ]]; then
+    echo "Error: --alias is required" >&2
     usage
     exit 1
 fi
 
-# Check for duplicate alias in config and config.d
-if grep -rq "^Host.*\b${ALIAS}\b" "$CONFIG_FILE" "$CONFIG_D"/ 2>/dev/null; then
-    echo "Error: alias '${ALIAS}' already exists in SSH config" >&2
+ALIAS_EXISTS=0
+grep -rq "^Host.*\b${ALIAS}\b" "$CONFIG_FILE" "$CONFIG_D"/ 2>/dev/null && ALIAS_EXISTS=1
+
+if [[ $ALIAS_EXISTS -eq 1 && $UPDATE -eq 0 ]]; then
+    echo "Error: alias '${ALIAS}' already exists in SSH config (use --update to overwrite)" >&2
     exit 1
+fi
+
+if [[ $ALIAS_EXISTS -eq 0 && $UPDATE -eq 1 ]]; then
+    echo "Error: alias '${ALIAS}' not found in SSH config" >&2
+    exit 1
+fi
+
+if [[ $ALIAS_EXISTS -eq 0 && -z "$HOSTNAME_VAL" ]]; then
+    echo "Error: --hostname is required" >&2
+    usage
+    exit 1
+fi
+
+# When updating, read existing values for fields not provided
+if [[ $UPDATE -eq 1 ]]; then
+    if [[ -d "$CONFIG_D" ]]; then
+        EXISTING="${CONFIG_D}/${ALIAS}"
+    else
+        EXISTING="$CONFIG_FILE"
+    fi
+    [[ -z "$HOSTNAME_VAL" ]] && HOSTNAME_VAL=$(awk "/^Host[[:space:]]+${ALIAS}/{f=1} f && /^[[:space:]]+HostName[[:space:]]/{print \$2; exit}" "$EXISTING")
+    [[ -z "$USER_VAL" ]]     && USER_VAL=$(awk "/^Host[[:space:]]+${ALIAS}/{f=1} f && /^[[:space:]]+User[[:space:]]/{print \$2; exit}" "$EXISTING")
+    [[ -z "$IDENTITY" ]]     && IDENTITY=$(awk "/^Host[[:space:]]+${ALIAS}/{f=1} f && /^[[:space:]]+IdentityFile[[:space:]]/{print \$2; exit}" "$EXISTING")
 fi
 
 BLOCK="Host ${ALIAS}
@@ -93,8 +125,35 @@ BLOCK="Host ${ALIAS}
 if [[ -d "$CONFIG_D" ]]; then
     TARGET="${CONFIG_D}/${ALIAS}"
     printf '%s\n' "$BLOCK" > "$TARGET"
-    echo "Added host '${ALIAS}' -> ${HOSTNAME_VAL} in ${TARGET}"
+    if [[ $ALIAS_EXISTS -eq 1 ]]; then
+        echo "Updated host '${ALIAS}' -> ${HOSTNAME_VAL} in ${TARGET}"
+    else
+        echo "Added host '${ALIAS}' -> ${HOSTNAME_VAL} in ${TARGET}"
+    fi
 else
-    printf '\n%s\n' "$BLOCK" >> "$CONFIG_FILE"
-    echo "Added host '${ALIAS}' -> ${HOSTNAME_VAL} in ${CONFIG_FILE}"
+    if [[ $ALIAS_EXISTS -eq 1 ]]; then
+        # Remove the existing Host block before appending the new one
+        python3 - "$CONFIG_FILE" "$ALIAS" "$BLOCK" <<'PYEOF'
+import sys, re
+
+config_file, alias, new_block = sys.argv[1], sys.argv[2], sys.argv[3]
+
+with open(config_file) as f:
+    content = f.read()
+
+# Remove the existing Host block for this alias
+pattern = re.compile(
+    r'\n?^Host[ \t]+' + re.escape(alias) + r'(?:[ \t].*)?$\n(?:[ \t]+.*\n)*',
+    re.MULTILINE
+)
+content = pattern.sub('', content)
+
+with open(config_file, 'w') as f:
+    f.write(content.rstrip('\n') + '\n\n' + new_block + '\n')
+PYEOF
+        echo "Updated host '${ALIAS}' -> ${HOSTNAME_VAL} in ${CONFIG_FILE}"
+    else
+        printf '\n%s\n' "$BLOCK" >> "$CONFIG_FILE"
+        echo "Added host '${ALIAS}' -> ${HOSTNAME_VAL} in ${CONFIG_FILE}"
+    fi
 fi
