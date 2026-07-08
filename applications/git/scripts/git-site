@@ -217,7 +217,10 @@ elif [ "$MODE" = "pipeline-run" ]; then
   fi
   cmd=(glab ci run --branch "$current_branch")
   for var_pair in "${PIPELINE_VARS[@]}"; do
-    cmd+=(--variables "${var_pair%%=*}:${var_pair#*=}")
+    # glab's --variables flag is a CSV-parsed string slice, so a literal comma
+    # in the value gets split into a second (colon-less) entry unless the
+    # whole KEY:VALUE pair is wrapped in literal double quotes as a CSV field.
+    cmd+=(--variables "\"${var_pair%%=*}:${var_pair#*=}\"")
   done
   "${cmd[@]}"
   exit 0
