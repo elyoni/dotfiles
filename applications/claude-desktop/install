@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P "${DIR}" && pwd)
+
+# Docs: https://code.claude.com/docs/en/desktop-linux
+function _add_claude_desktop_repo()
+{
+    sudo apt-get update
+    sudo apt-get install -y curl
+    sudo curl -fsSLo /usr/share/keyrings/claude-desktop-archive-keyring.asc \
+        https://downloads.claude.ai/claude-desktop/key.asc
+    echo "deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/claude-desktop-archive-keyring.asc] https://downloads.claude.ai/claude-desktop/apt/stable stable main" | \
+        sudo tee /etc/apt/sources.list.d/claude-desktop.list > /dev/null
+}
+
+function _install_claude_desktop()
+{
+    _add_claude_desktop_repo
+    sudo apt-get update
+    sudo apt-get install -y claude-desktop
+}
+
+function install()
+{
+    _install_claude_desktop
+}
+
+function update() # Update Claude Desktop to the latest version
+{
+    sudo apt-get update
+    sudo apt-get install --only-upgrade -y claude-desktop
+}
+
+function verify()
+{
+    if [ -x "$(command -v claude-desktop)" ]; then
+        echo "Claude Desktop is installed"
+        return 0
+    else
+        echo "Claude Desktop is not installed"
+        return 1
+    fi
+}
+
+function help() # Show a list of functions
+{
+    awk '/^function / && ! /^function _/' "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi

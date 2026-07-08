@@ -10,5 +10,6 @@ install_package "firefox" "${DIR}"/../applications/firefox
 install_package "keepass" "${DIR}"/../applications/keepass
 install_package "Flameshot" "${DIR}"/../applications/flameshot
 install_package "Telegram" "${DIR}"/../applications/telegram
+install_package "Claude Desktop" "${DIR}"/../applications/claude-desktop
 
 echo "${summary}"

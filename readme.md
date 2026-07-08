@@ -58,6 +58,7 @@ The install script provides a menu with 4 options:
 - **Security:** KeePass
 - **Screenshot:** Flameshot
 - **Communication:** Telegram
+- **AI:** Claude Desktop
 
 ## Repository Structure
 
