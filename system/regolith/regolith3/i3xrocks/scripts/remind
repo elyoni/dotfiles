@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+# i3xrocks blocklet: shows how many things `remind` is watching (pipelines,
+# jobs, countdowns, processes, agent notifications).
+#
+# Right click: watch the pipeline/job URL currently in the clipboard.
+# Left click:  open one of the watched items in the browser (if it has a URL).
+# Middle click: remove one of the watched items from the list.
+#
+# When a watched item finishes, `remind` shows a notification with "OK"
+# (removes it) and "Postpone" (snoozes and asks again later).
+
+REMIND="$HOME/.dotfiles/applications/remind/scripts/remind"
+
+"$REMIND" ensure-watchers
+
+# Each line from `remind list` is: id<TAB>kind<TAB>label<TAB>url-or-"-"
+to_display_line() {
+  awk -F'\t' '{ printf "%s  [%s] %s\n", $1, $2, $3 }'
+}
+
+id_from_display_line() {
+  awk '{ print $1 }'
+}
+
+case "$BLOCK_BUTTON" in
+  1) # left click: open a watched item's URL
+    items=$("$REMIND" list)
+    if [ -z "$items" ]; then
+      notify-send -t 3000 "Remind" "Not watching anything.\nRight-click to watch the pipeline/job link in your clipboard."
+    else
+      choice=$(echo "$items" | to_display_line | rofi -dmenu -p "Open")
+      if [ -n "$choice" ]; then
+        chosen_id=$(echo "$choice" | id_from_display_line)
+        url=$(echo "$items" | awk -F'\t' -v id="$chosen_id" '$1 == id { print $4 }')
+        if [ -n "$url" ] && [ "$url" != "-" ]; then
+          xdg-open "$url" >/dev/null 2>&1 &
+        else
+          notify-send -t 3000 "Remind" "Nothing to open for this reminder."
+        fi
+      fi
+    fi
+    ;;
+  2) # middle click: remove a watched item
+    items=$("$REMIND" list)
+    if [ -n "$items" ]; then
+      choice=$(echo "$items" | to_display_line | rofi -dmenu -p "Stop watching")
+      if [ -n "$choice" ]; then
+        chosen_id=$(echo "$choice" | id_from_display_line)
+        "$REMIND" remove "$chosen_id"
+      fi
+    fi
+    ;;
+  3) # right click: watch the pipeline/job link in the clipboard
+    url=$(xclip -o -selection clipboard 2>/dev/null)
+    if [[ "$url" =~ ^https?://[^/]+/.+/-/pipelines/[0-9]+ ]]; then
+      "$REMIND" add pipeline "$url" &
+      disown
+    elif [[ "$url" =~ ^https?://[^/]+/.+/-/jobs/[0-9]+ ]]; then
+      "$REMIND" add job "$url" &
+      disown
+    else
+      notify-send -t 3000 "Remind" "Clipboard doesn't look like a pipeline/job URL:\n$url"
+    fi
+    ;;
+esac
+
+count=$("$REMIND" list | wc -l)
+if [ "$count" -gt 0 ]; then
+  echo "🔧 $count"
+  echo "🔧 $count"
+  echo "#91E78B"
+else
+  echo ""
+  echo ""
+fi

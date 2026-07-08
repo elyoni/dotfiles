@@ -1,0 +1,158 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.11"
+# dependencies = ["icalendar>=6.0", "recurring-ical-events>=3.0"]
+# ///
+"""i3xrocks blocklet: shows the current/next meeting from a published Outlook ICS feed.
+Left click: notify-send with the rest of today's meetings.
+Config: OUTLOOK_CALENDAR_ICS_URL env var, or ICS_URL= line in ~/.config/calendar.env
+"""
+import os
+import subprocess
+import sys
+import urllib.request
+from datetime import datetime, timedelta
+
+CACHE_FILE = os.path.expanduser("~/.cache/i3xrocks-next-meeting.ics")
+CACHE_MAX_AGE = 240  # seconds
+CONFIG_FILE = os.path.expanduser("~/.config/calendar.env")
+MAX_TITLE_LEN = 30
+
+
+def load_ics_url():
+    url = os.environ.get("OUTLOOK_CALENDAR_ICS_URL")
+    if url:
+        return url
+    if os.path.isfile(CONFIG_FILE):
+        with open(CONFIG_FILE) as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith("OUTLOOK_CALENDAR_ICS_URL="):
+                    return line.split("=", 1)[1].strip().strip('"').strip("'")
+    return None
+
+
+def fetch_ics(url):
+    try:
+        age = datetime.now().timestamp() - os.path.getmtime(CACHE_FILE)
+        if age < CACHE_MAX_AGE:
+            with open(CACHE_FILE, "rb") as f:
+                return f.read()
+    except OSError:
+        pass
+
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "i3xrocks-next-meeting"})
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = resp.read()
+        os.makedirs(os.path.dirname(CACHE_FILE), exist_ok=True)
+        with open(CACHE_FILE, "wb") as f:
+            f.write(data)
+        return data
+    except Exception:
+        if os.path.isfile(CACHE_FILE):
+            with open(CACHE_FILE, "rb") as f:
+                return f.read()
+        return None
+
+
+def truncate(text, length=MAX_TITLE_LEN):
+    text = " ".join(text.split())
+    return text if len(text) <= length else text[: length - 1] + "…"
+
+
+def format_delta(minutes):
+    if minutes < 60:
+        return f"{minutes}m"
+    hours, mins = divmod(minutes, 60)
+    return f"{hours}h{mins:02d}m" if mins else f"{hours}h"
+
+
+def get_today_events(ics_bytes):
+    from icalendar import Calendar
+    import recurring_ical_events
+
+    cal = Calendar.from_ical(ics_bytes)
+    now = datetime.now().astimezone()
+    day_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    day_end = day_start + timedelta(days=1)
+
+    events = recurring_ical_events.of(cal).between(day_start, day_end)
+
+    result = []
+    for e in events:
+        start = e.get("DTSTART").dt
+        if not isinstance(start, datetime):
+            continue  # skip all-day events
+        if str(e.get("TRANSP", "")) == "TRANSPARENT":
+            continue
+        if str(e.get("X-MICROSOFT-CDO-BUSYSTATUS", "")) == "FREE":
+            continue
+        end_prop = e.get("DTEND")
+        end = end_prop.dt if end_prop else start
+        result.append((start, end, str(e.get("SUMMARY", "(no title)"))))
+
+    result.sort(key=lambda x: x[0])
+    return now, result
+
+
+def notify_agenda(now, events):
+    remaining = [ev for ev in events if ev[1] > now]
+    if not remaining:
+        body = "No more meetings today."
+    else:
+        lines = []
+        for start, end, summary in remaining:
+            marker = "▶" if start <= now < end else " "
+            lines.append(f"{marker} {start.strftime('%H:%M')} {summary}")
+        body = "\n".join(lines)
+    subprocess.run(
+        ["notify-send", "-t", "8000", "Today's meetings", body],
+        check=False,
+    )
+
+
+def main():
+    url = load_ics_url()
+    if not url:
+        return  # not configured, print nothing
+
+    ics_bytes = fetch_ics(url)
+    if not ics_bytes:
+        print("📅 offline")
+        print("📅")
+        print("#ffaa00")
+        return
+
+    now, events = get_today_events(ics_bytes)
+
+    if os.environ.get("BLOCK_BUTTON") == "1":
+        notify_agenda(now, events)
+
+    current = next((ev for ev in events if ev[0] <= now < ev[1]), None)
+    upcoming = next((ev for ev in events if ev[0] > now), None)
+
+    if current:
+        start, end, summary = current
+        remaining_min = int((end - now).total_seconds() // 60)
+        full = f"🔴 {truncate(summary)} ({format_delta(remaining_min)} left)"
+        short = f"🔴 {format_delta(remaining_min)}"
+        color = "#ff5555"
+    elif upcoming:
+        start, end, summary = upcoming
+        in_min = int((start - now).total_seconds() // 60)
+        full = f"📅 {truncate(summary)} in {format_delta(in_min)}"
+        short = f"📅 {format_delta(in_min)}"
+        color = "#ffaa00" if in_min <= 5 else "#91E78B"
+    else:
+        full = "📅 No more meetings today"
+        short = "📅"
+        color = "#888888"
+
+    print(full)
+    print(short)
+    print(color)
+
+
+if __name__ == "__main__":
+    main()
