@@ -34,6 +34,7 @@ function _set_configs()
 {
     mkdir -p "${HOME}/.config/kitty"
     smart_link "${DIR}/kitty.conf" "${HOME}/.config/kitty/kitty.conf"
+    smart_link "${DIR}/tab_bar.py" "${HOME}/.config/kitty/tab_bar.py"
 }
 
 function verify() # Verify the installation
