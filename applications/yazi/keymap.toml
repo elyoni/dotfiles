@@ -13,6 +13,11 @@ on = "I"
 run = "rename"
 desc = "Edit filename from the start"
 
+[[mgr.prepend_keymap]]
+on = "<F7>"
+run = "create --dir"
+desc = "Create a directory"
+
 # Clone/Duplicate file
 [[mgr.prepend_keymap]]
 on = ["c", "c"]
