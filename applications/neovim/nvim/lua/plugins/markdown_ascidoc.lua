@@ -18,7 +18,19 @@ return {
         },
         build = "cd app && npm install",
         config = function()
-            vim.g.mkdp_browser = '/usr/bin/microsoft-edge'
+            local browsers = {
+                '/usr/bin/google-chrome',
+                '/usr/bin/google-chrome-stable',
+                '/usr/local/bin/firefox',
+                '/usr/bin/firefox',
+            }
+            vim.g.mkdp_browser = ''
+            for _, browser in ipairs(browsers) do
+                if vim.fn.executable(browser) == 1 then
+                    vim.g.mkdp_browser = browser
+                    break
+                end
+            end
             vim.g.mkdp_auto_start = 0
             vim.g.mkdp_auto_close = 1
             -- Debug: echo preview URL so you see something when it works
