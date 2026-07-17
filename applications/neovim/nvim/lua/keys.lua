@@ -144,6 +144,10 @@ vim.cmd [[
 ]]
 
 vim.cmd [[
+  autocmd FileType c map <buffer> <leader>rr :w<CR>:split term://gcc -O2 -std=c11 -Wall -fsanitize=address -pedantic % -o a && ./a && sleep 0.1 && rm a<CR>
+]]
+
+vim.cmd [[
   autocmd FileType sh map <buffer> <leader>rr :w<CR>:split term://./%<CR>
 ]]
 
