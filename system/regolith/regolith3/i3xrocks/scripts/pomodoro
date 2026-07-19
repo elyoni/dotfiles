@@ -11,7 +11,9 @@
 #              work -> ask whether to skip to break or stop the timer.
 #              other running states -> show a quick status notification
 #                                       (no interruption).
-# Right click: stop the whole cycle and go idle.
+# Right click: idle -> verify the ntfy notification setup (send a test
+#                        message and confirm it arrived).
+#              running -> stop the whole cycle and go idle.
 #
 # Setup for the phone/Garmin ping (optional, same as the `break` widget):
 #   1. Install the ntfy app (https://ntfy.sh) on your phone.
@@ -35,6 +37,67 @@ state() { cat "$STATE_FILE" 2>/dev/null; }
 
 stop_cycle() {
     rm -f "$STATE_FILE" "$TARGET_FILE" "$WORK_MIN_FILE" "$BREAK_MIN_FILE"
+}
+
+# Prompts for a new ntfy topic and saves it. Requires a non-empty value;
+# cancelling the dialog aborts without touching the topic file.
+set_ntfy_topic() {
+    local topic
+    while true; do
+        topic=$(zenity --entry --title "ntfy Topic" \
+            --text "Enter a private/random ntfy.sh topic name (subscribe to it in the ntfy app):" 2>/dev/null) || return 1
+        if [ -z "$topic" ]; then
+            zenity --error --title "ntfy Topic" --text "Topic name can't be empty." 2>/dev/null
+            continue
+        fi
+        mkdir -p "$(dirname "$NTFY_TOPIC_FILE")"
+        echo "$topic" > "$NTFY_TOPIC_FILE"
+        return 0
+    done
+}
+
+# Right-click-while-idle handler. Offers to set up a topic if none exists,
+# then sends a real test push and asks the user to confirm it arrived,
+# looping back to a fresh topic if it didn't.
+verify_notifications() {
+    if ! command -v curl >/dev/null 2>&1; then
+        zenity --error --title "Verify Notifications" --text "curl isn't installed, can't send a test notification." 2>/dev/null
+        return
+    fi
+
+    if [ ! -f "$NTFY_TOPIC_FILE" ]; then
+        zenity --question --title "Verify Notifications" \
+            --text="No ntfy topic is configured yet.\n\nWould you like to set one up now?" \
+            --ok-label="Set up topic" --cancel-label="Not now" 2>/dev/null
+        [ $? -eq 0 ] || return
+        set_ntfy_topic || return
+    fi
+
+    local topic output rc
+    while true; do
+        topic=$(cat "$NTFY_TOPIC_FILE" 2>/dev/null)
+
+        curl -s -H "Title: Pomodoro Test" -H "Tags: bell" \
+            -d "Test notification - if you got this, your ntfy setup works!" \
+            "https://ntfy.sh/${topic}" >/dev/null 2>&1
+
+        output=$(zenity --question --title "Verify Notifications" \
+            --text="A test notification was sent to ntfy topic '${topic}'.\n\nDid you receive it on your phone/watch?" \
+            --ok-label="Yes, it worked" --extra-button="No, change topic" 2>/dev/null)
+        rc=$?
+
+        if [ "$output" = "No, change topic" ]; then
+            set_ntfy_topic || return
+            continue
+        elif [ "$rc" -eq 0 ]; then
+            zenity --info --title "Verify Notifications" --text="Notifications are working." 2>/dev/null
+            return
+        else
+            # Dismissed via X/Esc - just stop; this is a manual diagnostic,
+            # not a required step in a running timer, so no retry loop.
+            return
+        fi
+    done
 }
 
 # Skips the rest of the work countdown and goes straight to break.
@@ -183,7 +246,13 @@ case "x${BUTTON}" in
         fi
         ;;
     x3)
-        stop_cycle
+        current=$(state)
+        if [ -z "$current" ]; then
+            ( verify_notifications ) &
+            disown
+        else
+            stop_cycle
+        fi
         ;;
 esac
 
