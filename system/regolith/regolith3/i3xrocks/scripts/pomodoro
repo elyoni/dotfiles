@@ -14,7 +14,8 @@
 #                                       (no interruption).
 # Right click: idle -> verify the ntfy notification setup (send a test
 #                        message and confirm it arrived).
-#              running -> stop the whole cycle and go idle.
+#              running -> ask for confirmation, then stop the whole cycle
+#                          and go idle (guards against an accidental click).
 #
 # Setup for the phone/Garmin ping (optional, same as the `break` widget):
 #   1. Install the ntfy app (https://ntfy.sh) on your phone.
@@ -39,6 +40,18 @@ state() { cat "$STATE_FILE" 2>/dev/null; }
 
 stop_cycle() {
     rm -f "$STATE_FILE" "$TARGET_FILE" "$WORK_MIN_FILE" "$BREAK_MIN_FILE"
+}
+
+# Right-click-while-running handler: guards against an accidental click
+# wiping out a running timer. Dismissing or declining leaves it untouched.
+confirm_stop_cycle() {
+    zenity --question --title "Pomodoro" \
+        --text="Stop the current pomodoro cycle?" \
+        --ok-label="Stop" --cancel-label="Keep going" 2>/dev/null
+    if [ $? -eq 0 ]; then
+        stop_cycle
+        notify-send "Pomodoro" "Timer stopped"
+    fi
 }
 
 # Prompts for a new ntfy topic and saves it. Requires a non-empty value;
@@ -275,7 +288,8 @@ case "x${BUTTON}" in
             ( verify_notifications ) &
             disown
         else
-            stop_cycle
+            ( confirm_stop_cycle ) &
+            disown
         fi
         ;;
 esac
