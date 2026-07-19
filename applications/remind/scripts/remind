@@ -9,17 +9,22 @@ Usage:
   remind add process --cmd "<cmd>" [label] Run a command and watch it to completion
   remind notify <label> [body]           Notify immediately (e.g. from an agent-finished hook)
   remind remove <id>                     Stop watching and drop an item from the list
-  remind list                            List watched items: id, kind, label, url-or-"-"
+  remind list                            List watched (active) items: id, kind, label, url-or-"-"
+  remind list --finished                 List finished items: id, kind, label, url-or-"-", status, finished-ago
+  remind clear-finished                  Drop all finished items from the history list
   remind ensure-watchers                 (internal) spawn watchers for queued items missing one
   remind watch <id>                      (internal) poll a single item until it finishes, then notify
 
 Every watched item is polled/waited on in its own background process. When it
 finishes, a notification is shown with two actions: "OK" (stop watching,
 remove from the list) and "Postpone" (keep it, show the same notification
-again after PIPELINE_WATCH_POSTPONE_SECONDS).
+again after PIPELINE_WATCH_POSTPONE_SECONDS). Either way, once acknowledged
+the item moves from the active list into the finished history.
 
 State lives under ~/.local/state/remind/.
 """
+import contextlib
+import fcntl
 import json
 import os
 import re
@@ -30,12 +35,15 @@ import uuid
 
 STATE_DIR = os.path.expanduser("~/.local/state/remind")
 QUEUE_FILE = os.path.join(STATE_DIR, "queue.jsonl")
+HISTORY_FILE = os.path.join(STATE_DIR, "history.jsonl")
+LOCK_FILE = os.path.join(STATE_DIR, "queue.lock")
 PID_DIR = os.path.join(STATE_DIR, "pids")
 LOG_DIR = os.path.join(STATE_DIR, "logs")
 
 POLL_INTERVAL_SECONDS = int(os.environ.get("REMIND_POLL_SECONDS", "30"))
 POSTPONE_SECONDS = int(os.environ.get("REMIND_POSTPONE_SECONDS", str(15 * 60)))
 MAX_CONSECUTIVE_FAILURES = 20
+HISTORY_LIMIT = 50
 
 FINISHED_STATUSES = {"success", "failed", "canceled", "skipped"}
 URL_RE = re.compile(r"^https?://([^/]+)/(.+?)/-/(pipelines|jobs)/(\d+)")
