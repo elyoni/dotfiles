@@ -328,15 +328,12 @@ case "$CURRENT_STATE" in
         fi
         ;;
     awaiting_break)
-        # Blink between two labels each second so it's noticeable while
-        # waiting for the popup to be acknowledged.
-        if (( $(date +%s) % 2 == 0 )); then
-            echo "🍅 Break!"
-            echo "🍅 Break!"
-        else
-            echo "🍅 ...."
-            echo "🍅 ...."
-        fi
+        # Counts up from the moment the work timer hit zero until the user
+        # picks a button on the popup, so a forgotten popup is obvious.
+        OVERTIME=$(( -REMAINING ))
+        MIN=$((OVERTIME / 60)); SEC=$((OVERTIME % 60))
+        printf "🍅 Break! +%02d:%02d\n" "$MIN" "$SEC"
+        printf "🍅 Break! +%02d:%02d\n" "$MIN" "$SEC"
         echo "#F79494"
         ;;
     break)
@@ -365,15 +362,12 @@ case "$CURRENT_STATE" in
         fi
         ;;
     awaiting_return)
-        # Blink between two labels each second so it's noticeable while
-        # waiting for the popup to be acknowledged.
-        if (( $(date +%s) % 2 == 0 )); then
-            echo "☕ Return!"
-            echo "☕ Return!"
-        else
-            echo "☕ ...."
-            echo "☕ ...."
-        fi
+        # Counts up from the moment the break timer hit zero until the user
+        # picks a button on the popup, so a forgotten popup is obvious.
+        OVERTIME=$(( -REMAINING ))
+        MIN=$((OVERTIME / 60)); SEC=$((OVERTIME % 60))
+        printf "☕ Return! +%02d:%02d\n" "$MIN" "$SEC"
+        printf "☕ Return! +%02d:%02d\n" "$MIN" "$SEC"
         echo "#F79494"
         ;;
 esac
