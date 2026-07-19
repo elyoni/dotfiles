@@ -4,6 +4,7 @@
 #   work (countdown) --timeout--> blocking popup
 #                                  --user clicks "Start Break"--> break (countdown)
 #                                  --user clicks "Postpone 5 min"--> work (countdown, +5 min)
+#                                  --user clicks "Big Break"--> prompts for minutes, then break (countdown)
 #   break (countdown) --timeout--> blocking popup + phone/Garmin ping
 #                                   --user clicks "I'm back"--> work (countdown)
 #
@@ -29,6 +30,7 @@ NTFY_TOPIC_FILE="$HOME/.config/ntfy-topic"
 
 DEFAULT_WORK_MIN=25
 DEFAULT_BREAK_MIN=5
+DEFAULT_BIG_BREAK_MIN=15
 POSTPONE_MIN=5
 
 BUTTON=${button:-${BLOCK_BUTTON:-}}
@@ -166,23 +168,45 @@ show_status() {
     notify-send "Pomodoro" "${phase_label}: $((remaining / 60))m $((remaining % 60))s left"
 }
 
+# Prompts for a custom big-break length. Returns the minutes on stdout;
+# cancelling or entering an invalid value returns non-zero so the caller
+# can fall back to re-showing the work-session-done popup.
+prompt_big_break_minutes() {
+    local minutes
+    minutes=$(zenity --entry --title "Big Break" --text "Big break length (minutes):" --entry-text "$DEFAULT_BIG_BREAK_MIN" 2>/dev/null) || return 1
+    if ! [[ "$minutes" =~ ^[0-9]+$ ]] || [ "$minutes" -eq 0 ]; then
+        zenity --error --text "Enter a whole number of minutes greater than 0." 2>/dev/null
+        return 1
+    fi
+    echo "$minutes"
+}
+
 # Spawns the blocking "start your break" popup. Only called once, from the
 # work -> awaiting_break transition below, so it can't double-spawn.
-# The "Postpone" extra button makes zenity exit non-zero but print the
-# button's label on stdout, which is how we tell it apart from an
-# X/Esc dismissal (also non-zero, but with empty output).
+# The "Postpone"/"Big Break" extra buttons make zenity exit non-zero but
+# print the button's label on stdout, which is how we tell them apart from
+# an X/Esc dismissal (also non-zero, but with empty output).
 spawn_break_dialog() {
     (
         while true; do
             output=$(zenity --info --title "Work Session Done" \
-                --text="<span font='20' weight='bold'>Work session done, time for a break! Click \"Start Break\" when you're ready, or postpone if you're mid-task.</span>" \
-                --width=400 --ok-label="Start Break" --extra-button="Postpone ${POSTPONE_MIN} min" 2>/dev/null)
+                --text="<span font='20' weight='bold'>Work session done, time for a break! Click \"Start Break\" when you're ready, postpone if you're mid-task, or take a big break.</span>" \
+                --width=400 --ok-label="Start Break" \
+                --extra-button="Postpone ${POSTPONE_MIN} min" --extra-button="Big Break" 2>/dev/null)
             rc=$?
 
             if [ "$output" = "Postpone ${POSTPONE_MIN} min" ]; then
                 echo $(( $(date +%s) + POSTPONE_MIN * 60 )) > "$TARGET_FILE"
                 echo "work" > "$STATE_FILE"
                 notify-send "Pomodoro" "Break postponed ${POSTPONE_MIN} more minutes"
+                exit 0
+            fi
+
+            if [ "$output" = "Big Break" ]; then
+                big_min=$(prompt_big_break_minutes) || continue
+                echo $(( $(date +%s) + big_min * 60 )) > "$TARGET_FILE"
+                echo "break" > "$STATE_FILE"
+                notify-send "Pomodoro" "Big break started (${big_min}m)"
                 exit 0
             fi
 
