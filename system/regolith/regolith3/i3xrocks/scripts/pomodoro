@@ -1,0 +1,272 @@
+#!/usr/bin/env bash
+# i3xrocks blocklet: Pomodoro-style work/break cycle.
+#
+#   work (countdown) --timeout--> blocking popup
+#                                  --user clicks "Start Break"--> break (countdown)
+#                                  --user clicks "Postpone 5 min"--> work (countdown, +5 min)
+#   break (countdown) --timeout--> blocking popup + phone/Garmin ping
+#                                   --user clicks "I'm back"--> work (countdown)
+#
+# Left click:  idle -> prompt for work/break minutes and start.
+#              work -> ask whether to skip to break or stop the timer.
+#              other running states -> show a quick status notification
+#                                       (no interruption).
+# Right click: stop the whole cycle and go idle.
+#
+# Setup for the phone/Garmin ping (optional, same as the `break` widget):
+#   1. Install the ntfy app (https://ntfy.sh) on your phone.
+#   2. Pick a private/random topic name and subscribe to it in the app.
+#   3. echo "your-topic-name" > ~/.config/ntfy-topic
+#   4. In Garmin Connect Mobile, enable notification mirroring for the ntfy app.
+
+STATE_FILE="/tmp/pomodoro_state"           # work | awaiting_break | break | awaiting_return
+TARGET_FILE="/tmp/pomodoro_target_time"    # epoch seconds when current phase ends
+WORK_MIN_FILE="/tmp/pomodoro_work_minutes"
+BREAK_MIN_FILE="/tmp/pomodoro_break_minutes"
+NTFY_TOPIC_FILE="$HOME/.config/ntfy-topic"
+
+DEFAULT_WORK_MIN=25
+DEFAULT_BREAK_MIN=5
+POSTPONE_MIN=5
+
+BUTTON=${button:-${BLOCK_BUTTON:-}}
+
+state() { cat "$STATE_FILE" 2>/dev/null; }
+
+stop_cycle() {
+    rm -f "$STATE_FILE" "$TARGET_FILE" "$WORK_MIN_FILE" "$BREAK_MIN_FILE"
+}
+
+# Skips the rest of the work countdown and goes straight to break.
+skip_to_break() {
+    break_min=$(cat "$BREAK_MIN_FILE" 2>/dev/null)
+    break_min=${break_min:-$DEFAULT_BREAK_MIN}
+
+    echo $(( $(date +%s) + break_min * 60 )) > "$TARGET_FILE"
+    echo "break" > "$STATE_FILE"
+    notify-send "Pomodoro" "Skipped to break"
+}
+
+# Left-click-while-working handler: only called for "work" (not
+# "awaiting_break") so it can't race with a spawn_break_dialog popup that's
+# already open. Asks whether to skip to break or stop the whole cycle;
+# dismissing the dialog does nothing.
+#
+# Both choices are --extra-button's rather than the default OK/Cancel: the
+# exit code zenity returns for the --ok-label button isn't reliable across
+# versions when mixed with --extra-button, but the printed button text is
+# always accurate, so matching on stdout instead of $? is what's robust here.
+ask_skip_or_stop() {
+    output=$(zenity --question --title "Pomodoro" \
+        --text="Skip to break, or stop the timer?" \
+        --ok-label="Cancel" \
+        --extra-button="Go to Break" --extra-button="Stop Timer" 2>/dev/null)
+
+    case "$output" in
+        "Go to Break") skip_to_break ;;
+        "Stop Timer") stop_cycle ;;
+    esac
+}
+
+start_cycle() {
+    local work_min break_min target
+
+    work_min=$(zenity --entry --title "Start Pomodoro" --text "Work minutes:" --entry-text "$DEFAULT_WORK_MIN" 2>/dev/null) || return 1
+    if ! [[ "$work_min" =~ ^[0-9]+$ ]] || [ "$work_min" -eq 0 ]; then
+        zenity --error --text "Enter a whole number of minutes greater than 0." 2>/dev/null
+        return 1
+    fi
+
+    break_min=$(zenity --entry --title "Start Pomodoro" --text "Break minutes:" --entry-text "$DEFAULT_BREAK_MIN" 2>/dev/null) || return 1
+    if ! [[ "$break_min" =~ ^[0-9]+$ ]] || [ "$break_min" -eq 0 ]; then
+        zenity --error --text "Enter a whole number of minutes greater than 0." 2>/dev/null
+        return 1
+    fi
+
+    echo "$work_min" > "$WORK_MIN_FILE"
+    echo "$break_min" > "$BREAK_MIN_FILE"
+
+    target=$(( $(date +%s) + work_min * 60 ))
+    echo "$target" > "$TARGET_FILE"
+    echo "work" > "$STATE_FILE"
+}
+
+show_status() {
+    local current="$1" remaining="$2"
+    local phase_label
+    case "$current" in
+        work) phase_label="Work session" ;;
+        awaiting_break) phase_label="Waiting for you to start your break" ;;
+        break) phase_label="Break" ;;
+        awaiting_return) phase_label="Waiting for you to return" ;;
+    esac
+    notify-send "Pomodoro" "${phase_label}: $((remaining / 60))m $((remaining % 60))s left"
+}
+
+# Spawns the blocking "start your break" popup. Only called once, from the
+# work -> awaiting_break transition below, so it can't double-spawn.
+# The "Postpone" extra button makes zenity exit non-zero but print the
+# button's label on stdout, which is how we tell it apart from an
+# X/Esc dismissal (also non-zero, but with empty output).
+spawn_break_dialog() {
+    (
+        while true; do
+            output=$(zenity --info --title "Work Session Done" \
+                --text="<span font='20' weight='bold'>Work session done, time for a break! Click \"Start Break\" when you're ready, or postpone if you're mid-task.</span>" \
+                --width=400 --ok-label="Start Break" --extra-button="Postpone ${POSTPONE_MIN} min" 2>/dev/null)
+            rc=$?
+
+            if [ "$output" = "Postpone ${POSTPONE_MIN} min" ]; then
+                echo $(( $(date +%s) + POSTPONE_MIN * 60 )) > "$TARGET_FILE"
+                echo "work" > "$STATE_FILE"
+                notify-send "Pomodoro" "Break postponed ${POSTPONE_MIN} more minutes"
+                exit 0
+            fi
+
+            [ "$rc" -eq 0 ] && break
+            # Dismissed via X/Esc instead of a button (or zenity couldn't
+            # run at all, e.g. no display) - wait a beat and ask again rather
+            # than spinning in a tight retry loop.
+            sleep 2
+        done
+
+        break_min=$(cat "$BREAK_MIN_FILE" 2>/dev/null)
+        break_min=${break_min:-$DEFAULT_BREAK_MIN}
+
+        echo $(( $(date +%s) + break_min * 60 )) > "$TARGET_FILE"
+        echo "break" > "$STATE_FILE"
+        notify-send "Pomodoro" "Break started"
+    ) &
+    disown
+}
+
+# Spawns the blocking "come back" popup. Only called once, from the
+# break -> awaiting_return transition below, so it can't double-spawn.
+spawn_return_dialog() {
+    (
+        while true; do
+            zenity --info --title "Break's Over" \
+                --text="<span font='20' weight='bold'>Break's over! Click \"I'm back\" when you're at the computer.</span>" \
+                --width=400 --ok-label="I'm back" 2>/dev/null
+            [ $? -eq 0 ] && break
+            # Dismissed via X/Esc instead of the button (or zenity couldn't
+            # run at all, e.g. no display) - wait a beat and ask again rather
+            # than spinning in a tight retry loop.
+            sleep 2
+        done
+
+        work_min=$(cat "$WORK_MIN_FILE" 2>/dev/null)
+        work_min=${work_min:-$DEFAULT_WORK_MIN}
+
+        echo $(( $(date +%s) + work_min * 60 )) > "$TARGET_FILE"
+        echo "work" > "$STATE_FILE"
+        notify-send "Pomodoro" "Back to work"
+    ) &
+    disown
+}
+
+case "x${BUTTON}" in
+    x1)
+        current=$(state)
+        if [ -z "$current" ]; then
+            ( start_cycle ) &
+            disown
+        elif [ "$current" = "work" ]; then
+            ( ask_skip_or_stop ) &
+            disown
+        else
+            target=$(cat "$TARGET_FILE" 2>/dev/null)
+            remaining=$(( ${target:-0} - $(date +%s) ))
+            [ "$remaining" -lt 0 ] && remaining=0
+            show_status "$current" "$remaining" &
+            disown
+        fi
+        ;;
+    x3)
+        stop_cycle
+        ;;
+esac
+
+CURRENT_STATE=$(state)
+
+if [ -z "$CURRENT_STATE" ]; then
+    echo "🍅 --"
+    echo "🍅 --"
+    exit 0
+fi
+
+TARGET_TIME=$(cat "$TARGET_FILE" 2>/dev/null)
+if ! [[ "$TARGET_TIME" =~ ^[0-9]+$ ]]; then
+    stop_cycle
+    echo "🍅 --"
+    echo "🍅 --"
+    exit 0
+fi
+
+REMAINING=$((TARGET_TIME - $(date +%s)))
+
+case "$CURRENT_STATE" in
+    work)
+        if [ "$REMAINING" -gt 0 ]; then
+            MIN=$((REMAINING / 60)); SEC=$((REMAINING % 60))
+            printf "🍅 %02d:%02d\n" "$MIN" "$SEC"
+            printf "🍅 %02d:%02d\n" "$MIN" "$SEC"
+            echo "#91E78B"
+        else
+            echo "awaiting_break" > "$STATE_FILE"
+            spawn_break_dialog
+            echo "🍅 Break!"
+            echo "🍅 Break!"
+            echo "#F79494"
+        fi
+        ;;
+    awaiting_break)
+        # Blink between two labels each second so it's noticeable while
+        # waiting for the popup to be acknowledged.
+        if (( $(date +%s) % 2 == 0 )); then
+            echo "🍅 Break!"
+            echo "🍅 Break!"
+        else
+            echo "🍅 ...."
+            echo "🍅 ...."
+        fi
+        echo "#F79494"
+        ;;
+    break)
+        if [ "$REMAINING" -gt 0 ]; then
+            MIN=$((REMAINING / 60)); SEC=$((REMAINING % 60))
+            printf "☕ %02d:%02d\n" "$MIN" "$SEC"
+            printf "☕ %02d:%02d\n" "$MIN" "$SEC"
+            echo "#91E78B"
+        else
+            echo "awaiting_return" > "$STATE_FILE"
+
+            if [ -f "$NTFY_TOPIC_FILE" ] && command -v curl >/dev/null 2>&1; then
+                NTFY_TOPIC=$(cat "$NTFY_TOPIC_FILE" 2>/dev/null)
+                if [ -n "$NTFY_TOPIC" ]; then
+                    curl -s -H "Title: Pomodoro" -H "Tags: alarm_clock" \
+                        -d "Break is over, back to the computer" \
+                        "https://ntfy.sh/${NTFY_TOPIC}" >/dev/null 2>&1 &
+                fi
+            fi
+
+            spawn_return_dialog
+
+            echo "☕ Return!"
+            echo "☕ Return!"
+            echo "#F79494"
+        fi
+        ;;
+    awaiting_return)
+        # Blink between two labels each second so it's noticeable while
+        # waiting for the popup to be acknowledged.
+        if (( $(date +%s) % 2 == 0 )); then
+            echo "☕ Return!"
+            echo "☕ Return!"
+        else
+            echo "☕ ...."
+            echo "☕ ...."
+        fi
+        echo "#F79494"
+        ;;
+esac

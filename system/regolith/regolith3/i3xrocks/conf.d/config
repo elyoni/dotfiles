@@ -12,6 +12,9 @@ label_color=xresource:i3xrocks.label.color
 [countdown]
 interval=1
 
+[pomodoro]
+interval=1
+
 [sprint-countdown]
 interval=3600
 
