@@ -1,0 +1,40 @@
+[global]
+    monitor = 0
+    # Show notifications on whichever monitor currently has keyboard focus.
+    follow = keyboard
+
+    width = 350
+    height = 300
+    origin = top-right
+    offset = 10x40
+
+    frame_width = 2
+    frame_color = "#8EC07C"
+    separator_color = frame
+
+    font = monospace 11
+
+    format = "<b>%s</b>\n%b"
+    show_indicators = yes
+
+    idle_threshold = 120
+
+    mouse_left_click = do_action, close_current
+    mouse_middle_click = close_all
+    mouse_right_click = close_current
+
+[urgency_low]
+    background = "#282828"
+    foreground = "#ebdbb2"
+    timeout = 5
+
+[urgency_normal]
+    background = "#282828"
+    foreground = "#ebdbb2"
+    timeout = 8
+
+[urgency_critical]
+    background = "#282828"
+    foreground = "#fb4934"
+    frame_color = "#fb4934"
+    timeout = 0

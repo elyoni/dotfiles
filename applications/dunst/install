@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P "${DIR}" && pwd)
+
+source "${DIR}"/../../utils/package/apt
+
+function _install_dependencies()
+{
+    echo ====== Install Dunst =====
+    fast_apt_install dunst
+    echo ====== End =====
+}
+
+function _verify_dunst()
+{
+    if ! which dunst >/dev/null; then
+        echo "VERIFY FAILED: dunst binary wasn't installed"
+        exit 1
+    fi
+}
+
+function _link_files()
+{
+    echo ======= Link Files =======
+    mkdir -p "${HOME}"/.config/
+    ln -sf "${DIR}/dunst/" "${HOME}/.config/"
+
+    mkdir -p "${HOME}"/.local/bin
+    for script in "${DIR}"/scripts/*; do
+        if [ -f "$script" ]; then
+            script_name=$(basename "$script")
+            ln -sf "$script" "${HOME}/.local/bin/$script_name"
+        fi
+    done
+    echo =======   End   =======
+}
+
+function _verify_link()
+{
+    link_path="${HOME}"/.config/dunst
+    if [ ! -L "${link_path}" ]; then
+        echo "VERIFY FAILED: dunst link not exists"
+        exit 1
+    elif [ ! -e "${link_path}" ]; then
+        echo "VERIFY FAILED: dunst link not exists"
+        exit 2
+    fi
+}
+
+function install()
+{
+    _install_dependencies
+    _link_files
+}
+
+function verify()
+{
+    _verify_dunst
+    _verify_link
+    echo "Verification Pass"
+}
+
+function help() # Show a list of functions
+{
+    awk '/^function / && ! /^function _/' "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi

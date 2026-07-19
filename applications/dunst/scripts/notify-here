@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# Like notify-send, but clicking the notification jumps back to the terminal
+# (or other window) that ran this command.
+#
+# Usage: notify-here [notify-send options] <SUMMARY> [BODY]
+#   notify-here "Build finished"
+#   notify-here -u critical "Tests failed" "3 tests failed in CI"
+#
+# How it works: we walk up the process tree from this script to find the
+# nearest ancestor that owns an X11 window (typically the terminal emulator),
+# then send the notification with a "default" action. notify-send blocks
+# waiting for that action to be invoked (or the notification to time out) -
+# we run that part in the background so the calling shell isn't blocked -
+# and if the user clicks it, we focus the window we found earlier. No
+# always-running daemon, no D-Bus monitoring: notify-send's own blocking
+# wait for the action *is* the daemon.
+
+set -euo pipefail
+
+find_ancestor_window() {
+    local pid="$1" depth=0 win
+    while [ -n "$pid" ] && [ "$pid" != "1" ] && [ "$depth" -lt 20 ]; do
+        win=$(xdotool search --pid "$pid" 2>/dev/null | head -1) || true
+        if [ -n "$win" ]; then
+            echo "$win"
+            return 0
+        fi
+        pid=$(ps -o ppid= -p "$pid" 2>/dev/null | tr -d ' ')
+        depth=$((depth + 1))
+    done
+    return 1
+}
+
+WINDOW_ID=$(find_ancestor_window "$$") || WINDOW_ID=""
+
+(
+    if [ -n "$WINDOW_ID" ]; then
+        action=$(notify-send -A "default=Return here" "$@")
+        if [ "$action" = "default" ]; then
+            i3-msg "[id=\"${WINDOW_ID}\"] focus" >/dev/null
+        fi
+    else
+        # No window found to jump to (e.g. run from a script with no
+        # terminal ancestor) - fall back to a plain notification.
+        notify-send "$@"
+    fi
+) &
+disown
