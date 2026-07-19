@@ -2,12 +2,14 @@
 # i3xrocks blocklet: shows how many things `remind` is watching (pipelines,
 # jobs, countdowns, processes, agent notifications).
 #
-# Right click: watch the pipeline/job URL currently in the clipboard.
-# Left click:  open one of the watched items in the browser (if it has a URL).
+# Right click:  watch the pipeline/job URL currently in the clipboard.
+# Left click:   open one of the watched items in the browser (if it has a URL).
 # Middle click: remove one of the watched items from the list.
+# Scroll:       view finished items (and optionally clear the history).
 #
 # When a watched item finishes, `remind` shows a notification with "OK"
-# (removes it) and "Postpone" (snoozes and asks again later).
+# (removes it) and "Postpone" (snoozes and asks again later). Either way it
+# then moves from the active list into the finished history.
 
 REMIND="$HOME/.dotfiles/applications/remind/scripts/remind"
 
@@ -60,6 +62,18 @@ case "$BLOCK_BUTTON" in
       disown
     else
       notify-send -t 3000 "Remind" "Clipboard doesn't look like a pipeline/job URL:\n$url"
+    fi
+    ;;
+  4|5) # scroll: view finished items
+    finished=$("$REMIND" list --finished)
+    if [ -z "$finished" ]; then
+      notify-send -t 3000 "Remind" "No finished reminders."
+    else
+      entries=$(echo "$finished" | awk -F'\t' '{ printf "%s  [%s] %s (%s, %s)\n", $1, $2, $3, $5, $6 }')
+      choice=$(printf "Clear all finished\n%s\n" "$entries" | rofi -dmenu -p "Finished")
+      if [ "$choice" = "Clear all finished" ]; then
+        "$REMIND" clear-finished
+      fi
     fi
     ;;
 esac
