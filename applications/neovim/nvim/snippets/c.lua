@@ -5,7 +5,7 @@ local t = ls.text_node
 local rep = require('luasnip.extras').rep
 
 return {
-    s('for', {
+    s('forl', {
         t("for (int "),
         i(1, "i"),
         t(" = 0; "),
@@ -15,6 +15,14 @@ return {
         t("; "),
         rep(1),
         t({ "++) {", "\t" }),
+        i(0),
+        t({ "", "}" }),
+    }),
+
+    s('fori', {
+        t("for (int i = 0; i < "),
+        i(1, "count"),
+        t({ "; i++) {", "\t" }),
         i(0),
         t({ "", "}" }),
     }),
