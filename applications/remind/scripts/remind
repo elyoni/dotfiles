@@ -59,11 +59,26 @@ def new_id():
     return uuid.uuid4().hex[:12]
 
 
-def read_queue():
-    if not os.path.isfile(QUEUE_FILE):
+@contextlib.contextmanager
+def locked():
+    """Exclusive lock guarding read-modify-write access to the queue/history
+    files. Multiple watcher processes (and the status-bar blocklet) touch
+    these files concurrently; without this, a read-modify-write from one
+    process can race another's and silently undo a removal."""
+    ensure_dirs()
+    with open(LOCK_FILE, "a+") as f:
+        fcntl.flock(f, fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(f, fcntl.LOCK_UN)
+
+
+def read_jsonl(path):
+    if not os.path.isfile(path):
         return []
     items = []
-    with open(QUEUE_FILE) as f:
+    with open(path) as f:
         for line in f:
             line = line.strip()
             if not line:
@@ -75,10 +90,26 @@ def read_queue():
     return items
 
 
-def write_queue(items):
-    with open(QUEUE_FILE, "w") as f:
+def write_jsonl(path, items):
+    with open(path, "w") as f:
         for item in items:
             f.write(json.dumps(item) + "\n")
+
+
+def read_queue():
+    return read_jsonl(QUEUE_FILE)
+
+
+def write_queue(items):
+    write_jsonl(QUEUE_FILE, items)
+
+
+def read_history():
+    return read_jsonl(HISTORY_FILE)
+
+
+def write_history(items):
+    write_jsonl(HISTORY_FILE, items)
 
 
 def find_item(items, item_id):
@@ -89,19 +120,21 @@ def find_item(items, item_id):
 
 
 def add_to_queue(item):
-    items = read_queue()
-    if item["kind"] in ("pipeline", "job"):
-        for existing in items:
-            if existing["kind"] in ("pipeline", "job") and existing.get("url") == item["url"]:
-                return existing
-    items.append(item)
-    write_queue(items)
-    return item
+    with locked():
+        items = read_queue()
+        if item["kind"] in ("pipeline", "job"):
+            for existing in items:
+                if existing["kind"] in ("pipeline", "job") and existing.get("url") == item["url"]:
+                    return existing
+        items.append(item)
+        write_queue(items)
+        return item
 
 
 def remove_from_queue(item_id):
-    items = [i for i in read_queue() if i["id"] != item_id]
-    write_queue(items)
+    with locked():
+        items = [i for i in read_queue() if i["id"] != item_id]
+        write_queue(items)
     pid_file = os.path.join(PID_DIR, item_id + ".pid")
     if os.path.isfile(pid_file):
         try:
@@ -243,6 +276,24 @@ def notify_finished(item, status):
         return
 
 
+def append_history(item, status):
+    entry = dict(item)
+    entry["status"] = status
+    entry["finished_at"] = time.time()
+    with locked():
+        history = read_history()
+        history.append(entry)
+        if len(history) > HISTORY_LIMIT:
+            history = history[-HISTORY_LIMIT:]
+        write_history(history)
+
+
+def finish_item(item, status):
+    notify_finished(item, status)
+    append_history(item, status)
+    remove_from_queue(item["id"])
+
+
 def watch_pipeline(item):
     parsed = parse_url(item["url"])
     if not parsed:
@@ -267,16 +318,14 @@ def watch_pipeline(item):
             failures = 0
         time.sleep(POLL_INTERVAL_SECONDS)
 
-    notify_finished(item, status)
-    remove_from_queue(item["id"])
+    finish_item(item, status)
 
 
 def watch_countdown(item):
     remaining = item["target_epoch"] - time.time()
     if remaining > 0:
         time.sleep(remaining)
-    notify_finished(item, "done")
-    remove_from_queue(item["id"])
+    finish_item(item, "done")
 
 
 def watch_process(item):
@@ -290,8 +339,7 @@ def watch_process(item):
         returncode = proc.wait()
         status = "success" if returncode == 0 else "failed"
 
-    notify_finished(item, status)
-    remove_from_queue(item["id"])
+    finish_item(item, status)
 
 
 WATCHERS = {
@@ -362,11 +410,8 @@ def cmd_notify(label, body):
         "id": new_id(), "kind": "agent", "label": label,
         "created_at": time.time(), "body": body or "",
     }
-    items = read_queue()
-    items.append(item)
-    write_queue(items)
     notify_finished(item, "done")
-    remove_from_queue(item["id"])
+    append_history(item, "done")
 
 
 def cmd_remove(item_id):
@@ -376,6 +421,21 @@ def cmd_remove(item_id):
 def cmd_list():
     for item in read_queue():
         print("\t".join([item["id"], item["kind"], item.get("label", ""), item.get("url") or "-"]))
+
+
+def cmd_list_finished():
+    now = time.time()
+    for item in reversed(read_history()):
+        ago = format_remaining(now - item.get("finished_at", now)) + " ago"
+        print("\t".join([
+            item["id"], item["kind"], item.get("label", ""),
+            item.get("url") or "-", item.get("status", ""), ago,
+        ]))
+
+
+def cmd_clear_finished():
+    with locked():
+        write_history([])
 
 
 def cmd_ensure_watchers():
@@ -443,6 +503,12 @@ def main():
         return
     elif cmd == "list" and not rest:
         cmd_list()
+        return
+    elif cmd == "list" and rest == ["--finished"]:
+        cmd_list_finished()
+        return
+    elif cmd == "clear-finished" and not rest:
+        cmd_clear_finished()
         return
     elif cmd == "ensure-watchers" and not rest:
         cmd_ensure_watchers()
