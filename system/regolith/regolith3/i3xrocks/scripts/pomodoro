@@ -362,12 +362,17 @@ case "$CURRENT_STATE" in
         fi
         ;;
     awaiting_return)
-        # Counts up from the moment the break timer hit zero until the user
-        # picks a button on the popup, so a forgotten popup is obvious.
-        OVERTIME=$(( -REMAINING ))
-        MIN=$((OVERTIME / 60)); SEC=$((OVERTIME % 60))
-        printf "☕ Return! +%02d:%02d\n" "$MIN" "$SEC"
-        printf "☕ Return! +%02d:%02d\n" "$MIN" "$SEC"
+        # Blink between two labels each second so it's noticeable while
+        # waiting for the popup to be acknowledged. Break overtime isn't
+        # counted (unlike work overtime) since going over on a break isn't
+        # something to track.
+        if (( $(date +%s) % 2 == 0 )); then
+            echo "☕ Return!"
+            echo "☕ Return!"
+        else
+            echo "☕ ...."
+            echo "☕ ...."
+        fi
         echo "#F79494"
         ;;
 esac
