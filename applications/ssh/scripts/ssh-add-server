@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+shopt -s nullglob
 
 CONFIG_D="$HOME/.ssh/config.d"
 CONFIG_FILE="$HOME/.ssh/config"
@@ -8,8 +9,12 @@ usage() {
     cat <<EOF
 Usage: ssh-add-server --alias ALIAS --hostname HOST [OPTIONS]
        ssh-add-server --alias ALIAS --update [--hostname HOST] [OPTIONS]
+       ssh-add-server --alias ALIAS --rename NEW_ALIAS
 
-Add or update a host entry in ~/.ssh/config.d/<alias> (or ~/.ssh/config if no config.d/).
+Add or update a host entry. New entries go in ~/.ssh/config.d/<alias>
+(or ~/.ssh/config if no config.d/). Updates and renames edit the entry
+in place, wherever it currently lives (including hand-maintained files
+that group multiple hosts together).
 
 Options:
   --alias ALIAS       Host alias (required)
@@ -17,6 +22,7 @@ Options:
   --user USER         SSH user
   --identity FILE     Identity file path
   --update            Update existing entry, preserving fields not specified
+  --rename NEW_ALIAS   Rename an existing alias in place
   -h, --help          Show this help
 
 Examples:
@@ -24,6 +30,7 @@ Examples:
   ssh-add-server --alias myserver --hostname 192.168.1.100 --user ubuntu
   ssh-add-server --alias myserver --update --hostname 10.0.0.5
   ssh-add-server --alias myserver --update --user ubuntu
+  ssh-add-server --alias myserver --rename myserver2
 EOF
 }
 
@@ -38,7 +45,8 @@ _ssh-add-server() {
         '--hostname[hostname or IP]:hostname:_hosts' \
         '--user[SSH user]:user:_users' \
         '--identity[identity file]:file:_files' \
-        '--update[overwrite existing entry]'
+        '--update[overwrite existing entry]' \
+        '--rename[rename an existing alias]:new alias:'
 }
 
 _ssh-add-server "$@"
@@ -59,11 +67,73 @@ cmd_completion() {
     fi
 }
 
+# Print the path of whichever file (config or a file under config.d/)
+# contains "Host <alias>" (possibly alongside other names/hosts on the
+# same Host line). Returns 1 if not found anywhere.
+find_alias_file() {
+    local alias="$1"
+    local f
+    for f in "$CONFIG_FILE" "$CONFIG_D"/*; do
+        [[ -f "$f" ]] || continue
+        grep -q "^Host[[:space:]].*\b${alias}\b" "$f" 2>/dev/null && { echo "$f"; return 0; }
+    done
+    return 1
+}
+
+# Replace the "Host <alias>" block in $file with $block, in place.
+replace_block_in_file() {
+    local file="$1" alias="$2" block="$3"
+    python3 - "$file" "$alias" "$block" <<'PYEOF'
+import sys, re
+
+path, alias, new_block = sys.argv[1], sys.argv[2], sys.argv[3]
+
+with open(path) as f:
+    content = f.read()
+
+pattern = re.compile(
+    r'\n?^Host[ \t]+' + re.escape(alias) + r'(?:[ \t].*)?$\n(?:[ \t]+.*\n)*',
+    re.MULTILINE
+)
+content = pattern.sub('', content)
+
+with open(path, 'w') as f:
+    f.write(content.rstrip('\n') + '\n\n' + new_block + '\n')
+PYEOF
+}
+
+# Rename $old to $new on its "Host ..." line in $file, in place.
+# Leaves every other Host line byte-for-byte untouched, and preserves
+# any other names sharing the line (e.g. "Host old other-name").
+rename_in_file() {
+    local file="$1" old="$2" new="$3"
+    python3 - "$file" "$old" "$new" <<'PYEOF'
+import sys, re
+
+path, old, new = sys.argv[1], sys.argv[2], sys.argv[3]
+
+with open(path) as f:
+    content = f.read()
+
+pattern = re.compile(r'^Host[ \t]+.*$', re.MULTILINE)
+
+def repl(m):
+    tokens = m.group(0).split()
+    if old not in tokens[1:]:
+        return m.group(0)
+    return ' '.join(new if t == old else t for t in tokens)
+
+with open(path, 'w') as f:
+    f.write(pattern.sub(repl, content))
+PYEOF
+}
+
 ALIAS=""
 HOSTNAME_VAL=""
 USER_VAL=""
 IDENTITY=""
 UPDATE=0
+RENAME=""
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -73,6 +143,7 @@ while [[ $# -gt 0 ]]; do
         --user)     USER_VAL="$2"; shift 2 ;;
         --identity) IDENTITY="$2"; shift 2 ;;
         --update)   UPDATE=1; shift ;;
+        --rename)   RENAME="$2"; shift 2 ;;
         -h|--help)  usage; exit 0 ;;
         *) echo "Unknown option: $1" >&2; usage; exit 1 ;;
     esac
@@ -84,8 +155,35 @@ if [[ -z "$ALIAS" ]]; then
     exit 1
 fi
 
+ALIAS_FILE=""
 ALIAS_EXISTS=0
-grep -rq "^Host.*\b${ALIAS}\b" "$CONFIG_FILE" "$CONFIG_D"/ 2>/dev/null && ALIAS_EXISTS=1
+if ALIAS_FILE=$(find_alias_file "$ALIAS"); then
+    ALIAS_EXISTS=1
+fi
+
+if [[ -n "$RENAME" ]]; then
+    if [[ $ALIAS_EXISTS -eq 0 ]]; then
+        echo "Error: alias '${ALIAS}' not found in SSH config" >&2
+        exit 1
+    fi
+    if find_alias_file "$RENAME" >/dev/null; then
+        echo "Error: alias '${RENAME}' already exists in SSH config" >&2
+        exit 1
+    fi
+
+    rename_in_file "$ALIAS_FILE" "$ALIAS" "$RENAME"
+
+    NEW_FILE="$ALIAS_FILE"
+    # Only rename the file itself when it's dedicated to this alias
+    # (filename == old alias). Grouped files keep their name.
+    if [[ -d "$CONFIG_D" && "$ALIAS_FILE" == "$CONFIG_D"/* && "$(basename "$ALIAS_FILE")" == "$ALIAS" ]]; then
+        NEW_FILE="${CONFIG_D}/${RENAME}"
+        mv "$ALIAS_FILE" "$NEW_FILE"
+    fi
+
+    echo "Renamed host '${ALIAS}' -> '${RENAME}' in ${NEW_FILE}"
+    exit 0
+fi
 
 if [[ $ALIAS_EXISTS -eq 1 && $UPDATE -eq 0 ]]; then
     echo "Error: alias '${ALIAS}' already exists in SSH config (use --update to overwrite)" >&2
@@ -105,11 +203,7 @@ fi
 
 # When updating, read existing values for fields not provided
 if [[ $UPDATE -eq 1 ]]; then
-    if [[ -d "$CONFIG_D" ]]; then
-        EXISTING="${CONFIG_D}/${ALIAS}"
-    else
-        EXISTING="$CONFIG_FILE"
-    fi
+    EXISTING="$ALIAS_FILE"
     [[ -z "$HOSTNAME_VAL" ]] && HOSTNAME_VAL=$(awk "/^Host[[:space:]]+${ALIAS}/{f=1} f && /^[[:space:]]+HostName[[:space:]]/{print \$2; exit}" "$EXISTING")
     [[ -z "$USER_VAL" ]]     && USER_VAL=$(awk "/^Host[[:space:]]+${ALIAS}/{f=1} f && /^[[:space:]]+User[[:space:]]/{print \$2; exit}" "$EXISTING")
     [[ -z "$IDENTITY" ]]     && IDENTITY=$(awk "/^Host[[:space:]]+${ALIAS}/{f=1} f && /^[[:space:]]+IdentityFile[[:space:]]/{print \$2; exit}" "$EXISTING")
@@ -122,38 +216,14 @@ BLOCK="Host ${ALIAS}
 [[ -n "$IDENTITY" ]] && BLOCK+="
     IdentityFile ${IDENTITY}"
 
-if [[ -d "$CONFIG_D" ]]; then
+if [[ $ALIAS_EXISTS -eq 1 ]]; then
+    replace_block_in_file "$ALIAS_FILE" "$ALIAS" "$BLOCK"
+    echo "Updated host '${ALIAS}' -> ${HOSTNAME_VAL} in ${ALIAS_FILE}"
+elif [[ -d "$CONFIG_D" ]]; then
     TARGET="${CONFIG_D}/${ALIAS}"
     printf '%s\n' "$BLOCK" > "$TARGET"
-    if [[ $ALIAS_EXISTS -eq 1 ]]; then
-        echo "Updated host '${ALIAS}' -> ${HOSTNAME_VAL} in ${TARGET}"
-    else
-        echo "Added host '${ALIAS}' -> ${HOSTNAME_VAL} in ${TARGET}"
-    fi
+    echo "Added host '${ALIAS}' -> ${HOSTNAME_VAL} in ${TARGET}"
 else
-    if [[ $ALIAS_EXISTS -eq 1 ]]; then
-        # Remove the existing Host block before appending the new one
-        python3 - "$CONFIG_FILE" "$ALIAS" "$BLOCK" <<'PYEOF'
-import sys, re
-
-config_file, alias, new_block = sys.argv[1], sys.argv[2], sys.argv[3]
-
-with open(config_file) as f:
-    content = f.read()
-
-# Remove the existing Host block for this alias
-pattern = re.compile(
-    r'\n?^Host[ \t]+' + re.escape(alias) + r'(?:[ \t].*)?$\n(?:[ \t]+.*\n)*',
-    re.MULTILINE
-)
-content = pattern.sub('', content)
-
-with open(config_file, 'w') as f:
-    f.write(content.rstrip('\n') + '\n\n' + new_block + '\n')
-PYEOF
-        echo "Updated host '${ALIAS}' -> ${HOSTNAME_VAL} in ${CONFIG_FILE}"
-    else
-        printf '\n%s\n' "$BLOCK" >> "$CONFIG_FILE"
-        echo "Added host '${ALIAS}' -> ${HOSTNAME_VAL} in ${CONFIG_FILE}"
-    fi
+    printf '\n%s\n' "$BLOCK" >> "$CONFIG_FILE"
+    echo "Added host '${ALIAS}' -> ${HOSTNAME_VAL} in ${CONFIG_FILE}"
 fi
