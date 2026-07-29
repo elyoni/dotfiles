@@ -8,7 +8,14 @@ return {
     config = function()
         require 'nvim-treesitter.configs'.setup {
             ensure_installed = { "yaml", "rust", "c", "lua", "python", "bash", "go", "markdown", "markdown_inline" },
-            highlight = { enable = true },
+            -- Python's legacy indentexpr (used below since treesitter's own
+            -- python indent is disabled) relies on synID()/legacy syntax to
+            -- know which brackets are inside strings. Treesitter highlighting
+            -- normally suppresses legacy syntax entirely, which made brackets
+            -- inside string literals (e.g. "[") get miscounted as real
+            -- brackets and blow up the indent. Keep legacy regex syntax
+            -- running for python so that indent script works correctly.
+            highlight = { enable = true, additional_vim_regex_highlighting = { "python" } },
             autopairs = { enable = true },
             incremental_selection = {
                 enable = true,
