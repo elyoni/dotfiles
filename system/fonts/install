@@ -8,6 +8,18 @@ function _copy_fonts() # Link regolith folder to ~/.config/regolith3
     cp -v "${DIR}"/fonts/* "${HOME}"/.fonts/
 }
 
+function _install_maple_font()
+{
+    mkdir -p "${HOME}"/.fonts
+    local tmp_dir
+    tmp_dir=$(mktemp -d)
+    curl -sL -o "${tmp_dir}/MapleMono-NF.zip" \
+        https://github.com/subframe7536/maple-font/releases/latest/download/MapleMono-NF.zip
+    unzip -oq "${tmp_dir}/MapleMono-NF.zip" -d "${tmp_dir}"
+    cp -v "${tmp_dir}"/MapleMono-NF-*.ttf "${HOME}"/.fonts/
+    rm -rf "${tmp_dir}"
+}
+
 function verify() # Verify the installation
 {
     :
@@ -17,6 +29,8 @@ function verify() # Verify the installation
 function install()
 {
     _copy_fonts
+    _install_maple_font
+    fc-cache -f "${HOME}"/.fonts
 }
 
 function help # Show a list of functions
