@@ -695,4 +695,3 @@ exec --no-startup-id $wm.program.3
 
 # Start Workrave for timing my work time
 exec --no-startup-id workrave
-exec --no-startup-id uv run python /home/yonie@liveu.tv/projects/private/code_testing/javascript/task_viewer/i3status-taskwarrior.py
