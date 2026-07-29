@@ -588,7 +588,7 @@ set_from_resource $wm.bar.workspace.urgent.background.color wm.bar.workspace.urg
 set_from_resource $wm.bar.workspace.urgent.text.color wm.bar.workspace.urgent.text.color "#fdf6e3"
 
 # Sets i3 font for dialogs
-set_from_resource $wm.font wm.font pango:Source Code Pro Medium 13
+set_from_resource $wm.font wm.font pango:Maple Mono NF 12
 font $wm.font
 
 ###############################################################################
@@ -604,7 +604,7 @@ font $wm.font
 #set_from_resource $wm.bar.mode wm.bar.mode dock
 
 set_from_resource $wm.bar.position wm.bar.position bottom
-set_from_resource $wm.bar.font wm.bar.font monospace
+set_from_resource $wm.bar.font wm.bar.font Maple Mono NF 12
 set_from_resource $wm.bar.separatorchar wm.bar.separatorchar "|"
 set_from_resource $wm.bar.trayoutput wm.bar.trayoutput primary
 set_from_resource $wm.bar.stripworkspacenumbers wm.bar.stripworkspacenumbers no

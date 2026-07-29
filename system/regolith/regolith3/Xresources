@@ -11,3 +11,6 @@ wm.binding.launcher.app: d
 regolith.look.path: /usr/share/regolith-look/lascaille
 
 i3xrocks.media-player.player: spotify
+
+wm.font: pango:Maple Mono NF 12
+wm.bar.font: Maple Mono NF 12
