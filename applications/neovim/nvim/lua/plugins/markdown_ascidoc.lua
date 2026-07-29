@@ -67,66 +67,16 @@ return {
     },
     {
         "nvim-treesitter/nvim-treesitter",
-        dependencies = { "OXY2DEV/markview.nvim" },
         lazy = false,
 
         -- ... All other options.
     },
     {
-        "OXY2DEV/markview.nvim",
+        "noisesfromspace/touchup.nvim",
         ft = "markdown",
         dependencies = {
             "nvim-treesitter/nvim-treesitter",
-            "nvim-tree/nvim-web-devicons"
         },
-        config = function()
-            require("markview").setup({
-                preview = {
-                    -- Enable Hebrew/RTL text support
-                    modes = { "n", "no", "c" },
-                    hybrid_modes = {},
-
-                    -- Fix Hebrew font rendering
-                    callbacks = {
-                        on_enable = function()
-                            vim.wo.conceallevel = 2
-                            vim.wo.concealcursor = "nc"
-                        end
-                    },
-                },
-
-                markdown = {
-                    -- Improve Hebrew text handling
-                    block_quotes = {
-                        enable = true,
-                        default = {
-                            border = "▌",
-                            hl = "MarkviewBlockQuoteDefault"
-                        }
-                    },
-
-                    -- Better list rendering for RTL text
-                    list_items = {
-                        enable = true,
-                        shift_width = 0,
-                        indent_size = 2
-                    },
-
-                    -- Improved heading rendering
-                    headings = {
-                        enable = true,
-                        shift_width = 0
-                    },
-
-                    -- Fix inline code rendering with Hebrew text
-                    inline_codes = {
-                        enable = true,
-                        corner_right = " ",
-                        corner_left = " ",
-                        hl = "MarkviewInlineCode"
-                    },
-                },
-            })
-        end
+        opts = {},
     },
 }
