@@ -1,5 +1,5 @@
-# Helper function to extract host from SSH arguments
-function _extract_ssh_host() {
+# Helper function to extract the raw target (host, or user@host) from SSH arguments
+function _extract_ssh_target() {
     local args=("$@")
     local host_ip=""
     local i=1  # Start from 1 since 0 is function name or first arg
@@ -59,12 +59,41 @@ function _extract_ssh_host() {
         done
     fi
 
-    # Extract just the hostname/IP if it contains user@host format
-    if [[ "$host_ip" == *@* ]]; then
-        host_ip="${host_ip##*@}"
-    fi
-
     echo "$host_ip"
+}
+
+# Helper function to extract just the hostname/IP (strips user@ if present)
+function _extract_ssh_host() {
+    local target
+    target=$(_extract_ssh_target "$@")
+    echo "${target##*@}"
+}
+
+# Resolve a raw host token (alias, or the underlying IP/hostname) to the
+# alias currently configured for it. Matches against either the Host line
+# or the HostName line, across ~/.ssh/config and every file under
+# ~/.ssh/config.d/. Prints the alias and returns 0 if found.
+function _resolve_ssh_alias() {
+    local token="$1"
+    local f
+    for f in "$HOME/.ssh/config" "$HOME/.ssh/config.d"/*(N); do
+        [[ -f "$f" ]] || continue
+        local result
+        result=$(awk -v tok="$token" '
+            /^Host[ \t]+/ {
+                cur = $2
+                if (cur == tok) { print cur; exit }
+            }
+            /^[ \t]+HostName[ \t]+/ {
+                if ($2 == tok) { print cur; exit }
+            }
+        ' "$f")
+        if [[ -n "$result" ]]; then
+            echo "$result"
+            return 0
+        fi
+    done
+    return 1
 }
 
 # Build a new args array with StrictHostKeyChecking=accept-new injected after "ssh"
@@ -221,8 +250,7 @@ function _handle_ssh_smart() {
 
 function _ssh_host_in_config() {
     local host="$1"
-    grep -rq "^Host[[:space:]].*\b${host}\b" \
-        "$HOME/.ssh/config" "$HOME/.ssh/config.d"/ 2>/dev/null
+    _resolve_ssh_alias "$host" >/dev/null
 }
 
 # Try each password file in $HOME/projects/passwords via sshpass.
@@ -248,8 +276,26 @@ function sshs() {
     local args=("$@")
     local target host user add_alias add_args
 
+    # sshs <host> --move <new_alias>: rename an existing alias, don't connect
+    if [[ "${args[2]}" == "--move" ]]; then
+        local move_new_alias="${args[3]}"
+        if [[ -z "$move_new_alias" ]]; then
+            echo "Usage: sshs <host> --move <new_alias>" >&2
+            return 1
+        fi
+        host="${args[1]}"
+        [[ "$host" == *@* ]] && host="${host##*@}"
+        local current_alias
+        if ! current_alias=$(_resolve_ssh_alias "$host"); then
+            echo "Host '$host' not found in SSH config." >&2
+            return 1
+        fi
+        ssh-add-server --alias "$current_alias" --rename "$move_new_alias"
+        return $?
+    fi
+
     # Extract host (and optional user) from args
-    target=$(_extract_ssh_host "${args[@]}")
+    target=$(_extract_ssh_target "${args[@]}")
     host="$target"
     [[ "$target" == *@* ]] && host="${target##*@}" && user="${target%%@*}"
 
