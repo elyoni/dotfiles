@@ -253,6 +253,32 @@ function _ssh_host_in_config() {
     _resolve_ssh_alias "$host" >/dev/null
 }
 
+# Prompt the user to pick a key from ~/.ssh/*.pub. Prints the chosen
+# private key path (identity file) on stdout, or nothing if skipped/unavailable.
+function _pick_ssh_key() {
+    local pub_keys=("$HOME/.ssh"/*.pub(N))
+    [[ ${#pub_keys[@]} -eq 0 ]] && return 0
+
+    echo "Available SSH keys:" >&2
+    local i=1 k
+    for k in "${pub_keys[@]}"; do
+        echo "  $i) ${k%.pub}" >&2
+        ((i++))
+    done
+    echo "  0) none / use default" >&2
+
+    local choice
+    read "choice?Select a key [0]: "
+    [[ -z "$choice" ]] && choice=0
+    [[ "$choice" == "0" ]] && return 0
+
+    if [[ "$choice" =~ ^[0-9]+$ ]] && (( choice >= 1 && choice <= ${#pub_keys[@]} )); then
+        echo "${pub_keys[$choice]%.pub}"
+    else
+        echo "Invalid choice, using default." >&2
+    fi
+}
+
 # Try each password file in $HOME/projects/passwords via sshpass.
 # Prints matching file path on stdout and returns 0 on success; returns 1 if none matched.
 function _try_ssh_with_password_files() {
@@ -310,6 +336,9 @@ function sshs() {
             [[ -z "$add_alias" ]] && add_alias="$host"
             add_args=(--alias "$add_alias" --hostname "$host")
             [[ -n "$user" ]] && add_args+=(--user "$user")
+            local chosen_key
+            chosen_key=$(_pick_ssh_key)
+            [[ -n "$chosen_key" ]] && add_args+=(--identity "$chosen_key")
             ssh-add-server "${add_args[@]}"
         fi
     fi
