@@ -4,10 +4,12 @@
 # dependencies = ["icalendar>=6.0", "recurring-ical-events>=3.0"]
 # ///
 """i3xrocks blocklet: shows the current/next meeting from a published Outlook ICS feed.
-Left click: notify-send with the rest of today's meetings.
+Left click: pick from the rest of today's meetings (rofi if available, else
+notify-send) to see its description.
 Config: OUTLOOK_CALENDAR_ICS_URL env var, or ICS_URL= line in ~/.config/calendar.env
 """
 import os
+import shutil
 import subprocess
 import sys
 import urllib.request
@@ -90,7 +92,8 @@ def get_today_events(ics_bytes):
             continue
         end_prop = e.get("DTEND")
         end = end_prop.dt if end_prop else start
-        result.append((start, end, str(e.get("SUMMARY", "(no title)"))))
+        description = str(e.get("DESCRIPTION", "")).strip()
+        result.append((start, end, str(e.get("SUMMARY", "(no title)")), description))
 
     result.sort(key=lambda x: x[0])
     return now, result
@@ -99,17 +102,30 @@ def get_today_events(ics_bytes):
 def notify_agenda(now, events):
     remaining = [ev for ev in events if ev[1] > now]
     if not remaining:
-        body = "No more meetings today."
+        lines = ["No more meetings today."]
     else:
         lines = []
-        for start, end, summary in remaining:
+        for start, end, summary, description in remaining:
             marker = "▶" if start <= now < end else " "
             lines.append(f"{marker} {start.strftime('%H:%M')} {summary}")
-        body = "\n".join(lines)
-    subprocess.run(
-        ["notify-send", "-t", "8000", "Today's meetings", body],
-        check=False,
-    )
+
+    if shutil.which("rofi"):
+        choice = subprocess.run(
+            ["rofi", "-dmenu", "-p", "Today's meetings"],
+            input="\n".join(lines),
+            text=True,
+            capture_output=True,
+            check=False,
+        ).stdout.strip()
+        if choice in lines:
+            _, _, summary, description = remaining[lines.index(choice)]
+            body = description or "(no description)"
+            subprocess.run(["rofi", "-e", f"{summary}\n\n{body}"], check=False)
+    else:
+        subprocess.run(
+            ["notify-send", "-t", "8000", "Today's meetings", "\n".join(lines)],
+            check=False,
+        )
 
 
 def main():
@@ -133,13 +149,13 @@ def main():
     upcoming = next((ev for ev in events if ev[0] > now), None)
 
     if current:
-        start, end, summary = current
+        start, end, summary, _description = current
         remaining_min = int((end - now).total_seconds() // 60)
         full = f"🔴 {truncate(summary)} ({format_delta(remaining_min)} left)"
         short = f"🔴 {format_delta(remaining_min)}"
         color = "#ff5555"
     elif upcoming:
-        start, end, summary = upcoming
+        start, end, summary, _description = upcoming
         in_min = int((start - now).total_seconds() // 60)
         full = f"📅 {truncate(summary)} in {format_delta(in_min)}"
         short = f"📅 {format_delta(in_min)}"
