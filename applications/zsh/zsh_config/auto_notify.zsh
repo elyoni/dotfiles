@@ -89,7 +89,10 @@ precmd() {
                 fi
 
                 # Send notification
-                if [[ -n "$SSH_CONNECTION" ]]; then
+                if [[ -n "$KITTY_WINDOW_ID" ]]; then
+                    # kitty: native notify_on_cmd_finish (kitty.conf) already handles this
+                    :
+                elif [[ -n "$SSH_CONNECTION" ]]; then
                     # SSH session: use OSC 9 escape sequence to notify the local terminal
                     printf '\e]9;%s %s (%s)\e\\' "${icon}" "${cmd_display}" "${duration_display}"
                 elif command -v notify-send &>/dev/null; then
