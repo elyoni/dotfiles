@@ -73,9 +73,13 @@ function application_install()
 
     # Volume Controller
     echo ====== Install pnmixer =======
-    #sudo apt-get install pnmixer -y 
-    sudo apt-get install pasystray -y 
-    sudo pip3 install pulsemixer 
+    #sudo apt-get install pnmixer -y
+    sudo apt-get install pasystray -y
+    sudo pip3 install pulsemixer
+
+    # Brightness control (sets udev perms so brightness keys work without sudo)
+    echo ====== Install brightnessctl =======
+    sudo apt-get install brightnessctl -y
 
     gsettings set org.gnome.desktop.background show-desktop-icons false
 }
