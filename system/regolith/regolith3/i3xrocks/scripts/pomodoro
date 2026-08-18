@@ -27,7 +27,13 @@ STATE_FILE="/tmp/pomodoro_state"           # work | awaiting_break | break | awa
 TARGET_FILE="/tmp/pomodoro_target_time"    # epoch seconds when current phase ends
 WORK_MIN_FILE="/tmp/pomodoro_work_minutes"
 BREAK_MIN_FILE="/tmp/pomodoro_break_minutes"
+TASK_FILE="/tmp/pomodoro_task"             # current work session's task label
+SESSION_START_FILE="/tmp/pomodoro_session_start"  # epoch seconds when this work session began
 NTFY_TOPIC_FILE="$HOME/.config/ntfy-topic"
+
+VAULT_ROOT="/home/yonie@liveu.tv/private/obsidian/work"
+DAILY_NOTES_DIR="$VAULT_ROOT/00-Inbox/daily-notes"
+DAILY_NOTE_TEMPLATE="$VAULT_ROOT/04-Meta/templates/daily-note.md"
 
 DEFAULT_WORK_MIN=25
 DEFAULT_BREAK_MIN=5
@@ -38,8 +44,73 @@ BUTTON=${button:-${BLOCK_BUTTON:-}}
 
 state() { cat "$STATE_FILE" 2>/dev/null; }
 
+# Multi-line replacement for `zenity --entry`: opens an editable text box
+# prefilled with $2 (works for multi-line prefill too, unlike --entry-text)
+# and labelled by $3. Prints the edited text on stdout; empty if cancelled.
+ask_multiline() {
+    local title="$1" prefill="$2" prompt="$3"
+    printf '%s' "$prefill" | zenity --text-info --editable \
+        --title="$title" --text="$prompt" --width=480 --height=280 2>/dev/null
+}
+
 stop_cycle() {
-    rm -f "$STATE_FILE" "$TARGET_FILE" "$WORK_MIN_FILE" "$BREAK_MIN_FILE"
+    rm -f "$STATE_FILE" "$TARGET_FILE" "$WORK_MIN_FILE" "$BREAK_MIN_FILE" "$TASK_FILE" "$SESSION_START_FILE"
+}
+
+# Returns today's daily note path on stdout, creating it from the vault's
+# daily-note template (same one nvim's obsidian_workflow.lua ensure_daily_note
+# uses) if it doesn't exist yet. Fails only if the template itself is missing.
+ensure_daily_note() {
+    local date="$1"
+    local daily_note="$DAILY_NOTES_DIR/${date}.md"
+
+    if [ -f "$daily_note" ]; then
+        echo "$daily_note"
+        return 0
+    fi
+
+    [ -f "$DAILY_NOTE_TEMPLATE" ] || return 1
+
+    mkdir -p "$DAILY_NOTES_DIR"
+    sed -e "s/{{date:[^}]*}}/${date}/g" -e "s/{{date}}/${date}/g" \
+        "$DAILY_NOTE_TEMPLATE" > "$daily_note"
+    echo "$daily_note"
+}
+
+# Appends one completed work-session entry to today's daily note under a
+# "## Pomodoro" heading, creating the note from the template (and the
+# heading, if it's not there yet) as needed. Skipped entirely by the caller
+# when both planned and actual are unknown (start and end prompt both
+# dismissed) - a fully unlabeled session isn't worth logging.
+#
+# Shows planned vs. actual as two blocks (each may be multi-line) whenever
+# they differ, so drift between what you meant to do and what you did is
+# visible at a glance; collapses to one block when they match or actual
+# was left blank.
+log_session() {
+    local planned="$1" actual="$2" start_epoch="$3" end_epoch="$4"
+    local daily_note
+    daily_note=$(ensure_daily_note "$(date +%Y-%m-%d)") || return 0
+
+    local heading body entry
+    heading="### $(date -d "@$start_epoch" +%H:%M)–$(date -d "@$end_epoch" +%H:%M)"
+
+    if [ -z "$actual" ] || [ "$planned" = "$actual" ]; then
+        body="${actual:-$planned}"
+    else
+        body=$(printf '**Planned**\n%s\n\n**Actual**\n%s' "${planned:-_(none)_}" "$actual")
+    fi
+
+    entry=$(printf '%s\n\n%s' "$heading" "$body")
+
+    if grep -qxF "## Pomodoro" "$daily_note"; then
+        awk -v entry="$entry" '
+            { print }
+            !done && $0 == "## Pomodoro" { print ""; print entry; print ""; done=1 }
+        ' "$daily_note" > "$daily_note.tmp" && mv "$daily_note.tmp" "$daily_note"
+    else
+        printf '\n## Pomodoro\n\n%s\n\n' "$entry" >> "$daily_note"
+    fi
 }
 
 # Right-click-while-running handler: guards against an accidental click
@@ -49,6 +120,10 @@ confirm_stop_cycle() {
         --text="Stop the current pomodoro cycle?" \
         --ok-label="Stop" --cancel-label="Keep going" 2>/dev/null
     if [ $? -eq 0 ]; then
+        # Only a stop mid-work is a session to log - during break/awaiting_return
+        # there's no in-progress work session, and the last one already logged
+        # when it completed.
+        [ "$(state)" = "work" ] && log_completed_session
         stop_cycle
         notify-send "Pomodoro" "Timer stopped"
     fi
@@ -115,8 +190,11 @@ verify_notifications() {
     done
 }
 
-# Skips the rest of the work countdown and goes straight to break.
+# Skips the rest of the work countdown and goes straight to break. Logs the
+# just-ended work session first, same as any other path into a break.
 skip_to_break() {
+    log_completed_session
+
     break_min=$(cat "$BREAK_MIN_FILE" 2>/dev/null)
     break_min=${break_min:-$DEFAULT_BREAK_MIN}
 
@@ -142,12 +220,12 @@ ask_skip_or_stop() {
 
     case "$output" in
         "Go to Break") skip_to_break ;;
-        "Stop Timer") stop_cycle ;;
+        "Stop Timer") log_completed_session; stop_cycle ;;
     esac
 }
 
 start_cycle() {
-    local work_min break_min target
+    local work_min break_min task target
 
     work_min=$(zenity --entry --title "Start Pomodoro" --text "Work minutes:" --entry-text "$DEFAULT_WORK_MIN" 2>/dev/null) || return 1
     if ! [[ "$work_min" =~ ^[0-9]+$ ]] || [ "$work_min" -eq 0 ]; then
@@ -161,9 +239,15 @@ start_cycle() {
         return 1
     fi
 
+    # No answer here just means the task label starts empty - the end-of-session
+    # prompt still fires, and only a fully unlabeled session is left unlogged.
+    task=$(ask_multiline "Start Pomodoro" "" "What are you working on? (multiple lines OK)")
+
     echo "$work_min" > "$WORK_MIN_FILE"
     echo "$break_min" > "$BREAK_MIN_FILE"
+    echo "$task" > "$TASK_FILE"
 
+    date +%s > "$SESSION_START_FILE"
     target=$(( $(date +%s) + work_min * 60 ))
     echo "$target" > "$TARGET_FILE"
     echo "work" > "$STATE_FILE"
@@ -217,6 +301,7 @@ spawn_break_dialog() {
 
             if [ "$output" = "Big Break" ]; then
                 big_min=$(prompt_big_break_minutes) || continue
+                log_completed_session
                 echo $(( $(date +%s) + big_min * 60 )) > "$TARGET_FILE"
                 echo "break" > "$STATE_FILE"
                 notify-send "Pomodoro" "Big break started (${big_min}m)"
@@ -230,6 +315,8 @@ spawn_break_dialog() {
             sleep 2
         done
 
+        log_completed_session
+
         break_min=$(cat "$BREAK_MIN_FILE" 2>/dev/null)
         break_min=${break_min:-$DEFAULT_BREAK_MIN}
 
@@ -238,6 +325,30 @@ spawn_break_dialog() {
         notify-send "Pomodoro" "Break started"
     ) &
     disown
+}
+
+# Asks what was actually worked on (prefilled with the start-of-session
+# answer, so drift is easy to correct) and logs the session. If either the
+# start or the end prompt was left unanswered, the session is unlabeled and
+# is not logged at all - only fully-labeled sessions count as working time.
+log_completed_session() {
+    local start_epoch started_task end_task
+
+    start_epoch=$(cat "$SESSION_START_FILE" 2>/dev/null)
+    started_task=$(cat "$TASK_FILE" 2>/dev/null)
+
+    if [ -z "$start_epoch" ]; then
+        return 0
+    fi
+
+    end_task=$(ask_multiline "Work Session Done" "$started_task" \
+        "What did you actually work on? (multiple lines OK)")
+
+    if [ -z "$started_task" ] && [ -z "$end_task" ]; then
+        return 0
+    fi
+
+    log_session "$started_task" "$end_task" "$start_epoch" "$(date +%s)"
 }
 
 # Spawns the blocking "come back" popup. Only called once, from the
@@ -258,6 +369,11 @@ spawn_return_dialog() {
         work_min=$(cat "$WORK_MIN_FILE" 2>/dev/null)
         work_min=${work_min:-$DEFAULT_WORK_MIN}
 
+        task=$(ask_multiline "Back to Work" "$(cat "$TASK_FILE" 2>/dev/null)" \
+            "What are you working on? (multiple lines OK)")
+        echo "$task" > "$TASK_FILE"
+
+        date +%s > "$SESSION_START_FILE"
         echo $(( $(date +%s) + work_min * 60 )) > "$TARGET_FILE"
         echo "work" > "$STATE_FILE"
         notify-send "Pomodoro" "Back to work"
