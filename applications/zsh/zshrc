@@ -40,7 +40,7 @@ export ZSH_USER_SETTINGS_FILE="${HOME}/.zshrc_user"
 
 
 WIMP_EXCLUDE_PATH=('**/yocto-setup/**/*' '**/buildroot/dl/' '**private/rust_book/' '**/buildroot/support')
-WIMP_PROJECTS_PATH=( "${HOME}"/private/ "${HOME}"/projects)
+WIMP_PROJECTS_PATH=( "${HOME}"/private/ "${HOME}"/projects "${HOME}"/my_projects )
 
 export ZSH_CONFIGS="${HOME}/.config/zsh"
 export ZSH_CUSTOM_PLUGIN="${ZSH_CONFIGS}/plugins"
