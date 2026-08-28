@@ -25,3 +25,6 @@ alias appimage-add="${HOME}/.dotfiles/scripts/appimage-desktop-entry.sh"
 # Toggle screen gamma (xrandr --brightness) dim/reset
 alias gamma-dim='xrandr --output "$(xrandr | grep " connected" | head -1 | cut -d" " -f1)" --brightness 0.4'
 alias gamma-reset='xrandr --output "$(xrandr | grep " connected" | head -1 | cut -d" " -f1)" --brightness 1.0'
+#
+# Toggle whether closing the lid suspends the machine
+alias lid-stay-awake="${HOME}/.dotfiles/scripts/lid-stay-awake.sh"
