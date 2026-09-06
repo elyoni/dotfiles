@@ -76,6 +76,9 @@ return {
             { "<leader>oja", "<cmd>ObsidianToggleJiraTicketScope<CR>", desc = "Toggle active/archived Jira tickets" },
             { "<leader>ot", "<cmd>ObsidianTags<CR>",       desc = "Open obsidian tags" },
             { "<leader>oi", "<cmd>ObsidianTemplate<CR>",   desc = "Insert template" },
+            { "<leader>ol", "<cmd>ObsidianBacklinks<CR>",  desc = "Show backlinks" },
+            { "<leader>or", "<cmd>ObsidianRename<CR>",     desc = "Rename note (updates links)" },
+            { "<leader>ok", "<cmd>ObsidianLink<CR>",       mode = "v",   desc = "Link selection to note" },
             { "<leader>oc", "<cmd>lua require('obsidian_todo').toggle_checkbox()<CR>", desc = "Toggle checkbox" },
             { "<leader>ou", "<cmd>lua require('obsidian_todo').new_todo_above()<CR>", desc = "New todo above" },
             { "<leader>ob", "<cmd>lua require('obsidian_todo').new_todo_below()<CR>", desc = "New todo below" },
@@ -94,6 +97,9 @@ return {
                         strict = true,
                     },
                 },
+            picker = {
+                name = "telescope.nvim",
+            },
             daily_notes = {
                 folder = "00-Inbox/daily-notes",
                 date_format = "%Y-%m-%d",
