@@ -5,13 +5,16 @@
 #                                  --user clicks "Start Break"--> break (countdown)
 #                                  --user clicks "Postpone 5 min"--> work (countdown, +5 min)
 #                                  --user clicks "Big Break"--> prompts for minutes, then break (countdown)
+#                                  --user goes idle >= AWAY_THRESHOLD_MIN--> break (countdown, backdated
+#                                    to when idleness began - see docs/adr/0002-pomodoro-idle-triggered-break.md)
 #   break (countdown) --timeout--> blocking popup + phone/Garmin ping
 #                                   --user clicks "I'm back"--> work (countdown)
 #
 # Left click:  idle -> prompt for work/break minutes and start.
-#              work -> ask whether to skip to break or stop the timer.
-#              other running states -> show a quick status notification
-#                                       (no interruption).
+#              work -> ask whether to skip to break, change duration, or stop.
+#              break -> ask whether to change duration or stop.
+#              awaiting_break/awaiting_return -> show a quick status
+#                                       notification (no interruption).
 # Right click: idle -> verify the ntfy notification setup (send a test
 #                        message and confirm it arrived).
 #              running -> ask for confirmation, then stop the whole cycle
@@ -22,6 +25,14 @@
 #   2. Pick a private/random topic name and subscribe to it in the app.
 #   3. echo "your-topic-name" > ~/.config/ntfy-topic
 #   4. In Garmin Connect Mobile, enable notification mirroring for the ntfy app.
+#
+# Every backgrounded popup/dialog is spawned with its stdin/stdout/stderr
+# redirected away from this script's own (</dev/null >/dev/null 2>&1 &).
+# i3xrocks reads a block's output by waiting for its stdout pipe to reach
+# EOF; without the redirect, a detached zenity dialog keeps that pipe open
+# for as long as it's on screen, freezing this blocklet's redraws until the
+# dialog is dismissed. Every new backgrounded spawn must follow the same
+# pattern.
 
 STATE_FILE="/tmp/pomodoro_state"           # work | awaiting_break | break | awaiting_return
 TARGET_FILE="/tmp/pomodoro_target_time"    # epoch seconds when current phase ends
@@ -29,6 +40,7 @@ WORK_MIN_FILE="/tmp/pomodoro_work_minutes"
 BREAK_MIN_FILE="/tmp/pomodoro_break_minutes"
 TASK_FILE="/tmp/pomodoro_task"             # current work session's task label
 SESSION_START_FILE="/tmp/pomodoro_session_start"  # epoch seconds when this work session began
+BREAK_START_FILE="/tmp/pomodoro_break_start"      # epoch seconds when the current break began
 NTFY_TOPIC_FILE="$HOME/.config/ntfy-topic"
 
 VAULT_ROOT="/home/yonie@liveu.tv/private/obsidian/work"
@@ -39,6 +51,7 @@ DEFAULT_WORK_MIN=25
 DEFAULT_BREAK_MIN=5
 DEFAULT_BIG_BREAK_MIN=15
 POSTPONE_MIN=5
+AWAY_THRESHOLD_MIN=5   # idle minutes (via xprintidle) during awaiting_break before it counts as your break
 
 BUTTON=${button:-${BLOCK_BUTTON:-}}
 
@@ -54,7 +67,7 @@ ask_multiline() {
 }
 
 stop_cycle() {
-    rm -f "$STATE_FILE" "$TARGET_FILE" "$WORK_MIN_FILE" "$BREAK_MIN_FILE" "$TASK_FILE" "$SESSION_START_FILE"
+    rm -f "$STATE_FILE" "$TARGET_FILE" "$WORK_MIN_FILE" "$BREAK_MIN_FILE" "$TASK_FILE" "$SESSION_START_FILE" "$BREAK_START_FILE"
 }
 
 # Returns today's daily note path on stdout, creating it from the vault's
@@ -198,29 +211,79 @@ skip_to_break() {
     break_min=$(cat "$BREAK_MIN_FILE" 2>/dev/null)
     break_min=${break_min:-$DEFAULT_BREAK_MIN}
 
-    echo $(( $(date +%s) + break_min * 60 )) > "$TARGET_FILE"
+    now=$(date +%s)
+    echo "$now" > "$BREAK_START_FILE"
+    echo $(( now + break_min * 60 )) > "$TARGET_FILE"
     echo "break" > "$STATE_FILE"
     notify-send "Pomodoro" "Skipped to break"
 }
 
+# Prompts for this phase's new TOTAL length in minutes (not minutes
+# remaining) and, if valid, retargets the running countdown to
+# phase_start + new_total - preserving elapsed time instead of restarting
+# the phase. Also updates the matching WORK_MIN_FILE/BREAK_MIN_FILE so the
+# new length becomes the default for future phases too.
+# See CONTEXT.md "Retarget".
+retarget_phase() {
+    local phase="$1"  # work | break
+    local min_file phase_start_file default_min current_min minutes phase_start
+
+    if [ "$phase" = "work" ]; then
+        min_file="$WORK_MIN_FILE"; phase_start_file="$SESSION_START_FILE"; default_min=$DEFAULT_WORK_MIN
+    else
+        min_file="$BREAK_MIN_FILE"; phase_start_file="$BREAK_START_FILE"; default_min=$DEFAULT_BREAK_MIN
+    fi
+
+    current_min=$(cat "$min_file" 2>/dev/null)
+    current_min=${current_min:-$default_min}
+
+    minutes=$(zenity --entry --title "Change Duration" \
+        --text "New total ${phase} length (minutes):" --entry-text "$current_min" 2>/dev/null) || return 1
+    if ! [[ "$minutes" =~ ^[0-9]+$ ]] || [ "$minutes" -eq 0 ]; then
+        zenity --error --text "Enter a whole number of minutes greater than 0." 2>/dev/null
+        return 1
+    fi
+
+    phase_start=$(cat "$phase_start_file" 2>/dev/null)
+    [ -n "$phase_start" ] || phase_start=$(date +%s)
+
+    echo "$minutes" > "$min_file"
+    echo $(( phase_start + minutes * 60 )) > "$TARGET_FILE"
+    notify-send "Pomodoro" "${phase^} length set to ${minutes}m"
+}
+
 # Left-click-while-working handler: only called for "work" (not
 # "awaiting_break") so it can't race with a spawn_break_dialog popup that's
-# already open. Asks whether to skip to break or stop the whole cycle;
-# dismissing the dialog does nothing.
+# already open. Dismissing the dialog does nothing.
 #
-# Both choices are --extra-button's rather than the default OK/Cancel: the
-# exit code zenity returns for the --ok-label button isn't reliable across
+# Choices are --extra-button's rather than the default OK/Cancel: the exit
+# code zenity returns for the --ok-label button isn't reliable across
 # versions when mixed with --extra-button, but the printed button text is
 # always accurate, so matching on stdout instead of $? is what's robust here.
 ask_skip_or_stop() {
     output=$(zenity --question --title "Pomodoro" \
-        --text="Skip to break, or stop the timer?" \
+        --text="Skip to break, change duration, or stop the timer?" \
         --ok-label="Cancel" \
-        --extra-button="Go to Break" --extra-button="Stop Timer" 2>/dev/null)
+        --extra-button="Go to Break" --extra-button="Change Duration" --extra-button="Stop Timer" 2>/dev/null)
 
     case "$output" in
         "Go to Break") skip_to_break ;;
+        "Change Duration") retarget_phase work ;;
         "Stop Timer") log_completed_session; stop_cycle ;;
+    esac
+}
+
+# Left-click-while-on-break handler: mirrors ask_skip_or_stop for the break
+# phase. No "skip to work" option by design - kept to what was asked for.
+ask_change_break_or_stop() {
+    output=$(zenity --question --title "Pomodoro" \
+        --text="Change duration, or stop the timer?" \
+        --ok-label="Cancel" \
+        --extra-button="Change Duration" --extra-button="Stop Timer" 2>/dev/null)
+
+    case "$output" in
+        "Change Duration") retarget_phase break ;;
+        "Stop Timer") stop_cycle; notify-send "Pomodoro" "Timer stopped" ;;
     esac
 }
 
@@ -283,9 +346,16 @@ prompt_big_break_minutes() {
 # The "Postpone"/"Big Break" extra buttons make zenity exit non-zero but
 # print the button's label on stdout, which is how we tell them apart from
 # an X/Esc dismissal (also non-zero, but with empty output).
+#
+# Re-checks state at the top of every iteration so it can bail out quietly
+# if watch_away already handled the transition to break out from under it
+# (killing the zenity dialog mid-wait, see watch_away below) - it must not
+# re-log or re-transition on top of what watch_away already did.
 spawn_break_dialog() {
     (
         while true; do
+            [ "$(state)" = "awaiting_break" ] || exit 0
+
             output=$(zenity --info --title "Work Session Done" \
                 --text="<span font='20' weight='bold'>Work session done, time for a break! Click \"Start Break\" when you're ready, postpone if you're mid-task, or take a big break.</span>" \
                 --width=400 --ok-label="Start Break" \
@@ -302,7 +372,9 @@ spawn_break_dialog() {
             if [ "$output" = "Big Break" ]; then
                 big_min=$(prompt_big_break_minutes) || continue
                 log_completed_session
-                echo $(( $(date +%s) + big_min * 60 )) > "$TARGET_FILE"
+                now=$(date +%s)
+                echo "$now" > "$BREAK_START_FILE"
+                echo $(( now + big_min * 60 )) > "$TARGET_FILE"
                 echo "break" > "$STATE_FILE"
                 notify-send "Pomodoro" "Big break started (${big_min}m)"
                 exit 0
@@ -320,10 +392,47 @@ spawn_break_dialog() {
         break_min=$(cat "$BREAK_MIN_FILE" 2>/dev/null)
         break_min=${break_min:-$DEFAULT_BREAK_MIN}
 
-        echo $(( $(date +%s) + break_min * 60 )) > "$TARGET_FILE"
+        now=$(date +%s)
+        echo "$now" > "$BREAK_START_FILE"
+        echo $(( now + break_min * 60 )) > "$TARGET_FILE"
         echo "break" > "$STATE_FILE"
         notify-send "Pomodoro" "Break started"
-    ) &
+    ) </dev/null >/dev/null 2>&1 &
+    disown
+}
+
+# Polls xprintidle every 15s while state is awaiting_break. Once idle time
+# crosses AWAY_THRESHOLD_MIN, treats the idle time itself as the break -
+# backdating the break's start to when idleness began rather than to when
+# it's detected - and kills the pending "Start Break" popup so it doesn't
+# linger or double-transition. See docs/adr/0002-pomodoro-idle-triggered-break.md.
+# No-ops entirely if xprintidle isn't installed (`sudo apt install xprintidle`,
+# also wired into system/i3/install.sh).
+watch_away() {
+    command -v xprintidle >/dev/null 2>&1 || return 0
+    (
+        while true; do
+            sleep 15
+            [ "$(state)" = "awaiting_break" ] || exit 0
+
+            idle_ms=$(xprintidle 2>/dev/null) || exit 0
+            if [ "$idle_ms" -ge $(( AWAY_THRESHOLD_MIN * 60 * 1000 )) ]; then
+                pkill -f 'ok-label=Start Break' 2>/dev/null
+
+                log_completed_session
+
+                break_min=$(cat "$BREAK_MIN_FILE" 2>/dev/null)
+                break_min=${break_min:-$DEFAULT_BREAK_MIN}
+
+                idle_start=$(( $(date +%s) - idle_ms / 1000 ))
+                echo "$idle_start" > "$BREAK_START_FILE"
+                echo $(( idle_start + break_min * 60 )) > "$TARGET_FILE"
+                echo "break" > "$STATE_FILE"
+                notify-send "Pomodoro" "Looks like you stepped away - counting it as your break"
+                exit 0
+            fi
+        done
+    ) </dev/null >/dev/null 2>&1 &
     disown
 }
 
@@ -377,7 +486,7 @@ spawn_return_dialog() {
         echo $(( $(date +%s) + work_min * 60 )) > "$TARGET_FILE"
         echo "work" > "$STATE_FILE"
         notify-send "Pomodoro" "Back to work"
-    ) &
+    ) </dev/null >/dev/null 2>&1 &
     disown
 }
 
@@ -385,26 +494,29 @@ case "x${BUTTON}" in
     x1)
         current=$(state)
         if [ -z "$current" ]; then
-            ( start_cycle ) &
+            ( start_cycle ) </dev/null >/dev/null 2>&1 &
             disown
         elif [ "$current" = "work" ]; then
-            ( ask_skip_or_stop ) &
+            ( ask_skip_or_stop ) </dev/null >/dev/null 2>&1 &
+            disown
+        elif [ "$current" = "break" ]; then
+            ( ask_change_break_or_stop ) </dev/null >/dev/null 2>&1 &
             disown
         else
             target=$(cat "$TARGET_FILE" 2>/dev/null)
             remaining=$(( ${target:-0} - $(date +%s) ))
             [ "$remaining" -lt 0 ] && remaining=0
-            show_status "$current" "$remaining" &
+            show_status "$current" "$remaining" </dev/null >/dev/null 2>&1 &
             disown
         fi
         ;;
     x3)
         current=$(state)
         if [ -z "$current" ]; then
-            ( verify_notifications ) &
+            ( verify_notifications ) </dev/null >/dev/null 2>&1 &
             disown
         else
-            ( confirm_stop_cycle ) &
+            ( confirm_stop_cycle ) </dev/null >/dev/null 2>&1 &
             disown
         fi
         ;;
@@ -438,6 +550,7 @@ case "$CURRENT_STATE" in
         else
             echo "awaiting_break" > "$STATE_FILE"
             spawn_break_dialog
+            watch_away
             echo "🍅 Break!"
             echo "🍅 Break!"
             echo "#F79494"
