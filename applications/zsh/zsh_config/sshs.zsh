@@ -343,9 +343,12 @@ function sshs() {
         fi
     fi
 
-    # 2. Probe key-based auth (non-interactive, no password prompt)
+    # 2. Probe key-based auth (non-interactive, no password prompt).
+    # Accept a new/unknown host key automatically here so an unknown-host-key
+    # failure doesn't get mistaken for "no auth possible" and skip straight to
+    # an interactive ssh below.
     local probe_stderr probe_exit
-    probe_stderr=$(ssh -o BatchMode=yes -o ConnectTimeout=10 "${args[@]}" exit 2>&1 >/dev/null)
+    probe_stderr=$(ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout=10 "${args[@]}" exit 2>&1 >/dev/null)
     probe_exit=$?
 
     local connected_with=""
