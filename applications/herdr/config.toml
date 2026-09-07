@@ -1,0 +1,63 @@
+onboarding = false
+
+[ui.sound]
+enabled = false
+
+[theme]
+name = "gruvbox"
+auto_switch = false
+
+[ui.toast]
+delivery = "system"
+
+[keys]
+prefix = "ctrl+a"
+
+help = "alt+/"
+settings = "alt+,"
+detach = "alt+q"
+reload_config = "alt+shift+r"
+open_notification_target = "alt+o"
+workspace_picker = "alt+w"
+goto = "alt+g"
+new_workspace = "alt+shift+m"
+new_worktree = "alt+shift+g"
+rename_workspace = "alt+shift+w"
+close_workspace = "alt+shift+d"
+next_agent = "alt+j"
+previous_agent = "alt+k"
+next_workspace = "alt+shift+j"
+previous_workspace = "alt+shift+k"
+
+new_tab = "alt+n"
+close_tab = "alt+x"
+next_tab = "alt+l"
+previous_tab = "alt+h"
+rename_tab = "alt+t"
+
+switch_tab = "alt+1..9"
+
+rename_pane = "alt+shift+p"
+edit_scrollback = "alt+e"
+focus_pane_left = "prefix+h"
+focus_pane_down = "prefix+j"
+focus_pane_up = "prefix+k"
+focus_pane_right = "prefix+l"
+cycle_pane_next = "alt+tab"
+cycle_pane_previous = "alt+shift+tab"
+split_vertical = "alt+v"
+split_horizontal = "alt+minus"
+close_pane = "alt+shift+x"
+zoom = "alt+z"
+resize_mode = "alt+r"
+toggle_sidebar = "alt+b"
+
+[[keys.command]]
+key = "alt+m"
+type = "popup"
+command = "~/.config/herdr/scripts/move-pane-to-tab.sh"
+width = "60%"
+height = "40%"
+
+[ui]
+show_agent_labels_on_pane_borders = true

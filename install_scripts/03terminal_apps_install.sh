@@ -25,6 +25,7 @@ install_package "Task" "${DIR}"/../applications/task
 install_package "Nushell" "${DIR}"/../applications/nushell
 install_package "Taskwarrior" "${DIR}"/../applications/taskwarrior
 install_package "Remind" "${DIR}"/../applications/remind
+install_package "Herdr" "${DIR}"/../applications/herdr
 
 
 echo "${summary}"

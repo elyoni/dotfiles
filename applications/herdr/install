@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P "${DIR}" && pwd)
+
+export XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
+export HERDR_CONFIG=${XDG_CONFIG_HOME}/herdr
+
+function link_files()
+{
+    echo ======= Link Files =======
+    mkdir -p "${HERDR_CONFIG}"
+    ln -sf "${DIR}"/config.toml "${HERDR_CONFIG}"/config.toml
+
+    mkdir -p "${HERDR_CONFIG}"/scripts
+    for script in "${DIR}"/scripts/*; do
+        if [ -f "$script" ]; then
+            script_name=$(basename "$script")
+            ln -sf "$script" "${HERDR_CONFIG}/scripts/$script_name"
+        fi
+    done
+    echo =======   End   =======
+}
+
+function _install_herdr()
+{
+    export bin_path="${HOME}/.local/bin"
+    mkdir -p "${bin_path}"
+
+    curl -fsSL https://herdr.dev/install.sh | sh
+}
+
+function install()
+{
+    _install_herdr
+    link_files
+}
+
+function verify()
+{
+    if [[ -f "${HOME}/.local/bin/herdr" ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+function help() # Show a list of functions
+{
+    awk '/^function / && ! /^function _/' "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi
