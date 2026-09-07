@@ -138,6 +138,43 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
 -- Folding for markdown files in Obsidian vault (code blocks only)
 _G.markdown_fold_cache = {}
 
+-- Per-tab back-history for Obsidian note navigation.
+-- The native jumplist is per-window but records every cursor jump (searches,
+-- %, paragraph motions, ...), not just note switches, so <C-o> often takes
+-- several presses to actually leave a note. This tracks only real note-to-note
+-- transitions, scoped to the current tabpage, so each tab keeps its own trail.
+local function obsidian_go_back()
+    local tab = vim.api.nvim_get_current_tabpage()
+    local hist = vim.t[tab].obsidian_history or {}
+    local prev = table.remove(hist)
+    if not prev then
+        vim.notify("No previous Obsidian note", vim.log.levels.INFO, { timeout = 1000 })
+        return
+    end
+    vim.t[tab].obsidian_history = hist
+    vim.t[tab].obsidian_going_back = true
+    vim.cmd("edit " .. vim.fn.fnameescape(prev))
+end
+
+vim.api.nvim_create_autocmd("BufEnter", {
+    pattern = vim.fn.expand("~/private/obsidian/work") .. "/**/*.md",
+    callback = function(args)
+        local tab = vim.api.nvim_get_current_tabpage()
+        local new_path = vim.api.nvim_buf_get_name(args.buf)
+        local last_path = vim.t[tab].obsidian_last_note
+
+        if vim.t[tab].obsidian_going_back then
+            vim.t[tab].obsidian_going_back = nil
+        elseif last_path and last_path ~= new_path then
+            local hist = vim.t[tab].obsidian_history or {}
+            table.insert(hist, last_path)
+            vim.t[tab].obsidian_history = hist
+        end
+
+        vim.t[tab].obsidian_last_note = new_path
+    end,
+})
+
 vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile", "BufWritePost", "FileType" }, {
     pattern = vim.fn.expand("~/private/obsidian/work") .. "/**/*.md",
     callback = function(args)
@@ -165,7 +202,10 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile", "BufWritePost", "FileType
         vim.keymap.set('v', '<leader>tc', todo.toggle_selection, { buffer = bufnr, desc = "Toggle todos in selection" })
         vim.keymap.set('v', '<leader>tx', todo.check_selection, { buffer = bufnr, desc = "Check todos in selection" })
         vim.keymap.set('v', '<leader>tu', todo.uncheck_selection, { buffer = bufnr, desc = "Uncheck todos in selection" })
-        
+
+        -- Backspace to go back to the previous note (per-tab history)
+        vim.keymap.set('n', '<BS>', obsidian_go_back, { buffer = bufnr, desc = "Obsidian: go back" })
+
         -- Set up visual highlighting for todos
         vim.schedule(function()
             vim.api.nvim_buf_set_var(bufnr, 'obsidian_todo_highlighted', true)
