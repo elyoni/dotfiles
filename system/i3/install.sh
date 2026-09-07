@@ -81,6 +81,10 @@ function application_install()
     echo ====== Install brightnessctl =======
     sudo apt-get install brightnessctl -y
 
+    # Idle detection (used by the pomodoro i3xrocks blocklet)
+    echo ====== Install xprintidle =======
+    sudo apt-get install xprintidle -y
+
     gsettings set org.gnome.desktop.background show-desktop-icons false
 }
 
