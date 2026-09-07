@@ -228,6 +228,42 @@ function M.link_ticket_to_daily(basename, ticket_id, title)
   return true
 end
 
+--- Fetch a Jira ticket's summary/title via the `twg` CLI. Calls back with (title_or_nil).
+local function fetch_jira_title(ticket_id, callback)
+  vim.system(
+    { "twg", "jira", "workitem", "get", ticket_id, "--output", "json", "--select", "data.summary" },
+    { text = true },
+    vim.schedule_wrap(function(result)
+      if result.code ~= 0 then
+        callback(nil)
+        return
+      end
+
+      local stdout_path = result.stdout and result.stdout:match('stdout:%s*"([^"]+)"')
+      if not stdout_path then
+        callback(nil)
+        return
+      end
+
+      local file = io.open(stdout_path, "r")
+      if not file then
+        callback(nil)
+        return
+      end
+      local content = file:read("*all")
+      file:close()
+
+      local ok, decoded = pcall(vim.json.decode, content)
+      if not ok or not decoded.data or not decoded.data[1] then
+        callback(nil)
+        return
+      end
+
+      callback(decoded.data[1].summary)
+    end)
+  )
+end
+
 function M.new_jira_ticket_and_link()
   vim.ui.input({ prompt = "Ticket ID (e.g., FP-60613): " }, function(ticket_id)
     if not ticket_id or ticket_id == "" then
@@ -235,23 +271,33 @@ function M.new_jira_ticket_and_link()
     end
     ticket_id = ticket_id:upper()
 
-    vim.ui.input({ prompt = "Ticket title: " }, function(ticket_title)
-      if not ticket_title or ticket_title == "" then
-        return
-      end
+    local function prompt_for_title(default_title)
+      vim.ui.input({ prompt = "Ticket title: ", default = default_title }, function(ticket_title)
+        if not ticket_title or ticket_title == "" then
+          return
+        end
 
-      local file_path, basename, existed, err = M.create_ticket_file(ticket_id, ticket_title)
-      if not file_path then
-        vim.notify("Error: " .. (err or "unknown"), vim.log.levels.ERROR)
-        return
-      end
+        local file_path, basename, existed, err = M.create_ticket_file(ticket_id, ticket_title)
+        if not file_path then
+          vim.notify("Error: " .. (err or "unknown"), vim.log.levels.ERROR)
+          return
+        end
 
-      if existed then
-        vim.notify("Ticket file exists, linking to daily note", vim.log.levels.INFO)
-      end
+        if existed then
+          vim.notify("Ticket file exists, linking to daily note", vim.log.levels.INFO)
+        end
 
-      M.link_ticket_to_daily(basename, ticket_id, ticket_title)
-      vim.cmd("edit " .. vim.fn.fnameescape(file_path))
+        M.link_ticket_to_daily(basename, ticket_id, ticket_title)
+        vim.cmd("edit " .. vim.fn.fnameescape(file_path))
+      end)
+    end
+
+    vim.notify("Fetching ticket title from Jira...", vim.log.levels.INFO)
+    fetch_jira_title(ticket_id, function(title)
+      if not title then
+        vim.notify("Could not fetch title from Jira, enter manually", vim.log.levels.WARN)
+      end
+      prompt_for_title(title)
     end)
   end)
 end
