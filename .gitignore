@@ -1,5 +1,6 @@
 tmp/
 .worktree/
+.claude/worktrees/
 __pycache__/
 *.iso
 applications/neovim/nvim/lazy-lock.json
