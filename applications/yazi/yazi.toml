@@ -41,21 +41,15 @@ text_maximum_lines = 1000
 
 [opener]
 # File opener settings - each opener is an array of OpenerRule tables
+# Note: yazi substitutes %s (selected/hovered files), not $@ - see splat tokens in yazi docs
 edit = [
-    { run = '$EDITOR "$@"', block = true },
+    { run = '$EDITOR %s', block = true },
 ]
 reveal = [
-    { run = 'open --reveal "$@"' },
+    { run = 'xdg-open %d' },
 ]
 play = [
-    { run = 'mpv "$@"' },
-]
-
-# [open] section removed - using open.toml for file opener rules instead
-
-[plugin]
-prepend_previewers = [
-	{ run = "scope.sh", desc = "Preview with scope.sh", block = true, for = "unix" },
+    { run = 'mpv %s' },
 ]
 
 [notify]

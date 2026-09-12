@@ -21,7 +21,7 @@ desc = "Create a directory"
 # Clone/Duplicate file
 [[mgr.prepend_keymap]]
 on = ["c", "c"]
-run = "shell --block sh -c 'for f in \"$@\"; do cp \"$f\" \"${f}.copy\" && echo \"Cloned: ${f}.copy\"; done'"
+run = "shell --block sh -c 'for f in %s; do cp \"$f\" \"${f}.copy\" && echo \"Cloned: ${f}.copy\"; done'"
 desc = "Clone/duplicate file (creates file.copy)"
 
 # Search & Filter
@@ -149,16 +149,16 @@ desc = "Paste files"
 # Note: These copy paths to system clipboard using yazi's copy commands
 [[mgr.prepend_keymap]]
 on = ["y", "d"]
-run = ['copy', 'dirname']
+run = "copy dirpath"
 desc = "Copy directory path to clipboard"
 
 [[mgr.prepend_keymap]]
 on = ["y", "f"]
-run = ['copy', 'filename']
+run = "copy filename"
 desc = "Copy filename only to clipboard"
 
 # Copy full path to clipboard (using yP to avoid conflict with paste)
 [[mgr.prepend_keymap]]
 on = ["y", "P"]
-run = ['copy', 'path']
+run = "copy path"
 desc = "Copy full file path to clipboard"
