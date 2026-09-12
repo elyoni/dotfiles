@@ -1,0 +1,35 @@
+# Starship configuration
+format = """
+$username\
+$hostname\
+$directory\
+$git_branch\
+$git_status\
+$nodejs\
+$python\
+$rust\
+$golang\
+$docker_context\
+$env_var\
+$line_break\
+$character"""
+
+[character]
+success_symbol = "[➜](bold green)"
+error_symbol = "[✗](bold red)"
+
+[directory]
+truncation_length = 3
+truncate_to_repo = true
+
+[git_branch]
+format = "on [$symbol$branch]($style) "
+
+[git_status]
+format = '([\[$all_status$ahead_behind\]]($style) )'
+
+# Yazi sets $YAZI_LEVEL in any shell it spawns (e.g. via the "S" keybind in
+# applications/yazi/keymap.toml). Show a duck so it's obvious this shell was
+# opened from yazi.
+[env_var.YAZI_LEVEL]
+format = "[🦆 ](yellow)"
