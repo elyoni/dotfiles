@@ -51,6 +51,14 @@ reveal = [
 play = [
     { run = 'mpv %s' },
 ]
+resize = [
+    { run = '"$HOME/.dotfiles/scripts/resize-image.sh" %s', block = true, desc = "Resize image" },
+]
+
+[open]
+prepend_rules = [
+    { mime = "image/*", use = ["open", "resize", "reveal"] },
+]
 
 [notify]
 # Notification settings

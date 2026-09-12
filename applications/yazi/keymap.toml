@@ -24,6 +24,12 @@ on = ["c", "c"]
 run = "shell --block sh -c 'for f in %s; do cp \"$f\" \"${f}.copy\" && echo \"Cloned: ${f}.copy\"; done'"
 desc = "Clone/duplicate file (creates file.copy)"
 
+# Resize selected image(s) via fzf size menu
+[[mgr.prepend_keymap]]
+on = ["r", "i"]
+run = 'shell --block "${HOME}/.dotfiles/scripts/resize-image.sh" %s'
+desc = "Resize selected image(s)"
+
 # Search & Filter
 [[mgr.prepend_keymap]]
 on = "/"
