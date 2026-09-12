@@ -79,4 +79,14 @@ return {
         },
         opts = {},
     },
+    {
+        "preservim/vim-markdown",
+        ft = "markdown",
+        dependencies = { "godlygeek/tabular" },
+        init = function()
+            -- We use treesitter for folding elsewhere; don't let this plugin fold too.
+            vim.g.vim_markdown_folding_disabled = 1
+            vim.g.vim_markdown_no_default_key_mappings = 0
+        end,
+    },
 }
