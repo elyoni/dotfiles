@@ -28,3 +28,6 @@ alias gamma-reset='xrandr --output "$(xrandr | grep " connected" | head -1 | cut
 #
 # Toggle whether closing the lid suspends the machine
 alias lid-stay-awake="${HOME}/.dotfiles/scripts/lid-stay-awake.sh"
+
+# Resize image(s) to a size picked from an fzf menu
+alias resize-image="${HOME}/.dotfiles/scripts/resize-image.sh"
