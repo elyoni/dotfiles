@@ -21,6 +21,9 @@ Options:
   --hostname HOST     Actual hostname or IP (required for add; optional for update)
   --user USER         SSH user
   --identity FILE     Identity file path
+  --target FILE       File to write a new entry into (default: a new file in
+                      ~/.ssh/config.d/ if it exists, else ~/.ssh/config).
+                      Ignored for --update/--rename, which always edit in place.
   --update            Update existing entry, preserving fields not specified
   --rename NEW_ALIAS   Rename an existing alias in place
   -h, --help          Show this help
@@ -45,6 +48,7 @@ _ssh-add-server() {
         '--hostname[hostname or IP]:hostname:_hosts' \
         '--user[SSH user]:user:_users' \
         '--identity[identity file]:file:_files' \
+        '--target[file to write a new entry into]:file:_files' \
         '--update[overwrite existing entry]' \
         '--rename[rename an existing alias]:new alias:'
 }
@@ -132,6 +136,7 @@ ALIAS=""
 HOSTNAME_VAL=""
 USER_VAL=""
 IDENTITY=""
+TARGET_VAL=""
 UPDATE=0
 RENAME=""
 
@@ -142,6 +147,7 @@ while [[ $# -gt 0 ]]; do
         --hostname) HOSTNAME_VAL="$2"; shift 2 ;;
         --user)     USER_VAL="$2"; shift 2 ;;
         --identity) IDENTITY="$2"; shift 2 ;;
+        --target)   TARGET_VAL="$2"; shift 2 ;;
         --update)   UPDATE=1; shift ;;
         --rename)   RENAME="$2"; shift 2 ;;
         -h|--help)  usage; exit 0 ;;
@@ -219,6 +225,14 @@ BLOCK="Host ${ALIAS}
 if [[ $ALIAS_EXISTS -eq 1 ]]; then
     replace_block_in_file "$ALIAS_FILE" "$ALIAS" "$BLOCK"
     echo "Updated host '${ALIAS}' -> ${HOSTNAME_VAL} in ${ALIAS_FILE}"
+elif [[ -n "$TARGET_VAL" ]]; then
+    if [[ -f "$TARGET_VAL" ]]; then
+        printf '\n%s\n' "$BLOCK" >> "$TARGET_VAL"
+    else
+        mkdir -p "$(dirname "$TARGET_VAL")"
+        printf '%s\n' "$BLOCK" > "$TARGET_VAL"
+    fi
+    echo "Added host '${ALIAS}' -> ${HOSTNAME_VAL} in ${TARGET_VAL}"
 elif [[ -d "$CONFIG_D" ]]; then
     TARGET="${CONFIG_D}/${ALIAS}"
     printf '%s\n' "$BLOCK" > "$TARGET"
