@@ -1,3 +1,9 @@
+# ssh-copy-id hardcodes its scratch dir to ~/.ssh/ssh-copy-id.XXXXXXXXXX and
+# leaves it behind if the process is interrupted/killed. Clean up after every call.
+function _cleanup_ssh_copy_id_tmp() {
+    rm -rf "$HOME"/.ssh/ssh-copy-id.*(N)
+}
+
 # Helper function to extract the raw target (host, or user@host) from SSH arguments
 function _extract_ssh_target() {
     local args=("$@")
@@ -195,6 +201,7 @@ function _handle_ssh_smart() {
                     sshpass -f "$connected_with" ssh-copy-id "$host_ip" 2>/dev/null \
                         && echo "Key installed — future logins will use key authentication." \
                         || echo "Warning: could not install SSH key (ssh-copy-id failed)."
+                    _cleanup_ssh_copy_id_tmp
                 fi
             fi
             if [[ -n "$connected_with" ]]; then
@@ -334,7 +341,13 @@ function sshs() {
             echo -n "Alias [$host]: "
             read add_alias
             [[ -z "$add_alias" ]] && add_alias="$host"
-            add_args=(--alias "$add_alias" --hostname "$host")
+            local default_target="$HOME/.ssh/config"
+            [[ -d "$HOME/.ssh/config.d" ]] && default_target="$HOME/.ssh/config.d/$add_alias"
+            local add_target
+            echo -n "Config file [$default_target]: "
+            read add_target
+            [[ -z "$add_target" ]] && add_target="$default_target"
+            add_args=(--alias "$add_alias" --hostname "$host" --target "$add_target")
             [[ -n "$user" ]] && add_args+=(--user "$user")
             local chosen_key
             chosen_key=$(_pick_ssh_key)
@@ -362,6 +375,7 @@ function sshs() {
                 sshpass -f "$connected_with" ssh-copy-id "$target" 2>/dev/null \
                     && echo "Key installed — future logins will use key authentication." \
                     || echo "Warning: could not install SSH key (ssh-copy-id failed)."
+                _cleanup_ssh_copy_id_tmp
             else
                 echo "No matching password found in $pw_dir — falling back to interactive auth."
             fi
