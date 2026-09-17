@@ -64,15 +64,15 @@ return {
             },
             pickers = {
                 live_grep = {
-                    file_ignore_patterns = { 'node_modules', '.git/', '.venv' },
+                    file_ignore_patterns = { 'node_modules', '%.git/', '%.worktree/', '.venv' },
                     additional_args = { '--hidden' },
                 },
                 grep_string = {
-                    file_ignore_patterns = { 'node_modules', '.git/', '.venv' },
+                    file_ignore_patterns = { 'node_modules', '%.git/', '%.worktree/', '.venv' },
                     additional_args = { '--hidden' },
                 },
                 find_files = {
-                    file_ignore_patterns = { 'node_modules', '.git/', '.venv' },
+                    file_ignore_patterns = { 'node_modules', '%.git/', '%.worktree/', '.venv' },
                     hidden = true
                 },
                 git_files = {
@@ -83,6 +83,10 @@ return {
             extensions = {
                 live_grep_args = {
                     auto_quoting = true,
+                    vimgrep_arguments = {
+                        'rg', '--color=never', '--no-heading', '--with-filename', '--line-number', '--column',
+                        '--smart-case', '--hidden', '--glob', '!.git/*', '--glob', '!.worktree/*',
+                    },
                     mappings = {
                         i = {
                             ["<C-k>"] = function(prompt_bufnr)
