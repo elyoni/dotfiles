@@ -357,8 +357,8 @@ bindsym --release Print exec "flameshot gui"
 bindsym --release Shift+Print exec "flameshot full -c && notify-send Flameshot 'Full picture has been taken, saved in clipboard'"
 
 # Brightness control
-bindsym XF86MonBrightnessUp exec --no-startup-id brightnessctl set +5%
-bindsym XF86MonBrightnessDown exec --no-startup-id brightnessctl set 5%-
+#bindsym XF86MonBrightnessUp exec --no-startup-id brightnessctl set +5%
+#bindsym XF86MonBrightnessDown exec --no-startup-id brightnessctl set 5%-
 
 ## Modify // Settings // <>+Shift+Ctrl c ##
 set_from_resource $wm.binding.settings i3-wm.binding.settings Shift+Ctrl+x
