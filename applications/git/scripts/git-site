@@ -215,7 +215,11 @@ elif [ "$MODE" = "pipeline-run" ]; then
     echo "Error: glab is required for pipeline-run" >&2
     exit 1
   fi
-  cmd=(glab ci run --branch "$current_branch")
+  # glab auto-detects the repo/host from all remotes, which picks the wrong
+  # one when an unrelated remote (e.g. a public "upstream" mirror) is present.
+  # Force it to the $REMOTE (default "origin") this script already resolved;
+  # -R accepts a full URL so this pins both host and repo unambiguously.
+  cmd=(glab ci run --repo "$host_path" --branch "$current_branch")
   for var_pair in "${PIPELINE_VARS[@]}"; do
     # glab's --variables flag is a CSV-parsed string slice, so a literal comma
     # in the value gets split into a second (colon-less) entry unless the
