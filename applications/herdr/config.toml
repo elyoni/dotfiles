@@ -1,14 +1,14 @@
 onboarding = false
 
 [ui.sound]
-enabled = false
+enabled = true
 
 [theme]
 name = "gruvbox"
 auto_switch = false
 
 [ui.toast]
-delivery = "herdr"
+delivery = "terminal"
 
 [keys]
 prefix = "ctrl+a"
