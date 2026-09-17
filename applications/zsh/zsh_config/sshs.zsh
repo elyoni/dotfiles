@@ -152,7 +152,20 @@ function _handle_ssh_smart() {
     ssh_stderr=$(cat "$tmpfile")
     rm -f "$tmpfile"
 
-    [[ $exit_code -eq 0 ]] && return 0
+    if [[ $exit_code -eq 0 ]]; then
+        if [[ "$ssh_command" == "ssh" ]]; then
+            host_ip=$(_extract_ssh_host "${args[@]}")
+            read -q "REPLY?Copy SSH key to $host_ip? (y/N): "
+            echo ""
+            if [[ $REPLY =~ ^[Yy]$ ]]; then
+                ssh-copy-id "${args[@]}" \
+                    && echo "Key installed — future logins will use key authentication." \
+                    || echo "Warning: could not install SSH key (ssh-copy-id failed)."
+                _cleanup_ssh_copy_id_tmp
+            fi
+        fi
+        return 0
+    fi
 
     # sshpass exit code 6 = host key unknown or changed
     local is_host_key_failure=false
