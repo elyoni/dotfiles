@@ -226,8 +226,16 @@ elif [ "$MODE" = "pipeline-run" ]; then
     # whole KEY:VALUE pair is wrapped in literal double quotes as a CSV field.
     cmd+=(--variables "\"${var_pair%%=*}:${var_pair#*=}\"")
   done
-  "${cmd[@]}"
-  exit 0
+  output=$("${cmd[@]}")
+  status=$?
+  echo "$output"
+  if [ $status -eq 0 ] && command -v remind >/dev/null 2>&1; then
+    pipeline_url=$(echo "$output" | grep -oE 'https?://[^[:space:]]+/-/pipelines/[0-9]+' | head -1)
+    if [ -n "$pipeline_url" ]; then
+      remind add pipeline "$pipeline_url" >/dev/null 2>&1
+    fi
+  fi
+  exit $status
 else
   # Normal file/branch mode
   url="${host_path}/blob/${current_branch}${file_part}${line_anchor}"
