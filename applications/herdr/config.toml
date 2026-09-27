@@ -1,7 +1,7 @@
 onboarding = false
 
 [ui.sound]
-enabled = false
+enabled = true
 
 [theme]
 name = "gruvbox"
@@ -11,9 +11,9 @@ auto_switch = false
 delivery = "system"
 
 [keys]
-prefix = "ctrl+a"
+prefix = "alt+a"
 
-help = "alt+/"
+help = "alt+?"
 settings = "alt+,"
 detach = "alt+q"
 reload_config = "alt+shift+r"
@@ -43,7 +43,6 @@ focus_pane_up = "prefix+k"
 focus_pane_right = "prefix+l"
 cycle_pane_next = "alt+tab"
 cycle_pane_previous = "alt+shift+tab"
-split_vertical = "alt+v"
 split_horizontal = "alt+minus"
 close_pane = "alt+shift+x"
 zoom = "alt+z"
@@ -60,3 +59,5 @@ height = "40%"
 [ui]
 show_agent_labels_on_pane_borders = true
 status_indicators = "symbols"
+# Leave outer terminal title alone so i3 scratchpad title-matching still works.
+window_title = ""
