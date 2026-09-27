@@ -274,15 +274,17 @@ ask_skip_or_stop() {
 }
 
 # Left-click-while-on-break handler: mirrors ask_skip_or_stop for the break
-# phase. No "skip to work" option by design - kept to what was asked for.
+# phase. Dismissing (X/Esc) does nothing, same as Cancel used to - so Cancel
+# itself was dropped as redundant.
 ask_change_break_or_stop() {
     output=$(zenity --question --title "Pomodoro" \
-        --text="Change duration, or stop the timer?" \
-        --ok-label="Cancel" \
-        --extra-button="Change Duration" --extra-button="Stop Timer" 2>/dev/null)
+        --text="Change duration, return to work, or stop the timer?" \
+        --ok-label="Change Duration" \
+        --extra-button="Return to Job" --extra-button="Stop Timer" 2>/dev/null)
 
     case "$output" in
         "Change Duration") retarget_phase break ;;
+        "Return to Job") return_to_work ;;
         "Stop Timer") stop_cycle; notify-send "Pomodoro" "Timer stopped" ;;
     esac
 }
@@ -460,6 +462,24 @@ log_completed_session() {
     log_session "$started_task" "$end_task" "$start_epoch" "$(date +%s)"
 }
 
+# Ends the break right now and starts a fresh work phase: prompts for the
+# task, resets the session-start/target files, and flips state to "work".
+# Shared by spawn_return_dialog (break timeout -> "I'm back") and the
+# break-menu "Return to Job" button (manual early return).
+return_to_work() {
+    work_min=$(cat "$WORK_MIN_FILE" 2>/dev/null)
+    work_min=${work_min:-$DEFAULT_WORK_MIN}
+
+    task=$(ask_multiline "Back to Work" "$(cat "$TASK_FILE" 2>/dev/null)" \
+        "What are you working on? (multiple lines OK)")
+    echo "$task" > "$TASK_FILE"
+
+    date +%s > "$SESSION_START_FILE"
+    echo $(( $(date +%s) + work_min * 60 )) > "$TARGET_FILE"
+    echo "work" > "$STATE_FILE"
+    notify-send "Pomodoro" "Back to work"
+}
+
 # Spawns the blocking "come back" popup. Only called once, from the
 # break -> awaiting_return transition below, so it can't double-spawn.
 spawn_return_dialog() {
@@ -475,17 +495,7 @@ spawn_return_dialog() {
             sleep 2
         done
 
-        work_min=$(cat "$WORK_MIN_FILE" 2>/dev/null)
-        work_min=${work_min:-$DEFAULT_WORK_MIN}
-
-        task=$(ask_multiline "Back to Work" "$(cat "$TASK_FILE" 2>/dev/null)" \
-            "What are you working on? (multiple lines OK)")
-        echo "$task" > "$TASK_FILE"
-
-        date +%s > "$SESSION_START_FILE"
-        echo $(( $(date +%s) + work_min * 60 )) > "$TARGET_FILE"
-        echo "work" > "$STATE_FILE"
-        notify-send "Pomodoro" "Back to work"
+        return_to_work
     ) </dev/null >/dev/null 2>&1 &
     disown
 }
