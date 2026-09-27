@@ -2,6 +2,7 @@
 """remind: watch pipelines, jobs, countdowns, and processes and notify when they finish.
 
 Usage:
+  remind add <url>                       Watch a GitLab pipeline or job URL (kind auto-detected)
   remind add pipeline <url>              Watch a GitLab pipeline URL
   remind add job <url>                   Watch a GitLab job URL
   remind add countdown <duration> [label]  Watch a countdown ("25m", "1h30m", "90s", or seconds)
@@ -474,6 +475,13 @@ def main():
         subkind, subrest = rest[0], rest[1:]
         if subkind in ("pipeline", "job") and len(subrest) == 1:
             cmd_add_pipeline(subrest[0], subkind)
+            return
+        if subkind not in ("countdown", "process") and not subrest:
+            parsed = parse_url(subkind)
+            if parsed is None:
+                print(f"Not a pipeline/job URL: {subkind!r}", file=sys.stderr)
+                sys.exit(1)
+            cmd_add_pipeline(subkind, parsed[2].rstrip("s"))
             return
         if subkind == "countdown" and 1 <= len(subrest) <= 2:
             cmd_add_countdown(subrest[0], subrest[1] if len(subrest) > 1 else None)
