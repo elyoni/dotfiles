@@ -60,14 +60,21 @@ function toggle_scratchpad(){
         if ! has_an_instance -s "${scratchpad_title}"; then
             pushd "${DIR}" &>/dev/null || exit
             echo "instance is not exits will create one" >> /tmp/scratchpad_script.log
-            scratchpad_script_path="scratchpad_tmux_${scratchpad_title}"
-            if [[ ! -f "${scratchpad_script_path}" ]]; then
-                echo "ERROR: the file ${scratchpad_script_path} isn't exists. exit" >> /tmp/scratchpad_script.log
-                exit 1
-            fi
 
-            # Execute the script in another terminal
-            ${termial_exec_command} ${exec_flag} "${DIR}/${scratchpad_script_path}" &>>  /tmp/scratchpad_script.log
+            if [[ "${scratchpad_title}" == "wiki" ]]; then
+                # herdr owns its own persistent session; run it directly
+                # instead of the tmux-based scratchpad_tmux_wiki script.
+                ${termial_exec_command} ${exec_flag} herdr --session "${scratchpad_title}" &>> /tmp/scratchpad_script.log
+            else
+                scratchpad_script_path="scratchpad_tmux_${scratchpad_title}"
+                if [[ ! -f "${scratchpad_script_path}" ]]; then
+                    echo "ERROR: the file ${scratchpad_script_path} isn't exists. exit" >> /tmp/scratchpad_script.log
+                    exit 1
+                fi
+
+                # Execute the script in another terminal
+                ${termial_exec_command} ${exec_flag} "${DIR}/${scratchpad_script_path}" &>>  /tmp/scratchpad_script.log
+            fi
 
             # Wait for window to be created and focused
             while ! i3-msg -t get_tree | jq --arg var "${scratchpad_title}" '.. | select(.window_properties? | .title == $var) | any' | grep -q true; do
