@@ -1,0 +1,82 @@
+#compdef remind
+
+_remind-ids() {
+    local -a ids
+    ids=("${(@f)$(remind list 2>/dev/null | awk -F'\t' '{print $1":"$2" "$3}')}")
+    _describe 'id' ids
+}
+
+_remind-finished-ids() {
+    local -a ids
+    ids=("${(@f)$(remind list --finished 2>/dev/null | awk -F'\t' '{print $1":"$2" "$3" ("$5")"}')}")
+    _describe 'id' ids
+}
+
+_remind-first() {
+    local -a subs=(
+        'add:Watch a pipeline, job, countdown, or process'
+        'notify:Notify immediately'
+        'remove:Stop watching and drop an item'
+        'list:List watched items'
+        'clear-finished:Drop all finished items from history'
+        'ensure-watchers:Spawn watchers for queued items missing one'
+    )
+    _describe 'command' subs
+}
+
+_remind-add-first() {
+    local -a kinds=(
+        'pipeline:Watch a GitLab pipeline URL'
+        'job:Watch a GitLab job URL'
+        'countdown:Watch a countdown (25m, 1h30m, 90s, or seconds)'
+        'process:Watch a running process or command'
+    )
+    _describe 'kind' kinds
+}
+
+_remind() {
+    local context state state_descr line
+    typeset -A opt_args
+
+    _arguments -C \
+        '(-h --help)'{-h,--help}'[show help]' \
+        '1: :_remind-first' \
+        '*:: :->args'
+
+    case $state in
+        args)
+            case $words[1] in
+                add)
+                    case $words[2] in
+                        pipeline|job)
+                            _arguments '2: :_remind-add-first' '3:url:'
+                            ;;
+                        countdown)
+                            _arguments '2: :_remind-add-first' '3:duration:' '4:label:'
+                            ;;
+                        process)
+                            _arguments '2: :_remind-add-first' \
+                                '--pid[Watch by pid]:pid:' \
+                                '--cmd[Run and watch a command]:command:' \
+                                '*:label:'
+                            ;;
+                        *)
+                            _arguments '2: :_remind-add-first'
+                            ;;
+                    esac
+                    ;;
+                remove)
+                    _arguments '2:id:_remind-ids'
+                    ;;
+                list)
+                    _arguments '2:option:(--finished)'
+                    ;;
+                notify)
+                    _arguments '2:label:' '3:body:'
+                    ;;
+            esac
+            ;;
+    esac
+}
+
+_remind "$@"

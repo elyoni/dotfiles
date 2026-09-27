@@ -17,9 +17,21 @@ function link_files()
     echo =======   End   =======
 }
 
+function link_completions()
+{
+    echo ======= Link Completions =======
+    mkdir -p "${HOME}"/.zsh/completions
+    if [ -f "${DIR}/completions/_remind" ]; then
+        echo ln -sf "${DIR}/completions/_remind" "${HOME}/.zsh/completions/_remind"
+        ln -sf "${DIR}/completions/_remind" "${HOME}/.zsh/completions/_remind"
+    fi
+    echo =======   End   =======
+}
+
 function install()
 {
     link_files
+    link_completions
 }
 
 function verify() # Verify the installation
