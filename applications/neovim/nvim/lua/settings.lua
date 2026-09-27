@@ -76,7 +76,8 @@ vim.opt.clipboard = { "unnamed", "unnamedplus" }
 -- xclip is picked before tmux by default. Inside tmux, delegate to tmux load-buffer -w
 -- (tmux set-clipboard sends OSC 52 to the terminal). Direct OSC 52 from Neovim often
 -- fails over SSH+tmux because Neovim writes the sequence to stderr.
-local in_tmux = os.getenv('TMUX')
+local tmux_env = os.getenv('TMUX')
+local in_tmux = tmux_env and os.execute('tmux list-sessions >/dev/null 2>&1') == 0
 local in_ssh = os.getenv('SSH_TTY') or os.getenv('SSH_CLIENT') or os.getenv('SSH_CONNECTION')
 if in_tmux then
     vim.g.clipboard = 'tmux'
