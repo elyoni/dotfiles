@@ -60,11 +60,16 @@ run = "shell --block ~/.dotfiles/applications/yazi/scripts/wimp.sh"
 desc = "Jump to project (wimp)"
 
 
-# Quit & Misc - Disable q for quit
-# Using manager.prepend_keymap to override default keybinding
+# Quit & Misc
 [[mgr.prepend_keymap]]
-on = [ "q" , "q" ]
-run =  "quit"
+on = "q"
+run = "close"
+desc = "Close tab, or quit if it's the last tab"
+
+[[mgr.prepend_keymap]]
+on = "Q"
+run = "quit"
+desc = "Quit"
 
 # Disable z key (fzf) but allow zf sequence
 # First, define the zf sequence in prepend_keymap so it takes precedence
@@ -92,6 +97,11 @@ desc = "New tab"
 
 [[mgr.prepend_keymap]]
 on = ["t", "c"]
+run = "tab_close"
+desc = "Close tab"
+
+[[mgr.prepend_keymap]]
+on = ["t", "x"]
 run = "tab_close"
 desc = "Close tab"
 
