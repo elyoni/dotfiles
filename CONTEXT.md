@@ -37,3 +37,7 @@ _Avoid_: Idle, AFK
 **Retarget**:
 Changing a running phase's total planned length from the left-click menu while it's counting down, preserving elapsed time — e.g. entering 40 on a work phase already 10 minutes in leaves 30 minutes remaining, rather than resetting the elapsed clock.
 _Avoid_: Reschedule, resize
+
+**Task picker**:
+The start-of-work-session prompt offering today's daily note's `## Today` checkbox items (main tasks and their sub-tasks, grouped and in document order), plus a free-text option for work not on that list. Multi-select: the user may pick more than one task when they expect to work on both within the same session (e.g. a slow task running in the background while a second is worked in parallel) — the selected tasks are joined into one task label for that session, same as a single pick. If today's `## Today` section has no items, the picker is skipped and the user is told to run the `vault-daily-routines` morning routine first instead of starting a session unlabeled.
+_Avoid_: Task list, todo picker
