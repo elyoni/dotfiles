@@ -55,8 +55,13 @@ resize = [
     { run = '"$HOME/.dotfiles/scripts/resize-image.sh" %s', block = true, desc = "Resize image" },
 ]
 
+lrzuntar = [
+    { run = '"$HOME/.dotfiles/applications/yazi/scripts/lrzuntar-dir.sh" %s', desc = "Extract tar.lrz into <name>/" },
+]
+
 [open]
 prepend_rules = [
+    { url = "*.tar.lrz", use = ["lrzuntar", "reveal"] },
     { mime = "image/*", use = ["open", "resize", "reveal"] },
 ]
 
