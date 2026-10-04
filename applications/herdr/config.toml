@@ -11,7 +11,7 @@ auto_switch = false
 delivery = "system"
 
 [keys]
-prefix = "alt+a"
+prefix = "alt+b"
 
 help = "alt+?"
 settings = "alt+,"
@@ -26,8 +26,8 @@ rename_workspace = "prefix+shift+s"
 close_workspace = "alt+shift+d"
 next_agent = "alt+j"
 previous_agent = "alt+k"
-next_workspace = "alt+shift+j"
-previous_workspace = "alt+shift+k"
+next_workspace = "alt+shift+n"
+previous_workspace = "alt+shift+p"
 
 new_tab = "alt+t"
 close_tab = "alt+x"
@@ -35,19 +35,21 @@ next_tab = "alt+l"
 previous_tab = "alt+h"
 rename_tab = "alt+shift+t"
 
-rename_pane = "alt+shift+p"
+rename_pane = "prefix+shift+p"
 edit_scrollback = "alt+e"
 focus_pane_left = "prefix+h"
 focus_pane_down = "prefix+j"
 focus_pane_up = "prefix+k"
 focus_pane_right = "prefix+l"
+
 cycle_pane_next = "alt+tab"
 cycle_pane_previous = "alt+shift+tab"
-split_horizontal = "alt+minus"
+split_vertical = "prefix+v"
+split_horizontal = "prefix+%"
 close_pane = "alt+shift+x"
 zoom = "alt+z"
 resize_mode = "prefix+r"
-toggle_sidebar = "alt+b"
+toggle_sidebar = "prefix+b"
 
 [[keys.command]]
 key = "alt+m"
