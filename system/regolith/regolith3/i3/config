@@ -642,8 +642,7 @@ bar {
       urgent_workspace   $wm.bar.workspace.urgent.border.color       $wm.bar.workspace.urgent.background.color    $wm.bar.workspace.urgent.text.color
   }
 }
-
-bindsym $mod+Ctrl+f exec --no-startup-id bash -c 'xclip -o | piper --model ~/.local/share/piper/en_US-lessac-low.onnx --output_file /tmp/tts.wav && aplay /tmp/tts.wav'
+bindsym $mod+Ctrl+f exec --no-startup-id bash -c 'xclip -o -selection clipboard| piper --model ~/.local/share/piper/en_US-lessac-low.onnx --output_file /tmp/tts.wav && aplay /tmp/tts.wav'
 bindsym $mod+Ctrl+x exec --no-startup-id pkill aplay
 ###############################################################################
 # External programs launched with i3
