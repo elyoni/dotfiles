@@ -4,6 +4,20 @@ function _cleanup_ssh_copy_id_tmp() {
     rm -rf "$HOME"/.ssh/ssh-copy-id.*(N)
 }
 
+zmodload zsh/datetime  # EPOCHSECONDS
+
+# Format seconds as "1h 02m 03s" / "2m 03s" / "3s"
+function _fmt_duration() {
+    local s=$1
+    if (( s >= 3600 )); then
+        printf '%dh %02dm %02ds' $((s / 3600)) $((s % 3600 / 60)) $((s % 60))
+    elif (( s >= 60 )); then
+        printf '%dm %02ds' $((s / 60)) $((s % 60))
+    else
+        printf '%ds' $s
+    fi
+}
+
 # Helper function to extract the raw target (host, or user@host) from SSH arguments
 function _extract_ssh_target() {
     local args=("$@")
@@ -232,10 +246,12 @@ function _handle_ssh_smart() {
         echo ""
         echo "Authentication failed - please check your credentials"
         return $exit_code
-    elif echo "$ssh_stderr" | grep -q -E "(No route to host|Connection refused|Connection timed out|Network is unreachable)"; then
+    elif echo "$ssh_stderr" | grep -q -E "(No route to host|Connection refused|Connection timed out|Network is unreachable)" \
+        || { [[ $exit_code -eq 255 ]] && echo "$ssh_stderr" | grep -q -E "(closed by remote host|Broken pipe|Connection reset)"; }; then
+        # Second case: an established session dropped (e.g. server rebooted)
         [[ -n "$ssh_stderr" ]] && echo "$ssh_stderr"
         echo ""
-        echo "Network issue detected. Retrying every 5 seconds. Press Ctrl+C to cancel."
+        echo "Connection lost. Retrying every 5 seconds. Press Ctrl+C to cancel."
         echo ""
 
         if [[ "$ssh_command" == "sshpass" ]]; then
@@ -249,15 +265,36 @@ function _handle_ssh_smart() {
             retry_pw_file=$(_try_ssh_with_password_files "${args[@]}" 2>/dev/null)
         fi
 
-        local retry_count=1
+        # Probe reachability (no auth needed) so the downtime can be printed
+        # before the interactive session starts. For sshpass, args aren't
+        # plain ssh args, so probe by host only.
+        local probe_args=("${args[@]}")
+        [[ "$ssh_command" == "sshpass" ]] && probe_args=("$host_ip")
+
+        local down_since=$EPOCHSECONDS
+        local retry_count=1 probe_err
         while true; do
-            echo "Retry #$retry_count - connecting to $host_ip..."
-            if [[ -n "$retry_pw_file" ]]; then
-                command sshpass -f "$retry_pw_file" ssh "${args[@]}" 2>/dev/null
-            else
-                command $ssh_command "${args[@]}" 2>/dev/null
+            echo "Retry #$retry_count - connecting to $host_ip... (off for $(_fmt_duration $((EPOCHSECONDS - down_since))))"
+            probe_err=$(command ssh -o BatchMode=yes -o ConnectTimeout=5 \
+                -o StrictHostKeyChecking=accept-new "${probe_args[@]}" exit 2>&1 >/dev/null)
+            if [[ $? -eq 0 ]] || echo "$probe_err" | grep -qE "Permission denied|Host key verification failed"; then
+                echo ""
+                echo "Server is back — was off for $(_fmt_duration $((EPOCHSECONDS - down_since)))."
+                echo ""
+                if [[ -n "$retry_pw_file" ]]; then
+                    command sshpass -f "$retry_pw_file" ssh "${args[@]}"
+                else
+                    command $ssh_command "${args[@]}"
+                fi
+                local session_exit=$?
+                # 255 = connection dropped (e.g. server rebooted mid-session):
+                # keep retrying and restart the off-timer. Otherwise we're done.
+                (( session_exit != 255 )) && return $session_exit
+                echo ""
+                echo "Connection lost. Retrying every 5 seconds. Press Ctrl+C to cancel."
+                down_since=$EPOCHSECONDS
+                retry_count=0
             fi
-            [[ $? -eq 0 ]] && return 0
             echo "Failed, waiting 5 seconds..."
             sleep 5
             ((retry_count++))
