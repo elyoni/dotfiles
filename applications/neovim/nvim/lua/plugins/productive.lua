@@ -100,6 +100,8 @@ return {
             picker = {
                 name = "telescope.nvim",
             },
+            -- UI needs conceallevel 1/2, which garbles markdown rendering
+            ui = { enable = false },
             daily_notes = {
                 folder = "00-Inbox/daily-notes",
                 date_format = "%Y-%m-%d",

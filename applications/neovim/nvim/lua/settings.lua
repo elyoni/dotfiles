@@ -128,6 +128,8 @@ vim.api.nvim_create_autocmd("FileType", {
         vim.opt_local.softtabstop = 2
         vim.opt_local.breakindent = true
         vim.opt_local.breakindentopt = "list:-1"
+        vim.opt_local.conceallevel = 0
+        vim.opt_local.formatoptions:append("o") -- "o" continues the bullet like <CR> does
     end,
 })
 
