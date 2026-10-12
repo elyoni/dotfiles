@@ -358,7 +358,7 @@ spawn_break_dialog() {
         while true; do
             [ "$(state)" = "awaiting_break" ] || exit 0
 
-            output=$(zenity --info --title "Work Session Done" \
+            output=$(zenity --info --title "Pomodoro Break Time" \
                 --text="<span font='20' weight='bold'>Work session done, time for a break! Click \"Start Break\" when you're ready, postpone if you're mid-task, or take a big break.</span>" \
                 --width=400 --ok-label="Start Break" \
                 --extra-button="Postpone ${POSTPONE_MIN} min" --extra-button="Big Break" 2>/dev/null)
@@ -485,7 +485,7 @@ return_to_work() {
 spawn_return_dialog() {
     (
         while true; do
-            zenity --info --title "Break's Over" \
+            zenity --info --title "Pomodoro Return" \
                 --text="<span font='20' weight='bold'>Break's over! Click \"I'm back\" when you're at the computer.</span>" \
                 --width=400 --ok-label="I'm back" 2>/dev/null
             [ $? -eq 0 ] && break
