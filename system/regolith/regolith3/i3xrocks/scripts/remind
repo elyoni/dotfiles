@@ -3,9 +3,9 @@
 # jobs, countdowns, processes, agent notifications).
 #
 # Right click:  watch the pipeline/job URL currently in the clipboard.
-# Left click:   open one of the watched items in the browser (if it has a URL).
+# Left click / scroll: list running + finished items; Enter opens the link,
+#               Alt+d deletes a finished item.
 # Middle click: remove one of the watched items from the list.
-# Scroll:       view finished items (and optionally clear the history).
 #
 # When a watched item finishes, `remind` shows a notification with "OK"
 # (removes it) and "Postpone" (snoozes and asks again later). Either way it
@@ -14,6 +14,48 @@
 REMIND="$HOME/.dotfiles/applications/remind/scripts/remind"
 
 "$REMIND" ensure-watchers
+
+# Left click / scroll: one list with running (⏳) and finished (✅/❌) items.
+#   Enter: open the item's URL    Alt+d: delete the highlighted finished item
+open_picker() {
+  while true; do
+    active=$("$REMIND" list)
+    finished=$("$REMIND" list --finished)
+    # Unified rows: id<TAB>kind<TAB>label<TAB>url<TAB>state<TAB>ago
+    all=$( { echo "$active" | awk -F'\t' 'NF { print $1 "\t" $2 "\t" $3 "\t" $4 "\trunning\t" }'
+             echo "$finished"; } | awk 'NF')
+    if [ -z "$all" ]; then
+      notify-send -t 3000 "Remind" "Nothing watched or finished.\nRight-click to watch the pipeline/job link in your clipboard."
+      return
+    fi
+    entries=$(echo "$all" | awk -F'\t' '{
+      icon = ($5 == "running") ? "⏳" : ($5 == "failed") ? "❌" : ($5 == "success" || $5 == "done") ? "✅" : "⚪"
+      ago = ($6 != "") ? " (" $5 ", " $6 ")" : ""
+      printf "%s %s  [%s] %s%s\n", icon, $1, $2, $3, ago
+    }')
+    [ -n "$finished" ] && entries=$(printf "🗑  Clear all finished\n%s" "$entries")
+    choice=$(echo "$entries" | rofi -dmenu -i -p "Remind" \
+      -mesg "Enter: open link · Alt+d: delete finished item" -kb-custom-1 "Alt+d")
+    rc=$?
+    [ -z "$choice" ] && return
+    if [ "${choice#🗑}" != "$choice" ]; then
+      "$REMIND" clear-finished
+      return
+    fi
+    chosen_id=$(echo "$choice" | awk '{ print $2 }')
+    if [ "$rc" -eq 10 ]; then
+      "$REMIND" remove-finished "$chosen_id"
+      continue
+    fi
+    url=$(echo "$all" | awk -F'\t' -v id="$chosen_id" '$1 == id { print $4 }')
+    if [ -n "$url" ] && [ "$url" != "-" ]; then
+      xdg-open "$url" >/dev/null 2>&1 &
+    else
+      notify-send -t 3000 "Remind" "Nothing to open for this reminder."
+    fi
+    return
+  done
+}
 
 # Each line from `remind list` is: id<TAB>kind<TAB>label<TAB>url-or-"-"
 to_display_line() {
@@ -25,22 +67,8 @@ id_from_display_line() {
 }
 
 case "$BLOCK_BUTTON" in
-  1) # left click: open a watched item's URL
-    items=$("$REMIND" list)
-    if [ -z "$items" ]; then
-      notify-send -t 3000 "Remind" "Not watching anything.\nRight-click to watch the pipeline/job link in your clipboard."
-    else
-      choice=$(echo "$items" | to_display_line | rofi -dmenu -p "Open")
-      if [ -n "$choice" ]; then
-        chosen_id=$(echo "$choice" | id_from_display_line)
-        url=$(echo "$items" | awk -F'\t' -v id="$chosen_id" '$1 == id { print $4 }')
-        if [ -n "$url" ] && [ "$url" != "-" ]; then
-          xdg-open "$url" >/dev/null 2>&1 &
-        else
-          notify-send -t 3000 "Remind" "Nothing to open for this reminder."
-        fi
-      fi
-    fi
+  1|4|5) # left click / scroll: running + finished list
+    open_picker
     ;;
   2) # middle click: remove a watched item
     items=$("$REMIND" list)
@@ -64,26 +92,20 @@ case "$BLOCK_BUTTON" in
       notify-send -t 3000 "Remind" "Clipboard doesn't look like a pipeline/job URL:\n$url"
     fi
     ;;
-  4|5) # scroll: view finished items
-    finished=$("$REMIND" list --finished)
-    if [ -z "$finished" ]; then
-      notify-send -t 3000 "Remind" "No finished reminders."
-    else
-      entries=$(echo "$finished" | awk -F'\t' '{ printf "%s  [%s] %s (%s, %s)\n", $1, $2, $3, $5, $6 }')
-      choice=$(printf "Clear all finished\n%s\n" "$entries" | rofi -dmenu -p "Finished")
-      if [ "$choice" = "Clear all finished" ]; then
-        "$REMIND" clear-finished
-      fi
-    fi
-    ;;
 esac
 
-count=$("$REMIND" list | wc -l)
-if [ "$count" -gt 0 ]; then
-  echo "🔧 $count"
-  echo "🔧 $count"
-  echo "#91E78B"
+running=$("$REMIND" list | wc -l)
+failed=$("$REMIND" list --finished | awk -F'\t' '$5 == "failed"' | wc -l)
+
+if [ "$running" -gt 0 ] && [ "$failed" -gt 0 ]; then
+  text="❌🔧$running"; color="#FF6B6B"
+elif [ "$running" -gt 0 ]; then
+  text="🔧$running"; color="#91E78B"
+elif [ "$failed" -gt 0 ]; then
+  text="❌"; color="#FF6B6B"
 else
-  echo ""
-  echo ""
+  text="💤"; color="#888888"
 fi
+echo "$text"
+echo "$text"
+echo "$color"
