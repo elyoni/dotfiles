@@ -15,7 +15,7 @@ prefix = "alt+b"
 
 help = "alt+?"
 settings = "alt+,"
-detach = "alt+q"
+detach = "prefix+q"
 reload_config = "alt+shift+r"
 open_notification_target = "alt+o"
 workspace_picker = "alt+w"
