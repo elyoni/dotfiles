@@ -282,3 +282,5 @@
 [credential "https://gist.github.com"]
 	helper = 
 	helper = !/usr/bin/gh auth git-credential
+[core]
+	excludesFile = /home/yonie@liveu.tv/.config/git/ignore
