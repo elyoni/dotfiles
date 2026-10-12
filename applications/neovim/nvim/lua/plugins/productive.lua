@@ -68,7 +68,7 @@ return {
             { "<leader>od", "<cmd>ObsidianToday<CR>",      desc = "Todays Note" },
             { "<leader>oy", "<cmd>ObsidianYesterday <CR>", desc = "Yesterday Note" },
             { "<leader>oD", "<cmd>ObsidianDailies<CR>",    desc = "Daily Notes" },
-            { "<leader>oa", "<cmd>ObsidianActiveTasks<CR>", desc = "Active tasks" },
+            { "<leader>oa", "<cmd>ObsidianActiveTasks<CR>", desc = "Tickets index" },
             { "<leader>ojn", "<cmd>ObsidianNewJiraTicket<CR>", desc = "New Jira ticket + link daily" },
             { "<leader>ojl", "<cmd>ObsidianLinkJiraTicket<CR>", desc = "Link Jira ticket to daily" },
             { "<leader>ojo", "<cmd>ObsidianOpenJiraTicket<CR>", desc = "Open active Jira tickets" },

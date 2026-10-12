@@ -157,7 +157,8 @@ local handlers = {
         if not ticket_title or ticket_title == "" then return end
         local slug = slugify(ticket_title)
         local date = get_date()
-        local file_path = VAULT_ROOT .. "/01-Areas/work/tickets/" .. ticket_id .. "-" .. slug .. ".md"
+        local basename = ticket_id .. "-" .. slug
+        local file_path = VAULT_ROOT .. "/01-Areas/work/tickets/active/" .. basename .. "/" .. basename .. ".md"
         
       local content, err = process_template("04-Meta/templates/ticket-note.md", {
         ["ticket-id"] = ticket_id,

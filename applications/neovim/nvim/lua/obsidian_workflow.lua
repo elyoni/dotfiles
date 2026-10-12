@@ -6,9 +6,11 @@ M._last_jira_ticket_scope = "active"
 
 local VAULT_ROOT = "/home/yonie@liveu.tv/private/obsidian/work"
 local DAILY_DIR = VAULT_ROOT .. "/00-Inbox/daily-notes"
-local TICKETS_DIR = VAULT_ROOT .. "/01-Areas/work/tickets"
-local ARCHIVE_DIR = TICKETS_DIR .. "/archive"
-local ACTIVE_TASKS = VAULT_ROOT .. "/01-Areas/work/active-tasks.md"
+-- Tickets live in <status>/<KEY-slug>/<KEY-slug>.md; the folder also holds plans/briefs for that ticket.
+local TICKETS_ROOT = VAULT_ROOT .. "/01-Areas/work/tickets"
+local TICKETS_DIR = TICKETS_ROOT .. "/active"
+local ARCHIVE_DIR = TICKETS_ROOT .. "/done"
+local TICKETS_INDEX = TICKETS_ROOT .. "/00-tickets-index.md"
 local FILTER_HISTORY_FILE = vim.fn.stdpath("data") .. "/jira_ticket_filter.json"
 
 local function slugify(str)
@@ -90,11 +92,38 @@ local function write_lines(file_path, lines)
 end
 
 function M.open_active_tasks()
-  if vim.fn.filereadable(ACTIVE_TASKS) == 0 then
-    vim.notify("active-tasks.md not found", vim.log.levels.ERROR)
+  if vim.fn.filereadable(TICKETS_INDEX) == 0 then
+    vim.notify("00-tickets-index.md not found", vim.log.levels.ERROR)
     return
   end
-  vim.cmd("edit " .. vim.fn.fnameescape(ACTIVE_TASKS))
+  vim.cmd("edit " .. vim.fn.fnameescape(TICKETS_INDEX))
+end
+
+--- Main note path for a ticket folder basename in dir
+local function ticket_main_path(dir, basename)
+  return dir .. "/" .. basename .. "/" .. basename .. ".md"
+end
+
+--- Main notes only (file named like its folder), not the plan/brief files beside it
+local function glob_ticket_mains(dir)
+  local paths = {}
+  for _, folder in ipairs(vim.fn.glob(dir .. "/FP-*", false, true)) do
+    local main = ticket_main_path(dir, vim.fn.fnamemodify(folder, ":t"))
+    if vim.fn.isdirectory(folder) == 1 and vim.fn.filereadable(main) == 1 then
+      table.insert(paths, main)
+    end
+  end
+  return paths
+end
+
+--- Find an existing ticket folder for ticket_id (any slug); returns main path or nil
+local function find_ticket(dir, ticket_id)
+  for _, path in ipairs(glob_ticket_mains(dir)) do
+    if vim.fn.fnamemodify(path, ":t:r"):match("^(FP%-%d+)") == ticket_id then
+      return path
+    end
+  end
+  return nil
 end
 
 function M.ensure_daily_note()
@@ -182,14 +211,11 @@ function M.create_ticket_file(ticket_id, ticket_title)
   local slug = slugify(ticket_title)
   local date = get_date()
   local basename = ticket_id .. "-" .. slug
-  local file_path = TICKETS_DIR .. "/" .. basename .. ".md"
-  local archive_path = ARCHIVE_DIR .. "/" .. basename .. ".md"
+  local file_path = ticket_main_path(TICKETS_DIR, basename)
 
-  if vim.fn.filereadable(file_path) == 1 or vim.fn.filereadable(archive_path) == 1 then
-    if vim.fn.filereadable(file_path) == 1 then
-      return file_path, basename, true
-    end
-    return archive_path, basename, true
+  local existing = find_ticket(TICKETS_DIR, ticket_id) or find_ticket(ARCHIVE_DIR, ticket_id)
+  if existing then
+    return existing, vim.fn.fnamemodify(existing, ":t:r"), true
   end
 
   local content, err = process_template("04-Meta/templates/ticket-note.md", {
@@ -307,14 +333,14 @@ function M.list_ticket_paths(scope)
   local entries = {}
 
   if scope == "active" or scope == "all" then
-    for _, path in ipairs(vim.fn.glob(TICKETS_DIR .. "/FP-*.md", false, true)) do
+    for _, path in ipairs(glob_ticket_mains(TICKETS_DIR)) do
       table.insert(entries, { path = path, archived = false })
     end
   end
 
   if scope == "archive" or scope == "all" then
     ensure_dir(ARCHIVE_DIR)
-    for _, path in ipairs(vim.fn.glob(ARCHIVE_DIR .. "/FP-*.md", false, true)) do
+    for _, path in ipairs(glob_ticket_mains(ARCHIVE_DIR)) do
       table.insert(entries, { path = path, archived = true })
     end
   end
@@ -334,17 +360,31 @@ function M.list_ticket_files()
   return files
 end
 
-local function move_ticket_file(path, dest_dir)
+--- Move the whole ticket folder to dest_dir and set frontmatter status
+local function move_ticket_file(path, dest_dir, status)
   ensure_dir(dest_dir)
-  local basename = vim.fn.fnamemodify(path, ":t")
-  local dest = dest_dir .. "/" .. basename
+  local folder = vim.fn.fnamemodify(path, ":h")
+  local basename = vim.fn.fnamemodify(path, ":t:r")
+  local dest_folder = dest_dir .. "/" .. basename
+  local dest = ticket_main_path(dest_dir, basename)
 
-  if vim.fn.filereadable(dest) == 1 then
-    return nil, "File already exists: " .. dest
+  if vim.fn.isdirectory(dest_folder) == 1 then
+    return nil, "Folder already exists: " .. dest_folder
   end
 
-  if vim.fn.rename(path, dest) ~= 0 then
-    return nil, "Failed to move ticket file"
+  if vim.fn.rename(folder, dest_folder) ~= 0 then
+    return nil, "Failed to move ticket folder"
+  end
+
+  local lines = read_lines(dest)
+  if lines then
+    for i, line in ipairs(lines) do
+      if line:match("^status:") then
+        lines[i] = "status: " .. status
+        write_lines(dest, lines)
+        break
+      end
+    end
   end
 
   local bufnr = vim.fn.bufnr(path)
@@ -359,14 +399,14 @@ function M.archive_ticket(path)
   if path:find(ARCHIVE_DIR, 1, true) then
     return nil, "Ticket is already archived"
   end
-  return move_ticket_file(path, ARCHIVE_DIR)
+  return move_ticket_file(path, ARCHIVE_DIR, "done")
 end
 
 function M.unarchive_ticket(path)
   if not path:find(ARCHIVE_DIR, 1, true) then
     return nil, "Ticket is not archived"
   end
-  return move_ticket_file(path, TICKETS_DIR)
+  return move_ticket_file(path, TICKETS_DIR, "active")
 end
 
 local function load_jira_filter()

@@ -33,7 +33,7 @@ return {
             { "<leader>g", group = "git" },
             { "<leader>n", group = "new" },
             { "<leader>o", group = "obsidian" },
-            { "<leader>oa", desc = "Active tasks" },
+            { "<leader>oa", desc = "Tickets index" },
             { "<leader>ob", desc = "New todo below" },
             { "<leader>oc", desc = "Toggle checkbox" },
             { "<leader>oD", desc = "Daily notes" },

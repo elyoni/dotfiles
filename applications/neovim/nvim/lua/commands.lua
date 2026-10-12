@@ -72,7 +72,7 @@ vim.api.nvim_create_user_command(
     function()
         obsidian_workflow.open_active_tasks()
     end,
-    { desc = "Open active-tasks.md" }
+    { desc = "Open tickets index (00-tickets-index.md)" }
 )
 vim.api.nvim_create_user_command(
     "ObsidianNewJiraTicket",
