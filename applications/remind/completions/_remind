@@ -19,6 +19,7 @@ _remind-first() {
         'remove:Stop watching and drop an item'
         'list:List watched items'
         'clear-finished:Drop all finished items from history'
+        'remove-finished:Drop one finished item from history'
         'ensure-watchers:Spawn watchers for queued items missing one'
     )
     _describe 'command' subs
@@ -67,6 +68,9 @@ _remind() {
                     ;;
                 remove)
                     _arguments '2:id:_remind-ids'
+                    ;;
+                remove-finished)
+                    _arguments '2:id:_remind-finished-ids'
                     ;;
                 list)
                     _arguments '2:option:(--finished)'

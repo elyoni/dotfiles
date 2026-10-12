@@ -13,6 +13,7 @@ Usage:
   remind list                            List watched (active) items: id, kind, label, url-or-"-"
   remind list --finished                 List finished items: id, kind, label, url-or-"-", status, finished-ago
   remind clear-finished                  Drop all finished items from the history list
+  remind remove-finished <id>            Drop one finished item from the history list
   remind ensure-watchers                 (internal) spawn watchers for queued items missing one
   remind watch <id>                      (internal) poll a single item until it finishes, then notify
 
@@ -44,7 +45,8 @@ LOG_DIR = os.path.join(STATE_DIR, "logs")
 POLL_INTERVAL_SECONDS = int(os.environ.get("REMIND_POLL_SECONDS", "30"))
 POSTPONE_SECONDS = int(os.environ.get("REMIND_POSTPONE_SECONDS", str(15 * 60)))
 MAX_CONSECUTIVE_FAILURES = 20
-HISTORY_LIMIT = 50
+HISTORY_LIMIT = 200
+HISTORY_DAYS = int(os.environ.get("REMIND_HISTORY_DAYS", "7"))
 
 FINISHED_STATUSES = {"success", "failed", "canceled", "skipped"}
 URL_RE = re.compile(r"^https?://([^/]+)/(.+?)/-/(pipelines|jobs)/(\d+)")
@@ -277,12 +279,17 @@ def notify_finished(item, status):
         return
 
 
+def prune_history(history):
+    cutoff = time.time() - HISTORY_DAYS * 86400
+    return [h for h in history if h.get("finished_at", cutoff + 1) >= cutoff]
+
+
 def append_history(item, status):
     entry = dict(item)
     entry["status"] = status
     entry["finished_at"] = time.time()
     with locked():
-        history = read_history()
+        history = prune_history(read_history())
         history.append(entry)
         if len(history) > HISTORY_LIMIT:
             history = history[-HISTORY_LIMIT:]
@@ -364,8 +371,10 @@ def spawn_watcher(item):
 
 def cmd_add_pipeline(url, kind):
     ensure_dirs()
+    parsed = parse_url(url)
+    label = f"{parsed[1]} #{parsed[3]}" if parsed else url
     item = {
-        "id": new_id(), "kind": kind, "label": url,
+        "id": new_id(), "kind": kind, "label": label,
         "created_at": time.time(), "url": url,
     }
     item = add_to_queue(item)
@@ -426,7 +435,7 @@ def cmd_list():
 
 def cmd_list_finished():
     now = time.time()
-    for item in reversed(read_history()):
+    for item in reversed(prune_history(read_history())):
         ago = format_remaining(now - item.get("finished_at", now)) + " ago"
         print("\t".join([
             item["id"], item["kind"], item.get("label", ""),
@@ -437,6 +446,11 @@ def cmd_list_finished():
 def cmd_clear_finished():
     with locked():
         write_history([])
+
+
+def cmd_remove_finished(item_id):
+    with locked():
+        write_history([h for h in read_history() if h["id"] != item_id])
 
 
 def cmd_ensure_watchers():
@@ -517,6 +531,9 @@ def main():
         return
     elif cmd == "clear-finished" and not rest:
         cmd_clear_finished()
+        return
+    elif cmd == "remove-finished" and len(rest) == 1:
+        cmd_remove_finished(rest[0])
         return
     elif cmd == "ensure-watchers" and not rest:
         cmd_ensure_watchers()
