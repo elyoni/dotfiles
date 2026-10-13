@@ -20,8 +20,8 @@ Usage:
 Every watched item is polled/waited on in its own background process. When it
 finishes, a notification is shown with two actions: "OK" (stop watching,
 remove from the list) and "Postpone" (keep it, show the same notification
-again after PIPELINE_WATCH_POSTPONE_SECONDS). Either way, once acknowledged
-the item moves from the active list into the finished history.
+again after REMIND_POSTPONE_SECONDS). The item moves from the active list into
+the finished history as soon as it finishes, before the notification is acked.
 
 State lives under ~/.local/state/remind/.
 """
@@ -297,9 +297,9 @@ def append_history(item, status):
 
 
 def finish_item(item, status):
-    notify_finished(item, status)
     append_history(item, status)
     remove_from_queue(item["id"])
+    notify_finished(item, status)
 
 
 def watch_pipeline(item):
