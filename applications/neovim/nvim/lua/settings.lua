@@ -78,20 +78,37 @@ vim.opt.clipboard = { "unnamed", "unnamedplus" }
 -- fails over SSH+tmux because Neovim writes the sequence to stderr.
 local tmux_env = os.getenv('TMUX')
 local in_tmux = tmux_env and os.execute('tmux list-sessions >/dev/null 2>&1') == 0
-local in_ssh = os.getenv('SSH_TTY') or os.getenv('SSH_CLIENT') or os.getenv('SSH_CONNECTION')
+-- Outside tmux: copy via OSC 52 (reaches the local terminal's clipboard over SSH, also
+-- through herdr, whose panes keep a stale env so SSH_* can't be trusted) AND via xclip when
+-- a display exists (so it also works sitting at the machine). Paste reads xclip.
+local osc52 = require('vim.ui.clipboard.osc52')
+local function has_xclip() return os.getenv('DISPLAY') and vim.fn.executable('xclip') == 1 end
+local function provider(reg, sel)
+    local osc_copy = osc52.copy(reg)
+    return {
+        copy = function(lines, regtype)
+            osc_copy(lines, regtype)
+            if has_xclip() then
+                pcall(vim.fn.system, { 'xclip', '-selection', sel, '-i' }, lines)
+            end
+        end,
+        paste = function()
+            if has_xclip() then
+                local out = vim.fn.systemlist({ 'xclip', '-selection', sel, '-o' })
+                if vim.v.shell_error == 0 then return { out, 'v' } end
+            end
+            return 0
+        end,
+    }
+end
 if in_tmux then
     vim.g.clipboard = 'tmux'
-elseif in_ssh then
+else
+    local plus, star = provider('+', 'clipboard'), provider('*', 'primary')
     vim.g.clipboard = {
-        name = 'OSC 52',
-        copy = {
-            ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
-            ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
-        },
-        paste = {
-            ['+'] = function() return 0 end,
-            ['*'] = function() return 0 end,
-        },
+        name = 'OSC 52 + xclip',
+        copy = { ['+'] = plus.copy, ['*'] = star.copy },
+        paste = { ['+'] = plus.paste, ['*'] = star.paste },
     }
 end
 
