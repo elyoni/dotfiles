@@ -50,6 +50,24 @@ vim.keymap.set("n", "<leader>zf", FoldByType, with_desc("Fold by type (code/head
 
 vim.cmd("set foldmethod=marker")
 
+vim.keymap.set('n', '<leader>dn', vim.diagnostic.goto_next, { noremap = true })
+vim.keymap.set('n', '<leader>dp', vim.diagnostic.goto_prev, { noremap = true })
+vim.keymap.set('n', '<leader>ds', vim.diagnostic.open_float, { noremap = true })
+
+-- Spelling/grammar (harper_ls diagnostics)
+vim.keymap.set('n', '<leader>sn', vim.diagnostic.goto_next, with_desc("Next spelling/grammar issue"))
+vim.keymap.set('n', '<leader>sp', vim.diagnostic.goto_prev, with_desc("Previous spelling/grammar issue"))
+vim.keymap.set('n', '<leader>ss', vim.lsp.buf.code_action, with_desc("Suggest fix for word under cursor"))
+vim.keymap.set('n', '<leader>sk', function()
+    vim.lsp.buf.code_action({
+        apply = true,
+        filter = function(action)
+            local title = action.title:lower()
+            return title:match('keep') or title:match('add') or title:match('ignore')
+        end,
+    })
+end, with_desc("Keep current word (add to dictionary)"))
+
 -- Tabs
 vim.keymap.set("n", "<leader>tn", "<cmd>tabnew<CR>", with_desc("New tab"))
 vim.keymap.set("n", "<leader>tc", "<cmd>tabclose<CR>", with_desc("Close tab"))
