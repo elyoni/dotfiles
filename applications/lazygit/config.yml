@@ -1,0 +1,7 @@
+customCommands:
+  # Show version number (commit count up to selected commit) in a popup
+  - key: 'V'
+    context: 'commits'
+    description: 'Show commit count (version) up to selected commit'
+    command: 'git rev-list --count {{.SelectedLocalCommit.Hash}}'
+    output: popup

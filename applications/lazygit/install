@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+
+DIR=$(dirname "${BASH_SOURCE[0]}")
+DIR=$(cd -P $DIR && pwd)
+
+function _link_files()
+{
+    echo ======= link_files =======
+    mkdir -p $HOME/.config/lazygit
+    ln -sf $DIR/config.yml $HOME/.config/lazygit/config.yml
+    echo =======    end    =======
+}
+
+function _install_lazygit()
+{
+    local download_path=/tmp/apps/lazygit
+    local version
+    echo ====== START: Install lazygit =====
+    version=$(curl -s https://api.github.com/repos/jesseduffield/lazygit/releases/latest | awk -F\" '/"tag_name"/{print substr($(NF-1),2)}')
+    echo ======= install lazygit Version $version =======
+    mkdir -p ${download_path}
+    curl -L -o ${download_path}/lazygit.tar.gz \
+        "https://github.com/jesseduffield/lazygit/releases/download/v${version}/lazygit_${version}_Linux_x86_64.tar.gz"
+    tar -C ${download_path} -xzf ${download_path}/lazygit.tar.gz lazygit
+    sudo install ${download_path}/lazygit /usr/local/bin/lazygit
+    echo ====== END: Install lazygit =====
+}
+
+function install() # Install everything
+{
+    _install_lazygit
+    _link_files
+}
+
+function verify()
+{
+    if ! which lazygit; then
+        echo "VERIFY FAILED: lazygit binary file wasn't installed"
+        exit 1
+    fi
+    lazygit --version
+}
+
+function help() # Show a list of functions
+{
+    awk '/^function / && ! /^function _/' "$0"
+}
+
+if [ $# -eq 0 ]; then
+    help
+else
+    "$@"
+fi
