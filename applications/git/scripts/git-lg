@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# git lg: graph log with per-commit "N" = commits since nearest tag
+# (the middle field of `git describe --tags`, same N used in docker image tags).
+
+run() {
+    git log --color=always --graph --abbrev-commit \
+        --pretty=format:$'\x01%(describe:tags)\x02%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' \
+        "$@" |
+        awk '
+            match($0, /\001[^\002]*\002/) {
+                s = RSTART; l = RLENGTH
+                d = substr($0, s + 1, l - 2)
+                if (d == "") n = "-"
+                else if (match(d, /-[0-9]+-g[0-9a-f]+$/)) { n = substr(d, RSTART + 1); sub(/-g.*/, "", n) }
+                else n = 0
+                $0 = substr($0, 1, s - 1) sprintf("\033[36m%4s\033[m ", n) substr($0, s + l)
+            }
+            { print }'
+}
+
+if [ -t 1 ]; then
+    run "$@" | ${GIT_PAGER:-less -FRX}
+else
+    run "$@"
+fi

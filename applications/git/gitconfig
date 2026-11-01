@@ -21,7 +21,7 @@
 # Fetch
     fa = fetch --all
     fb = "!f() { git fetch $(git remote | head -n 1) $1; }; f"  # Fetch branch
-    lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+    lg = !git-lg
     delete = !git-delete
     ph = push
     cpb = !"f() { git branch | grep -e '^*' |  sed 's/^* //' | tr -d '\n' | xclip -sel clip ; }; f"
