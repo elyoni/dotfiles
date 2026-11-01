@@ -8,6 +8,7 @@ Left click: pick from the rest of today's meetings (rofi if available, else
 notify-send) to see its description.
 Config: OUTLOOK_CALENDAR_ICS_URL env var, or ICS_URL= line in ~/.config/calendar.env
 """
+import html
 import os
 import shutil
 import subprocess
@@ -60,7 +61,8 @@ def fetch_ics(url):
 
 def truncate(text, length=MAX_TITLE_LEN):
     text = " ".join(text.split())
-    return text if len(text) <= length else text[: length - 1] + "…"
+    text = text if len(text) <= length else text[: length - 1] + "…"
+    return html.escape(text)  # i3xrocks uses markup=pango; raw & or < hides the block
 
 
 def format_delta(minutes):
