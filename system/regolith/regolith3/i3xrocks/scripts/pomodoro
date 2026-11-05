@@ -10,8 +10,14 @@
 #   break (countdown) --timeout--> blocking popup + phone/Garmin ping
 #                                   --user clicks "I'm back"--> work (countdown)
 #
-# Left click:  idle -> prompt for work/break minutes and start.
-#              work -> ask whether to skip to break, change duration, or stop.
+# Tasks come from the "## Today" checklist of today's daily note (open
+# [ ] / [~] / [!] items), picked via a checklist; "Add new task" appends a
+# new "- [ ]" line to the note first.
+#
+# Left click:  idle -> prompt for work/break minutes, pick tasks, and start.
+#              work -> ask whether to split the session (log segment so far,
+#                       mark finished tasks [x], pick next tasks, countdown
+#                       keeps running), skip to break, change duration, or stop.
 #              break -> ask whether to change duration or stop.
 #              awaiting_break/awaiting_return -> show a quick status
 #                                       notification (no interruption).
@@ -88,6 +94,121 @@ ensure_daily_note() {
     sed -e "s/{{date:[^}]*}}/${date}/g" -e "s/{{date}}/${date}/g" \
         "$DAILY_NOTE_TEMPLATE" > "$daily_note"
     echo "$daily_note"
+}
+
+# Prints the open tasks (one per line, checkbox prefix stripped) from the
+# "## Today" section of the given daily note. Open = [ ] / [~] / [!].
+open_tasks() {
+    awk '
+        /^## / { in_t = ($0 == "## Today"); next }
+        in_t && match($0, /^- \[[ ~!]\] /) { print substr($0, RLENGTH + 1) }
+    ' "$1"
+}
+
+# Appends "- [ ] <task>" to the "## Today" section of today's daily note
+# (after the last existing line of that section), creating the heading if
+# the note somehow lacks it.
+add_task_to_note() {
+    local task="$1" note
+    note=$(ensure_daily_note "$(date +%Y-%m-%d)") || return 1
+    TASK="$task" awk '
+        { lines[NR] = $0 }
+        /^## / { in_t = ($0 == "## Today"); if (in_t) { found = 1; ins = NR }; next }
+        in_t && /^[ \t]*[^ \t]/ { ins = NR }
+        in_t && /^- \[.\] /     { has_task = 1 }
+        END {
+            for (i = 1; i <= NR; i++) {
+                print lines[i]
+                if (found && i == ins) {
+                    if (!has_task) print ""
+                    print "- [ ] " ENVIRON["TASK"]
+                }
+            }
+            if (!found) { print ""; print "## Today"; print ""; print "- [ ] " ENVIRON["TASK"] }
+        }
+    ' "$note" > "$note.tmp" && mv "$note.tmp" "$note"
+}
+
+# Flips the first matching open task in "## Today" to "- [x]".
+mark_task_done() {
+    local task="$1" note
+    note=$(ensure_daily_note "$(date +%Y-%m-%d)") || return 1
+    TASK="$task" awk '
+        /^## / { in_t = ($0 == "## Today") }
+        in_t && !done && match($0, /^- \[[ ~!]\] /) && substr($0, RLENGTH + 1) == ENVIRON["TASK"] {
+            $0 = "- [x] " ENVIRON["TASK"]; done = 1
+        }
+        { print }
+    ' "$note" > "$note.tmp" && mv "$note.tmp" "$note"
+}
+
+# Checklist of today's open daily-note tasks. $1 = newline-separated labels to
+# preselect. Prints the chosen tasks, one per line. The last row, "Add new
+# task", prompts for a label, appends it to the daily note and includes it.
+# Returns 1 if the dialog was cancelled. Falls back to a free-text box if the
+# daily note can't be created.
+pick_tasks() {
+    local preselect="$1" note out sel i id label
+    local -a tasks=() rows=() ids=() chosen=()
+
+    if ! note=$(ensure_daily_note "$(date +%Y-%m-%d)"); then
+        ask_multiline "Pomodoro" "$preselect" "What are you working on? (multiple lines OK)"
+        return 0
+    fi
+
+    mapfile -t tasks < <(open_tasks "$note")
+    for i in "${!tasks[@]}"; do
+        sel=FALSE
+        grep -qxF -- "${tasks[$i]}" <<<"$preselect" && sel=TRUE
+        rows+=("$sel" "$i" "${tasks[$i]}")
+    done
+    rows+=(FALSE new "➕ Add new task…")
+
+    out=$(zenity --list --checklist --title "Pick Tasks" \
+        --text "Which task(s) are you working on?" \
+        --column=Pick --column=ID --column=Task --hide-column=2 --print-column=2 \
+        --separator=, --width=640 --height=420 --ok-label="Start" \
+        "${rows[@]}" 2>/dev/null) || return 1
+
+    IFS=, read -ra ids <<<"$out"
+    for id in "${ids[@]}"; do
+        if [ "$id" = "new" ]; then
+            label=$(zenity --entry --title "New Task" --text "New task (added to today's daily note):" 2>/dev/null)
+            if [ -n "$label" ]; then
+                add_task_to_note "$label"
+                chosen+=("$label")
+            fi
+        elif [ -n "$id" ]; then
+            chosen+=("${tasks[$id]}")
+        fi
+    done
+    [ "${#chosen[@]}" -gt 0 ] && printf '%s\n' "${chosen[@]}"
+    return 0
+}
+
+# Checklist over the current session's tasks ($1, newline-separated); prints
+# the ones ticked as finished, one per line. Cancel/none -> prints nothing.
+pick_finished() {
+    local tasks="$1" out id line
+    local -a items=() rows=() ids=()
+    [ -n "$tasks" ] || return 0
+
+    mapfile -t items <<<"$tasks"
+    for id in "${!items[@]}"; do
+        rows+=(FALSE "$id" "${items[$id]}")
+    done
+
+    out=$(zenity --list --checklist --title "Finished?" \
+        --text "Which task(s) did you finish? (marked [x] in the daily note)" \
+        --column=Done --column=ID --column=Task --hide-column=2 --print-column=2 \
+        --separator=, --width=640 --height=360 --ok-label="Mark done" \
+        "${rows[@]}" 2>/dev/null) || return 0
+
+    IFS=, read -ra ids <<<"$out"
+    for id in "${ids[@]}"; do
+        [ -n "$id" ] && printf '%s\n' "${items[$id]}"
+    done
+    return 0
 }
 
 # Appends one completed work-session entry to today's daily note under a
@@ -262,11 +383,12 @@ retarget_phase() {
 # always accurate, so matching on stdout instead of $? is what's robust here.
 ask_skip_or_stop() {
     output=$(zenity --question --title "Pomodoro" \
-        --text="Skip to break, change duration, or stop the timer?" \
+        --text="Split the session, skip to break, change duration, or stop the timer?" \
         --ok-label="Cancel" \
-        --extra-button="Go to Break" --extra-button="Change Duration" --extra-button="Stop Timer" 2>/dev/null)
+        --extra-button="Split Task" --extra-button="Go to Break" --extra-button="Change Duration" --extra-button="Stop Timer" 2>/dev/null)
 
     case "$output" in
+        "Split Task") split_session ;;
         "Go to Break") skip_to_break ;;
         "Change Duration") retarget_phase work ;;
         "Stop Timer") log_completed_session; stop_cycle ;;
@@ -306,7 +428,7 @@ start_cycle() {
 
     # No answer here just means the task label starts empty - the end-of-session
     # prompt still fires, and only a fully unlabeled session is left unlogged.
-    task=$(ask_multiline "Start Pomodoro" "" "What are you working on? (multiple lines OK)")
+    task=$(pick_tasks "")
 
     echo "$work_min" > "$WORK_MIN_FILE"
     echo "$break_min" > "$BREAK_MIN_FILE"
@@ -462,6 +584,35 @@ log_completed_session() {
     log_session "$started_task" "$end_task" "$start_epoch" "$(date +%s)"
 }
 
+# Splits the running work session without touching the countdown: logs the
+# segment so far (start -> now) to the daily note, lets you tick which tasks
+# are finished (marked [x] in "## Today"), then picks what you continue with.
+# The next segment starts now and still ends at the original target time.
+split_session() {
+    local tasks finished remaining line next now
+    tasks=$(cat "$TASK_FILE" 2>/dev/null)
+
+    log_completed_session
+    now=$(date +%s)
+
+    finished=$(pick_finished "$tasks")
+    remaining="$tasks"
+    while IFS= read -r line; do
+        [ -n "$line" ] || continue
+        mark_task_done "$line"
+        remaining=$(grep -vxF -- "$line" <<<"$remaining")
+    done <<<"$finished"
+
+    # Cancelling the picker keeps the unfinished tasks as the current ones.
+    if next=$(pick_tasks "$remaining"); then
+        remaining="$next"
+    fi
+
+    echo "$remaining" > "$TASK_FILE"
+    echo "$now" > "$SESSION_START_FILE"
+    notify-send "Pomodoro" "Session split - segment logged"
+}
+
 # Ends the break right now and starts a fresh work phase: prompts for the
 # task, resets the session-start/target files, and flips state to "work".
 # Shared by spawn_return_dialog (break timeout -> "I'm back") and the
@@ -470,9 +621,10 @@ return_to_work() {
     work_min=$(cat "$WORK_MIN_FILE" 2>/dev/null)
     work_min=${work_min:-$DEFAULT_WORK_MIN}
 
-    task=$(ask_multiline "Back to Work" "$(cat "$TASK_FILE" 2>/dev/null)" \
-        "What are you working on? (multiple lines OK)")
-    echo "$task" > "$TASK_FILE"
+    # Cancelling the picker keeps the previous session's task(s).
+    if task=$(pick_tasks "$(cat "$TASK_FILE" 2>/dev/null)"); then
+        echo "$task" > "$TASK_FILE"
+    fi
 
     date +%s > "$SESSION_START_FILE"
     echo $(( $(date +%s) + work_min * 60 )) > "$TARGET_FILE"
