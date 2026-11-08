@@ -23,6 +23,9 @@
 # - WIMP_PROJECTS_PATH: Array of paths to search for projects. Example: ("${HOME}"/Private/my_projects/ "${HOME}"/projects)
 
 
+WIMP_EXCLUDE_PATH=('**/yocto-setup/**/*' '**/buildroot/dl/' '**private/rust_book/' '**/buildroot/support')
+WIMP_PROJECTS_PATH=( "${HOME}"/private/ "${HOME}"/projects )
+
 WIMP_HISTORY_DIR=${WIMP_HISTORY_DIR:-"${HOME}"/.config/wimp}
 mkdir -p "${WIMP_HISTORY_DIR}"
 

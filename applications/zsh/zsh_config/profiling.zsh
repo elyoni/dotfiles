@@ -31,3 +31,13 @@ if [[ "${VERBOSE_DEBUG:-false}" == "true" ]]; then
     
     echo "=== Verbose profiling enabled ==="
 fi
+
+# Called at the end of zshrc: zprof summary (DEBUG=true) and load time.
+#   DEBUG=true         -> lightweight zprof summary (zmodload happens in zshrc)
+#   VERBOSE_DEBUG=true -> per-file source timing (above)
+_zshrc_report() {
+    [[ "$DEBUG" == "true" ]] && zprof
+    local ms=$(( (EPOCHREALTIME - _ZSHRC_START) * 1000 ))
+    printf '\033[90mzshrc loaded in %.0fms\033[0m\n' $ms
+    unset _ZSHRC_START
+}

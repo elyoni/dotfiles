@@ -1,7 +1,7 @@
 # Automatic notification for long-running commands
 # No need to add anything to commands - works automatically!
 #
-# Customize by setting these in your ~/.zshrc_user:
+# Customize by setting these in your ~/.zshrc_pc:
 #   export LONG_COMMAND_THRESHOLD=15           # seconds (default: 10)
 #   export NOTIFY_ONLY_WHEN_UNFOCUSED=true     # true/false (default: true)
 #   export NOTIFY_EXCLUDE_COMMANDS="vi nvim ssh"  # space-separated list

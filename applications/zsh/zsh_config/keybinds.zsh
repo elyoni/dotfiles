@@ -19,3 +19,5 @@ bindkey "$terminfo[kcud1]" history-substring-search-down
 autoload -U edit-command-line
 zle -N edit-command-line
 bindkey '\C-v' edit-command-line
+
+bindkey '^[[1;6u' undo             # Ctrl+Shift+U to restore

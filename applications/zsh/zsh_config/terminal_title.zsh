@@ -11,3 +11,5 @@ _title_preexec() {
 autoload -Uz add-zsh-hook
 add-zsh-hook precmd _title_precmd
 add-zsh-hook preexec _title_preexec
+
+termtitle() { printf "\033]0;$*\007"; }

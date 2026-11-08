@@ -1,21 +1,31 @@
 # vim: foldmethod=marker
 
 # Zsh completion {{{1
+# skip_global_compinit=1 (~/.zshenv) suppresses the system compinit so fpath is
+# complete first. compinit must run before any file that calls compdef, so it
+# lives here (loads before plugins.zsh, git_completion.zsh, kubectl_aliases.zsh...).
+fpath=(~/.zsh/completions ~/.zfunc $fpath)
+autoload -U +X bashcompinit && bashcompinit
 autoload -Uz compinit
+{
+    local _zcompdump="${ZDOTDIR:-$HOME}/.zcompdump"
+    # Full check once a day (mh+24 = modified >24h ago), otherwise skip it (-C).
+    if [[ ! -f "$_zcompdump" || -n ${_zcompdump}(#qN.mh+24) ]]; then
+        compinit
+        { zcompile "$_zcompdump" } &!
+    else
+        compinit -C
+    fi
+}
 
-# On slow systems, checking the cached .zcompdump file to see if it must be
-# regenerated adds a noticable delay to zsh startup.  This little hack restricts
-# it to once a day.
-#
-# The globbing is a little complicated here:
-# - '#q' is an explicit glob qualifier that makes globbing work within zsh's [[ ]] construct.
-# - 'N' makes the glob pattern evaluate to nothing when it doesn't match (rather than throw a globbing error)
-# - '.' matches "regular files"
-# - 'mh+24' matches files (or directories or whatever) that are older than 24 hours.
-fpath+=~/.zfunc
-fpath+=~/.zsh/completions/
+# Register ~/.zfunc/_<cmd> files that lack a #compdef header (compinit skips them).
+for _f in ~/.zfunc/_*(N.); do
+    autoload -Uz "${_f:t}"
+    (( $+commands[${${_f:t}#_}] )) && compdef "${_f:t}" "${${_f:t}#_}"
+done
+unset _f
 
-# Note: compinit is called at the end of .zshrc after all fpath modifications
+(( $+commands[aws_completer] )) && complete -C "${commands[aws_completer]}" aws
 
 # Use caching to make completion for commands such as dpkg and apt usable.
 zstyle ':completion::complete:*' use-cache on

@@ -146,3 +146,7 @@ function gdiff() {
     local ref="${1:-master}"
     nvim -c "DiffviewOpen ${ref}"
 }
+
+function cur {
+    ${HOME}/.local/bin/cursor --no-sandbox "$@" &
+}

@@ -1,3 +1,9 @@
+# Environment {{{1
+export SHELL=${commands[zsh]}
+export LANG=en_IL.UTF-8
+export VISUAL=nvim EDITOR=nvim
+HIST_STAMPS="dd.mm.yyyy"
+
 # History {{{1
 HISTFILE="$HOME/.zhistory" # The path to the history file.
 HISTSIZE=10000                   # The maximum number of events to save in the internal history.
