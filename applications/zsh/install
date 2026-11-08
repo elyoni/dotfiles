@@ -22,10 +22,6 @@ function install_zsh {
     fast_apt_install zsh
 }
 
-function install_powerlevel10k() {
-  git clone https://github.com/romkatv/powerlevel10k.git ~/.powerlevel10k --depth=1
-}
-
 function install_starship() {
     echo "Installing Starship prompt..."
     curl -sS https://starship.rs/install.sh | sh -s -- -y
@@ -139,7 +135,6 @@ function install
     install_zsh
     set_zsh_as_default_shell
     link_files
-    install_powerlevel10k
     install_starship
     plugin
 }
