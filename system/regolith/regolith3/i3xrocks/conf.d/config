@@ -19,7 +19,7 @@ interval=1
 interval=3600
 
 [next-meeting]
-interval=60
+interval=5
 
 [remind]
 interval=30

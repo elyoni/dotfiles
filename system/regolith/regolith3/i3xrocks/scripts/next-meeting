@@ -6,9 +6,13 @@
 """i3xrocks blocklet: shows the current/next meeting from a published Outlook ICS feed.
 Left click: pick from the rest of today's meetings (rofi if available, else
 notify-send) to see its description.
-Config: OUTLOOK_CALENDAR_ICS_URL env var, or ICS_URL= line in ~/.config/calendar.env
+Reminders: notify-send N min before (default 5) and when the meeting starts.
+Both are configurable from the rofi menu (⚙ rows); saved in SETTINGS_FILE.
+Config: OUTLOOK_CALENDAR_ICS_URL env var, or OUTLOOK_CALENDAR_ICS_URL= line in ~/.config/calendar.env
 """
 import html
+import json
+import math
 import os
 import shutil
 import subprocess
@@ -19,6 +23,10 @@ from datetime import datetime, timedelta
 CACHE_FILE = os.path.expanduser("~/.cache/i3xrocks-next-meeting.ics")
 CACHE_MAX_AGE = 240  # seconds
 CONFIG_FILE = os.path.expanduser("~/.config/calendar.env")
+SETTINGS_FILE = os.path.expanduser("~/.config/next-meeting.json")
+STATE_FILE = os.path.expanduser("~/.cache/i3xrocks-next-meeting-notified.json")
+DEFAULT_SETTINGS = {"lead_min": 5, "notify_start": True}
+LEAD_CHOICES = [0, 1, 2, 5, 10, 15]  # 0 = no "before" reminder
 MAX_TITLE_LEN = 30
 
 
@@ -65,11 +73,74 @@ def truncate(text, length=MAX_TITLE_LEN):
     return html.escape(text)  # i3xrocks uses markup=pango; raw & or < hides the block
 
 
-def format_delta(minutes):
+def format_delta(seconds):
+    """<1m: seconds. Otherwise minutes rounded UP (2m59s left -> 3m)."""
+    seconds = max(0, int(seconds))
+    if seconds < 60:
+        return f"{seconds}s"
+    minutes = math.ceil(seconds / 60)
     if minutes < 60:
         return f"{minutes}m"
     hours, mins = divmod(minutes, 60)
     return f"{hours}h{mins:02d}m" if mins else f"{hours}h"
+
+
+def load_settings():
+    settings = dict(DEFAULT_SETTINGS)
+    try:
+        with open(SETTINGS_FILE) as f:
+            settings.update(json.load(f))
+    except (OSError, ValueError):
+        pass
+    return settings
+
+
+def save_settings(settings):
+    os.makedirs(os.path.dirname(SETTINGS_FILE), exist_ok=True)
+    with open(SETTINGS_FILE, "w") as f:
+        json.dump(settings, f, indent=2)
+
+
+def send_notification(title, body, urgent=False):
+    cmd = ["notify-send", "-a", "next-meeting"]
+    if urgent:
+        cmd += ["-u", "critical"]
+    subprocess.run(cmd + [title, body], check=False)
+
+
+def check_reminders(now, events, settings):
+    """Stateless-per-run: remember what was already notified in STATE_FILE."""
+    try:
+        with open(STATE_FILE) as f:
+            state = json.load(f)
+    except (OSError, ValueError):
+        state = {}
+    today = now.date().isoformat()
+    state = {k: v for k, v in state.items() if v == today}
+    changed = False
+
+    for start, end, summary, _desc in events:
+        until = (start - now).total_seconds()
+        key = f"{start.isoformat()}|{summary}"
+        lead = settings["lead_min"]
+        # "before" window: from lead min until start
+        if lead and 0 < until <= lead * 60 and f"pre|{key}" not in state:
+            send_notification(
+                f"Meeting in {format_delta(until)}",
+                f"{start.strftime('%H:%M')} {summary}",
+            )
+            state[f"pre|{key}"] = today
+            changed = True
+        # "start" window: first 2 minutes after the start time
+        if settings["notify_start"] and -120 <= until <= 0 and f"start|{key}" not in state:
+            send_notification("Meeting starting now", f"{start.strftime('%H:%M')} {summary}", urgent=True)
+            state[f"start|{key}"] = today
+            changed = True
+
+    if changed:
+        os.makedirs(os.path.dirname(STATE_FILE), exist_ok=True)
+        with open(STATE_FILE, "w") as f:
+            json.dump(state, f)
 
 
 def get_today_events(ics_bytes):
@@ -101,33 +172,63 @@ def get_today_events(ics_bytes):
     return now, result
 
 
-def notify_agenda(now, events):
+def rofi_pick(lines, prompt, mesg=None):
+    cmd = ["rofi", "-dmenu", "-i", "-p", prompt]
+    if mesg:
+        cmd += ["-mesg", mesg]
+    return subprocess.run(
+        cmd, input="\n".join(lines), text=True, capture_output=True, check=False
+    ).stdout.rstrip("\n")
+
+
+def settings_menu(settings):
+    while True:
+        lead = settings["lead_min"]
+        lead_txt = f"{lead} min before" if lead else "off"
+        start_txt = "on" if settings["notify_start"] else "off"
+        rows = [
+            f"⏰ Reminder before meeting: {lead_txt}  (click to change)",
+            f"🔔 Reminder at start: {start_txt}  (click to toggle)",
+            "← Back",
+        ]
+        choice = rofi_pick(rows, "Meeting settings")
+        if choice == rows[0]:
+            opts = [f"{m} min before" if m else "off" for m in LEAD_CHOICES]
+            picked = rofi_pick(opts, "Remind before")
+            if picked in opts:
+                settings["lead_min"] = LEAD_CHOICES[opts.index(picked)]
+                save_settings(settings)
+        elif choice == rows[1]:
+            settings["notify_start"] = not settings["notify_start"]
+            save_settings(settings)
+        else:
+            return
+
+
+def notify_agenda(now, events, settings):
     remaining = [ev for ev in events if ev[1] > now]
+    lines = []
+    for start, end, summary, description in remaining:
+        marker = "▶" if start <= now < end else " "
+        lines.append(f"{marker} {start.strftime('%H:%M')} {summary}")
     if not remaining:
         lines = ["No more meetings today."]
-    else:
-        lines = []
-        for start, end, summary, description in remaining:
-            marker = "▶" if start <= now < end else " "
-            lines.append(f"{marker} {start.strftime('%H:%M')} {summary}")
 
-    if shutil.which("rofi"):
-        choice = subprocess.run(
-            ["rofi", "-dmenu", "-p", "Today's meetings"],
-            input="\n".join(lines),
-            text=True,
-            capture_output=True,
-            check=False,
-        ).stdout.strip()
-        if choice in lines:
-            _, _, summary, description = remaining[lines.index(choice)]
-            body = description or "(no description)"
-            subprocess.run(["rofi", "-e", f"{summary}\n\n{body}"], check=False)
-    else:
+    if not shutil.which("rofi"):
         subprocess.run(
             ["notify-send", "-t", "8000", "Today's meetings", "\n".join(lines)],
             check=False,
         )
+        return
+
+    settings_row = "⚙ Reminder settings…"
+    choice = rofi_pick(lines + [settings_row], "Today's meetings")
+    if choice == settings_row:
+        settings_menu(settings)
+    elif choice in lines and remaining:
+        _, _, summary, description = remaining[lines.index(choice)]
+        body = description or "(no description)"
+        subprocess.run(["rofi", "-e", f"{summary}\n\n{body}"], check=False)
 
 
 def main():
@@ -144,24 +245,27 @@ def main():
 
     now, events = get_today_events(ics_bytes)
 
+    settings = load_settings()
+    check_reminders(now, events, settings)
+
     if os.environ.get("BLOCK_BUTTON") == "1":
-        notify_agenda(now, events)
+        notify_agenda(now, events, settings)
 
     current = next((ev for ev in events if ev[0] <= now < ev[1]), None)
     upcoming = next((ev for ev in events if ev[0] > now), None)
 
     if current:
         start, end, summary, _description = current
-        remaining_min = int((end - now).total_seconds() // 60)
-        full = f"🔴 {truncate(summary)} ({format_delta(remaining_min)} left)"
-        short = f"🔴 {format_delta(remaining_min)}"
+        remaining = (end - now).total_seconds()
+        full = f"🔴 {truncate(summary)} ({format_delta(remaining)} left)"
+        short = f"🔴 {format_delta(remaining)}"
         color = "#ff5555"
     elif upcoming:
         start, end, summary, _description = upcoming
-        in_min = int((start - now).total_seconds() // 60)
-        full = f"📅 {truncate(summary)} in {format_delta(in_min)}"
-        short = f"📅 {format_delta(in_min)}"
-        color = "#ffaa00" if in_min <= 5 else "#91E78B"
+        until = (start - now).total_seconds()
+        full = f"📅 {truncate(summary)} in {format_delta(until)}"
+        short = f"📅 {format_delta(until)}"
+        color = "#ffaa00" if until <= 300 else "#91E78B"
     else:
         full = "📅 No more meetings today"
         short = "📅"
