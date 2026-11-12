@@ -28,6 +28,7 @@ STATE_FILE = os.path.expanduser("~/.cache/i3xrocks-next-meeting-notified.json")
 DEFAULT_SETTINGS = {"lead_min": 5, "notify_start": True}
 LEAD_CHOICES = [0, 1, 2, 5, 10, 15]  # 0 = no "before" reminder
 MAX_TITLE_LEN = 30
+TITLE_WORDS = 2  # status line shows only the first N words of a title
 
 
 def load_ics_url():
@@ -67,8 +68,8 @@ def fetch_ics(url):
         return None
 
 
-def truncate(text, length=MAX_TITLE_LEN):
-    text = " ".join(text.split())
+def truncate(text, length=MAX_TITLE_LEN, words=None):
+    text = " ".join(text.split()[:words] if words else text.split())
     text = text if len(text) <= length else text[: length - 1] + "…"
     return html.escape(text)  # i3xrocks uses markup=pango; raw & or < hides the block
 
@@ -254,18 +255,33 @@ def main():
     current = next((ev for ev in events if ev[0] <= now < ev[1]), None)
     upcoming = next((ev for ev in events if ev[0] > now), None)
 
+    def until_color(secs):
+        return "#ffaa00" if secs <= 300 else "#91E78B"
+
+    def span(color, text):
+        return f'<span foreground="{color}">{text}</span>'
+
     if current:
         start, end, summary, _description = current
         remaining = (end - now).total_seconds()
-        full = f"🔴 {truncate(summary)} ({format_delta(remaining)} left)"
-        short = f"🔴 {format_delta(remaining)}"
         color = "#ff5555"
+        full = f"🔴 {truncate(summary, words=TITLE_WORDS)} ({format_delta(remaining)})"
+        short = f"🔴 {format_delta(remaining)}"
+        if upcoming:  # next meeting too, e.g. an overlapping one
+            n_start, _, n_summary, _ = upcoming
+            n_until = (n_start - now).total_seconds()
+            n_color = until_color(n_until)
+            full = span(color, full) + span(
+                n_color,
+                f" │ 📅 {truncate(n_summary, words=TITLE_WORDS)} {n_start.strftime('%H:%M')}",
+            )
+            short = span(color, short) + span(n_color, f" │ 📅 {format_delta(n_until)}")
     elif upcoming:
         start, end, summary, _description = upcoming
         until = (start - now).total_seconds()
-        full = f"📅 {truncate(summary)} in {format_delta(until)}"
+        full = f"📅 {truncate(summary, words=TITLE_WORDS)} {start.strftime('%H:%M')} ({format_delta(until)})"
         short = f"📅 {format_delta(until)}"
-        color = "#ffaa00" if until <= 300 else "#91E78B"
+        color = until_color(until)
     else:
         full = "📅 No more meetings today"
         short = "📅"
