@@ -31,3 +31,15 @@ alias lid-stay-awake="${HOME}/.dotfiles/scripts/lid-stay-awake.sh"
 
 # Resize image(s) to a size picked from an fzf menu
 alias resize-image="${HOME}/.dotfiles/scripts/resize-image.sh"
+
+# Claude: commit and push in the background with a cheap model (no UI).
+# Log: ~/.cache/claude-cp.log
+claude-cp() {
+  local log=~/.cache/claude-cp.log
+  mkdir -p ${log:h}
+  ( cd "$PWD" && claude -p --model claude-haiku-5-5 \
+      --allowedTools "Bash(git:*)" "Skill" \
+      "/commit $* — then git push." \
+      >>"$log" 2>&1 ) &!
+  echo "claude-cp running in background, log: $log"
+}
