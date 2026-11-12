@@ -1,0 +1,71 @@
+#!/usr/bin/env python3
+"""i3xrocks blocklet: Claude Code usage (5h session + 7d weekly, % used).
+Uses the OAuth token Claude Code keeps in ~/.claude/.credentials.json.
+Cached to avoid hammering the API. Click: notify-send with reset times.
+"""
+import json, os, subprocess, sys, time, urllib.request
+from datetime import datetime, timezone
+
+CREDS = os.path.expanduser("~/.claude/.credentials.json")
+CACHE = os.path.expanduser("~/.cache/i3xrocks-claude-usage.json")
+CACHE_MAX_AGE = 120
+URL = "https://api.anthropic.com/api/oauth/usage"
+
+
+def fetch():
+    token = json.load(open(CREDS))["claudeAiOauth"]["accessToken"]
+    req = urllib.request.Request(URL, headers={
+        "Authorization": f"Bearer {token}",
+        "anthropic-beta": "oauth-2025-04-20"})
+    return json.load(urllib.request.urlopen(req, timeout=8))
+
+
+def get():
+    try:
+        if time.time() - os.path.getmtime(CACHE) < CACHE_MAX_AGE:
+            return json.load(open(CACHE))
+    except (OSError, ValueError):
+        pass
+    try:
+        data = fetch()
+        os.makedirs(os.path.dirname(CACHE), exist_ok=True)
+        json.dump(data, open(CACHE, "w"))
+        return data
+    except Exception:
+        try:  # stale cache is better than nothing
+            return json.load(open(CACHE))
+        except (OSError, ValueError):
+            return None
+
+
+def color(p):
+    return "#F79494" if p >= 90 else "#F7D794" if p >= 70 else "#91E78B"
+
+
+def left(iso, compact=False):
+    s = int((datetime.fromisoformat(iso) - datetime.now(timezone.utc)).total_seconds())
+    if s <= 0:
+        return "now"
+    d, h, m = s // 86400, s % 86400 // 3600, s % 3600 // 60
+    if compact:
+        return f"{d}d{h}" if d else f"{h}{m:02d}" if h else f"{m}m"
+    return f"{d}d{h}h" if d else f"{h}h{m:02d}m" if h else f"{m}m"
+
+
+def main():
+    data = get()
+    if not data or not data.get("five_hour"):
+        print("<span>CC ?</span>")
+        return
+    f, w = data["five_hour"], data.get("seven_day") or {}
+    fp, wp = f["utilization"], w.get("utilization", 0)
+    if os.environ.get("BLOCK_BUTTON"):
+        subprocess.Popen(["notify-send", "Claude usage",
+            f"5h: {fp:.0f}% (resets in {left(f['resets_at'])})\n"
+            f"7d: {wp:.0f}% (resets in {left(w['resets_at'])})" if w else f"5h: {fp:.0f}%"])
+    print(f"<span color='{color(fp)}'>CC{fp:.0f}%({left(f['resets_at'], True)})</span>"
+          f"<span color='{color(wp)}'>·{wp:.0f}%w</span>")
+
+
+
+main()
