@@ -1,15 +1,5 @@
 return {
     {
-        "toppair/peek.nvim",
-        event = { "BufRead", "BufNewFile" },
-        build = "/home/yehonatan/.deno/bin/deno task --quiet build:fast",
-        config = function()
-            require("peek").setup()
-            vim.api.nvim_create_user_command("PeekOpen", require("peek").open, {})
-            vim.api.nvim_create_user_command("PeekClose", require("peek").close, {})
-        end,
-    },
-    {
         "iamcco/markdown-preview.nvim",
         cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
         ft = { "markdown" },
@@ -38,20 +28,6 @@ return {
             -- Optional: enable plugin debug log (set before opening a markdown buffer / running command)
             -- vim.env.NVIM_MKDP_LOG_FILE = vim.fn.expand("~") .. "/mkdp-log.log"
             -- vim.env.NVIM_MKDP_LOG_LEVEL = "debug"
-        end,
-    },
-    {
-        "davidgranstrom/nvim-markdown-preview",
-        ft = "markdown",
-        build = "cd app && npm install",
-    },
-    {
-        "barrett-ruth/live-server.nvim",
-        config = function()
-            vim.g.live_server = {
-                port = 9090,
-                browser = "firefox", -- or your preferred browser
-            }
         end,
     },
     {
