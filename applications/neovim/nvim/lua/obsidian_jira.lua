@@ -73,9 +73,10 @@ end
 -- Hide the "[" and "](url)" parts of Jira links so only the ID shows.
 -- The line under the cursor shows the raw link so you can still edit it.
 local function hide_links()
+    -- Set every time: the markdown FileType handler resets conceallevel to 0.
+    vim.opt_local.conceallevel = 2
     if vim.w.jira_links_hidden then return end
     vim.w.jira_links_hidden = true
-    vim.opt_local.conceallevel = 2
     local base = [[https://liveu\.atlassian\.net/browse/]]
     vim.fn.matchadd("Conceal", [[\[\ze[A-Z]\+-\d\+\](]] .. base, 20, -1, { conceal = "" })
     vim.fn.matchadd("Conceal", [[\](]] .. base .. [[[A-Z]\+-\d\+)]], 20, -1, { conceal = "" })
