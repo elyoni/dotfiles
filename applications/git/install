@@ -92,6 +92,58 @@ function install_glab()
     echo "======= End ======="
 }
 
+function update_glab()
+{
+    echo "======= Update GitLab CLI (glab) ======="
+    if ! command -v glab >/dev/null 2>&1; then
+        echo "glab is not installed, installing it"
+        install_glab
+        return
+    fi
+
+    local glab_path arch version url tmp
+    glab_path=$(readlink -f "$(command -v glab)")
+
+    case "$(uname -m)" in
+        x86_64) arch=amd64 ;;
+        aarch64|arm64) arch=arm64 ;;
+        *) echo "Unsupported architecture: $(uname -m)"; return 1 ;;
+    esac
+
+    version=$(curl -fsSL https://gitlab.com/api/v4/projects/gitlab-org%2Fcli/releases/permalink/latest \
+        | grep -o '"tag_name":"[^"]*"' | head -1 | cut -d'"' -f4)
+    version=${version#v}
+    if [ -z "$version" ]; then
+        echo "Could not find the latest glab version"
+        return 1
+    fi
+
+    if glab --version 2>/dev/null | grep -q "glab ${version}\b\|version ${version}\b"; then
+        echo "glab is already up to date (${version})"
+        echo "======= End ======="
+        return
+    fi
+
+    echo "Updating glab to ${version} at ${glab_path}"
+    url="https://gitlab.com/gitlab-org/cli/-/releases/v${version}/downloads/glab_${version}_linux_${arch}.tar.gz"
+    tmp=$(mktemp -d)
+    if curl -fsSL "$url" | tar -xz -C "$tmp" bin/glab; then
+        if [ -w "$glab_path" ] || [ -w "$(dirname "$glab_path")" ]; then
+            command install -m 755 "$tmp/bin/glab" "$glab_path"
+        else
+            sudo /usr/bin/install -m 755 "$tmp/bin/glab" "$glab_path"
+        fi
+    else
+        echo "Download failed: $url"
+        rm -rf "$tmp"
+        return 1
+    fi
+    rm -rf "$tmp"
+
+    glab --version | head -1
+    echo "======= End ======="
+}
+
 function setup_glab_completion()
 {
     echo ======= Setup glab completion =======
