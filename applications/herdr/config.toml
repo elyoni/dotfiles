@@ -30,7 +30,7 @@ next_workspace = "alt+shift+n"
 previous_workspace = "alt+shift+p"
 
 new_tab = "alt+t"
-close_tab = "alt+x"
+close_tab = "alt+shift+c"
 next_tab = "alt+l"
 previous_tab = "alt+h"
 rename_tab = "alt+shift+t"
@@ -63,3 +63,6 @@ show_agent_labels_on_pane_borders = true
 status_indicators = "symbols"
 # Leave outer terminal title alone so i3 scratchpad title-matching still works.
 window_title = ""
+
+[experimental]
+kitty_graphics = true
