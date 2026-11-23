@@ -100,7 +100,9 @@ function install_plugins
 {
     local nvim_path="${INSTALLION_DIR}/bin/nvim"
     if [[ -f "${nvim_path}" ]]; then
-        "${nvim_path}" +Lazy +qall
+        "${nvim_path}" --headless "+Lazy! sync" +qall
+        # Install mason tools (prettierd etc., requires npm/node in PATH)
+        "${nvim_path}" --headless +MasonToolsInstallSync +qall
     else
         echo "Warning: nvim not found at ${nvim_path}. Skipping plugin installation."
     fi

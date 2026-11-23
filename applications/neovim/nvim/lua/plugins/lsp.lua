@@ -6,6 +6,16 @@ return
         opts = {},
     },
 
+    -- Auto-install non-LSP tools (formatters etc.) through mason
+    {
+        'WhoIsSethDaniel/mason-tool-installer.nvim',
+        dependencies = { 'williamboman/mason.nvim' },
+        lazy = false,
+        opts = {
+            ensure_installed = { "prettierd" }, -- used by format-on-save for markdown
+        },
+    },
+
     -- Snippet engine
     {
         'L3MON4D3/LuaSnip',
