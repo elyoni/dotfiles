@@ -277,10 +277,12 @@
 [lfs]
 	locksverify = false
 [credential "https://github.com"]
-	helper = 
+	helper =
 	helper = !/usr/bin/gh auth git-credential
 [credential "https://gist.github.com"]
-	helper = 
+	helper =
 	helper = !/usr/bin/gh auth git-credential
 [core]
-	excludesFile = /home/yonie@liveu.tv/.config/git/ignore
+	excludesFile = ~/.config/git/ignore
+[url "git@gitlab-rnd-ci.liveu-rnd.com:"]
+	insteadOf = https://gitlab-rnd-ci.liveu-rnd.com/
