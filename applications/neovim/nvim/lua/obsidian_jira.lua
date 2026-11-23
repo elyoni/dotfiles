@@ -70,8 +70,20 @@ function M.convert_all()
     vim.notify("Jira autolink: converted " .. count .. " IDs", vim.log.levels.INFO)
 end
 
+-- Hide the "[" and "](url)" parts of Jira links so only the ID shows.
+-- The line under the cursor shows the raw link so you can still edit it.
+local function hide_links()
+    if vim.w.jira_links_hidden then return end
+    vim.w.jira_links_hidden = true
+    vim.opt_local.conceallevel = 2
+    local base = [[https://liveu\.atlassian\.net/browse/]]
+    vim.fn.matchadd("Conceal", [[\[\ze[A-Z]\+-\d\+\](]] .. base, 20, -1, { conceal = "" })
+    vim.fn.matchadd("Conceal", [[\](]] .. base .. [[[A-Z]\+-\d\+)]], 20, -1, { conceal = "" })
+end
+
 -- Call once per markdown buffer.
 function M.attach(bufnr)
+    hide_links()
     local group = vim.api.nvim_create_augroup("JiraAutolink" .. bufnr, { clear = true })
     vim.api.nvim_create_autocmd("TextChangedI", {
         group = group,
