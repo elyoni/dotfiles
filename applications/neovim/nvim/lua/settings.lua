@@ -222,6 +222,9 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile", "BufWritePost", "FileType
         -- Backspace to go back to the previous note (per-tab history)
         vim.keymap.set('n', '<BS>', obsidian_go_back, { buffer = bufnr, desc = "Obsidian: go back" })
 
+        -- Jira IDs (FP-66735) become links when you type a space after them
+        require('obsidian_jira').attach(bufnr)
+
         -- Set up visual highlighting for todos
         vim.schedule(function()
             vim.api.nvim_buf_set_var(bufnr, 'obsidian_todo_highlighted', true)
